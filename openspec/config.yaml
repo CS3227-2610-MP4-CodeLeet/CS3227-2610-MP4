@@ -1,0 +1,52 @@
+schema: spec-driven
+context: |
+  CS3227 MP4: fresh Coursemology-inspired programming assignment platform.
+  Roles: student and instructor, each with a distinct SoCLaaS AI feature.
+  Next.js App Router, React, TypeScript, Tailwind, shadcn/ui, Supabase/RLS,
+  Zod, Vitest, Playwright, pnpm, Vercel, GitHub Actions and GitHub Pages.
+  Python execution and Java source compilation/execution entirely in browser.
+  Runtime selection requires feasibility, isolation and licensing evidence.
+  No uploads, badges, server execution, arbitrary student dependencies or MP reuse.
+  Browser results and AI suggestions cannot publish grades or award XP.
+  Read workflow/ProjectBrief.md and workflow/AgentProcess.md for context.
+  Status: planning scaffold, with no implemented application features.
+rules:
+  design:
+    - Specify isolation, ownership, revisioning, quotas and failure behavior.
+    - Verify browser-only Java compilation before choosing runtime dependencies.
+  specs:
+    - Use SHALL requirements and WHEN/THEN scenarios including negative cases.
+  tasks:
+    - Keep work unchecked until implemented and validated with evidence.
+    - Include security tests, independent review, documentation and logs.
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

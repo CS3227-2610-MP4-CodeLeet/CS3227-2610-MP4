@@ -1,0 +1,29 @@
+name: Feature or implementation task
+description: Define a bounded task against the MP4 specification.
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Problem and intended outcome
+    validations:
+      required: true
+  - type: input
+    id: specification
+    attributes:
+      label: OpenSpec change and requirement
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance scenarios and validation plan
+    validations:
+      required: true
+  - type: textarea
+    id: ownership
+    attributes:
+      label: Owner, allowed files, dependencies, and resource budget
+  - type: textarea
+    id: risks
+    attributes:
+      label: Security, environment, and documentation impact
