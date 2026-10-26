@@ -1,8 +1,22 @@
 # User Guide
 
-Status: local application foundation only. There is no deployed application or usable student/instructor feature yet.
+Status: local foundation and an opt-in assignment preview using synthetic samples. There is no deployed application or authenticated student/instructor feature yet.
 
-Developers can run the local coming-soon home page using the README setup commands. The page provides no login, assignment browsing, code execution or submission flow. The guide sections below remain templates until actual feature verification.
+Developers can run the local coming-soon home page using the README setup commands. The home page provides no login, code execution or submission flow. The development-only preview below is available separately; other feature sections remain templates.
+
+## Local assignment preview
+
+1. Follow the README installation steps using Node 24.
+2. Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and restart the development server with `pnpm dev` (or `npx --yes pnpm@12.15.0 dev`).
+3. Open `/student/assignments` at the local address printed by Next.js.
+4. Select **View assignment** for **Find the largest number** (Python) or **Count the vowels** (Java).
+5. Read the instructions, then use **All assignments** to return.
+
+The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. No code can be entered, run or submitted in this preview. It is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
+
+For local UI checks, add `?preview=empty` to the assignment list for **No assignments yet**, `?preview=slow` for a brief loading state or `?preview=error` for the failure state. **Try again** reloads the normal list. These controls exist only in the development preview.
+
+Verified locally in Playwright Chromium at desktop and 375px viewport width. This does not establish browser-runtime compatibility or real student access-control correctness.
 
 ## Access
 

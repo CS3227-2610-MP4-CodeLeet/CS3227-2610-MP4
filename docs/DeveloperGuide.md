@@ -1,6 +1,6 @@
 # Developer Guide
 
-Status: Next.js app foundation initialized. The coming-soon page runs locally; feature services, authentication, database, AI, browser runtimes and deployment are not configured. The architecture below remains proposed beyond this foundation.
+Status: Next.js foundation and a development-only synthetic student assignment preview. Authentication, database, AI, browser runtimes and deployment are not configured. Production student services remain proposed.
 
 ## Technology and setup
 
@@ -17,11 +17,21 @@ Shared commands:
 | pnpm lint | ESLint for app, tests and configuration |
 | pnpm format:check / pnpm format | Check/write formatting for owned code/configuration |
 | pnpm typecheck | Generate route types and run strict TypeScript |
-| pnpm test:unit | Vitest configured for future unit tests; no tests yet, explicit passWithNoTests |
-| pnpm test:e2e | Chromium smoke test against a local production build on port 3100 |
+| pnpm test:unit | Public DTO projection, draft filtering and preview environment gate unit tests |
+| pnpm test:e2e | Production smoke/boundary checks on port 3100 and isolated dev-preview journeys on port 3101 |
 | pnpm check:scaffold / pnpm spec:validate | Artifact/Markdown links and strict OpenSpec checks |
 
-Build before running browser tests. Install Chromium once using `pnpm exec playwright install chromium` (CI uses --with-deps). The browser test checks the home response, document/heading, built styles, assets and browser errors; it does not prove student functionality. Application CI installs the frozen lockfile and runs formatting/lint/types/unit-runner/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
+Build before running browser tests. Install Chromium once using `pnpm exec playwright install chromium` (CI uses --with-deps). Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
+
+## Temporary student preview and handoff
+
+Set STUDENT_PREVIEW_ENABLED=true in ignored .env.local and restart the development server. Student pages under /student/assignments then render synthetic Python/Java assignments. Data lives in src/features/student-assignments/preview.server.ts with a server-only import marker. Layout and adapter guards both require NODE_ENV=development and the explicit flag; this is never a production fallback for missing credentials or auth.
+
+Public DTO selectors project known fields and filter publication status; components accept those DTOs and render plain text. No auth, migration, submission operation or fixture API is simulated. Replace the preview route wiring with verified shared session/data services after teammate handoff. Keep tasks 7.2/7.3 open until schema fixtures and authenticated integration actually pass.
+
+The local list accepts preview=empty/error/slow only after the development gate. The error recovery action deliberately performs a fresh document navigation to clear both the failed RSC response and synthetic scenario; router navigation plus reset retained the failed view during testing. The one scoped ESLint exception documents that reason.
+
+Playwright starts a separate development server with PLAYWRIGHT_PREVIEW=true, output in ignored .next-preview and tsconfig.preview.json so an existing developer server is not stopped. Production tests start normally from .next. Do not use the test-only output flag for hosting. Next manages next-env.d.ts during type/build/dev runs; do not treat generated import-path changes as feature logic.
 
 Prettier intentionally excludes existing planning/docs, generated skills, generated Next types and the lockfile; use scoped formatting for those documents when appropriate. Do not reformat generated OpenSpec skills or unrelated teammate files as part of a feature. No automated deployment is introduced by application CI.
 

@@ -2,7 +2,7 @@
 
 A Coursemology-inspired programming assignment platform for students and instructors.
 
-**Status: local Next.js foundation with a coming-soon page. Student/instructor features and deployment are not implemented yet.**
+**Status: local Next.js foundation and an opt-in student assignment preview with synthetic data. Authenticated student/instructor features and deployment are not implemented yet.**
 
 ## Planned product
 
@@ -53,4 +53,10 @@ pnpm dev
 
 Open http://localhost:3000. The coming-soon page needs no credentials or environment variables. You can also run the pinned package manager without a global install: `npx --yes pnpm@12.15.0 dev` (replace dev with the desired pnpm arguments).
 
-Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pnpm build`. For the browser smoke test, run `pnpm exec playwright install chromium`, build, then `pnpm test:e2e`. The unit runner currently permits no tests; it does not establish feature coverage. See [Developer Guide](docs/DeveloperGuide.md) for boundaries and shared-work handoff.
+Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pnpm build`. For browser checks, run `pnpm exec playwright install chromium`, build, then `pnpm test:e2e`. See [Developer Guide](docs/DeveloperGuide.md) for boundaries and shared-work handoff.
+
+## Student assignment preview
+
+Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and start/restart `pnpm dev`. Visit http://localhost:3000/student/assignments (use the port printed by Next.js). Browse the Python/Java sample assignments and open their instructions. Draft samples are hidden.
+
+This is development-only synthetic data, not a login or database-backed flow. Production ignores the flag and denies these preview pages. There is no code editor, execution or submission yet. Local state examples are `?preview=empty`, `?preview=slow` and `?preview=error`; error recovery returns to the normal list.
