@@ -1,6 +1,8 @@
 # User Guide
 
-Status: pre-implementation. There is no deployed application or usable feature yet.
+Status: local application foundation only. There is no deployed application or usable student/instructor feature yet.
+
+Developers can run the local coming-soon home page using the README setup commands. The page provides no login, assignment browsing, code execution or submission flow. The guide sections below remain templates until actual feature verification.
 
 ## Access
 

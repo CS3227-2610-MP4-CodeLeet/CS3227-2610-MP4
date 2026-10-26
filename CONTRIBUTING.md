@@ -15,4 +15,4 @@ node workflow/scripts/check-scaffold.mjs
 openspec validate --all --strict
 ```
 
-Application lint, types, build, database tests, browser tests, and deployment checks will be added with the application tooling. No application test suite exists yet.
+The application foundation uses Node.js 24 and pnpm 12.15.0. Run pnpm install --frozen-lockfile, pnpm format:check, pnpm lint, pnpm typecheck, pnpm test:unit and pnpm build. For the production-build browser smoke test, install Chromium with pnpm exec playwright install chromium, then run pnpm test:e2e. Vitest currently permits no tests; database/security/feature suites remain future work. Do not equate bootstrap smoke checks with feature acceptance.

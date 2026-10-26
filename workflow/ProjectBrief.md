@@ -1,6 +1,6 @@
 # Project brief
 
-Status: proposed product scope, agreed direction as of 20 October 2026.
+Status: product scope and student contracts planned; Next.js/shared-tooling foundation initialized on 26 October 2026. Student/instructor feature implementation has not started in this branch.
 
 ## Sources and precedence
 
@@ -10,7 +10,7 @@ Coursemology's public guide is a reference for user journeys, not a requirement 
 
 ## Roles and journeys
 
-Assume two team members and two roles: student and instructor. Confirm membership and allocate named owners before implementation.
+Two members cover student and instructor roles. The requester owns student features; their teammate owns shared authentication, database migrations, assignment creation, and the shared AI gateway. Personal names and remaining shared-task owners are not yet recorded.
 
 Student: register/sign in, edit text profile, browse assignments, enter a single Python or Java source file, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in discussions, and view XP/rank.
 
@@ -31,10 +31,24 @@ Use one shared course/assignment collection initially. Instructor access is limi
 
 | Owner | Primary vertical slice | Shared work |
 | --- | --- | --- |
-| Member A: TBD | Student journey, submission versions, student AI feedback and tests | Auth/RLS, execution feasibility, workflow evidence |
-| Member B: TBD | Instructor assignment/rubric/grading journey, instructor AI evaluation and tests | AI gateway, deployment, reviews and experiments |
+| Requester: student feature owner | Student browsing, submission integration/history, later student AI feature and tests | Initialize Next.js and shared tooling; coordinate shared contracts, student access tests, runtime evaluation and workflow evidence |
+| Teammate: shared service owner | Assignment creation; instructor grading/evaluation work to be confirmed | Shared authentication, all database migrations/RLS changes, shared AI gateway |
 
-Assign forum, XP/leaderboard, and documentation tasks explicitly after core contracts are agreed. Both members must own meaningful team work and their role's complete feature set.
+The requester confirmed ownership of Next.js/shared-tooling initialization on 26 October 2026. Instructor grading ownership, deployment, forum, XP/leaderboard and documentation tasks still need explicit allocation. Both members must own meaningful team work and their role's complete feature set. Do not edit teammate-owned shared code or migrations independently; agree an interface/change request first.
+
+## First student milestone: issue #5
+
+[Issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5) is developed on `feature/5-student-submissions` from `develop`. Deliver assignment list/detail, source entry/submission and the student's own immutable revision history. Consume the teammate's authentication and persistence contracts. Python/Java execution, student AI, grades, discussions and XP are later milestones; they remain in overall product scope.
+
+Agreed conceptual fields:
+
+- Assignment: ID, title, instructions, language, publication status.
+- Submission: assignment ID, student ID, source code, language, revision, timestamp.
+- Students access only their own submissions; private rubrics and unpublished grades stay hidden. The server/database determines identity, revision and timestamp.
+
+On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. The design below is the authoritative detail. These are requester-authorized planning decisions; teammate acknowledgment and implementation have not been recorded. Bootstrap is now implemented locally; shared auth/migrations remain undelivered dependencies in this branch.
+
+See the [issue #5 implementation plan](../openspec/changes/build-programming-platform/design.md#issue-5-student-implementation-plan) and [task group 7](../openspec/changes/build-programming-platform/tasks.md#7-issue-5-student-assignment-browsing-and-submissions) for the sequence and completion gate.
 
 ## References
 
