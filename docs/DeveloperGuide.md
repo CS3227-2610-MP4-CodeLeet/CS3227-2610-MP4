@@ -21,7 +21,9 @@ Shared commands:
 | pnpm test:e2e | Production smoke/boundary checks on port 3100 and isolated dev-preview journeys on port 3101 |
 | pnpm check:scaffold / pnpm spec:validate | Artifact/Markdown links and strict OpenSpec checks |
 
-Build before running browser tests. Install Chromium once using `pnpm exec playwright install chromium` (CI uses --with-deps). Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
+Build before running browser tests. Install Chromium locally once using `pnpm exec playwright install chromium`. CI uses the official Playwright v1.64.1-noble container with browsers/OS libraries already installed, avoiding apt mirror stalls. Keep that image version aligned with @playwright/test when updating dependencies. actions/setup-node still selects Node 24 from .node-version and CI verifies the major version explicitly. Browser checks have a five-minute step timeout and failed traces are retained for seven days. See the [official Playwright image documentation](https://playwright.dev/docs/docker).
+
+Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
 
 ## Temporary student preview and handoff
 
