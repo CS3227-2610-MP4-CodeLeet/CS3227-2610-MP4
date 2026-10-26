@@ -126,6 +126,14 @@ At the handoff, verify the teammate's actual schema/session helpers implement st
 
 **Completion gate:** the complete journey passes against shared auth/schema, including direct access-control tests. Fixture-only UI results do not close issue #5. Missing shared services may permit partial UI work but remain explicit integration blockers. No application implementation or specialist review has occurred in this planning update.
 
+#### Development-only assignment preview
+
+Continue UI work independently on feature/5-student-assignment-preview, branched from the bootstrap commit d8dd1c6 while PR #6 is reviewed. Compose reusable list/detail views from explicit public DTO projections and a separate server-only synthetic adapter. Do not implement replacement authentication, public fixture APIs or a production fixture fallback.
+
+The temporary student assignment pages require both NODE_ENV=development and STUDENT_PREVIEW_ENABLED=true; otherwise they call notFound before reading preview scenarios/data. Check this at the layout and data-adapter entry points. Production must deny the pages even with the flag set. Real authenticated reads will replace this temporary adapter only after the teammate handoff and access-control tests.
+
+Synthetic fixtures cover published Python/Java assignments and a draft. Display only explicit public fields; render instructions as plain text. Local list query scenarios preview=empty, preview=error and preview=slow exercise empty/error/loading views; these are preview controls, not production API query contracts. Navigation and unavailable states are tested in Chromium, including a narrow mobile viewport. This work does not close tasks 7.2/7.3, which still require shared-schema fixtures and authenticated integration.
+
 ### Browser runner feasibility first
 
 Evaluate runtimes with `workflow/templates/RuntimeEvaluation.md`. Pyodide is a Python candidate, not a selected dependency. Java candidates must compile source in-browser as well as run classes; remote compilation is prohibited. Record licenses and distribution size before adoption.

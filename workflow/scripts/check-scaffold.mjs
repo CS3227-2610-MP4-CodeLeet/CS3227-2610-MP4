@@ -22,7 +22,7 @@ for (const path of required) {
 async function walk(dir) {
   const files = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
-    if (['.git', '.agents', '.codex', 'node_modules', '.next'].includes(entry.name)) continue;
+    if (['.git', '.agents', '.codex', 'node_modules', '.next', '.next-preview'].includes(entry.name)) continue;
     const path = resolve(dir, entry.name);
     if (entry.isDirectory()) files.push(...await walk(path));
     else if (extname(path) === '.md') files.push(path);

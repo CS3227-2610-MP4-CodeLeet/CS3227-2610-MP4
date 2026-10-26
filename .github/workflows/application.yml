@@ -12,6 +12,11 @@ env:
 jobs:
   application:
     runs-on: ubuntu-latest
+    # Match @playwright/test in package.json. Browsers and OS libraries are
+    # preinstalled, avoiding apt mirror/network stalls during every CI run.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -20,12 +25,23 @@ jobs:
         with:
           node-version-file: .node-version
           cache: pnpm
+      - name: Verify Node.js 24
+        run: node --eval "if (process.versions.node.split('.')[0] !== '24') process.exit(1)"
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
-      - name: Unit runner (no domain tests exist at bootstrap)
+      - name: Unit tests
         run: pnpm test:unit
       - run: pnpm build
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
+      - name: Browser tests (preinstalled Chromium)
+        timeout-minutes: 5
+        run: pnpm test:e2e
+      - name: Upload failed browser traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7

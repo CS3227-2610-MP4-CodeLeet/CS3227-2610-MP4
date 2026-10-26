@@ -1,5 +1,16 @@
 ## ADDED Requirements
 
+### Requirement: Isolated development fixture preview
+Before shared-service integration, synthetic assignment list/detail previews SHALL be available only when NODE_ENV is development and the server-only STUDENT_PREVIEW_ENABLED flag is true. Fixture data SHALL NOT provide a production fallback or establish authenticated feature acceptance. Instructions SHALL render as plain text, and drafts SHALL be omitted from list and direct detail reads.
+
+#### Scenario: Preview flag enabled in production
+- **WHEN** production runs with STUDENT_PREVIEW_ENABLED set to true
+- **THEN** preview pages remain unavailable without disclosing synthetic assignments
+
+#### Scenario: Sample browsing and state recovery
+- **WHEN** an enabled local preview displays published samples or an empty/loading/error scenario
+- **THEN** students can read Python/Java sample instructions, observe the appropriate state and recover through assignment navigation without any submission or authentication being simulated
+
 ### Requirement: Owned assignments and private rubrics
 The system SHALL let instructors manage owned assignments/rubrics and expose only published student-visible fields to students.
 

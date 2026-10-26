@@ -57,3 +57,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [ ] 7.7 Test signed-out access, cross-student read/write and forged student/revision fields through actual local auth, routes and database policies; coordinate migration/policy fixes with teammate.
 - [ ] 7.8 Test python/java, exact UTF-8 byte boundaries and multibyte source, strict bodies/queries, Origin, language mismatch, assignment unpublication, hidden grading data, identical/different-payload retries and concurrent revision allocation.
 - [ ] 7.9 Run applicable checks and independent review, update only verified user-guide behavior, record session evidence/limitations and prepare a PR to develop referencing issue #5. Do not close the milestone on fixture-only results.
+- [x] 7.10 Deliver the separate development-only synthetic list/detail preview with state/navigation tests and production denial; this partial UI milestone does not complete shared-auth tasks 7.2/7.3.

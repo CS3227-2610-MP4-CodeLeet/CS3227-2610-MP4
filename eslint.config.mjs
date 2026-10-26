@@ -9,6 +9,7 @@ export default defineConfig([
   prettier,
   globalIgnores([
     '.next/**',
+    '.next-preview/**',
     'node_modules/**',
     'next-env.d.ts',
     'coverage/**',

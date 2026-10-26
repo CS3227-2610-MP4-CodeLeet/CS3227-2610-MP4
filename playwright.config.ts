@@ -4,14 +4,39 @@ export default defineConfig({
   testDir: './tests/e2e',
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
+  workers: 1,
+  timeout: 60_000,
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'retain-on-failure' },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: {
-    command:
-      'node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3100',
-    url: 'http://127.0.0.1:3100',
-    reuseExistingServer: false,
-    timeout: 60_000,
-  },
+  projects: [
+    {
+      name: 'chromium',
+      testIgnore: '**/assignment-preview.spec.ts',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'student-preview',
+      testMatch: '**/assignment-preview.spec.ts',
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:3101' },
+    },
+  ],
+  webServer: [
+    {
+      command:
+        'node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3100',
+      url: 'http://127.0.0.1:3100',
+      reuseExistingServer: false,
+      timeout: 60_000,
+      // Even accidentally setting this flag must not enable fixtures in production.
+      env: { STUDENT_PREVIEW_ENABLED: 'true' },
+    },
+    {
+      command:
+        'node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3101',
+      url: 'http://127.0.0.1:3101',
+      reuseExistingServer: false,
+      timeout: 60_000,
+      env: { STUDENT_PREVIEW_ENABLED: 'true', PLAYWRIGHT_PREVIEW: 'true' },
+    },
+  ],
 });
