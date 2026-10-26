@@ -9,7 +9,8 @@ context: |
   No uploads, badges, server execution, arbitrary student dependencies or MP reuse.
   Browser results and AI suggestions cannot publish grades or award XP.
   Read workflow/ProjectBrief.md and workflow/AgentProcess.md for context.
-  Status: planning scaffold, with no implemented application features.
+  Status: Next.js/shared-tooling foundation initialized; student/instructor
+  features, shared auth/database, AI, browser runners and hosting remain pending.
 rules:
   design:
     - Specify isolation, ownership, revisioning, quotas and failure behavior.

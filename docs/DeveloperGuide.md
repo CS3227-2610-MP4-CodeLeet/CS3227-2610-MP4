@@ -1,10 +1,29 @@
 # Developer Guide
 
-Status: scaffold only. The architecture below is proposed; application dependencies, infrastructure, and deployment are not configured.
+Status: Next.js app foundation initialized. The coming-soon page runs locally; feature services, authentication, database, AI, browser runtimes and deployment are not configured. The architecture below remains proposed beyond this foundation.
 
 ## Technology and setup
 
-Use Node.js 24 and pnpm for the planned Next.js/TypeScript application. Select and lock supported package versions during bootstrap. No `package.json`, app start command, or runtime adapter exists yet.
+Use Node.js 24 and pnpm 12.15.0, pinned in package.json. Install pnpm with `npm install --global pnpm@12.15.0`, or prefix commands with `npx --yes pnpm@12.15.0`. Run `pnpm install --frozen-lockfile`, then `pnpm dev` and open http://localhost:3000. The home page uses local system fonts and needs no Supabase/SoCLaaS keys.
+
+Application source is in src/app; shared utilities in src/lib; future shadcn components in src/components/ui. The @/* import alias points to src/*. components.json and CSS tokens configure shadcn; add reviewed components as needed with `pnpm exec shadcn add <component>`. Nothing was copied from MP3. Dependencies are exact-pinned and the pnpm lockfile is committed as a reproducibility artifact when this work is committed. The workspace permits native build scripts only for Tailwind oxide, esbuild and sharp; review any additional build-script request before expanding that list.
+
+Shared commands:
+
+| Command | Current purpose |
+| --- | --- |
+| pnpm dev | Next.js local development server |
+| pnpm build / pnpm start | Production build / local production server |
+| pnpm lint | ESLint for app, tests and configuration |
+| pnpm format:check / pnpm format | Check/write formatting for owned code/configuration |
+| pnpm typecheck | Generate route types and run strict TypeScript |
+| pnpm test:unit | Vitest configured for future unit tests; no tests yet, explicit passWithNoTests |
+| pnpm test:e2e | Chromium smoke test against a local production build on port 3100 |
+| pnpm check:scaffold / pnpm spec:validate | Artifact/Markdown links and strict OpenSpec checks |
+
+Build before running browser tests. Install Chromium once using `pnpm exec playwright install chromium` (CI uses --with-deps). The browser test checks the home response, document/heading, built styles, assets and browser errors; it does not prove student functionality. Application CI installs the frozen lockfile and runs formatting/lint/types/unit-runner/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
+
+Prettier intentionally excludes existing planning/docs, generated skills, generated Next types and the lockfile; use scoped formatting for those documents when appropriate. Do not reformat generated OpenSpec skills or unrelated teammate files as part of a feature. No automated deployment is introduced by application CI.
 
 OpenSpec was initialized using CLI 1.8.0 with Codex core integration. Current checks:
 
@@ -13,7 +32,7 @@ node workflow/scripts/check-scaffold.mjs
 openspec validate --all --strict
 ```
 
-Copy `.env.example` to ignored `.env.local` when application configuration is implemented. Fill values from the appropriate development environment; leave AI disabled until provider limits and security checks are verified.
+Copy `.env.example` to ignored `.env.local` when integrating shared services. Fill values from the appropriate development environment; leave AI disabled until provider limits and security checks are verified. No app code reads these credentials yet.
 
 ## Proposed design
 
@@ -63,5 +82,6 @@ Plan separate development and production Supabase projects/credentials, correspo
 - The team's [MP3 repository](https://github.com/CS3227-2610-MP3-ConnectTalent/CS3227-2610-MP3) informed technology selection only. MP4 implementation and configuration are written fresh.
 - The user-provided `Brainstorm AI App Ideas.pdf` informed two role-specific AI features and security/resource experiment ideas. Its no-execution recommendation was superseded by the user's browser-runner requirement.
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec), CLI 1.8.0, generated the `.agents/skills/` integrations. Preserve generated attribution/license references.
+- The fresh bootstrap follows official [Next.js installation](https://nextjs.org/docs/app/getting-started/installation), [Tailwind PostCSS integration](https://tailwindcss.com/docs/installation/framework-guides/nextjs), and [shadcn manual setup](https://ui.shadcn.com/docs/installation/manual) conventions. No previous MP configuration was copied.
 - Codex assisted with source review, scope synthesis, and generation of this scaffold. Team members must review these files and update this declaration with actual later use before submission.
 - Runtime/library acknowledgements and licenses: pending selection. Record them before distributing any runtime assets.
