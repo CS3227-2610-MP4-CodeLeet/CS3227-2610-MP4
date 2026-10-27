@@ -11,6 +11,11 @@ The system SHALL execute Python and compile/execute Java source entirely in the 
 - **WHEN** a student runs supported source with a public Main entry class
 - **THEN** compilation and execution occur locally and compile errors or output are displayed
 
+#### Scenario: Java buffered input
+- **WHEN** supported Java source reads buffered UTF-8 stdin through System.in, BufferedReader or the documented basic Scanner API
+- **THEN** browser compilation/execution delivers the input and EOF without modifying student source or using a remote execution service
+- **AND** unsupported Scanner APIs produce a compiler diagnostic rather than simulated successful execution
+
 ### Requirement: Isolated and cancellable runner
 The runner SHALL isolate untrusted code from app credentials/private data/arbitrary network, validate bridge messages, bound input/output, and implement a tested deadline/stop mechanism. Browser and memory limitations SHALL be documented from evidence.
 
@@ -25,3 +30,18 @@ The runner SHALL isolate untrusted code from app credentials/private data/arbitr
 #### Scenario: Initialization failure
 - **WHEN** runtime loading fails or browser capabilities are missing
 - **THEN** the UI explains recovery without falling back to server execution
+
+### Requirement: Published practice test comparison
+Students SHALL be able to run up to five public stdin/expected-stdout cases sequentially in fresh browser sandboxes. Output comparison SHALL normalize line endings and ignore at most one final newline while preserving other whitespace and case. Only successful execution with matching stdout SHALL pass. Results SHALL be practice feedback, never authoritative grades/XP. Teacher authoring/persistence remains a shared-service contract; a local fixture preview SHALL be labeled and denied in production.
+
+#### Scenario: Matching and mismatching output
+- **WHEN** a published case runs successfully
+- **THEN** the UI shows Passed or Wrong output alongside input, expected stdout and actual stdout as safe text
+
+#### Scenario: Failed or cancelled test run
+- **WHEN** compilation/execution fails, exceeds a limit or the student stops the suite
+- **THEN** the UI distinguishes the outcome and leaves remaining cases unrun without marking them passed
+
+#### Scenario: Separate execution budget
+- **WHEN** Python begins executing or compiled Java begins its main method
+- **THEN** its five-second per-case execution deadline starts separately from runtime loading/compilation, and displayed timing is approximate local wall time

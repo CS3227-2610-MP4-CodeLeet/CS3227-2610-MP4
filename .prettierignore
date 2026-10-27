@@ -1,6 +1,7 @@
 node_modules/
 .next/
 .next-preview/
+.runtime-cache/
 next-env.d.ts
 pnpm-lock.yaml
 coverage/

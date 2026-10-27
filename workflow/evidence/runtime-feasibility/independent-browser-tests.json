@@ -1,0 +1,266 @@
+{
+  "task": "/root/browser_boundary_tester",
+  "started": "2026-10-27T04:41:21.410Z",
+  "finished": "2026-10-27T04:41:47.841Z",
+  "node": "v24.14.0",
+  "browser": "156.0.8078.4",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "platform": "Win32"
+  },
+  "os": {
+    "type": "Windows_NT",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "sourceHashes": {
+    "lab.mjs": "8a411f01c51ac19e0ffc12993b71b79e45932a228096831fd29c980e174e8b24",
+    "supervisor.mjs": "38e9be1003c44c0ca2df89d24791b73fad1020ba91d3dd51cd17994fe75d405f",
+    "worker.mjs": "b99750475a393482ff36e0f60bd6b5d2117de59c95680ccbd6b4a4ad182b94e1"
+  },
+  "assetManifestSha256": "88ef517e0b847105d708ba0f2938ab5c9bf82348304e0a323f5dfca1f59ba218",
+  "command": "node workflow/scripts/verify-runtime-boundary.mjs",
+  "finalPolicy": "opaque sandbox allow-scripts; connect-src none; script-src nonce + blob + unsafe-eval; worker-src blob",
+  "cases": [
+    {
+      "name": "concurrent-run-denied-during-preparation-and-stop",
+      "passed": true,
+      "elapsedMs": 2403,
+      "first": {
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "totalMs": 1.5
+      },
+      "secondError": "Only one lab run at a time"
+    },
+    {
+      "name": "python-stdin-positive-control",
+      "passed": true,
+      "elapsedMs": 2385,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "hello browser\n",
+        "stderr": "",
+        "language": "python",
+        "totalMs": 2380.7999999970198,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207,
+        "executionMs": 11.900000005960464
+      }
+    },
+    {
+      "name": "failed-java-asset-load-allows-retry",
+      "passed": true,
+      "elapsedMs": 20,
+      "error": "Missing asset: compiler.wasm",
+      "retryCheck": "Immediately following real-source Java positive control uses the same page/cache."
+    },
+    {
+      "name": "java-real-source-positive-control",
+      "passed": true,
+      "elapsedMs": 1477,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "independent Java\n",
+        "stderr": "",
+        "language": "java",
+        "totalMs": 1277.2000000029802,
+        "preparationMs": 195.70000000298023,
+        "warmAssets": false,
+        "assetBytes": 6715239,
+        "executionMs": 1010.5
+      }
+    },
+    {
+      "name": "opaque-worker-parent-credentials-and-dom",
+      "passed": true,
+      "elapsedMs": 2855,
+      "canaryPresent": true,
+      "details": {
+        "window": "undefined",
+        "document": "undefined",
+        "parent": "undefined",
+        "top": "undefined",
+        "opener": "undefined",
+        "localStorage": "undefined",
+        "sessionStorage": "undefined",
+        "Worker": "undefined",
+        "SharedWorker": "undefined",
+        "cookieError": "ReferenceError",
+        "indexedDBError": "SecurityError",
+        "origin": "null"
+      },
+      "limitation": "Worker constructor shadowing is functional hardening; DOM absence and opaque-origin storage denial are browser restrictions."
+    },
+    {
+      "name": "csp-native-network-denial-server-counter",
+      "passed": true,
+      "elapsedMs": 2439,
+      "baseline": 5,
+      "after": 5,
+      "details": {
+        "nativeFetchFound": true,
+        "fetchGET": "TypeError",
+        "fetchPOST": "TypeError",
+        "xhrGET": "NetworkError",
+        "xhrPOST": "NetworkError",
+        "websocket": "blocked",
+        "importScripts": "NetworkError",
+        "moduleImport": "TypeError",
+        "nestedWorker": "TypeError",
+        "shimFetch": "Network denied: only preloaded runtime bytes are available"
+      }
+    },
+    {
+      "name": "forged-ready-terminates-protocol",
+      "passed": true,
+      "elapsedMs": 2327,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "language": "python",
+        "totalMs": 2323.2000000029802,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207,
+        "executionMs": 11.200000002980232
+      }
+    },
+    {
+      "name": "empty-stdout-message-flood-terminates",
+      "passed": true,
+      "elapsedMs": 2167,
+      "result": {
+        "type": "result",
+        "status": "message-limit",
+        "stdout": "",
+        "stderr": "",
+        "language": "python",
+        "totalMs": 2164.300000011921,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207,
+        "executionMs": 44.70000000298023
+      }
+    },
+    {
+      "name": "output-flood-retained-byte-limit",
+      "passed": true,
+      "elapsedMs": 2129,
+      "status": "output-limit",
+      "retainedBytes": 8192,
+      "totalMs": 2123.6000000089407
+    },
+    {
+      "name": "infinite-python-trusted-timeout",
+      "passed": true,
+      "elapsedMs": 2771,
+      "result": {
+        "type": "result",
+        "status": "timeout",
+        "stdout": "",
+        "stderr": "",
+        "language": "python",
+        "totalMs": 2766.5,
+        "preparationMs": 0.10000000894069672,
+        "warmAssets": true,
+        "assetBytes": 13531207,
+        "executionMs": 303.40000000596046
+      }
+    },
+    {
+      "name": "stop-running-python-and-fresh-rerun",
+      "passed": true,
+      "elapsedMs": 4239,
+      "result": {
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "language": "python",
+        "totalMs": 2111.5999999940395,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207,
+        "executionMs": 12.700000002980232
+      },
+      "stopRecoveryMs": 3,
+      "fresh": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "fresh browser run\n",
+        "stderr": "",
+        "language": "python",
+        "totalMs": 2119.5999999940395,
+        "preparationMs": 0.10000000894069672,
+        "warmAssets": true,
+        "assetBytes": 13531207,
+        "executionMs": 12.099999994039536
+      }
+    }
+  ],
+  "priorFailures": [
+    {
+      "measuredAt": "2026-10-27T04:38:05.566Z",
+      "name": "output-flood-retained-byte-limit",
+      "passed": false,
+      "elapsedMs": 1928,
+      "error": "AssertionError [ERR_ASSERTION]: {\"status\":\"error\",\"stdoutBytes\":8192,\"stderr\":\"\"}\n+ actual - expected\n\n+ 'error'\n- 'output-limit'\n"
+    }
+  ],
+  "probeEvents": [
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-recorder-positive-control"
+    },
+    {
+      "event": "request-failed",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-worker-xhr-GET"
+    },
+    {
+      "event": "request-failed",
+      "error": "csp"
+    },
+    {
+      "event": "request-attempt",
+      "method": "POST",
+      "url": "http://127.0.0.1:3130/probe-worker-xhr-POST"
+    },
+    {
+      "event": "request-failed",
+      "error": "csp"
+    },
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-worker-module-import"
+    },
+    {
+      "event": "request-failed",
+      "error": "csp"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Error thrown in write:",
+    "Error: LAB_OUTPUT_LIMIT\n    at emit (blob:null/884b6b16-95db-4c1e-884b-069d32dd3b5a:19:11)\n    at Object.write (blob:null/884b6b16-95db-4c1e-884b-069d32dd3b5a:117:13)\n    at blob:null/eb23926b-9507-4ebb-8b31-8cda8d05102b:1:660703\n    at handleEAGAIN (blob:null/eb23926b-9507-4ebb-8b31-8cda8d05102b:1:659585)\n    at readWriteHelper (blob:null/eb23926b-9507-4ebb-8b31-8cda8d05102b:1:659701)\n    at Object.write (blob:null/eb23926b-9507-4ebb-8b31-8cda8d05102b:1:660685)\n    at Object.write (blob:null/eb23926b-9507-4ebb-8b31-8cda8d05102b:1:84421)\n    at doWritev (blob:null/eb23926b-9507-4ebb-8b31-8cda8"
+  ],
+  "limitations": [
+    "Chromium only; no Firefox/WebKit claim.",
+    "No browser-process memory quota claim; bounded samples only.",
+    "Blocked request events can record attempts; server counter measures requests actually received.",
+    "No application integration, real credentials, or deployment tested."
+  ]
+}

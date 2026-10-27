@@ -1,6 +1,6 @@
 # Developer Guide
 
-Status: Next.js foundation and a development-only synthetic student assignment preview. Authentication, database, AI, browser runtimes and deployment are not configured. Production student services remain proposed.
+Status: Next.js foundation and a development-only synthetic student assignment/code preview, with an additional opt-in local browser runtime and published-test runner. Authentication, database, AI and production runtime hosting/deployment are not configured. Production student services remain proposed.
 
 ## Technology and setup
 
@@ -59,6 +59,16 @@ The browser runner accepts source and stdin through a minimal validated bridge. 
 The server stores submissions independently of practice-run results. Grade publication authorizes XP updates atomically; reruns, AI requests, and repeated publication must not create extra awards.
 
 The AI gateway queries authorized fields, constructs role-specific bounded context, checks a scoped response cache, reserves quotas atomically, invokes SoCLaaS, validates structured output, and records sanitized usage metadata. Instructor-only rubric/grade data lives in protected tables, rather than columns exposed by student-readable queries. AI has no database tools or publication authority.
+
+## Browser runtime feasibility lab
+
+The [runtime experiment](../workflow/evidence/runtime-feasibility/README.md) contains actual coordinated researcher/reviewer/tester evidence, asset hashes, local measurements and reproduction commands. All source execution/Java compilation occurs in Chromium; src/runtime-lab/server.mjs only serves static local files. Downloaded distributions live in ignored .runtime-cache and are not installed as app dependencies or shipped in Git. The additional local editor integration is gated by both development preview flags; see the [User Guide commands](UserGuide.md#browser-runs-and-published-practice-tests-additional-local-opt-in).
+
+Pyodide 314.0.7 is a conditional Python candidate. The TeaVM-javac snapshot plus [first-party input compatibility classes](../workflow/evidence/runtime-feasibility/java-input-resolution.md) now passes 31 Java checks, including System.in, UTF-8 BufferedReader, basic Scanner, EOF and Stop/rerun. It is not a full JDK library: supported APIs and limits are documented in that report. Replay results from the existing 11-case boundary harness were produced by the coordinator, not a new independent reviewer. Runtime distribution/provenance and production-origin/CSP integration still need review. Task 1.2 records evaluation, while 1.3/3.2 remain incomplete.
+
+The [published practice contract](../workflow/PublishedPracticeTests.md) specifies ownership, future API/schema constraints, comparison, quotas and the local-only bridge. The student browser client checks origin, source window, nonce, request ID and bounded results. The bridge uses a fixed separate loopback origin and retains the inner opaque worker boundary. Different ports do not isolate cookies; use this synthetic preview only, and select a genuinely credential-free deployment origin before release. New bridge/lifecycle changes have coordinator testing but no new independent security review.
+
+Domain comparator/suite tests run in the normal unit suite. Full real-runtime website tests are opt-in because binaries are not distributed in Git: fetch assets, build, then set `$env:RUN_BROWSER_RUNTIME_TESTS="1"` and run `corepack pnpm test:e2e`. Default CI runs existing website tests and skips the four opt-in cases. For sandboxed Windows environments where Playwright's process-tree shutdown stalls, manually launch production port 3100, isolated preview port 3101 (PLAYWRIGHT_PREVIEW=true and both preview flags true), and static runner port 3130; set PLAYWRIGHT_MANUAL_SERVERS=1 for the test command and stop only those owned terminal sessions afterward. The manual mode is ignored in CI. Standalone probes remain under workflow/scripts; their executionMs now measures execution only, separately from compilation/setup. A 20-second preparation watchdog bounds runs that never reach execution; repeated executing messages are rejected.
 
 ## Data and API contracts
 

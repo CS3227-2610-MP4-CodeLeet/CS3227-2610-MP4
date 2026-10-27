@@ -10,6 +10,7 @@ export default defineConfig([
   globalIgnores([
     '.next/**',
     '.next-preview/**',
+    '.runtime-cache/**',
     'node_modules/**',
     'next-env.d.ts',
     'coverage/**',

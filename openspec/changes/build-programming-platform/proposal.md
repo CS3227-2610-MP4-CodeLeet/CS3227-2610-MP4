@@ -6,7 +6,7 @@ Students need simple programming practice and submission workflows; instructors 
 
 - Add student/instructor authentication, trusted instructor provisioning, and text profiles.
 - Add instructor-owned assignments, private rubrics, immutable code revisions, and explicit grade publication.
-- Add single-file Python execution and Java source compilation/execution entirely in the browser, with stdin, diagnostics, cancellation and verified isolation. Select packages only after feasibility experiments.
+- Add single-file Python execution and Java source compilation/execution entirely in the browser, with stdin, diagnostics, cancellation and verified isolation. Support public teacher-published stdin/expected-stdout practice cases with bounded execution and deterministic comparison; student results never establish official grades/XP. Select packages only after feasibility experiments.
 - Add distinct SoCLaaS student hints and instructor grading suggestions with authorization, validated output, quotas, scoped caching and usage metadata.
 - Add discussion threads/replies, server-controlled XP awards and a seeded leaderboard.
 - Establish specialist coordination evidence, security/resource experiments, guides and separate deployment environments.

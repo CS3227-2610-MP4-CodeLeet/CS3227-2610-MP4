@@ -33,14 +33,14 @@ test('shows published samples and navigates to Java and Python instructions', as
     .click();
   await expect(page).toHaveURL(`/student/assignments/${pythonId}`);
   await expect(
-    page.getByText('Write a Python function', { exact: false }),
+    page.getByText('Write a Python program', { exact: false }),
   ).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Submit code', exact: true }),
   ).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'Run code', exact: true }),
-  ).toHaveCount(0);
+  ).toHaveCount(process.env.RUN_BROWSER_RUNTIME_TESTS === '1' ? 1 : 0);
 });
 
 test('empty list communicates availability without fake assignments', async ({

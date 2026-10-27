@@ -1,0 +1,488 @@
+{
+  "measuredAt": "2026-10-27T05:28:22.924Z",
+  "operator": "/root implementation and testing; no new independent review",
+  "node": "v24.14.0",
+  "browser": "156.0.8078.4",
+  "sourceHashes": {
+    "lab.mjs": "7b8897a63f653631689da73a9c1f6aafead4887b303590b12dfb7eb881e0f7a5",
+    "supervisor.mjs": "89578fa3171e134b7484b93b31739297e2ef79e099da0691a5c1af2ba3338172",
+    "worker.mjs": "c4d5f11fb19bc8c1a1937e7261f3f7ad4ac3076296a335b811881fdabfa1b596",
+    "java-support.mjs": "0ffc25c293d0753f71b4dd7693491f884b311191ec3078c27be242efe0d4be9d"
+  },
+  "cases": [
+    {
+      "name": "direct-byte-and-eof",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "106\n-1\n",
+        "stderr": "",
+        "executionMs": 0.5999999940395355,
+        "language": "java",
+        "totalMs": 1084,
+        "preparationMs": 196.69999998807907,
+        "warmAssets": false,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "empty-byte-input",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "-1\n",
+        "stderr": "",
+        "executionMs": 0.699999988079071,
+        "language": "java",
+        "totalMs": 1061.5,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "utf8-unsigned-bytes",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "195 169 ",
+        "stderr": "",
+        "executionMs": 0.5,
+        "language": "java",
+        "totalMs": 1060.2000000029802,
+        "preparationMs": 0.09999999403953552,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "bulk-byte-read",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "3:97:98:99:100\n",
+        "stderr": "",
+        "executionMs": 0.5999999940395355,
+        "language": "java",
+        "totalMs": 1078.5,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-import-and-line",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "java input\n",
+        "stderr": "",
+        "executionMs": 0.7000000029802322,
+        "language": "java",
+        "totalMs": 1112.2000000029802,
+        "preparationMs": 0.09999999403953552,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-unicode-supplementary",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "你好 café 🐍\n",
+        "stderr": "",
+        "executionMs": 0.5999999940395355,
+        "language": "java",
+        "totalMs": 1079,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-crlf-blank-final-line",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "[one]\n[]\n[last]\n",
+        "stderr": "",
+        "executionMs": 0.8999999910593033,
+        "language": "java",
+        "totalMs": 1071.2000000029802,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-token-and-line-cursor",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "42\n[ rest]\nword\n9223372036854775807\nfalse\n",
+        "stderr": "",
+        "executionMs": 2.2999999970197678,
+        "language": "java",
+        "totalMs": 1276.7999999970198,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-integer-boundaries",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "-2147483648\n2147483647\n",
+        "stderr": "",
+        "executionMs": 1.3999999910593033,
+        "language": "java",
+        "totalMs": 1231.2000000029802,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-double",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "3.75\n",
+        "stderr": "",
+        "executionMs": 2.8999999910593033,
+        "language": "java",
+        "totalMs": 1416.9000000059605,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-mismatch-does-not-consume",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "oops\n8\n",
+        "stderr": "",
+        "executionMs": 1.800000011920929,
+        "language": "java",
+        "totalMs": 1259.5,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-overflow",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "false\n2147483648\n",
+        "stderr": "",
+        "executionMs": 1.5999999940395355,
+        "language": "java",
+        "totalMs": 1216.2000000029802,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-empty-and-exhaustion",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "false\nfalse\nEOF\n",
+        "stderr": "",
+        "executionMs": 1.199999988079071,
+        "language": "java",
+        "totalMs": 1202,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "scanner-closed",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "closed\n",
+        "stderr": "",
+        "executionMs": 1.3999999910593033,
+        "language": "java",
+        "totalMs": 1205.7000000029802,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "buffered-reader-utf8",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "café 🐍\nlast\n",
+        "stderr": "",
+        "executionMs": 0.7000000029802322,
+        "language": "java",
+        "totalMs": 1092.1000000089407,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "reader-explicit-utf8-and-char-buffer",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "a🐍é",
+        "stderr": "",
+        "executionMs": 0.4000000059604645,
+        "language": "java",
+        "totalMs": 1206.4000000059605,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "reader-charset-constructor",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "é\n",
+        "stderr": "",
+        "executionMs": 0.6000000089406967,
+        "language": "java",
+        "totalMs": 1205.0999999940395,
+        "preparationMs": 0.10000000894069672,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "reader-unsupported-encoding",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "unsupported\n",
+        "stderr": "",
+        "executionMs": 0.7000000029802322,
+        "language": "java",
+        "totalMs": 1170.4000000059605,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "stdin-is-data",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "\"}); throw new Error(\"bad\"); //\n",
+        "stderr": "",
+        "executionMs": 0.7000000029802322,
+        "language": "java",
+        "totalMs": 1113.5999999940395,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "maximum-stdin-bytes",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "4096\n",
+        "stderr": "",
+        "executionMs": 0.8999999910593033,
+        "language": "java",
+        "totalMs": 1354.8999999910593,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "fresh-run-does-not-reuse-input",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "fresh input\n",
+        "stderr": "",
+        "executionMs": 0.5999999940395355,
+        "language": "java",
+        "totalMs": 1088.7999999970198,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "stdout-stderr-no-newline",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "🐍",
+        "stderr": "é",
+        "executionMs": 0.7000000029802322,
+        "language": "java",
+        "totalMs": 1044.7999999970198,
+        "preparationMs": 0.09999999403953552,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "compiler-errors-still-reported",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "compile-error",
+        "stdout": "",
+        "stderr": "javac: ';' expected\n",
+        "executionMs": null,
+        "language": "java",
+        "totalMs": 381.20000000298023,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "runtime-errors-still-reported",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "error",
+        "stdout": "",
+        "stderr": "Error: (could not fetch message)",
+        "executionMs": 0.6000000089406967,
+        "language": "java",
+        "totalMs": 1052.300000011921,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "unsupported-scanner-method-is-diagnostic",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "compile-error",
+        "stdout": "",
+        "stderr": "javac: cannot find symbol\n  symbol:   method useDelimiter(java.lang.String)\n  location: variable s of type java.util.Scanner\n",
+        "executionMs": null,
+        "language": "java",
+        "totalMs": 385.5,
+        "preparationMs": 0.09999999403953552,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "java-output-bound",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "output-limit",
+        "stderr": "",
+        "executionMs": 1.5,
+        "language": "java",
+        "totalMs": 1048.8999999910593,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239,
+        "stdoutBytes": 8190
+      }
+    },
+    {
+      "name": "java-loop-deadline",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "timeout",
+        "stdout": "started\n",
+        "stderr": "",
+        "executionMs": 3002.8999999910593,
+        "language": "java",
+        "totalMs": 4023.2000000029802,
+        "preparationMs": 0.09999999403953552,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "java-stop-executing-loop",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "stopped",
+        "stdout": "started\n",
+        "stderr": "",
+        "executionMs": 2260.7000000029802,
+        "language": "java",
+        "totalMs": 3002.7999999970198,
+        "preparationMs": 0.10000000894069672,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "java-rerun-after-termination",
+      "passed": true,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "9\n",
+        "stderr": "",
+        "executionMs": 1.7000000029802322,
+        "language": "java",
+        "totalMs": 937.8000000119209,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "stdin-over-limit-rejected",
+      "passed": true,
+      "error": "Invalid or oversized lab input"
+    },
+    {
+      "name": "no-source-posts-or-external-requests",
+      "passed": true,
+      "requestCount": 97
+    }
+  ]
+}

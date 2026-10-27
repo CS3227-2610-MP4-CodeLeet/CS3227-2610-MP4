@@ -1,0 +1,13 @@
+# Browser practice publication
+
+Date: 27 October 2026, Asia/Singapore.
+
+The requester explicitly authorized committing, pushing and creating a PR after the browser runtime/input/test-case work and manual-testing instructions. This records publication preparation; Git history and the resulting PR provide the publication outcome. No merge, deployment or production runtime approval is authorized by this step.
+
+Reviewed tracked/untracked scope, current OpenSpec tasks and repository workflow. Read the repository template and earlier PR structure; retain the established Issues and evidence, Summary and scope, Tasks/agents/checks, Review/security, Specs/docs/rollback and Reviewer checklist sections. Reference issue #5 without closing its unfinished real submission/auth milestone. Target develop from feature/5-browser-runtime-feasibility.
+
+Fetched origin; feature HEAD and origin/develop were identical before the new commit (0 ahead, 0 behind). The commit includes the previously uncommitted runtime feasibility work, browser-only Java input compatibility, local student Run/published-test preview, specs/guides, synthetic tests and evidence. .env.local and downloaded Python/Java distributions remain ignored. A targeted private-key/token-pattern scan found no matches in the new implementation/evidence/session files; this is a limited check, not a guarantee of exhaustive secret detection. No private environment-file contents were read.
+
+Relevant prior implementation checks: 16 website tests passed with exit 0 against manually owned local servers; 31 unit tests passed; 31 Java compatibility cases, 11 cross-language probes and 13 extended boundary assertions passed. Build/type checking, lint, formatting, scaffold links, strict OpenSpec and whitespace checks passed. Windows automated web-server teardown stalled earlier and was interrupted; the manual-server workaround and exact checks/limitations are documented in the implementation log. Final lightweight checks are repeated before staging. Runtime reports fingerprint their tested source; older independent reports retain their historical scope.
+
+No new subagents or independent reviews were run for publication. Earlier specialist evidence is genuine but applies to the earlier standalone snapshot; subsequent Java-input/bridge/timing changes have coordinator tests and still need independent review. Teacher publishing/storage, production origin/cookie isolation, browser matrix and runtime distribution/provenance remain open. Browser results are practice-only and cannot determine grades/XP. Human verification of generated logs/reflections and hosted CI review remain pending.

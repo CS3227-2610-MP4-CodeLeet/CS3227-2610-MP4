@@ -1,7 +1,7 @@
 ## 1. Contracts and feasibility
 
 - [ ] 1.1 Finish personal names, remaining shared-task ownership and coordination budget; retain requester-owned bootstrap/student work and teammate-owned auth/migrations/assignment creation/AI gateway.
-- [ ] 1.2 Evaluate browser Python/Java candidates including Java source compilation, licensing and cold/warm behavior.
+- [x] 1.2 Evaluate browser Python/Java candidates including Java source compilation, licensing and cold/warm behavior. See runtime-feasibility evidence: Python candidate retained; Java buffered input resolved in the local lab with first-party compatibility classes; provenance/distribution and production integration remain open, so no production Java runtime selected.
 - [ ] 1.3 Prove credential/network isolation, cancellation, output limits and supported browsers before package selection.
 - [ ] 1.4 Obtain teammate acknowledgment and map student contract v1 to actual schema/auth interfaces and atomic persistence; requester-authorized API types/limits/errors/retry decisions are in the design. XP/deadline decisions remain separate product work.
 
@@ -59,3 +59,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [ ] 7.9 Run applicable checks and independent review, update only verified user-guide behavior, record session evidence/limitations and prepare a PR to develop referencing issue #5. Do not close the milestone on fixture-only results.
 - [x] 7.10 Deliver the separate development-only synthetic list/detail preview with state/navigation tests and production denial; this partial UI milestone does not complete shared-auth tasks 7.2/7.3.
 - [x] 7.11 Deliver development-only source entry with fixed language, byte counter, input-preserving local validation and disabled/unconnected submission; verify unit/browser boundaries without claiming real task 7.4/7.5 completion.
+- [x] 7.12 Deliver an additional opt-in local browser Run/published-tests preview with synthetic cases, deterministic output matching, separate execution/compile deadlines, stop/rerun, real Python/Java browser checks, production denial and teammate publication contract. This does not complete production task 3.2 or teacher persistence.
