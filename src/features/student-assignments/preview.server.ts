@@ -15,7 +15,7 @@ const fixtures: readonly AssignmentRecord[] = [
     language: 'python',
     publication_status: 'published',
     instructions:
-      'Write a Python function find_max(numbers) that returns the largest integer in a non-empty list.\n\nRequirements\n• Handle negative numbers and repeated values.\n• Do not modify the input list.\n• Do not use the built-in max function.\n\nExample\nInput: [-7, -2, -9]\nExpected return value: -2',
+      'Write a Python program that reads a non-empty line of space-separated integers and prints the largest integer.\n\nRequirements\n• Handle negative numbers and repeated values.\n• Do not use the built-in max function.\n• Print only the answer.\n\nExample\nInput: -7 -2 -9\nExpected output: -2',
   },
   {
     id: '10000000-0000-4000-8000-000000000002',
@@ -54,4 +54,51 @@ export function listPreviewAssignments() {
 export function getPreviewAssignment(id: string) {
   requireAssignmentPreview();
   return publishedDetail(fixtures, id);
+}
+
+export function getPreviewPracticeCases(id: string) {
+  requireAssignmentPreview();
+  if (process.env.STUDENT_RUNNER_PREVIEW_ENABLED !== 'true') return undefined;
+  if (!publishedDetail(fixtures, id)) return undefined;
+  return id === fixtures[0].id
+    ? [
+        {
+          id: 'negative',
+          name: 'Negative numbers',
+          stdin: '-7 -2 -9\n',
+          expected_stdout: '-2\n',
+        },
+        {
+          id: 'repeated',
+          name: 'Repeated largest value',
+          stdin: '4 9 9 1\n',
+          expected_stdout: '9\n',
+        },
+        {
+          id: 'single',
+          name: 'Single number',
+          stdin: '0\n',
+          expected_stdout: '0\n',
+        },
+      ]
+    : [
+        {
+          id: 'mixed',
+          name: 'Mixed text',
+          stdin: 'Hello World\n',
+          expected_stdout: '3\n',
+        },
+        {
+          id: 'uppercase',
+          name: 'Uppercase vowels',
+          stdin: 'AEIOU\n',
+          expected_stdout: '5\n',
+        },
+        {
+          id: 'empty',
+          name: 'Empty line',
+          stdin: '\n',
+          expected_stdout: '0\n',
+        },
+      ];
 }

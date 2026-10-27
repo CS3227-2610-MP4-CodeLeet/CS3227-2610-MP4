@@ -1,0 +1,86 @@
+{
+  "fetched_at": "2026-10-27T08:54:27.436Z",
+  "assets": [
+    {
+      "language": "python",
+      "name": "pyodide.mjs",
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.mjs",
+      "bytes": 17931,
+      "sha256": "6f1d60f7bf529beb300f0f47983c921d3982363640ba20af0e38efdddbc66109",
+      "license": "MPL-2.0; bundled CPython/stdlib notices require retention before distribution",
+      "source": "https://github.com/pyodide/pyodide"
+    },
+    {
+      "language": "python",
+      "name": "pyodide.asm.mjs",
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.asm.mjs",
+      "bytes": 1250344,
+      "sha256": "f7cdc8ece80678ceb712f8e65ebe6d3a83203a180c399865f49612a051693635",
+      "license": "MPL-2.0; bundled CPython/stdlib notices require retention before distribution",
+      "source": "https://github.com/pyodide/pyodide"
+    },
+    {
+      "language": "python",
+      "name": "pyodide.asm.wasm",
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.asm.wasm",
+      "bytes": 9598218,
+      "sha256": "cc36e3cab04fdfc9a63ff13eb52eae2b911bf46c025cc7b281f394bd3de1d5e6",
+      "license": "MPL-2.0; bundled CPython/stdlib notices require retention before distribution",
+      "source": "https://github.com/pyodide/pyodide"
+    },
+    {
+      "language": "python",
+      "name": "python_stdlib.zip",
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/python_stdlib.zip",
+      "bytes": 2545637,
+      "sha256": "fa1957e5777068fc4f7437f96d860ae2fbe9c19732ba06c84e004ec16dd7dd7a",
+      "license": "MPL-2.0; bundled CPython/stdlib notices require retention before distribution",
+      "source": "https://github.com/pyodide/pyodide"
+    },
+    {
+      "language": "python",
+      "name": "pyodide-lock.json",
+      "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide-lock.json",
+      "bytes": 119077,
+      "sha256": "5dc2fc119108bc148c7457dc86e7675b5c87e1cafd420b9c34c1eaef7b36c010",
+      "license": "MPL-2.0; bundled CPython/stdlib notices require retention before distribution",
+      "source": "https://github.com/pyodide/pyodide"
+    },
+    {
+      "language": "java",
+      "name": "compiler.wasm",
+      "url": "https://www.teavm.org/playground/compiler.wasm",
+      "bytes": 4126432,
+      "sha256": "a79245353ac623df4fde5740bb2bedacedc9c98544253f01aa4b63268f9cb8ba",
+      "license": "TeaVM-javac Apache-2.0 and OpenJDK GPLv2 with Classpath exception; distribution review pending",
+      "source": "https://github.com/konsoletyper/teavm-javac"
+    },
+    {
+      "language": "java",
+      "name": "compiler.wasm-runtime.js",
+      "url": "https://www.teavm.org/playground/compiler.wasm-runtime.js",
+      "bytes": 11642,
+      "sha256": "75b2b94394f162c384d42d540836375cdbb0207e6e5605b92a18ce56eb158741",
+      "license": "TeaVM-javac Apache-2.0 and OpenJDK GPLv2 with Classpath exception; distribution review pending",
+      "source": "https://github.com/konsoletyper/teavm-javac"
+    },
+    {
+      "language": "java",
+      "name": "compile-classlib-teavm.bin",
+      "url": "https://www.teavm.org/playground/compile-classlib-teavm.bin",
+      "bytes": 199668,
+      "sha256": "4ed72de9e6ea1b58adfaa1b75c30379d7bccde71c529f795df383d62045367d9",
+      "license": "TeaVM-javac Apache-2.0 and OpenJDK GPLv2 with Classpath exception; distribution review pending",
+      "source": "https://github.com/konsoletyper/teavm-javac"
+    },
+    {
+      "language": "java",
+      "name": "runtime-classlib-teavm.bin",
+      "url": "https://www.teavm.org/playground/runtime-classlib-teavm.bin",
+      "bytes": 2377497,
+      "sha256": "e62ab99ce291a3379abc0756a1e80f4796f00c60fee655e488b82e37b469d5b7",
+      "license": "TeaVM-javac Apache-2.0 and OpenJDK GPLv2 with Classpath exception; distribution review pending",
+      "source": "https://github.com/konsoletyper/teavm-javac"
+    }
+  ]
+}

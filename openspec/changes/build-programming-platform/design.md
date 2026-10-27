@@ -144,6 +144,10 @@ This preview intentionally has no native form submission, network call, request 
 
 ### Browser runner feasibility first
 
+The 27 October coordinated local experiment is recorded in [runtime feasibility evidence](../../../workflow/evidence/runtime-feasibility/README.md). Pyodide 314.0.7 passed Python stdin/output/error and independent Chromium boundary tests. The initial hash-pinned TeaVM-javac snapshot lacked Scanner and usable System.in. The [follow-up input adapter](../../../workflow/evidence/runtime-feasibility/java-input-resolution.md) resolves those failures using first-party input/UTF-8 reader/basic Scanner classes compiled inside the browser, with 31 Java checks and 11 coordinator-replayed boundary checks passing. Only helper class names are relocated into SDK/runtime namespaces; student source and bytecode are untouched. This is a documented library subset, not full JDK compatibility. Runtime exception detail, independent review of new code, distribution provenance and actual app/deployment integration remain gaps.
+
+The prototype preloads verified asset bytes into a trusted parent and uses an opaque iframe supervisor with a dedicated classic blob worker/dynamic ES imports, connect-src none and bounded messages/output/deadlines. Module-worker initialization failed under the tested opaque context; isolated unsafe-eval was required by the runtime loaders. These changes apply only to the separate local static lab, never to app CSP. Independent testing passed 11 assertions on final-source hashes, including recovered native network APIs and Stop/rerun. No hard browser memory quota or production/cross-browser guarantee is claimed. Keep actual app integration and task 1.3 pending.
+
 Evaluate runtimes with `workflow/templates/RuntimeEvaluation.md`. Pyodide is a Python candidate, not a selected dependency. Java candidates must compile source in-browser as well as run classes; remote compilation is prohibited. Record licenses and distribution size before adoption.
 
 Design a credential-free execution origin separated from the authenticated app origin, restrictive frame/worker boundaries, CSP/network policy and a minimal validated message bridge. Verify message source/origin and per-run identity. An opaque frame may require wildcard delivery; if used, verify the source window and per-run channel token and document the design. Workers help responsiveness but do not themselves isolate network, storage or credentials. Never provide application tokens, private data or arbitrary RPC access to the runner.
@@ -151,6 +155,16 @@ Design a credential-free execution origin separated from the authenticated app o
 Support buffered stdin, stdout/stderr, compile/runtime errors, stop, bounded output and execution deadlines. Use one source file and Java public Main entry class, without dependencies. Measure browser support, startup cost, cancellation and rerun behavior. Browser memory/process enforcement differs from OS sandboxes: document actual guarantees and reject unsuitable candidates. Allow controlled runtime asset loading without granting student programs arbitrary network access. Do not claim offline operation before testing it.
 
 Browser results are practice feedback; the server does not use client-reported success to determine grades or XP.
+
+### Published practice tests (requester decision, 27 October)
+
+Use stdin/stdout tests for both languages: at most 5 published cases, each with id, name, stdin and expected_stdout. Normalize CRLF/lone CR to LF and ignore at most one final LF on each output; preserve all other spaces, case and blank lines. A passing case requires successful completion plus matching stdout. Stderr is displayed separately and never treated as expected output. Outcomes distinguish mismatch, compile/runtime error, timeout, output overflow, cancellation and infrastructure failure.
+
+Execution budget: 5 seconds per case after the interpreter/program starts, separate from a 20-second Java compile/helper preparation deadline, runtime loading deadlines and a 90-second suite deadline. Each case uses a fresh sandbox/program state; source is snapshotted for the suite and execution is sequential, cancellable, practice-only. Input/output bounds remain 4 KiB/8 KiB. Timings are approximate local wall time, never official grades or performance rankings. Recompilation per Java case is acceptable initially; measure before optimizing.
+
+Deliver an additional opt-in local preview with STUDENT_RUNNER_PREVIEW_ENABLED=true, only inside the existing development-only fixture preview, using the reviewed local static runner at fixed http://127.0.0.1:3130. Validate bridge origin, source window, nonce, request ID, result shape/size and lifetime. The outer bridge runs on the separate loopback origin; all student source stays in its inner opaque worker. This is synthetic-data development testing only, not an approved credential-free production deployment (cookies are not isolated by port). Production pages remain denied. Runtime binaries stay ignored/local pending distribution and provenance review.
+
+Teammate owns test-case authoring, publishing, schema/migrations/RLS. Requester owns student display/checker/browser execution. Do not implement competing teacher persistence. Agree GET /api/student/assignments/[assignmentId]/test-cases returning only public cases for published assignments, with assignment/test-set revision; drafts/private rubrics/hidden tests excluded. The current slice uses explicit synthetic cases, never a production fallback. Hidden browser tests and client results cannot establish trusted grades/XP.
 
 ### Access and revision contracts
 
@@ -196,6 +210,7 @@ No existing application data. Bootstrap tooling, prove runtimes, implement revie
 
 - Personal names and remaining shared/instructor task allocation; confirmed requester-owned bootstrap and student/shared-service division are recorded above.
 - Runtime versions/licenses, supported browsers, isolation headers and tested limits.
+- Resolve runtime source-provenance/distribution and production-origin/browser-matrix gates before selecting a production Java runtime. Buffered input is demonstrated for the documented compatibility subset; app integration remains pending. Do not substitute a remote compiler.
 - SoCLaaS endpoint/model/key limits.
 - XP formula, grade correction, deadlines and resubmission rules.
 - Product name and deployment URLs.

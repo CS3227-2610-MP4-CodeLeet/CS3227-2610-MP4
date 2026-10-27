@@ -12,7 +12,7 @@ Before shared-service integration, synthetic assignment list/detail previews SHA
 - **THEN** students can read Python/Java sample instructions, observe the appropriate state and recover through assignment navigation without any submission or authentication being simulated
 
 ### Requirement: Local source entry preview
-The opted-in development preview SHALL provide a labeled code-entry textarea with the assignment's fixed Python/Java language, UTF-8 byte counter and local input validation. It SHALL retain source on validation errors, reject blank, invalid Unicode, NUL and source above 32,768 UTF-8 bytes without truncation, and render source as plain text. The preview SHALL NOT execute, transmit, persist or claim submission of entered code. Submit code SHALL remain disabled until authenticated integration exists.
+The opted-in development preview SHALL provide a labeled code-entry textarea with the assignment's fixed Python/Java language, UTF-8 byte counter and local input validation. It SHALL retain source on validation errors, reject blank, invalid Unicode, NUL and source above 32,768 UTF-8 bytes without truncation, and render source as plain text. Check code SHALL NOT execute or transmit source. An additional opt-in local runner preview MAY pass source through a validated browser message bridge for local execution/published practice tests; source SHALL NOT be sent to a server or persisted. Submit code SHALL remain disabled until authenticated integration exists.
 
 #### Scenario: Local validation failure
 - **WHEN** a tester checks blank or oversized source in the enabled preview

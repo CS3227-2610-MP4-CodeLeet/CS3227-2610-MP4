@@ -96,7 +96,8 @@ export function AssignmentInstructions({
         </div>
       </section>
       <p className="text-sm text-muted-foreground">
-        Running code and submitting work are not available in this preview.
+        Submission is not connected in this preview. Browser practice is
+        available when the local runner preview is enabled.
       </p>
     </article>
   );

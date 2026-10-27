@@ -4,8 +4,16 @@ import { useRef, useState } from 'react';
 import type { AssignmentLanguage } from '@/features/student-assignments/types';
 import { languageLabels } from '@/features/student-assignments/types';
 import { MAX_SOURCE_BYTES, validateSource } from './source-validation';
+import { PracticeRunner } from './practice-runner';
+import type { PracticeCase } from './practice-tests';
 
-export function CodeEntry({ language }: { language: AssignmentLanguage }) {
+export function CodeEntry({
+  language,
+  practiceCases,
+}: {
+  language: AssignmentLanguage;
+  practiceCases?: readonly PracticeCase[];
+}) {
   const [source, setSource] = useState('');
   const [checked, setChecked] = useState(false);
   const editor = useRef<HTMLTextAreaElement>(null);
@@ -31,8 +39,11 @@ export function CodeEntry({ language }: { language: AssignmentLanguage }) {
         id="submission-preview-note"
         className="text-sm leading-relaxed text-muted-foreground"
       >
-        Submission is not connected yet. Code stays on this page and is not
-        saved or run. Leaving or refreshing the page clears it.
+        Submission is not connected yet. Code is not saved.{' '}
+        {practiceCases
+          ? 'Run code or published tests for browser-only practice.'
+          : 'Execution is not enabled.'}{' '}
+        Leaving or refreshing the page clears it.
       </p>
       <div className="space-y-2">
         <label htmlFor="source-code" className="block text-sm font-medium">
@@ -71,11 +82,18 @@ export function CodeEntry({ language }: { language: AssignmentLanguage }) {
         )}
         {checked && !validation.error && (
           <p role="status" className="text-sm text-muted-foreground">
-            Code meets the local input rules. Nothing has been submitted, saved
-            or run.
+            Code meets the local input rules. This check does not execute or
+            submit code.
           </p>
         )}
       </div>
+      {practiceCases && (
+        <PracticeRunner
+          language={language}
+          source={source}
+          cases={practiceCases}
+        />
+      )}
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
