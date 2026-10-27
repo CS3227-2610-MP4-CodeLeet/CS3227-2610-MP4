@@ -61,3 +61,34 @@
     @apply bg-background font-sans text-foreground antialiased;
   }
 }
+
+.student-workspace {
+  color-scheme: light;
+  --primary: #087f8c;
+  --primary-foreground: #ffffff;
+  --ring: #0891a2;
+  --border: #e2e8f0;
+  --background: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #ecfeff;
+  --accent-foreground: #155e75;
+}
+
+.student-workspace[data-theme='dark'] {
+  color-scheme: dark;
+  background: #0b1220;
+  color: #e2e8f0;
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --card: #0f172a;
+  --card-foreground: #e2e8f0;
+  --border: #334155;
+  --input: #334155;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #164e63;
+  --accent-foreground: #cffafe;
+  --ring: #22d3ee;
+  --destructive: #fca5a5;
+}

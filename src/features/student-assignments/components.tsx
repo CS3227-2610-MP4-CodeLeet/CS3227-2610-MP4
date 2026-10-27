@@ -12,19 +12,19 @@ export function AssignmentList({
   assignments: readonly AssignmentSummary[];
 }) {
   return (
-    <section aria-labelledby="assignments-heading" className="space-y-8">
-      <header className="space-y-3">
-        <p className="text-sm font-medium text-muted-foreground">
-          Student workspace
+    <section aria-labelledby="assignments-heading" className="space-y-6">
+      <header className="space-y-2">
+        <p className="text-xs font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
+          Practice library
         </p>
         <h1
           id="assignments-heading"
-          className="text-3xl font-semibold tracking-tight sm:text-4xl"
+          className="text-2xl font-semibold tracking-tight sm:text-3xl"
         >
           Your assignments
         </h1>
-        <p className="max-w-2xl leading-relaxed text-muted-foreground">
-          Choose an assignment to read its instructions and requirements.
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Choose a problem, read the instructions, then work on your solution.
         </p>
       </header>
       {assignments.length === 0 ? (
@@ -39,28 +39,91 @@ export function AssignmentList({
           </p>
         </div>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {assignments.map((assignment) => (
-            <li
-              key={assignment.id}
-              className="flex flex-col rounded-xl border bg-card p-6 shadow-sm"
-            >
-              <div className="mb-5 flex items-center gap-2 text-sm text-muted-foreground">
-                <Code2 aria-hidden="true" className="size-4" />
-                <span>{languageLabels[assignment.language]}</span>
-              </div>
-              <h2 className="mb-6 text-xl font-semibold">{assignment.title}</h2>
-              <Link
-                href={`/student/assignments/${assignment.id}`}
-                className={`${linkStyle} mt-auto self-start`}
-                aria-label={`View assignment: ${assignment.title}`}
-              >
-                View assignment{' '}
-                <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm shadow-slate-200/30 dark:shadow-none">
+          <div className="flex items-center justify-between border-b px-4 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold">Published assignments</h2>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              {assignments.length} available
+            </span>
+          </div>
+          <table className="w-full table-fixed text-left text-sm">
+            <caption className="sr-only">
+              Published programming assignments
+            </caption>
+            <thead className="border-b bg-slate-50 dark:bg-slate-950/60 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <tr>
+                <th
+                  scope="col"
+                  className="w-auto px-4 py-3 font-medium sm:px-6"
+                >
+                  Problem
+                </th>
+                <th scope="col" className="w-20 px-2 py-3 font-medium sm:w-28">
+                  Language
+                </th>
+                <th
+                  scope="col"
+                  className="hidden w-28 px-2 py-3 font-medium md:table-cell"
+                >
+                  Visibility
+                </th>
+                <th
+                  scope="col"
+                  className="w-20 px-3 py-3 text-right font-medium sm:w-28 sm:px-6"
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {assignments.map((assignment, index) => (
+                <tr
+                  key={assignment.id}
+                  className="group hover:bg-cyan-50/40 dark:hover:bg-cyan-950/40"
+                >
+                  <td className="px-4 py-5 sm:px-6">
+                    <div className="flex items-start gap-3">
+                      <span className="hidden pt-0.5 font-mono text-xs text-slate-400 dark:text-slate-400 sm:block">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <Link
+                        href={`/student/assignments/${assignment.id}`}
+                        className="break-words font-medium leading-6 text-cyan-800 dark:text-cyan-300 hover:underline"
+                      >
+                        {assignment.title}
+                      </Link>
+                    </div>
+                  </td>
+                  <td className="px-2 py-5 text-xs text-slate-600 dark:text-slate-300">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Code2
+                        aria-hidden="true"
+                        className="hidden size-3.5 sm:block"
+                      />
+                      {languageLabels[assignment.language]}
+                    </span>
+                  </td>
+                  <td className="hidden px-2 py-5 text-xs text-slate-500 dark:text-slate-400 md:table-cell">
+                    Published
+                  </td>
+                  <td className="px-3 py-5 text-right sm:px-6">
+                    <Link
+                      href={`/student/assignments/${assignment.id}`}
+                      aria-label={`View assignment: ${assignment.title}`}
+                      className="inline-flex items-center gap-1 rounded-md border border-cyan-200 dark:border-cyan-800 px-2.5 py-1.5 text-xs font-medium text-cyan-800 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      View
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="hidden size-3.5 sm:block"
+                      />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );
@@ -72,33 +135,42 @@ export function AssignmentInstructions({
   assignment: AssignmentDetail;
 }) {
   return (
-    <article className="space-y-8">
-      <Link href="/student/assignments" className={linkStyle}>
+    <article className="space-y-5">
+      <Link
+        href="/student/assignments"
+        className={`${linkStyle} text-slate-500 dark:text-slate-400`}
+      >
         <ArrowLeft aria-hidden="true" className="size-4" /> All assignments
       </Link>
-      <header className="space-y-3">
-        <p className="text-sm font-medium text-muted-foreground">
-          {languageLabels[assignment.language]} assignment
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          {assignment.title}
-        </h1>
-      </header>
       <section
         aria-labelledby="instructions-heading"
-        className="rounded-xl border bg-card p-6 sm:p-8"
+        className="overflow-hidden rounded-lg border bg-white dark:bg-slate-900 shadow-sm shadow-slate-200/30 dark:shadow-none"
       >
-        <h2 id="instructions-heading" className="mb-5 text-xl font-semibold">
-          Instructions
-        </h2>
-        <div className="whitespace-pre-wrap break-words leading-8">
-          {assignment.instructions}
+        <header className="space-y-2 border-b px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs font-semibold tracking-wide text-cyan-800 dark:text-cyan-300">
+              {languageLabels[assignment.language]} assignment
+            </p>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Published problem
+            </span>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
+            {assignment.title}
+          </h1>
+        </header>
+        <div className="px-5 py-4 sm:px-6">
+          <h2
+            id="instructions-heading"
+            className="mb-4 text-xs font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase"
+          >
+            Instructions
+          </h2>
+          <div className="max-w-4xl whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 dark:text-slate-200">
+            {assignment.instructions}
+          </div>
         </div>
       </section>
-      <p className="text-sm text-muted-foreground">
-        Submission is not connected in this preview. Browser practice is
-        available when the local runner preview is enabled.
-      </p>
     </article>
   );
 }

@@ -36,6 +36,18 @@ test('Python published tests pass, mismatches show actual output, edits invalida
   await expect(page.getByTestId('practice-case-repeated')).toContainText(
     'Passed',
   );
+  await expect(
+    page.getByText('3 of 3 passed · 3 run', { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByTestId('practice-case-negative')
+    .getByText('Negative numbers', { exact: true })
+    .click();
+  await expect(
+    page
+      .getByTestId('practice-case-negative')
+      .getByText('Actual output', { exact: true }),
+  ).toBeVisible();
   await page.getByLabel('Python source code', { exact: true }).fill('print(0)');
   await expect(
     page.getByText('Code changed. Run again to update the results.'),
@@ -60,9 +72,29 @@ test('Java uses real source and Scanner for custom input and all published tests
   page,
 }) => {
   await page.goto(`/student/assignments/${javaId}`);
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page
+    .getByRole('button', { name: 'Switch to dark mode', exact: true })
+    .click();
+  await expect(page.locator('.student-workspace')).toHaveAttribute(
+    'data-theme',
+    'dark',
+  );
   await page.getByLabel('Java source code', { exact: true }).fill(java);
   await page.getByLabel('Standard input', { exact: true }).fill('Audio');
   await page.getByRole('button', { name: 'Run code', exact: true }).click();
+  await expect(
+    page.getByRole('button', { name: 'Run code', exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole('button', { name: 'Stop', exact: true }),
+  ).toHaveCount(0);
+  await page
+    .getByRole('button', { name: 'Switch to light mode', exact: true })
+    .click();
+  await expect(
+    page.getByLabel('Java source code', { exact: true }),
+  ).toHaveValue(java);
   await expect(page.getByTestId('custom-run-result')).toContainText(
     'Completed',
     { timeout: 30000 },
@@ -70,6 +102,9 @@ test('Java uses real source and Scanner for custom input and all published tests
   await expect(
     page.getByTestId('custom-run-result').locator('pre').first(),
   ).toHaveText('4\n');
+  await page
+    .getByRole('button', { name: 'Switch to dark mode', exact: true })
+    .click();
   await page
     .getByRole('button', { name: 'Run published tests', exact: true })
     .click();
@@ -83,7 +118,7 @@ test('Java uses real source and Scanner for custom input and all published tests
   await expect(page.getByTestId('practice-case-mixed')).toContainText('Passed');
 });
 
-test('compiler/runtime errors, timeout, Stop and fresh rerun remain usable', async ({
+test('compiler/runtime errors, timeout, navigation cancellation and fresh rerun remain usable', async ({
   page,
 }) => {
   await page.goto(`/student/assignments/${javaId}`);
@@ -117,10 +152,18 @@ test('compiler/runtime errors, timeout, Stop and fresh rerun remain usable', asy
   await page
     .getByRole('button', { name: 'Run published tests', exact: true })
     .click();
-  await page.getByRole('button', { name: 'Stop', exact: true }).click();
+  await page
+    .getByRole('link', { name: 'All assignments', exact: true })
+    .click();
   await expect(
-    page.getByRole('status').filter({ hasText: 'Stopped.' }),
+    page.getByRole('heading', { name: 'Your assignments' }),
   ).toBeVisible();
+  await expect(
+    page.locator('iframe[title="Local browser code runner"]'),
+  ).toHaveCount(0);
+  await page
+    .getByRole('link', { name: 'View assignment: Find the largest number' })
+    .click();
   await expect(page.getByTestId('practice-case-single')).toContainText(
     'Not run',
   );

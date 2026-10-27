@@ -1,0 +1,15 @@
+# Workspace simplification and header controls
+
+Date: 27 October 2026, Asia/Singapore. User said the UI remained messy, requested removing Stop and placing light/dark at the rightmost corner beside Menu. Continued the authorized local UI work on feature/5-student-workspace-ui; no commits, push, branch reconciliation or PR publication requested/performed.
+
+Read required project/process and relevant OpenSpec/Next.js CSS/client guidance, and extended task/scenario/design before editing. Coordinator-only UI work; no new delegation or independent review. Existing user changes, including the asset-manifest timestamp from their runtime fetch, were preserved.
+
+Simplified repeated sidebar/preview text, made the top bar sticky, and grouped an always-visible Menu with the theme icon immediately after it at the far right. Removed the center caption and text theme label while preserving its tooltip/accessibility name. Reduced problem/editor spacing and empty editor height. Moved both run actions into one toolbar above shorter input/output surfaces; removed nested output containers and moved comparison/limit explanations into Run details. The visible Stop action was removed; internal runtime/client stop, automatic deadlines and effect cleanup are untouched. Runtime source, comparator and browser-client files were not changed.
+
+Updated website tests: assert desktop/mobile Menu/theme adjacency/right-edge placement and no Stop button, keep theme changes during an active Java run using the disabled Run button as its pending indicator, and verify leaving a running suite removes its iframe before a usable fresh run. No broad process changes or private environment-file reads.
+
+Actual checks: all 20 website cases passed with exit 0 in 1.2 minutes, including production denial, theme persistence/storage recovery, keyboard/mobile navigation, input rules, real Python/Java public cases, errors, timeout, navigation cancellation and unavailable-runner recovery. All 31 unit tests passed. Next production build/TypeScript, ESLint, Prettier, scaffold links and strict OpenSpec passed. Verified the existing 3130 runtime serves expected worker source and reused it without stopping it. Owned only temporary Next servers on 3100/3101.
+
+Captured and visually inspected refined light/dark desktop and dark mobile views using a real synthetic 3/3 Python public-case result. The capture also checked zero visible Stop buttons and no horizontal overflow at 375px. [Latest captures](../workflow/evidence/student-workspace-ui/README.md) are distinct from historical UI/theme snapshots. No deployment, full contrast audit, browser matrix, teacher persistence, auth/security approval or human design acceptance is inferred. Final task/check cleanup is appended below.
+
+Final scaffold/link, strict OpenSpec and whitespace checks passed after the guide updates. Task 7.15 is complete (8/43 overall). Stopped only the two owned temporary Next.js test sessions and restored generated normal-dev next-env imports; the pre-existing local runtime/user services were not stopped. Changes remain uncommitted on feature/5-student-workspace-ui.

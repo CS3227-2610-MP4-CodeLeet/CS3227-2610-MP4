@@ -156,6 +156,14 @@ Support buffered stdin, stdout/stderr, compile/runtime errors, stop, bounded out
 
 Browser results are practice feedback; the server does not use client-reported success to determine grades or XP.
 
+### Student workspace presentation (27 October)
+
+Requester supplied Coursemology screenshots and requested an adapted layout with the problem above code/run controls. Reference its public student/instructor guide and the supplied screenshots for navigation, compact assignment rows and the description/answer sequence, not implementation or assets. Keep CodeLeet identity and only current working destinations. Use a narrow desktop sidebar and an accessible compact mobile menu, white problem/editor panels, teal actions, a line-numbered plain-text editor and public-test summaries/details. Preserve source and outputs as text. No imported student names, course content, logos, badges, attachments, fabricated XP/grades, submission status or unavailable feature navigation. Existing dev-only gates and runtime boundaries remain unchanged. No new editor dependency is necessary.
+
+Workspace theme is a client-side preference scoped to the student shell. Use a native accessible action button, no new package, and a stable server snapshot for hydration. Resolve light/dark from a validated browser-local key or device preference, update on system/storage changes, and retain an in-memory fallback when storage is blocked. Persist only the theme value, never source or results. Theme updates do not remount the editor or runtime. Neutral surfaces/text, semantic success/error states and the editor use theme-aware colors; the public home and isolated runtime document are unaffected.
+
+Requester refinement: simplify the workspace, remove the visible Stop button, and place the theme control at the far-right edge immediately after an always-visible Menu. Use a compact editor/run toolbar, shorter input/output surfaces and collapsible run explanations; retain problem-before-code ordering. Runtime stop API, execution/preparation/suite deadlines and unmount cancellation remain implemented; removing a UI action does not remove those safeguards. Browser integration tests use navigation cancellation instead of a Stop click. Keep extra service/runtime details in Run details rather than repeated primary-page paragraphs.
+
 ### Published practice tests (requester decision, 27 October)
 
 Use stdin/stdout tests for both languages: at most 5 published cases, each with id, name, stdin and expected_stdout. Normalize CRLF/lone CR to LF and ignore at most one final LF on each output; preserve all other spaces, case and blank lines. A passing case requires successful completion plus matching stdout. Stderr is displayed separately and never treated as expected output. Outcomes distinguish mismatch, compile/runtime error, timeout, output overflow, cancellation and infrastructure failure.

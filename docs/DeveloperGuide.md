@@ -96,6 +96,12 @@ OpenSpec and tool skills remain at their conventional discovery paths; other pro
 
 ## Test strategy
 
+The refined student UI groups Menu and an icon-only theme action at the far-right of the sticky header on all screen sizes. Practice actions share one toolbar above the smaller input/output panels; repeated comparison/limit text is in Run details. The visible Stop action has been removed at the requester's direction; internal browser-client termination, preparation/execution/suite deadlines and unmount cleanup remain unchanged. Website tests now verify navigation cancellation/frame teardown and fresh rerun, while the standalone runtime harness still exercises its stop API.
+
+The workspace light/dark preference uses useSyncExternalStore with a stable light server snapshot, browser-local validated preference, system color-scheme subscription and current-session fallback when storage is blocked. Only `codeleet-workspace-theme` is persisted. Theme classes/variables live on the student shell rather than html, keeping the public home and isolated runner document unaffected. Native input color schemes, editor colors, neutral surfaces and semantic result/error colors adapt together. No theme dependency or change to execution/identity/persistence services was added.
+
+The student workspace uses original Coursemology-inspired presentation: WorkspaceShell provides responsive navigation, assignment components provide the compact table and problem panel, CodeEntry provides a native textarea with a scroll-synchronized line gutter, and PracticeRunner/PracticeResults present existing browser outcomes. Theme overrides are scoped to `.student-workspace`, leaving the public home page unchanged. The gutter displays at most 1,000 line numbers to avoid unbounded presentation nodes; source is retained without truncation. There is no new editor dependency or change to the runtime bridge/comparison/security policy. [UI evidence](../workflow/evidence/student-workspace-ui/README.md) records actual checks/screenshots and limits.
+
 Add Vitest for domain/context/schema logic; PostgreSQL/RLS tests for access and concurrent grade/XP/quota operations; Playwright for role journeys and real browser runtime behavior; mocked AI tests for deterministic guards; and bounded real SoCLaaS evaluations for prompt-injection/quality evidence. Mocked model output alone does not demonstrate model resistance to attacks.
 
 ## Deployment and environments
@@ -105,6 +111,7 @@ Plan separate development and production Supabase projects/credentials, correspo
 ## Acknowledgements and AI use
 
 - Coursemology's [public guide](https://coursemology.github.io/coursemology-help/) informed assignment, grading, feedback, and discussion journeys. No guide text or code was copied.
+- The requester's Coursemology screenshots and [student/instructor-view guide](https://coursemology.github.io/coursemology-help/assessments/student-instructor-view) informed the compact navigation/assignment list and problem-above-editor layout. The UI is an original adaptation; no Coursemology assets, student identity, course content or implementation were copied.
 - The team's [MP3 repository](https://github.com/CS3227-2610-MP3-ConnectTalent/CS3227-2610-MP3) informed technology selection only. MP4 implementation and configuration are written fresh.
 - The user-provided `Brainstorm AI App Ideas.pdf` informed two role-specific AI features and security/resource experiment ideas. Its no-execution recommendation was superseded by the user's browser-runner requirement.
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec), CLI 1.8.0, generated the `.agents/skills/` integrations. Preserve generated attribution/license references.

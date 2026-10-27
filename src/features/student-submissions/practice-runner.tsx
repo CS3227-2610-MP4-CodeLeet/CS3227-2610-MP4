@@ -1,16 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { LoaderCircle, Play, TestTubes } from 'lucide-react';
 import type { AssignmentLanguage } from '@/features/student-assignments/types';
 import { BrowserRunnerClient } from './browser-client';
 import {
   runPracticeTests,
-  verdictLabels,
   type BrowserRun,
   type PracticeCase,
   type PracticeResult,
 } from './practice-tests';
 import { validateSource } from './source-validation';
+import { CaseResults, CustomResult } from './practice-results';
 
 export function PracticeRunner({
   language,
@@ -23,6 +24,7 @@ export function PracticeRunner({
 }) {
   const [stdin, setStdin] = useState('');
   const [busy, setBusy] = useState(false);
+  const [runningTests, setRunningTests] = useState(false);
   const [results, setResults] = useState<PracticeResult[]>([]);
   const [single, setSingle] = useState<BrowserRun | null>(null);
   const [message, setMessage] = useState('');
@@ -58,6 +60,7 @@ export function PracticeRunner({
       client.stop();
     }, 90000);
     setBusy(true);
+    setRunningTests(tests);
     setResults([]);
     setSingle(null);
     setTestedSource(source);
@@ -97,153 +100,104 @@ export function PracticeRunner({
     }
   }
   const button =
-    'rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50';
+    'inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50';
+  const visibleResults = changed ? [] : results;
   return (
     <section
-      className="min-w-0 space-y-4 border-t pt-5"
+      className="min-w-0 space-y-4 border-t pt-4"
       aria-labelledby="practice-heading"
     >
-      <h3 id="practice-heading" className="text-lg font-semibold">
-        Browser practice
-      </h3>
-      <p className="text-sm text-muted-foreground">
-        Synthetic published cases for local preview. Runs stay in your browser;
-        results do not award grades or XP. Execution limit: 5 seconds per case.
-        Java compilation has a separate deadline. Leaving the page stops the
-        run.
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 id="practice-heading" className="text-sm font-semibold">
+          Run &amp; test
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={button + ' bg-cyan-700 text-white hover:bg-cyan-800'}
+            disabled={busy}
+            onClick={() => void start(false)}
+          >
+            <Play aria-hidden="true" className="size-3.5" />
+            Run code
+          </button>
+          <button
+            type="button"
+            className={
+              button + ' border bg-background text-foreground hover:bg-accent'
+            }
+            disabled={busy || !cases.length}
+            onClick={() => void start(true)}
+          >
+            <TestTubes aria-hidden="true" className="size-3.5" />
+            Run published tests
+          </button>
+        </div>
+      </div>
+      <div className="grid min-w-0 items-start gap-4 md:grid-cols-2">
+        <div className="min-w-0 space-y-2">
+          <label className="block text-xs font-medium" htmlFor="practice-stdin">
+            Standard input
+          </label>
+          <textarea
+            id="practice-stdin"
+            rows={4}
+            value={stdin}
+            onChange={(event) => setStdin(event.target.value)}
+            disabled={busy}
+            placeholder="Optional input for Run code"
+            className="block min-h-32 w-full min-w-0 resize-y rounded-md border bg-muted/30 p-3 font-mono text-xs leading-6 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+        </div>
+        <CustomResult result={changed ? null : single} />
+      </div>
+      <p
+        role="status"
+        className="flex items-center gap-2 text-xs leading-5 text-muted-foreground empty:hidden"
+      >
+        {busy && (
+          <LoaderCircle
+            aria-hidden="true"
+            className="size-3.5 animate-spin text-cyan-700 dark:text-cyan-300 motion-reduce:animate-none"
+          />
+        )}
+        {busy && runningTests
+          ? 'Running test ' +
+            Math.min(results.length + 1, cases.length) +
+            ' of ' +
+            cases.length +
+            '…'
+          : message}
       </p>
-      {language === 'java' && (
-        <p className="text-sm">
-          Use one public Main class. Buffered UTF-8 input and basic Scanner
-          methods are supported; advanced Scanner APIs are unavailable.
+      {(single || results.length > 0) && changed && (
+        <p className="text-xs text-amber-800 dark:text-amber-200">
+          Code changed. Run again to update the results.
         </p>
       )}
-      <label className="block text-sm font-medium" htmlFor="practice-stdin">
-        Standard input
-      </label>
-      <textarea
-        id="practice-stdin"
-        rows={3}
-        value={stdin}
-        onChange={(event) => setStdin(event.target.value)}
-        disabled={busy}
-        className="block w-full min-w-0 rounded-md border p-3 font-mono text-sm"
-      />
-      <p className="text-sm text-muted-foreground">
-        Maximum 4,096 UTF-8 bytes. Custom input applies to Run code only.
-      </p>
-      <div className="flex flex-wrap gap-3">
-        <button
-          className={button}
-          disabled={busy}
-          onClick={() => void start(false)}
-        >
-          Run code
-        </button>
-        <button
-          className={button}
-          disabled={busy || !cases.length}
-          onClick={() => void start(true)}
-        >
-          Run published tests
-        </button>
-        <button
-          className={button}
-          disabled={!busy}
-          onClick={() => {
-            active.current?.controller.abort();
-            active.current?.client.stop();
-          }}
-        >
-          Stop
-        </button>
-      </div>
-      <p role="status">{message}</p>
-      {(single || results.length > 0) && changed && (
-        <p>Code changed. Run again to update the results.</p>
-      )}
-      {single && !changed && (
-        <div className="space-y-2" data-testid="custom-run-result">
+      <CaseResults cases={cases} results={visibleResults} />
+      <details className="text-xs text-muted-foreground">
+        <summary className="cursor-pointer py-1 font-medium">
+          Run details
+        </summary>
+        <div className="space-y-2 pt-2 leading-6">
           <p>
-            {single.status === 'ok'
-              ? 'Completed'
-              : (verdictLabels[single.status] ?? 'Runner unavailable')}
+            Practice only. Runs stay in your browser and do not award grades or
+            XP. Input: up to 4,096 UTF-8 bytes. Execution: up to 5 seconds per
+            case, with a separate Java compilation deadline. Leaving the page
+            ends the run.
           </p>
           <p>
-            Execution:{' '}
-            {single.executionMs === null
-              ? 'not started'
-              : `approximately ${Math.round(single.executionMs)} ms`}
+            Compare printed output. Line endings and one final newline are
+            ignored; other spaces and capitalization must match.
           </p>
-          <p>Standard output</p>
-          <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3">
-            {single.stdout || '(empty)'}
-          </pre>
-          {single.stderr && (
-            <>
-              <p>Standard error</p>
-              <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words">
-                {single.stderr}
-              </pre>
-            </>
+          {language === 'java' && (
+            <p>
+              Use one public Main class. Buffered UTF-8 input and basic Scanner
+              methods are supported; advanced Scanner APIs are unavailable.
+            </p>
           )}
         </div>
-      )}
-      <h4 className="font-medium">Published test cases</h4>
-      <p className="text-sm">
-        Compare printed output. Line endings and one final newline are ignored;
-        other spaces and capitalization must match.
-      </p>
-      {!cases.length && <p>No published test cases.</p>}
-      <ol className="space-y-4">
-        {cases.map((item) => {
-          const result = changed
-            ? undefined
-            : results.find((value) => value.id === item.id);
-          return (
-            <li
-              key={item.id}
-              className="min-w-0 rounded-md border p-4"
-              data-testid={`practice-case-${item.id}`}
-            >
-              <p className="font-medium">
-                {item.name} —{' '}
-                {result ? verdictLabels[result.verdict] : 'Not run'}
-              </p>
-              <p>Input</p>
-              <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words">
-                {item.stdin || '(empty)'}
-              </pre>
-              <p>Expected output</p>
-              <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words">
-                {item.expected_stdout || '(empty)'}
-              </pre>
-              {result && (
-                <>
-                  <p>Actual output</p>
-                  <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words">
-                    {result.stdout || '(empty)'}
-                  </pre>
-                  {result.stderr && (
-                    <>
-                      <p>Standard error</p>
-                      <pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words">
-                        {result.stderr}
-                      </pre>
-                    </>
-                  )}
-                  <p>
-                    Execution:{' '}
-                    {result.executionMs === null
-                      ? 'not started'
-                      : `approximately ${Math.round(result.executionMs)} ms`}
-                  </p>
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ol>
+      </details>
     </section>
   );
 }
