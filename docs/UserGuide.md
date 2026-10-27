@@ -12,7 +12,15 @@ Developers can run the local coming-soon home page using the README setup comman
 4. Select **View assignment** for **Find the largest number** (Python) or **Count the vowels** (Java).
 5. Read the instructions, then use **All assignments** to return.
 
-The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. No code can be entered, run or submitted in this preview. It is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
+The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. The preview is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
+
+### Local code-entry checks
+
+On either assignment detail page, scroll to **Your code**. The language is fixed to the assignment's Python or Java language. Enter source in the labeled textarea; the counter measures UTF-8 bytes, not characters, up to 32,768 bytes (32 KiB).
+
+Select **Check code** to check input rules only. Blank/whitespace-only text, NUL, invalid Unicode and oversized source are rejected. Oversized text also shows an error immediately. Errors focus the editor when checked and preserve all entered text so it can be corrected. Exactly 32,768 bytes is allowed; for example, é uses two bytes and 😀 uses four.
+
+The **Submit code** button remains disabled. Valid input is not a correctness/compilation check or a successful submission; nothing is saved, transmitted or run. There is no autosave or database integration. Refreshing the page clears the editor; opening a different assignment starts its own empty editor. Local validation is not a substitute for later server/database enforcement.
 
 For local UI checks, add `?preview=empty` to the assignment list for **No assignments yet**, `?preview=slow` for a brief loading state or `?preview=error` for the failure state. **Try again** reloads the normal list. These controls exist only in the development preview.
 

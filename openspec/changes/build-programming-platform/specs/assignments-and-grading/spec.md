@@ -11,6 +11,21 @@ Before shared-service integration, synthetic assignment list/detail previews SHA
 - **WHEN** an enabled local preview displays published samples or an empty/loading/error scenario
 - **THEN** students can read Python/Java sample instructions, observe the appropriate state and recover through assignment navigation without any submission or authentication being simulated
 
+### Requirement: Local source entry preview
+The opted-in development preview SHALL provide a labeled code-entry textarea with the assignment's fixed Python/Java language, UTF-8 byte counter and local input validation. It SHALL retain source on validation errors, reject blank, invalid Unicode, NUL and source above 32,768 UTF-8 bytes without truncation, and render source as plain text. The preview SHALL NOT execute, transmit, persist or claim submission of entered code. Submit code SHALL remain disabled until authenticated integration exists.
+
+#### Scenario: Local validation failure
+- **WHEN** a tester checks blank or oversized source in the enabled preview
+- **THEN** an associated error is displayed, the editor retains its value and submission remains unavailable
+
+#### Scenario: Valid local source
+- **WHEN** a tester checks otherwise valid Python or Java source at or below the byte limit
+- **THEN** local validity is shown without a saved/submitted claim or network transfer of the source
+
+#### Scenario: Different assignment opened
+- **WHEN** a tester enters code for one assignment and opens a different assignment
+- **THEN** the new assignment shows its own language and does not inherit the first assignment's editor contents
+
 ### Requirement: Owned assignments and private rubrics
 The system SHALL let instructors manage owned assignments/rubrics and expose only published student-visible fields to students.
 

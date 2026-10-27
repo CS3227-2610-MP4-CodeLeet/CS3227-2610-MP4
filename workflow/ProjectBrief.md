@@ -1,6 +1,6 @@
 # Project brief
 
-Status: product scope and student contracts planned; Next.js/shared-tooling foundation and a development-only synthetic assignment list/detail preview. Real student/instructor services remain pending.
+Status: product scope and student contracts planned; Next.js/shared-tooling foundation, development-only assignment browsing and local code-entry validation. Real student/instructor services remain pending.
 
 ## Sources and precedence
 
@@ -41,6 +41,8 @@ The requester confirmed ownership of Next.js/shared-tooling initialization on 26
 [Issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5) is developed on `feature/5-student-submissions` from `develop`. Deliver assignment list/detail, source entry/submission and the student's own immutable revision history. Consume the teammate's authentication and persistence contracts. Python/Java execution, student AI, grades, discussions and XP are later milestones; they remain in overall product scope.
 
 Continue synthetic list/detail UI separately on feature/5-student-assignment-preview, based on bootstrap commit d8dd1c6. The preview is opt-in development-only and cannot close the real integration milestone. PR #6 retains only its existing bootstrap/planning commit.
+
+PR #7 subsequently merged into develop. Continue the local code-entry milestone on feature/5-student-code-entry from that merged baseline. It offers fixed language, UTF-8 sizing and input-preserving checks, with submission explicitly disconnected; task 7.11 records this partial UI work separately from real integration.
 
 Agreed conceptual fields:
 

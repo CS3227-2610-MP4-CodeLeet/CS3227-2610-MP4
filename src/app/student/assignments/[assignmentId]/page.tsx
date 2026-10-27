@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { AssignmentInstructions } from '@/features/student-assignments/components';
 import { getPreviewAssignment } from '@/features/student-assignments/preview.server';
+import { CodeEntry } from '@/features/student-submissions/code-entry';
 
 export default async function AssignmentDetailPage({
   params,
@@ -10,5 +11,10 @@ export default async function AssignmentDetailPage({
   const { assignmentId } = await params;
   const assignment = getPreviewAssignment(assignmentId);
   if (!assignment) notFound();
-  return <AssignmentInstructions assignment={assignment} />;
+  return (
+    <div className="space-y-8">
+      <AssignmentInstructions assignment={assignment} />
+      <CodeEntry key={assignment.id} language={assignment.language} />
+    </div>
+  );
 }

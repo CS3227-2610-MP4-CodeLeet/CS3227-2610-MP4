@@ -20,5 +20,6 @@ test('production denies fixture routes even when the preview flag is true', asyn
     await expect(
       page.getByText('This page could not be found.', { exact: false }),
     ).toBeVisible();
+    await expect(page.getByRole('textbox')).toHaveCount(0);
   }
 });
