@@ -1,0 +1,17 @@
+# Workspace light/dark mode
+
+Date: 27 October 2026, Asia/Singapore. User requested a dark/light mode button for the student workspace. Continued on local feature/5-student-workspace-ui, retaining all existing uncommitted UI work; no commit, push, PR update or deployment requested/performed.
+
+Read required project/process documents, current OpenSpec/apply context and the local Next.js CSS/client guides. Extended the workspace scenario/design and added task 7.14 before implementation. Coordinator-only change; no specialist delegation, independent review or token/resource savings measurement claimed.
+
+Added a native accessible top-bar action button and a useSyncExternalStore preference hook. Stable light server snapshot avoids hydration mismatch; client resolves a whitelisted saved theme or system preference, subscribes to preference/system/storage events, and maintains a session choice when localStorage is blocked. Only the theme value is persisted. The theme is scoped to the student shell, with adaptive editor, panels, menus and semantic output/error colors. No new package, source autosave, profile/auth/DB change or runtime policy change.
+
+Initially a scripted palette update produced one redundant dark color class in the editor icon; inspected the resulting code and removed the duplicate before final verification. No behavior failure was observed. System initialization occurs after hydration; no zero-flash guarantee or full contrast/accessibility audit is claimed.
+
+Actual checks: full website suite 19/19 passed with exit 0 in 1.3 minutes, including two new theme scenarios. Tested device-dark default, keyboard switching, source preservation, navigation/reload persistence, explicit choice overriding later device changes, unchanged public home, and mobile preference-storage denial/recovery. Existing Java integration case runs custom/public tests in dark mode. 31/31 unit tests passed; production build including types, full ESLint, Prettier and strict OpenSpec passed. A targeted follow-up adds switching during active Java execution; its result is appended after completion.
+
+Captured synthetic light/dark desktop and dark mobile views after a real Python custom run. Verified source and Completed output remain after theme changes and no horizontal overflow at 375px. Visually inspected the desktop images. Existing earlier UI captures remain historical snapshots before the theme feature.
+
+Owned temporary Next.js test servers 3100/3101; verified and reused the already-running 3130 static runtime without stopping it or reading environment-file contents. Used existing manual-server test mode for the documented Windows cleanup limitation. All submitted source execution remained browser-only. Final checks, progress and owned-server cleanup are recorded below.
+
+Targeted active-run check passed (1/1, exit 0): start Java in dark mode, verify Stop is enabled, switch to light while it is running, preserve source and receive the expected Completed output, then switch back to dark and pass the public cases. Final production build including TypeScript, ESLint, Prettier, scaffold links, strict OpenSpec and whitespace checks passed. Stopped only the two owned Next.js sessions, left the user's existing runtime/development services untouched, and restored generated normal-dev next-env imports after building. Task 7.14 is complete; overall OpenSpec progress is 7/42. All UI/theme changes remain local and uncommitted on feature/5-student-workspace-ui.

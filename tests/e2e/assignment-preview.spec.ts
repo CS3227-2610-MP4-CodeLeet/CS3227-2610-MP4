@@ -3,6 +3,144 @@ import { expect, test } from '@playwright/test';
 const pythonId = '10000000-0000-4000-8000-000000000001';
 const javaId = '10000000-0000-4000-8000-000000000002';
 
+test('Menu and theme stay adjacent at the far right on desktop and mobile', async ({
+  page,
+}) => {
+  await page.goto(`/student/assignments/${pythonId}`);
+  for (const width of [1440, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    const menu = await page
+      .getByLabel('Workspace menu', { exact: true })
+      .boundingBox();
+    const theme = await page
+      .getByRole('button', { name: /Switch to (light|dark) mode/ })
+      .boundingBox();
+    expect(menu && theme).toBeTruthy();
+    if (!menu || !theme) throw new Error('Workspace controls missing');
+    expect(theme.x - (menu.x + menu.width)).toBeGreaterThanOrEqual(6);
+    expect(theme.x - (menu.x + menu.width)).toBeLessThanOrEqual(12);
+    expect(width - (theme.x + theme.width)).toBeLessThanOrEqual(36);
+    await expect(
+      page.getByRole('button', { name: 'Stop', exact: true }),
+    ).toHaveCount(0);
+  }
+});
+
+test('theme follows the device, preserves source and remembers an explicit choice', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto(`/student/assignments/${pythonId}`);
+  const shell = page.locator('.student-workspace');
+  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  const editor = page.getByLabel('Python source code', { exact: true });
+  await editor.fill('print("theme keeps this draft")');
+  const light = page.getByRole('button', {
+    name: 'Switch to light mode',
+    exact: true,
+  });
+  await light.focus();
+  await light.press('Enter');
+  await expect(shell).toHaveAttribute('data-theme', 'light');
+  await expect(editor).toHaveValue('print("theme keeps this draft")');
+  await page
+    .getByRole('button', { name: 'Switch to dark mode', exact: true })
+    .click();
+  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  await page
+    .getByRole('link', { name: 'All assignments', exact: true })
+    .click();
+  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  await page.reload();
+  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  expect(
+    await page.evaluate(() => localStorage.getItem('codeleet-workspace-theme')),
+  ).toBe('dark');
+  await page.goto('/');
+  await expect(page.locator('.student-workspace, html.dark')).toHaveCount(0);
+});
+
+test('mobile theme toggle works when preference storage is blocked', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.addInitScript(() => {
+    const get = Storage.prototype.getItem;
+    const set = Storage.prototype.setItem;
+    Storage.prototype.getItem = function (key) {
+      if (key === 'codeleet-workspace-theme')
+        throw new DOMException('Blocked preference', 'SecurityError');
+      return get.call(this, key);
+    };
+    Storage.prototype.setItem = function (key, value) {
+      if (key === 'codeleet-workspace-theme')
+        throw new DOMException('Blocked preference', 'SecurityError');
+      return set.call(this, key, value);
+    };
+  });
+  await page.goto(`/student/assignments/${javaId}`);
+  await page
+    .getByLabel('Java source code', { exact: true })
+    .fill('public class Main {}');
+  await page
+    .getByRole('button', { name: 'Switch to dark mode', exact: true })
+    .click();
+  await expect(page.locator('.student-workspace')).toHaveAttribute(
+    'data-theme',
+    'dark',
+  );
+  await expect(
+    page.getByLabel('Java source code', { exact: true }),
+  ).toHaveValue('public class Main {}');
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page
+    .getByRole('button', { name: 'Switch to light mode', exact: true })
+    .click();
+  await expect(page.locator('.student-workspace')).toHaveAttribute(
+    'data-theme',
+    'light',
+  );
+});
+
+test('mobile menu supports keyboard navigation and problems precede the editor', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/student/assignments');
+  const menu = page.getByLabel('Workspace menu', { exact: true });
+  await menu.focus();
+  await menu.press('Enter');
+  await page
+    .getByRole('navigation', { name: 'Student navigation' })
+    .getByRole('link', { name: 'Count the vowels' })
+    .click();
+  await expect(page).toHaveURL(`/student/assignments/${javaId}`);
+  await expect(
+    page.getByRole('navigation', { name: 'Student navigation' }),
+  ).not.toBeVisible();
+  const problem = await page
+    .getByRole('region', { name: 'Instructions', exact: true })
+    .boundingBox();
+  const editor = await page
+    .getByLabel('Java source code', { exact: true })
+    .boundingBox();
+  expect(problem && editor && problem.y + problem.height <= editor.y).toBe(
+    true,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
 test('shows published samples and navigates to Java and Python instructions', async ({
   page,
 }) => {
@@ -13,7 +151,11 @@ test('shows published samples and navigates to Java and Python instructions', as
   await expect(
     page.getByText('Preview with sample assignments.', { exact: false }),
   ).toBeVisible();
-  await expect(page.locator('main').getByRole('listitem')).toHaveCount(2);
+  await expect(
+    page
+      .getByRole('table', { name: 'Published programming assignments' })
+      .locator('tbody tr'),
+  ).toHaveCount(2);
   await expect(page.getByText('Draft sorting exercise')).toHaveCount(0);
   await page
     .getByRole('link', { name: 'View assignment: Count the vowels' })
@@ -50,7 +192,9 @@ test('empty list communicates availability without fake assignments', async ({
   await expect(
     page.getByRole('heading', { name: 'No assignments yet' }),
   ).toBeVisible();
-  await expect(page.locator('main').getByRole('listitem')).toHaveCount(0);
+  await expect(
+    page.getByRole('table', { name: 'Published programming assignments' }),
+  ).toHaveCount(0);
 });
 
 for (const id of ['10000000-0000-4000-8000-000000000003', 'missing']) {

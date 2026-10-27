@@ -26,6 +26,31 @@ The opted-in development preview SHALL provide a labeled code-entry textarea wit
 - **WHEN** a tester enters code for one assignment and opens a different assignment
 - **THEN** the new assignment shows its own language and does not inherit the first assignment's editor contents
 
+### Requirement: Responsive student workspace
+The development preview SHALL present compact published-assignment rows, working student navigation, and assignment instructions above the code editor and run/results area. Desktop navigation SHALL adapt to a keyboard-accessible compact mobile menu without page-level horizontal overflow. The UI SHALL not fabricate student profiles, XP, grades, due dates or submission progress.
+
+#### Scenario: Read and attempt a problem
+- **WHEN** a tester opens a published sample assignment on desktop or mobile
+- **THEN** the problem title/instructions precede the editor and run controls, and navigation back to assignments remains available
+
+#### Scenario: Review practice results
+- **WHEN** public cases finish
+- **THEN** the UI shows a practice pass count and per-case outcomes, with expandable input/expected/actual output and diagnostics rendered as text
+
+#### Scenario: Switch workspace theme
+- **WHEN** a tester uses the keyboard-accessible light/dark button on desktop or mobile
+- **THEN** the workspace, editor, input and results change appearance without clearing source or active run state
+- **AND** the selection persists locally across navigation/reloads when browser storage is available, otherwise the toggle still works for the current session
+
+#### Scenario: Initial theme preference
+- **WHEN** the browser has no valid saved theme
+- **THEN** the hydrated workspace follows the device color preference without changing the public home page or persisting student source
+
+#### Scenario: Compact workspace controls
+- **WHEN** a tester opens a sample assignment on desktop or mobile
+- **THEN** Menu is visible with the theme action immediately to its right at the far edge of the top bar
+- **AND** the practice toolbar has no visible Stop button while automatic deadlines and leaving-page cleanup remain active
+
 ### Requirement: Owned assignments and private rubrics
 The system SHALL let instructors manage owned assignments/rubrics and expose only published student-visible fields to students.
 

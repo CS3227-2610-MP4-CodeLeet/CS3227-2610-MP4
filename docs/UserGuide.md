@@ -9,10 +9,14 @@ Developers can run the local coming-soon home page using the README setup comman
 1. Follow the README installation steps using Node 24.
 2. Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and restart the development server with `pnpm dev` (or `npx --yes pnpm@12.15.0 dev`).
 3. Open `/student/assignments` at the local address printed by Next.js.
-4. Select **View assignment** for **Find the largest number** (Python) or **Count the vowels** (Java).
+4. Select **View** in the assignment table for **Find the largest number** (Python) or **Count the vowels** (Java).
 5. Read the instructions, then use **All assignments** to return.
 
 The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. The preview is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
+
+On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a theme-aware plain-text area with line numbers and a filename label; it does not provide syntax highlighting or an external IDE service. Long lines scroll inside the editor rather than widening the page.
+
+Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The public home page keeps its existing appearance.
 
 ### Local code-entry checks
 
@@ -43,9 +47,11 @@ Open `/student/assignments` at the address printed by Next.js (normally http://l
 
 - **Run code:** enter optional **Standard input**, then run your program. The result shows completion/error, stdout, stderr when present and approximate execution time.
 - **Run published tests:** runs the three synthetic public cases for that sample assignment, sequentially with fresh state. Each case shows its input, expected stdout, verdict and actual stdout. Custom stdin is ignored for this action.
-- **Stop:** cancels the run/suite. Remaining cases stay Not run. Run again to retry. Leaving the page also stops the runner.
+- To leave an active run, use **All assignments** or another navigation link. Leaving the assignment ends the runner; automatic execution and suite deadlines also remain active. There is no Stop button in the student workspace.
 
 These cases are explicitly sample data; teacher creation/publication and shared test storage are not implemented yet. Results are practice feedback only and do not submit code, publish grades or award XP. Edited source hides previous results until it is run again. Output is rendered as text, including any HTML-like content.
+
+The compact toolbar above input/output contains **Run code** and **Run published tests**. While a suite is running, the status identifies its current test number. The summary shows the number passed and run. Select a test-case row to expand its input, expected output, actual output and diagnostics; failed cases expand automatically. On wider screens these values appear next to one another, and on mobile they stack. **Run details** expands the input/runtime limits, output comparison rules and supported Java input. Custom-input output appears in the separate **Output** panel.
 
 Matching normalizes CRLF/lone CR line endings and ignores one final newline on each output. All other spaces, blank lines and capitalization matter. A runtime error or timeout never passes even if partial output matches. Stderr is diagnostic output, not the expected answer. Passing published samples does not prove correctness for every possible input.
 
