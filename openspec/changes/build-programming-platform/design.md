@@ -134,6 +134,14 @@ The temporary student assignment pages require both NODE_ENV=development and STU
 
 Synthetic fixtures cover published Python/Java assignments and a draft. Display only explicit public fields; render instructions as plain text. Local list query scenarios preview=empty, preview=error and preview=slow exercise empty/error/loading views; these are preview controls, not production API query contracts. Navigation and unavailable states are tested in Chromium, including a narrow mobile viewport. This work does not close tasks 7.2/7.3, which still require shared-schema fixtures and authenticated integration.
 
+### Development-only source entry
+
+Continue issue #5 on feature/5-student-code-entry from develop after preview PR #7 merged. Add a client-side code-entry section to the existing guarded synthetic assignment detail pages. Keep instructions server-rendered; pass only the assignment language to the interactive component and key it by assignment ID so another assignment cannot receive the same editor state.
+
+Use a labeled plain textarea, fixed Python/Java language, a live UTF-8 byte counter and a local Check code action. Mirror the contract's nonblank, valid-Unicode/no-NUL, 32,768-byte input rules in a reusable pure validator, preserving exact editor contents through checks. Include exact-limit and multibyte tests. Oversized input is retained with an error, not truncated. Plain input text is never interpreted as HTML or executed.
+
+This preview intentionally has no native form submission, network call, request ID, persistence or server action. Submit code is disabled and explanatory copy says submission is not connected. Valid local checks must say nothing was saved/submitted/run. Validation errors focus the editor and use associated accessible messages. The production guard remains unchanged. Shared server/database validation is still required at integration; this local UI cannot complete task 7.4's real submission states or close issue #5. No auth/gateway/migrations or browser runner are implemented.
+
 ### Browser runner feasibility first
 
 Evaluate runtimes with `workflow/templates/RuntimeEvaluation.md`. Pyodide is a Python candidate, not a selected dependency. Java candidates must compile source in-browser as well as run classes; remote compilation is prohibited. Record licenses and distribution size before adoption.

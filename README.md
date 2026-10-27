@@ -59,4 +59,4 @@ Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pn
 
 Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and start/restart `pnpm dev`. Visit http://localhost:3000/student/assignments (use the port printed by Next.js). Browse the Python/Java sample assignments and open their instructions. Draft samples are hidden.
 
-This is development-only synthetic data, not a login or database-backed flow. Production ignores the flag and denies these preview pages. There is no code editor, execution or submission yet. Local state examples are `?preview=empty`, `?preview=slow` and `?preview=error`; error recovery returns to the normal list.
+This is development-only synthetic data, not a login or database-backed flow. Production ignores the flag and denies these preview pages. Assignment details now include a plain-text code editor with the fixed language, a 32 KiB UTF-8 counter and local input checks. Submit code remains disabled: code is not saved, transmitted or executed. Local list state examples are `?preview=empty`, `?preview=slow` and `?preview=error`; error recovery returns to the normal list.
