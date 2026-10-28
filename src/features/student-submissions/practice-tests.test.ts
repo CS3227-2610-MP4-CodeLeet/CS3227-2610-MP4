@@ -14,6 +14,9 @@ const ok: BrowserRun = {
   stderr: '',
   executionMs: 1,
 };
+const sourceSnapshot = 'source snapshot';
+const expectedFive = '5';
+const wrongOutput = 'wrong-output';
 const cases = [
   { id: 'one', name: 'One', stdin: '2 3\n', expected_stdout: '5' },
   { id: 'two', name: 'Two', stdin: '-2 3\n', expected_stdout: '1' },
@@ -21,18 +24,18 @@ const cases = [
 describe('practice output contract', () => {
   it('normalizes line endings and exactly one terminal newline', () => {
     expect(normalizeOutput('a\r\nb\r')).toBe('a\nb');
-    expect(verdict(ok, '5')).toBe('passed');
-    expect(verdict({ ...ok, stdout: '5\n\n' }, '5')).toBe('wrong-output');
+    expect(verdict(ok, expectedFive)).toBe('passed');
+    expect(verdict({ ...ok, stdout: '5\n\n' }, expectedFive)).toBe(wrongOutput);
   });
   it('preserves spaces and case', () => {
-    expect(verdict({ ...ok, stdout: ' 5\n' }, '5')).toBe('wrong-output');
-    expect(verdict({ ...ok, stdout: 'Hello' }, 'hello')).toBe('wrong-output');
+    expect(verdict({ ...ok, stdout: ' 5\n' }, expectedFive)).toBe(wrongOutput);
+    expect(verdict({ ...ok, stdout: 'Hello' }, 'hello')).toBe(wrongOutput);
   });
   it('requires success even when partial output matches', () => {
-    expect(verdict({ ...ok, status: 'error' }, '5')).toBe('error');
-    expect(verdict({ ...ok, status: 'timeout' }, '5')).toBe('timeout');
-    expect(verdict({ ...ok, stderr: 'warning' }, '5')).toBe('passed');
-    expect(verdict({ ...ok, status: 'unknown-result' }, '5')).toBe(
+    expect(verdict({ ...ok, status: 'error' }, expectedFive)).toBe('error');
+    expect(verdict({ ...ok, status: 'timeout' }, expectedFive)).toBe('timeout');
+    expect(verdict({ ...ok, stderr: 'warning' }, expectedFive)).toBe('passed');
+    expect(verdict({ ...ok, status: 'unknown-result' }, expectedFive)).toBe(
       'unavailable',
     );
   });
@@ -64,10 +67,10 @@ describe('practice suite', () => {
     await runPracticeTests({
       cases,
       language: 'python',
-      source: 'source snapshot',
+      source: sourceSnapshot,
       signal: new AbortController().signal,
       run: async (input) => {
-        expect(input.source).toBe('source snapshot');
+        expect(input.source).toBe(sourceSnapshot);
         expect(input.timeoutMs).toBe(5000);
         seen.push(input.stdin);
         return { ...ok, stdout: seen.length === 1 ? '5\n' : '1\n' };

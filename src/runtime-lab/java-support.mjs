@@ -8,7 +8,17 @@ export function javaSupportSources(stdin) {
 public final class BrowserInputStream extends java.io.ByteArrayInputStream {
   public BrowserInputStream() { super(new byte[]{${bytes}}); }
 }`,
-    'BrowserInputStreamReader.java': `package codeleet.runtime;
+    'BrowserInputStreamReader.java': BrowserInputStreamReaderSource(),
+    'BrowserScanner.java': BrowserScannerSource(),
+    'BrowserInputMismatchException.java': `package codeleet.runtime;
+public final class BrowserInputMismatchException extends java.util.NoSuchElementException {
+  public BrowserInputMismatchException() { super("Input does not match the requested number"); }
+}`,
+  };
+}
+
+function BrowserInputStreamReaderSource() {
+  return `package codeleet.runtime;
 public final class BrowserInputStreamReader extends java.io.Reader {
   private final java.io.InputStream input;
   private int pushed = -1;
@@ -50,8 +60,11 @@ public final class BrowserInputStreamReader extends java.io.Reader {
   }
   public boolean ready() throws java.io.IOException { if (closed) throw new java.io.IOException("Stream closed"); return surrogate >= 0 || pushed >= 0 || input.available() > 0; }
   public void close() throws java.io.IOException { if (!closed) { closed = true; input.close(); } }
-}`,
-    'BrowserScanner.java': `package codeleet.runtime;
+}`;
+}
+
+function BrowserScannerSource() {
+  return `package codeleet.runtime;
 public final class BrowserScanner implements java.io.Closeable {
   private final java.io.InputStream input;
   private String text;
@@ -92,12 +105,7 @@ public final class BrowserScanner implements java.io.Closeable {
   public boolean hasNextInt() { if (!hasNext()) return false; try { Integer.parseInt(peek()); return true; } catch (NumberFormatException error) { return false; } }
   public java.io.IOException ioException() { return failure; }
   public void close() { if (!closed) { closed = true; try { input.close(); } catch (java.io.IOException error) { failure = error; } } }
-}`,
-    'BrowserInputMismatchException.java': `package codeleet.runtime;
-public final class BrowserInputMismatchException extends java.util.NoSuchElementException {
-  public BrowserInputMismatchException() { super("Input does not match the requested number"); }
-}`,
-  };
+}`;
 }
 
 // Only first-party helper class names are relocated. Student source/bytecode is untouched.
@@ -111,44 +119,12 @@ export function relocateClass(bytes, from, to) {
     const start = offset;
     const tag = input[offset++];
     if (tag === 1) {
-      const length = view.getUint16(offset);
-      offset += 2;
-      const original = input.slice(offset, offset + length);
-      offset += length;
-      // Helper identifiers and descriptors are ASCII; preserve other modified UTF-8 verbatim.
-      const text = Array.from(original, (value) =>
-        String.fromCharCode(value),
-      ).join('');
-      if (text.includes(from)) {
-        const encoded = Uint8Array.from(
-          text.replaceAll(from, to),
-          (character) => character.charCodeAt(0),
-        );
-        const header = new Uint8Array(3);
-        header[0] = 1;
-        new DataView(header.buffer).setUint16(1, encoded.length);
-        chunks.push(header, encoded);
-      } else chunks.push(input.slice(start, offset));
+      const entry = relocateUtfEntry({ input, view, offset, start, from, to });
+      offset = entry.offset;
+      chunks.push(entry.chunk);
       continue;
     }
-    const size = {
-      3: 4,
-      4: 4,
-      5: 8,
-      6: 8,
-      7: 2,
-      8: 2,
-      9: 4,
-      10: 4,
-      11: 4,
-      12: 4,
-      15: 3,
-      16: 2,
-      17: 4,
-      18: 4,
-      19: 2,
-      20: 2,
-    }[tag];
+    const size = constantSizes[tag];
     if (!size) throw new Error(`Unsupported helper constant: ${tag}`);
     offset += size;
     if (tag === 5 || tag === 6) index += 1;
@@ -156,6 +132,43 @@ export function relocateClass(bytes, from, to) {
   }
   chunks.push(input.slice(offset));
   return join(chunks);
+}
+
+const constantSizes = {
+  3: 4,
+  4: 4,
+  5: 8,
+  6: 8,
+  7: 2,
+  8: 2,
+  9: 4,
+  10: 4,
+  11: 4,
+  12: 4,
+  15: 3,
+  16: 2,
+  17: 4,
+  18: 4,
+  19: 2,
+  20: 2,
+};
+
+function relocateUtfEntry({ input, view, offset, start, from, to }) {
+  const length = view.getUint16(offset);
+  const nextOffset = offset + 2 + length;
+  const original = input.slice(offset + 2, nextOffset);
+  const text = Array.from(original, (value) => String.fromCharCode(value)).join(
+    '',
+  );
+  if (!text.includes(from))
+    return { chunk: input.slice(start, nextOffset), offset: nextOffset };
+  const encoded = Uint8Array.from(text.replaceAll(from, to), (character) =>
+    character.charCodeAt(0),
+  );
+  const header = new Uint8Array(3);
+  header[0] = 1;
+  new DataView(header.buffer).setUint16(1, encoded.length);
+  return { chunk: join([header, encoded]), offset: nextOffset };
 }
 
 function join(chunks) {

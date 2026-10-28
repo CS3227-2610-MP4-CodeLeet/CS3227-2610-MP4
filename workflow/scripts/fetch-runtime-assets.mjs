@@ -26,22 +26,37 @@ const report = { fetched_at: new Date().toISOString(), assets: [] };
 for (const [language, definition] of Object.entries(definitions)) {
   await mkdir(resolve(cache, language), { recursive: true });
   for (const name of definition.files) {
-    const path = resolve(cache, language, name);
-    let bytes;
-    try { bytes = await readFile(path); }
-    catch {
-      const response = await fetch(definition.base + name, { signal: AbortSignal.timeout(60_000) });
-      if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
-      bytes = Buffer.from(await response.arrayBuffer());
-      await writeFile(path, bytes);
-    }
-    const hash = createHash('sha256').update(bytes).digest('hex');
-    const pinned = previous?.assets.find((item) => item.language === language && item.name === name);
-    if (pinned && pinned.sha256 !== hash) throw new Error(`Asset changed since review: ${language}/${name}. Re-review provenance before updating its hash.`);
-    const entry = { language, name, url: definition.base + name, bytes: bytes.length, sha256: hash, license: definition.license, source: definition.source };
+    const entry = await fetchAsset(language, definition, name);
+    verifyPinnedAsset(previous, language, name, entry.sha256);
     report.assets.push(entry);
-    console.log(`${language}/${name}: ${bytes.length} bytes`);
+    console.log(`${language}/${name}: ${entry.bytes} bytes`);
   }
 }
 await mkdir('workflow/evidence/runtime-feasibility', { recursive: true });
 await writeFile('workflow/evidence/runtime-feasibility/assets.json', JSON.stringify(report, null, 2) + '\n');
+
+async function fetchAsset(language, definition, name) {
+  const path = resolve(cache, language, name);
+  const bytes = await readCachedAsset(path) ?? await downloadAsset(path, definition, name);
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  return { language, name, url: definition.base + name, bytes: bytes.length, sha256, license: definition.license, source: definition.source };
+}
+
+async function readCachedAsset(path) {
+  try { return await readFile(path); }
+  catch { return undefined; }
+}
+
+async function downloadAsset(path, definition, name) {
+  const response = await fetch(definition.base + name, { signal: AbortSignal.timeout(60_000) });
+  if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  await writeFile(path, bytes);
+  return bytes;
+}
+
+function verifyPinnedAsset(previous, language, name, sha256) {
+  const pinned = previous?.assets.find((item) => item.language === language && item.name === name);
+  if (pinned && pinned.sha256 !== sha256)
+    throw new Error(`Asset changed since review: ${language}/${name}. Re-review provenance before updating its hash.`);
+}

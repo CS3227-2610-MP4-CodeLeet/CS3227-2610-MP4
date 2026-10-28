@@ -1,7 +1,19 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const pythonId = '10000000-0000-4000-8000-000000000001';
 const javaId = '10000000-0000-4000-8000-000000000002';
+const themeAttribute = 'data-theme';
+const pythonEditorLabel = 'Python source code';
+const javaEditorLabel = 'Java source code';
+const assignmentsLinkName = 'All assignments';
+const workspaceSelector = '.student-workspace';
+const darkTheme = 'dark';
+const lightTheme = 'light';
+const themeStorageKey = 'codeleet-workspace-theme';
+const assignmentsHeading = 'Your assignments';
+const submitCodeName = 'Submit code';
+const checkCodeName = 'Check code';
+const invalidAttribute = 'aria-invalid';
 
 test('Menu and theme stay adjacent at the far right on desktop and mobile', async ({
   page,
@@ -29,11 +41,11 @@ test('Menu and theme stay adjacent at the far right on desktop and mobile', asyn
 test('theme follows the device, preserves source and remembers an explicit choice', async ({
   page,
 }) => {
-  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.emulateMedia({ colorScheme: darkTheme });
   await page.goto(`/student/assignments/${pythonId}`);
-  const shell = page.locator('.student-workspace');
-  await expect(shell).toHaveAttribute('data-theme', 'dark');
-  const editor = page.getByLabel('Python source code', { exact: true });
+  const shell = page.locator(workspaceSelector);
+  await expect(shell).toHaveAttribute(themeAttribute, darkTheme);
+  const editor = page.getByLabel(pythonEditorLabel, { exact: true });
   await editor.fill('print("theme keeps this draft")');
   const light = page.getByRole('button', {
     name: 'Switch to light mode',
@@ -41,60 +53,69 @@ test('theme follows the device, preserves source and remembers an explicit choic
   });
   await light.focus();
   await light.press('Enter');
-  await expect(shell).toHaveAttribute('data-theme', 'light');
+  await expect(shell).toHaveAttribute(themeAttribute, lightTheme);
   await expect(editor).toHaveValue('print("theme keeps this draft")');
   await page
     .getByRole('button', { name: 'Switch to dark mode', exact: true })
     .click();
-  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  await expect(shell).toHaveAttribute(themeAttribute, darkTheme);
   await page
-    .getByRole('link', { name: 'All assignments', exact: true })
+    .getByRole('link', { name: assignmentsLinkName, exact: true })
     .click();
-  await expect(shell).toHaveAttribute('data-theme', 'dark');
+  await expect(shell).toHaveAttribute(themeAttribute, darkTheme);
+  await verifyThemePersistence(page, shell);
+});
+
+async function verifyThemePersistence(
+  page: Page,
+  shell: ReturnType<Page['locator']>,
+) {
   await page.reload();
-  await expect(shell).toHaveAttribute('data-theme', 'dark');
-  await page.emulateMedia({ colorScheme: 'light' });
-  await expect(shell).toHaveAttribute('data-theme', 'dark');
-  expect(
-    await page.evaluate(() => localStorage.getItem('codeleet-workspace-theme')),
-  ).toBe('dark');
+  await expect(shell).toHaveAttribute(themeAttribute, darkTheme);
+  await page.emulateMedia({ colorScheme: lightTheme });
+  await expect(shell).toHaveAttribute(themeAttribute, darkTheme);
+  const storedTheme = await page.evaluate(
+    (key) => localStorage.getItem(key),
+    themeStorageKey,
+  );
+  expect(storedTheme).toBe(darkTheme);
   await page.goto('/');
   await expect(page.locator('.student-workspace, html.dark')).toHaveCount(0);
-});
+}
 
 test('mobile theme toggle works when preference storage is blocked', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.emulateMedia({ colorScheme: 'light' });
-  await page.addInitScript(() => {
+  await page.emulateMedia({ colorScheme: lightTheme });
+  await page.addInitScript((themeStorageKey) => {
     const get = Storage.prototype.getItem;
     const set = Storage.prototype.setItem;
     Storage.prototype.getItem = function (key) {
-      if (key === 'codeleet-workspace-theme')
+      if (key === themeStorageKey)
         throw new DOMException('Blocked preference', 'SecurityError');
       return get.call(this, key);
     };
     Storage.prototype.setItem = function (key, value) {
-      if (key === 'codeleet-workspace-theme')
+      if (key === themeStorageKey)
         throw new DOMException('Blocked preference', 'SecurityError');
       return set.call(this, key, value);
     };
-  });
+  }, themeStorageKey);
   await page.goto(`/student/assignments/${javaId}`);
   await page
-    .getByLabel('Java source code', { exact: true })
+    .getByLabel(javaEditorLabel, { exact: true })
     .fill('public class Main {}');
   await page
     .getByRole('button', { name: 'Switch to dark mode', exact: true })
     .click();
-  await expect(page.locator('.student-workspace')).toHaveAttribute(
-    'data-theme',
-    'dark',
+  await expect(page.locator(workspaceSelector)).toHaveAttribute(
+    themeAttribute,
+    darkTheme,
   );
-  await expect(
-    page.getByLabel('Java source code', { exact: true }),
-  ).toHaveValue('public class Main {}');
+  await expect(page.getByLabel(javaEditorLabel, { exact: true })).toHaveValue(
+    'public class Main {}',
+  );
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -103,9 +124,9 @@ test('mobile theme toggle works when preference storage is blocked', async ({
   await page
     .getByRole('button', { name: 'Switch to light mode', exact: true })
     .click();
-  await expect(page.locator('.student-workspace')).toHaveAttribute(
-    'data-theme',
-    'light',
+  await expect(page.locator(workspaceSelector)).toHaveAttribute(
+    themeAttribute,
+    lightTheme,
   );
 });
 
@@ -129,7 +150,7 @@ test('mobile menu supports keyboard navigation and problems precede the editor',
     .getByRole('region', { name: 'Instructions', exact: true })
     .boundingBox();
   const editor = await page
-    .getByLabel('Java source code', { exact: true })
+    .getByLabel(javaEditorLabel, { exact: true })
     .boundingBox();
   expect(problem && editor && problem.y + problem.height <= editor.y).toBe(
     true,
@@ -146,7 +167,7 @@ test('shows published samples and navigates to Java and Python instructions', as
 }) => {
   await page.goto('/student/assignments');
   await expect(
-    page.getByRole('heading', { name: 'Your assignments' }),
+    page.getByRole('heading', { name: assignmentsHeading }),
   ).toBeVisible();
   await expect(
     page.getByText('Preview with sample assignments.', { exact: false }),
@@ -168,7 +189,7 @@ test('shows published samples and navigates to Java and Python instructions', as
     page.getByText('Write a Java program', { exact: false }),
   ).toBeVisible();
   await page
-    .getByRole('link', { name: 'All assignments', exact: true })
+    .getByRole('link', { name: assignmentsLinkName, exact: true })
     .click();
   await page
     .getByRole('link', { name: 'View assignment: Find the largest number' })
@@ -178,7 +199,7 @@ test('shows published samples and navigates to Java and Python instructions', as
     page.getByText('Write a Python program', { exact: false }),
   ).toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Submit code', exact: true }),
+    page.getByRole('button', { name: submitCodeName, exact: true }),
   ).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'Run code', exact: true }),
@@ -208,7 +229,7 @@ for (const id of ['10000000-0000-4000-8000-000000000003', 'missing']) {
     ).toHaveCount(0);
     await page.getByRole('link', { name: 'Back to assignments' }).click();
     await expect(
-      page.getByRole('heading', { name: 'Your assignments' }),
+      page.getByRole('heading', { name: assignmentsHeading }),
     ).toBeVisible();
   });
 }
@@ -219,7 +240,7 @@ test('loading state is visible before slow data arrives', async ({ page }) => {
     page.getByRole('status', { name: 'Loading assignments' }),
   ).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Your assignments' }),
+    page.getByRole('heading', { name: assignmentsHeading }),
   ).toBeVisible();
 });
 
@@ -232,7 +253,7 @@ test('failure shows safe copy and recovery returns to assignments', async ({
   ).toBeVisible();
   await page.getByRole('button', { name: 'Try again', exact: true }).click();
   await expect(
-    page.getByRole('heading', { name: 'Your assignments' }),
+    page.getByRole('heading', { name: assignmentsHeading }),
   ).toBeVisible();
 });
 
@@ -243,7 +264,7 @@ test('mobile detail fits without horizontal scrolling', async ({ page }) => {
     page.getByRole('heading', { name: 'Find the largest number' }),
   ).toBeVisible();
   await page
-    .getByLabel('Python source code', { exact: true })
+    .getByLabel(pythonEditorLabel, { exact: true })
     .fill('x'.repeat(2000));
   expect(
     await page.evaluate(
@@ -265,29 +286,29 @@ test('code checks preserve input, never send it and never enable submission', as
       transfers.push(request.url());
   });
   await page.goto(`/student/assignments/${pythonId}`);
-  const editor = page.getByLabel('Python source code', { exact: true });
+  const editor = page.getByLabel(pythonEditorLabel, { exact: true });
   await expect(
     page.getByText('Language: Python', { exact: false }),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Check code', exact: true }).click();
+  await page.getByRole('button', { name: checkCodeName, exact: true }).click();
   await expect(
     page.getByRole('alert').filter({ hasText: 'Enter some code' }),
   ).toBeVisible();
-  await expect(editor).toHaveAttribute('aria-invalid', 'true');
+  await expect(editor).toHaveAttribute(invalidAttribute, 'true');
   await editor.fill(' \n\t ');
-  await page.getByRole('button', { name: 'Check code', exact: true }).click();
+  await page.getByRole('button', { name: checkCodeName, exact: true }).click();
   await expect(editor).toHaveValue(' \n\t ');
   await editor.fill(source);
-  await page.getByRole('button', { name: 'Check code', exact: true }).click();
+  await page.getByRole('button', { name: checkCodeName, exact: true }).click();
   await expect(
     page
       .getByRole('status')
       .filter({ hasText: 'Code meets the local input rules.' }),
   ).toBeVisible();
   await expect(editor).toHaveValue(source);
-  await expect(editor).toHaveAttribute('aria-invalid', 'false');
+  await expect(editor).toHaveAttribute(invalidAttribute, 'false');
   await expect(
-    page.getByRole('button', { name: 'Submit code', exact: true }),
+    page.getByRole('button', { name: submitCodeName, exact: true }),
   ).toBeDisabled();
   expect(transfers).toEqual([]);
 });
@@ -296,14 +317,14 @@ test('multibyte source uses the byte boundary and is preserved when oversized', 
   page,
 }) => {
   await page.goto(`/student/assignments/${pythonId}`);
-  const editor = page.getByLabel('Python source code', { exact: true });
+  const editor = page.getByLabel(pythonEditorLabel, { exact: true });
   const exact = 'é'.repeat(16_384);
   await editor.fill(exact);
-  await page.getByRole('button', { name: 'Check code', exact: true }).click();
+  await page.getByRole('button', { name: checkCodeName, exact: true }).click();
   await expect(
     page.getByText('32,768 / 32,768 UTF-8 bytes', { exact: false }),
   ).toBeVisible();
-  await expect(editor).toHaveAttribute('aria-invalid', 'false');
+  await expect(editor).toHaveAttribute(invalidAttribute, 'false');
   await editor.fill(exact + 'é');
   await expect(
     page.getByText('32,770 / 32,768 UTF-8 bytes', { exact: false }),
@@ -311,7 +332,7 @@ test('multibyte source uses the byte boundary and is preserved when oversized', 
   await expect(
     page.getByRole('alert').filter({ hasText: 'Code exceeds' }),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Check code', exact: true }).click();
+  await page.getByRole('button', { name: checkCodeName, exact: true }).click();
   await expect(editor).toHaveValue(exact + 'é');
   await expect(editor).toBeFocused();
 });
@@ -321,15 +342,15 @@ test('Java language is fixed and navigation does not reuse another assignment dr
 }) => {
   await page.goto(`/student/assignments/${pythonId}`);
   await page
-    .getByLabel('Python source code', { exact: true })
+    .getByLabel(pythonEditorLabel, { exact: true })
     .fill('print("python draft")');
   await page
-    .getByRole('link', { name: 'All assignments', exact: true })
+    .getByRole('link', { name: assignmentsLinkName, exact: true })
     .click();
   await page
     .getByRole('link', { name: 'View assignment: Count the vowels' })
     .click();
-  const editor = page.getByLabel('Java source code', { exact: true });
+  const editor = page.getByLabel(javaEditorLabel, { exact: true });
   await expect(editor).toHaveValue('');
   await expect(
     page.getByText('Language: Java', { exact: false }),
@@ -337,12 +358,12 @@ test('Java language is fixed and navigation does not reuse another assignment dr
   await expect(page.getByRole('combobox')).toHaveCount(0);
   const source = '<script>document.body.dataset.codeExecuted = "yes"</script>';
   await editor.fill(source);
-  await page.getByRole('button', { name: 'Check code', exact: true }).click();
+  await page.getByRole('button', { name: checkCodeName, exact: true }).click();
   await expect(editor).toHaveValue(source);
   expect(
     await page.evaluate(() => document.body.dataset.codeExecuted),
   ).toBeUndefined();
   await expect(
-    page.getByRole('button', { name: 'Submit code', exact: true }),
+    page.getByRole('button', { name: submitCodeName, exact: true }),
   ).toBeDisabled();
 });

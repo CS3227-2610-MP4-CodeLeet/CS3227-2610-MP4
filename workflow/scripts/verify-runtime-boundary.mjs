@@ -7,6 +7,7 @@ import { chromium } from '@playwright/test';
 
 const started = new Date().toISOString();
 const outputPath = process.argv[2] ?? 'workflow/evidence/runtime-feasibility/independent-browser-tests.json';
+const metricsPath = '/metrics.json';
 const sourceHashes = Object.fromEntries(await Promise.all(['lab.mjs', 'supervisor.mjs', 'worker.mjs', 'java-support.mjs', 'embed.mjs'].map(async (name) => [name, createHash('sha256').update(await readFile(`src/runtime-lab/${name}`)).digest('hex')])));
 const assetManifestSha256 = createHash('sha256').update(await readFile('workflow/evidence/runtime-feasibility/assets.json')).digest('hex');
 const previousReport = await readFile(outputPath, 'utf8').then(JSON.parse).catch(() => ({}));
@@ -99,10 +100,10 @@ try {
     return { canaryPresent, details, limitation: 'Worker constructor shadowing is functional hardening; DOM absence and opaque-origin storage denial are browser restrictions.' };
   });
   await test('csp-native-network-denial-server-counter', async () => {
-    const before = await page.evaluate(async () => (await (await fetch('/metrics.json')).json()).probeRequests);
+    const before = await page.evaluate(async (path) => (await (await fetch(path)).json()).probeRequests, metricsPath);
     // Positive recorder control: a trusted parent request must increment the counter.
     await page.evaluate(async () => { await fetch('/probe-recorder-positive-control'); });
-    const baseline = await page.evaluate(async () => (await (await fetch('/metrics.json')).json()).probeRequests);
+    const baseline = await page.evaluate(async (path) => (await (await fetch(path)).json()).probeRequests, metricsPath);
     assert.equal(baseline, before + 1);
     const javascript = `(async () => {
       const url = 'http://127.0.0.1:3130/probe-worker-';
@@ -136,7 +137,7 @@ try {
     assert.ok(['blocked', 'SecurityError'].includes(details.websocket), JSON.stringify(details));
     assert.equal(details.importScripts, 'NetworkError'); assert.equal(details.moduleImport, 'TypeError'); assert.equal(details.nestedWorker, 'TypeError');
     assert.match(details.shimFetch, /Network denied/);
-    const after = await page.evaluate(async () => (await (await fetch('/metrics.json')).json()).probeRequests);
+    const after = await page.evaluate(async (path) => (await (await fetch(path)).json()).probeRequests, metricsPath);
     assert.equal(after, baseline, 'Worker requests reached the HTTP recorder');
     return { baseline, after, details };
   });

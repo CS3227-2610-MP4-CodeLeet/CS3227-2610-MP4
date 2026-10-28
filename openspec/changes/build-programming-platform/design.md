@@ -16,6 +16,10 @@ Use Next.js/TypeScript and Supabase Auth/PostgreSQL/RLS. Separate authorization/
 
 Bootstrap delivered locally on 26 October 2026: Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, Tailwind 4.3.3, shadcn 4.22.1 configuration, Node 24 and pnpm 12.15.0, with exact dependency pins/lockfile, lint/format/type/build commands, Vitest configuration and one real Chromium production smoke test. No auth/data/AI/runner features were implemented. ESLint 9.39.5 is retained for compatibility with the Next config's React/import/accessibility plugin peers; version 10 produced peer conflicts. Record dependency review and upgrade when the plugin stack supports it. Unit runner currently has no tests and explicitly permits that state.
 
+#### ESLint maintainability thresholds
+
+Add only the requested core ESLint and SonarJS rules; do not enable SonarJS's full recommended preset. Use cyclomatic complexity 10, cognitive complexity 15, max file lines 500 (warning severity, enforced by the existing `--max-warnings=0` command), max function lines 75 (ignoring blank/comment-only lines), block depth 3, parameters 4, statements 20 and duplicate-string threshold 3. Keep SonarJS 4.2.2 as an exact development-only dependency (LGPL-3.0-only; not bundled into the app). These are repository guardrails, not a claim that any one threshold is a universal industry standard. The initial lint run found 56 violations in 18 files; refactor those sites to meet the limits while preserving behavior, then verify lint and the existing tests.
+
 ### Agreed ownership and first student contract
 
 On 26 October 2026 the requester identified primary responsibility for student features and Next.js/shared-tooling initialization, while the teammate's primary responsibility was shared authentication, database migrations (including RLS changes), assignment creation and the shared AI gateway. The 28 October clarification makes those responsibilities non-exclusive. Coordinate common contracts, migrations and service boundaries; do not build competing implementations.

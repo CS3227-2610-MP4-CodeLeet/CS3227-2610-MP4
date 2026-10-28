@@ -10,6 +10,12 @@
 - [x] 2.1 Bootstrap Next.js/TypeScript/Tailwind/shadcn under src with pnpm, locked dependencies and shared tooling.
 - [x] 2.2 Configure fresh local Supabase, signup defaults, trusted roles, profiles and RLS tests. Verified clean `pnpm db:reset`; all 9 pgTAP access checks pass with `pnpm db:test`.
 - [x] 2.3 Add formatting, lint, types, unit, database, browser, application-build and product-site-build checks to CI. Application checks remain in the Playwright container job; a separate job starts local Supabase and runs pgTAP, with cleanup on success or failure.
+- [x] 2.4 Install `eslint-plugin-sonarjs` 4.2.2 as an exact development dependency and configure only the eight requested maintainability rules.
+- [x] 2.5 Refactor student UI and browser-client functions in `src/features/student-assignments/components.tsx`, `workspace-shell.tsx`, `src/features/student-submissions/code-entry.tsx`, `practice-results.tsx`, `practice-runner.tsx` and `browser-client.ts` to satisfy the selected limits without changing visible behavior.
+- [x] 2.6 Refactor runtime functions in `src/runtime-lab/embed.mjs`, `java-support.mjs`, `lab.mjs`, `server.mjs`, `supervisor.mjs` and `worker.mjs` to satisfy the selected limits while preserving browser isolation and runner behavior.
+- [x] 2.7 Refactor repeated literals and remaining limits in `src/features/student-submissions/practice-tests.test.ts`, `tests/e2e/assignment-preview.spec.ts`, `tests/e2e/browser-runtime.spec.ts` and the three affected `workflow/scripts/*.mjs` files.
+- [x] 2.8 Verify `pnpm lint`, typecheck, unit tests and non-opt-in preview E2E journeys: lint/typecheck passed, 31 unit tests passed and 14 E2E tests passed. Four real-runtime E2E tests remain skipped because reviewed local runtime assets are not present.
+- [ ] 2.9 With reviewed local runtime assets available, run the four opt-in Python/Java browser-runtime E2E journeys and record the results.
 
 ## 3. Assignments and execution
 

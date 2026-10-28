@@ -3,17 +3,15 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+const javascriptMime = 'text/javascript';
 const files = new Map([
   ['/', ['src/runtime-lab/index.html', 'text/html']],
-  ['/lab.mjs', ['src/runtime-lab/lab.mjs', 'text/javascript']],
-  ['/supervisor.mjs', ['src/runtime-lab/supervisor.mjs', 'text/javascript']],
-  ['/worker.mjs', ['src/runtime-lab/worker.mjs', 'text/javascript']],
+  ['/lab.mjs', ['src/runtime-lab/lab.mjs', javascriptMime]],
+  ['/supervisor.mjs', ['src/runtime-lab/supervisor.mjs', javascriptMime]],
+  ['/worker.mjs', ['src/runtime-lab/worker.mjs', javascriptMime]],
   ['/embed', ['src/runtime-lab/embed.html', 'text/html']],
-  ['/embed.mjs', ['src/runtime-lab/embed.mjs', 'text/javascript']],
-  [
-    '/java-support.mjs',
-    ['src/runtime-lab/java-support.mjs', 'text/javascript'],
-  ],
+  ['/embed.mjs', ['src/runtime-lab/embed.mjs', javascriptMime]],
+  ['/java-support.mjs', ['src/runtime-lab/java-support.mjs', javascriptMime]],
   [
     '/assets.json',
     ['workflow/evidence/runtime-feasibility/assets.json', 'application/json'],
@@ -38,7 +36,7 @@ for (const [language, names] of Object.entries({
     files.set(`/assets/${language}/${name}`, [
       `.runtime-cache/${language}/${name}`,
       name.endsWith('.mjs') || name.endsWith('.js')
-        ? 'text/javascript'
+        ? javascriptMime
         : name.endsWith('.wasm')
           ? 'application/wasm'
           : 'application/octet-stream',
