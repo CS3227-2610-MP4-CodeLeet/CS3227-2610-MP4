@@ -3,7 +3,11 @@
 Read `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, and the relevant OpenSpec change before editing.
 
 - Use the active OpenSpec change for planned work; check its status and apply instructions, update its artifacts when scope or decisions change, and mark tasks complete only after verification.
-- Group related changes into focused, incremental commits at verified milestones. Stage only files for that change; preserve unrelated workspace edits.
+- Before implementation, link an existing GitHub issue whose scope matches or create one; link the issue, active OpenSpec change, branch, log summary and PR.
+- Use relevant repository-local Superpowers skills for brainstorming/planning, TDD, debugging, verification, review and branch closeout. Follow user authorization for specialist agents.
+- Use a Conventional Commit branch from `develop`; group related work into focused incremental commits at verified milestones. Stage only files for that change and preserve unrelated edits.
+- Maintain a dated per-change summary in `logs/` from `logs/SessionTemplate.md`. Summarize each prompt and interaction chronologically, including requests/steering, actual participants/handoffs, decisions, files, checks, failures and outcomes; do not store raw transcripts, secrets, credentials, real student data or sensitive prompt text. Keep human verification pending until a teammate reviews it.
+- After implementation, applicable checks and the log summary are complete, push the branch and create or update a PR to `develop` that links the issue, OpenSpec change, summary and actual verification. Do not claim merge, deployment or release without evidence.
 
 - Build MP4 fresh. Do not copy previous MPs' implementation, configuration, or workflow text.
 - Preserve browser-only Python execution and Java compilation/execution. Never add a remote execution service or run submitted code in Next.js/Node.

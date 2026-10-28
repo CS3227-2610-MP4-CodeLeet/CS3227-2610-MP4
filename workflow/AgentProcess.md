@@ -2,6 +2,15 @@
 
 This document defines a planned process. It does not claim agents have executed it or automatically enable agent runtime discovery.
 
+## Issue-to-PR workflow
+
+1. Find or create a GitHub issue before implementation; reuse an issue only when it clearly covers the change.
+2. Link the issue to an active OpenSpec proposal/spec/design/tasks. Use OpenSpec status and operation instructions; update artifacts when scope or decisions change.
+3. Use relevant repository-local Superpowers skills for design/planning, TDD implementation, debugging, verification, review and branch closeout. These are process gates, not evidence that a skill or independent reviewer ran.
+4. Work on a Conventional Commit branch from `develop`. Commit related verified changes incrementally and stage only the owned files.
+5. Maintain the per-change `logs/` summary throughout implementation. Before PR creation/update, summarize each prompt and interaction chronologically, including user requests/steering, actual participants/handoffs, decisions, artifacts, checks, limitations, branch/commits, and links to the issue/OpenSpec/PR. Do not copy raw transcripts or sensitive content; keep human verification pending until reviewed.
+6. Once implementation and applicable checks are complete, push the branch and create or update a PR to `develop` linked to the issue, OpenSpec change and log summary. Review/merge/deployment/release remain separate human decisions.
+
 ## Smallest useful coordination
 
 1. Coordinator selects a capability and acceptance scenarios from an OpenSpec change, records owner, budget, dependencies, and allowed files.

@@ -10,6 +10,7 @@ Students need simple programming practice and submission workflows; instructors 
 - Add distinct SoCLaaS student hints and instructor grading suggestions with authorization, validated output, quotas, scoped caching and usage metadata.
 - Add discussion threads/replies, server-controlled XP awards and a seeded leaderboard.
 - Establish specialist coordination evidence, security/resource experiments, guides and separate deployment environments.
+- Standardize repository tooling on the latest Node.js 24 patch with direct pnpm commands, and use an issue-linked OpenSpec/Superpowers workflow with incremental commits, sanitized per-change summaries and a PR closeout.
 
 Exclude uploads, badges, arbitrary student dependencies, server execution and autonomous AI grade publication. All product features remain proposed.
 

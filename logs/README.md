@@ -1,5 +1,5 @@
 # Development interaction summaries
 
-Create a dated summary for every development session using [the template](SessionTemplate.md). Summarize user requests, material prompts/agent interactions, decisions, files, commands, failures, and outcomes. Include task and evidence paths so reflections can trace claims.
+Create and maintain a dated summary for every material change using [the template](SessionTemplate.md). Start it during implementation and finalize it before opening/updating the PR. Include the GitHub issue, OpenSpec change, branch/commits and PR so the work is traceable. Summarize each prompt and interaction during the change, including user requests/steering, assistant or agent work/handoffs, decisions and outcomes; distinguish quoted/reference material from user instructions.
 
-An AI-generated summary must be checked by a team member. Preserve `Human verification: pending` until that happens. Do not retain credentials, raw sensitive provider output, or personal student code.
+Keep summaries concise and evidence-based. Do not copy full conversation transcripts. An AI-generated summary must be checked by a team member; preserve `Human verification: pending` until that happens. Never retain credentials, raw sensitive provider output, real student data/code or sensitive prompt text.

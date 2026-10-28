@@ -16,6 +16,10 @@
 - [x] 2.7 Refactor repeated literals and remaining limits in `src/features/student-submissions/practice-tests.test.ts`, `tests/e2e/assignment-preview.spec.ts`, `tests/e2e/browser-runtime.spec.ts` and the three affected `workflow/scripts/*.mjs` files.
 - [x] 2.8 Verify `pnpm lint`, typecheck, unit tests and non-opt-in preview E2E journeys: lint/typecheck passed, 31 unit tests passed and 14 E2E tests passed. Four real-runtime E2E tests remain skipped because reviewed local runtime assets are not present.
 - [ ] 2.9 With reviewed local runtime assets available, run the four opt-in Python/Java browser-runtime E2E journeys and record the results.
+- [x] 2.10 Remove Corepack command wrappers from package scripts and contributor/user docs; keep the exact `packageManager` pnpm pin and use direct `pnpm` invocations.
+- [x] 2.11 Pin Node.js to the latest Node 24 LTS patch available on 28 October 2026 (`24.22.1`) in `.node-version`; make CI and documentation use that pin and retain the Node 24 engine range.
+- [x] 2.12 Update repository and contributor workflow to require a matching GitHub issue, OpenSpec artifacts, relevant Superpowers skills, focused Conventional Commits, a reviewed/sanitized `logs/` summary, and a linked PR after verification. Reuse existing foundation issue #11 and PR #12.
+- [ ] 2.13 Verify no Corepack invocations remain, run applicable formatting/lint/type/unit checks and strict OpenSpec validation, create per-change summaries for the ESLint and current tooling/workflow updates, then push and update the linked PR. Record the installed Node version and any gap versus `.node-version`.
 
 ## 3. Assignments and execution
 
