@@ -34,4 +34,4 @@
 - [x] 5.2 Add synthetic 10-case context experiment harness, clearly labeled report template, architecture/data/access diagrams, threat-model-to-test map, and local/Vercel/Supabase setup documentation.
 - [x] 5.3 Run the focused Vitest, pgTAP, lint, typecheck, build, and Playwright suites available in this environment; record skipped checks and the tested commit.
 - [x] 5.4 Update verified user documentation, create sanitized dated interaction/change summary under `logs/`, and ensure no secrets, prompts, or real student data are recorded.
-- [ ] 5.5 Review the final diff against the PDF and OpenSpec requirements, update issue #13, push the branch, and open a PR with checks, limitations, and external deployment/provider gates stated accurately.
+- [x] 5.5 Review the final diff against the PDF and OpenSpec requirements, update issue #13, push the branch, and open a PR with checks, limitations, and external deployment/provider gates stated accurately.

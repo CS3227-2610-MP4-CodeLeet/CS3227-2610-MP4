@@ -24,15 +24,16 @@ This is a sanitized chronological summary, not a transcript. It records the requ
 
 - Issue: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/13
 - Branch: `feat/implement-codementor-mvp`
-- OpenSpec: `openspec/changes/deliver-codementor-mvp/`
-- PR: pending
+- OpenSpec: `openspec/changes/archive/2026-10-29-deliver-codementor-mvp/` (archived after 23/23 tasks; five main specs synced)
+- PR: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/14 (open; base `develop`)
 
 ## Incremental commits
 
 - `f971a7e docs: plan CodeMentor MVP delivery` — issue-linked plan and OpenSpec proposal/specs/design/tasks.
 - `90daa7b feat(codementor): deliver authenticated assignment review workflows` — app routes, role-aware services, UI, Supabase migration, and config.
 - `a376eb5 test(codementor): verify access, quotas and review flows` — unit/pgTAP/Playwright coverage and synthetic verification harnesses.
-- Documentation/spec/evidence commit: preparing now; issue update and PR link will be appended after GitHub publication.
+- `737f2a2 docs(codementor): sync specifications and verification evidence` — five main specs, checklist, setup/evidence docs, and this sanitized log.
+- Final workflow record: issue #13 updated, branch pushed, PR #14 opened against `develop`, and the OpenSpec change archived after sync/validation.
 
 ## Human review
 
