@@ -1,5 +1,5 @@
 # Product website
 
-`index.html` is an honest pre-release landing page. A manual GitHub Pages workflow is provided but has not been run. Before publication, configure repository Pages to use GitHub Actions and review public content.
+This is a fresh Docusaurus site for the CS3227 MP4 project, configured for the repository's GitHub Pages project URL. The landing page reports verified implementation status; it does not imply that the proposed authenticated product is available.
 
-Docusaurus is the intended full documentation-site framework, matching the MP3 technology direction. Add it fresh when guides and application behavior exist; do not duplicate documentation sources without a synchronization plan. Update the deployment workflow's artifact directory if the website build output changes.
+From the repository root, run `pnpm install --frozen-lockfile`, `pnpm site:dev` for local preview, or `pnpm site:build` to generate `website/build`. The manual Pages workflow builds this site and deploys only when dispatched on `master`; this setup change does not publish it.

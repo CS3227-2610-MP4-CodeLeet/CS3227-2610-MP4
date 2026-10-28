@@ -1,10 +1,10 @@
 # Developer Guide
 
-Status: Next.js foundation and a development-only synthetic student assignment/code preview, with an additional opt-in local browser runtime and published-test runner. Authentication, database, AI and production runtime hosting/deployment are not configured. Production student services remain proposed.
+Status: Next.js foundation, development-only synthetic student assignment/code preview, opt-in local browser runtime, and a fresh local Supabase profile/role foundation with RLS tests. Application authentication/routes, assignments/submissions, AI and hosted environments remain unimplemented.
 
 ## Technology and setup
 
-Use Node.js 24 and pnpm 12.15.0, pinned in package.json. Install pnpm with `npm install --global pnpm@12.15.0`, or prefix commands with `npx --yes pnpm@12.15.0`. Run `pnpm install --frozen-lockfile`, then `pnpm dev` and open http://localhost:3000. The home page uses local system fonts and needs no Supabase/SoCLaaS keys.
+Use Node.js 24.22.1 from `.node-version` and pnpm 12.15.0 from `package.json`. Install pnpm directly with `npm install --global pnpm@12.15.0`, or prefix commands with `npx --yes pnpm@12.15.0`. Corepack is not required. Run `pnpm install --frozen-lockfile`, then `pnpm dev` and open http://localhost:3000. The home page uses local system fonts and needs no Supabase/SoCLaaS keys.
 
 Application source is in src/app; shared utilities in src/lib; future shadcn components in src/components/ui. The @/* import alias points to src/*. components.json and CSS tokens configure shadcn; add reviewed components as needed with `pnpm exec shadcn add <component>`. Nothing was copied from MP3. Dependencies are exact-pinned and the pnpm lockfile is committed as a reproducibility artifact when this work is committed. The workspace permits native build scripts only for Tailwind oxide, esbuild and sharp; review any additional build-script request before expanding that list.
 
@@ -19,11 +19,16 @@ Shared commands:
 | pnpm typecheck | Generate route types and run strict TypeScript |
 | pnpm test:unit | Public DTO projection, draft filtering and preview environment gate unit tests |
 | pnpm test:e2e | Production smoke/boundary checks on port 3100 and isolated dev-preview journeys on port 3101 |
+| pnpm db:start / pnpm db:stop | Start/stop the repository-pinned local Supabase stack; requires Docker Desktop |
+| pnpm db:reset | Destructively recreate the local database and apply checked-in migrations |
+| pnpm db:test | Run pgTAP access-control tests against the local database |
+| pnpm db:status | Show local Supabase endpoints and generated development credentials |
+| pnpm site:build | Build the Docusaurus site for GitHub Pages |
 | pnpm check:scaffold / pnpm spec:validate | Artifact/Markdown links and strict OpenSpec checks |
 
-Build before running browser tests. Install Chromium locally once using `pnpm exec playwright install chromium`. CI uses the official Playwright v1.64.1-noble container with browsers/OS libraries already installed, avoiding apt mirror stalls. Keep that image version aligned with @playwright/test when updating dependencies. actions/setup-node still selects Node 24 from .node-version and CI verifies the major version explicitly. Browser checks have a five-minute step timeout and failed traces are retained for seven days. See the [official Playwright image documentation](https://playwright.dev/docs/docker).
+Build before running browser tests. Install Chromium locally once using `pnpm exec playwright install chromium`. CI uses the official Playwright v1.64.1-noble container with browsers/OS libraries already installed, avoiding apt mirror stalls. Keep that image version aligned with @playwright/test when updating dependencies. actions/setup-node selects the exact Node patch from `.node-version`; application CI also verifies the Node 24 major version. Browser checks have a five-minute step timeout and failed traces are retained for seven days. See the [official Playwright image documentation](https://playwright.dev/docs/docker).
 
-Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
+Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks; a separate database job starts local Supabase and runs the pgTAP suite. The database tests verify student-only signup, own-profile access and protected role metadata; they do not implement application login or product routes.
 
 ## Temporary student preview and handoff
 
@@ -48,7 +53,7 @@ node workflow/scripts/check-scaffold.mjs
 openspec validate --all --strict
 ```
 
-Copy `.env.example` to ignored `.env.local` when integrating shared services. Fill values from the appropriate development environment; leave AI disabled until provider limits and security checks are verified. No app code reads these credentials yet.
+Copy `.env.example` to ignored `.env.local` when integrating shared services. Local Supabase URL and publishable key are available from `pnpm db:status`; use only those public client values in `NEXT_PUBLIC_*` variables. Never copy the local secret key, JWT secret, or service-role key to a browser variable. The current application does not consume Supabase credentials yet. Leave AI disabled until provider limits and security checks are verified.
 
 ## Proposed design
 
@@ -68,7 +73,7 @@ Pyodide 314.0.7 is a conditional Python candidate. The TeaVM-javac snapshot plus
 
 The [published practice contract](../workflow/PublishedPracticeTests.md) specifies ownership, future API/schema constraints, comparison, quotas and the local-only bridge. The student browser client checks origin, source window, nonce, request ID and bounded results. The bridge uses a fixed separate loopback origin and retains the inner opaque worker boundary. Different ports do not isolate cookies; use this synthetic preview only, and select a genuinely credential-free deployment origin before release. New bridge/lifecycle changes have coordinator testing but no new independent security review.
 
-Domain comparator/suite tests run in the normal unit suite. Full real-runtime website tests are opt-in because binaries are not distributed in Git: fetch assets, build, then set `$env:RUN_BROWSER_RUNTIME_TESTS="1"` and run `corepack pnpm test:e2e`. Default CI runs existing website tests and skips the four opt-in cases. For sandboxed Windows environments where Playwright's process-tree shutdown stalls, manually launch production port 3100, isolated preview port 3101 (PLAYWRIGHT_PREVIEW=true and both preview flags true), and static runner port 3130; set PLAYWRIGHT_MANUAL_SERVERS=1 for the test command and stop only those owned terminal sessions afterward. The manual mode is ignored in CI. Standalone probes remain under workflow/scripts; their executionMs now measures execution only, separately from compilation/setup. A 20-second preparation watchdog bounds runs that never reach execution; repeated executing messages are rejected.
+Domain comparator/suite tests run in the normal unit suite. Full real-runtime website tests are opt-in because binaries are not distributed in Git: fetch assets, build, then set `$env:RUN_BROWSER_RUNTIME_TESTS="1"` and run `pnpm test:e2e`. Default CI runs existing website tests and skips the four opt-in cases. For sandboxed Windows environments where Playwright's process-tree shutdown stalls, manually launch production port 3100, isolated preview port 3101 (PLAYWRIGHT_PREVIEW=true and both preview flags true), and static runner port 3130; set PLAYWRIGHT_MANUAL_SERVERS=1 for the test command and stop only those owned terminal sessions afterward. The manual mode is ignored in CI. Standalone probes remain under workflow/scripts; their executionMs now measures execution only, separately from compilation/setup. A 20-second preparation watchdog bounds runs that never reach execution; repeated executing messages are rejected.
 
 ## Data and API contracts
 

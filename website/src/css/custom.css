@@ -1,0 +1,61 @@
+:root {
+  --ifm-color-primary: #2458a6;
+  --ifm-color-primary-dark: #204f95;
+  --ifm-color-primary-darker: #1e4b8d;
+  --ifm-color-primary-darkest: #193e74;
+  --ifm-color-primary-light: #2861b7;
+  --ifm-color-primary-lighter: #2a65bf;
+  --ifm-color-primary-lightest: #3b72c5;
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #8ebaff;
+  --ifm-color-primary-dark: #6ba5ff;
+  --ifm-color-primary-darker: #5a9aff;
+  --ifm-color-primary-darkest: #257aff;
+  --ifm-color-primary-light: #b1cfff;
+  --ifm-color-primary-lighter: #c2d9ff;
+  --ifm-color-primary-lightest: #e5efff;
+}
+
+.home {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.hero {
+  padding: 4rem 0;
+}
+
+.hero h1 {
+  max-width: 48rem;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.08;
+}
+
+.eyebrow {
+  color: var(--ifm-color-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 42rem;
+  font-size: 1.2rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.status {
+  max-width: 48rem;
+  border-left: 4px solid var(--ifm-color-primary);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+}

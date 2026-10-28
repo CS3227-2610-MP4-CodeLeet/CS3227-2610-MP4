@@ -6,7 +6,7 @@ Developers can run the local coming-soon home page using the README setup comman
 
 ## Local assignment preview
 
-1. Follow the README installation steps using Node 24.
+1. Follow the README installation steps using Node 24.22.1.
 2. Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and restart the development server with `pnpm dev` (or `npx --yes pnpm@12.15.0 dev`).
 3. Open `/student/assignments` at the local address printed by Next.js.
 4. Select **View** in the assignment table for **Find the largest number** (Python) or **Count the vowels** (Java).
@@ -40,7 +40,7 @@ In another terminal start the website:
 ```powershell
 $env:STUDENT_PREVIEW_ENABLED = "true"
 $env:STUDENT_RUNNER_PREVIEW_ENABLED = "true"
-corepack pnpm dev
+pnpm dev
 ```
 
 Open `/student/assignments` at the address printed by Next.js (normally http://localhost:3000). Open a Python/Java assignment and enter a complete program that reads stdin and prints the answer. Python's sample now expects space-separated integers and printed output, not a function return value. Java requires one public Main class; buffered UTF-8 input, BufferedReader and the documented basic Scanner methods are supported.

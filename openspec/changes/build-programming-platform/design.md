@@ -2,6 +2,8 @@
 
 Two-member team, student/instructor roles, MP3 technology direction with fresh implementation. The user explicitly requires browser-only Python and Java execution, superseding the brainstorming PDF's no-execution advice.
 
+On 28 October 2026, the requester clarified that the work split is indicative of primary responsibility only; either member may implement any task. Coordinate shared contracts and service changes, and record the actual implementer/reviewer. No implementation is prohibited solely because it was initially assigned to the other member.
+
 ## Goals / Non-Goals
 
 Deliver complete role journeys, two AI features, browser practice, simple discussions/XP and auditable engineering evidence. Exclude uploads, badges, live chat, arbitrary program dependencies, multi-course administration, server execution and automatic grade publication.
@@ -14,22 +16,34 @@ Use Next.js/TypeScript and Supabase Auth/PostgreSQL/RLS. Separate authorization/
 
 Bootstrap delivered locally on 26 October 2026: Next.js 16.4.3, React 19.3.1, TypeScript 5.9.3, Tailwind 4.3.3, shadcn 4.22.1 configuration, Node 24 and pnpm 12.15.0, with exact dependency pins/lockfile, lint/format/type/build commands, Vitest configuration and one real Chromium production smoke test. No auth/data/AI/runner features were implemented. ESLint 9.39.5 is retained for compatibility with the Next config's React/import/accessibility plugin peers; version 10 produced peer conflicts. Record dependency review and upgrade when the plugin stack supports it. Unit runner currently has no tests and explicitly permits that state.
 
+#### ESLint maintainability thresholds
+
+Add only the requested core ESLint and SonarJS rules; do not enable SonarJS's full recommended preset. Use cyclomatic complexity 10, cognitive complexity 15, max file lines 500 (warning severity, enforced by the existing `--max-warnings=0` command), max function lines 75 (ignoring blank/comment-only lines), block depth 3, parameters 4, statements 20 and duplicate-string threshold 3. Keep SonarJS 4.2.2 as an exact development-only dependency (LGPL-3.0-only; not bundled into the app). These are repository guardrails, not a claim that any one threshold is a universal industry standard. The initial lint run found 56 violations in 18 files; refactor those sites to meet the limits while preserving behavior, then verify lint and the existing tests.
+
+#### Developer runtime and package manager
+
+Use Node.js 24.22.1, the latest Node 24 LTS patch available on 28 October 2026, as the exact repository pin in `.node-version`. CI reads that file; `package.json` keeps the compatible `>=24 <25` engine range. Update the pin deliberately as new supported Node 24 patches are released and rerun applicable checks. Use pnpm directly. Corepack command wrappers are unnecessary because contributors install the exact pnpm version directly and CI's pnpm action reads the exact `packageManager` field. Keep `packageManager: pnpm@12.15.0` as the version source; remove Corepack invocations from scripts and documentation.
+
+#### Issue-driven implementation and session summaries
+
+For each material change, link a scope-matched open GitHub issue or create one before implementation. Link that issue to the active OpenSpec artifacts. Use relevant repository-local Superpowers skills for planning, TDD, debugging, verification, review and closeout, while respecting explicit authorization for delegation. Create focused incremental Conventional Commits on the corresponding branch. Maintain a dated, sanitized interaction summary in `logs/` throughout work and finalize it before pushing/opening a PR. Summarize each prompt and interaction chronologically, capturing requests/steering, decisions, actual participants/handoffs, files, checks and limitations; do not store full transcripts, secrets, credentials, real student data or sensitive prompt contents. Keep human verification pending until a teammate has checked the summary. Push and create/update a PR only after implementation, checks and summary are complete; do not imply a merge, deployment or release.
+
 ### Agreed ownership and first student contract
 
-On 26 October 2026 the requester confirmed ownership of student features and Next.js/shared-tooling initialization. Their teammate implements shared authentication, database migrations (including RLS changes), assignment creation and the shared AI gateway. Student work consumes these services and contributes acceptance/security tests; it must not introduce competing auth, migrations or AI infrastructure. Instructor grading ownership still needs confirmation.
+On 26 October 2026 the requester identified primary responsibility for student features and Next.js/shared-tooling initialization, while the teammate's primary responsibility was shared authentication, database migrations (including RLS changes), assignment creation and the shared AI gateway. The 28 October clarification makes those responsibilities non-exclusive. Coordinate common contracts, migrations and service boundaries; do not build competing implementations.
 
 | Concept | Agreed fields | Trust boundary |
 | --- | --- | --- |
 | Assignment | ID, title, instructions, language, publication status | Only published student-visible data is returned; private rubrics remain separate |
 | Submission | Assignment ID, student ID, source code, language, revision, timestamp | Bind student ID to the verified session and allocate revisions/timestamps on the server/database |
 
-The requester authorized Codex to decide the following contracts on 26 October 2026. This records an actual requester decision, not a claimed teammate discussion. Send the contract to the migration/auth owner for implementation acknowledgment; reconcile any existing teammate interfaces before integration. Public criteria, if later added, must be explicitly student-visible. No private rubric or unpublished grade belongs in a student response.
+The requester authorized Codex to decide the following contracts on 26 October 2026. This records an actual requester decision. Reconcile the contracts with any existing shared interfaces before integration and record compatibility changes. Public criteria, if later added, must be explicitly student-visible. No private rubric or unpublished grade belongs in a student response.
 
 #### Student contract v1: identity
 
-The teammate supplies a request-scoped cookie-backed Supabase server client under `src/lib/supabase/server.ts` using `@supabase/ssr`, and a server-only `requireStudent()` helper under `src/lib/auth/require-student.ts`. The helper calls `supabase.auth.getUser()` to obtain a server-confirmed user, reads the current protected role for that user and returns `{ studentId, supabase }` only for role `student`. Missing/invalid sessions give 401; a verified non-student gives 403; an unavailable auth/database dependency gives 503. Never take identity or role from request JSON or mutable user metadata. Do not trust getSession alone or rely only on page/proxy guards.
+The shared foundation supplies a request-scoped cookie-backed Supabase server client under `src/lib/supabase/server.ts` using `@supabase/ssr`, and a server-only `requireStudent()` helper under `src/lib/auth/require-student.ts`. The helper calls `supabase.auth.getUser()` to obtain a server-confirmed user, reads the current protected role for that user and returns `{ studentId, supabase }` only for role `student`. Missing/invalid sessions give 401; a verified non-student gives 403; an unavailable auth/database dependency gives 503. Never take identity or role from request JSON or mutable user metadata. Do not trust getSession alone or rely only on page/proxy guards.
 
-Use the signed-in client's JWT and publishable key for data operations, preserving RLS; no service-role bypass for student reads/writes. Do not share authenticated clients between requests. Cookie refresh handling is shared auth infrastructure owned by the teammate. Mark authenticated student responses `Cache-Control: private, no-store`, including error responses.
+Use the signed-in client's JWT and publishable key for data operations, preserving RLS; no service-role bypass for student reads/writes. Do not share authenticated clients between requests. Cookie refresh handling belongs in the shared auth foundation. Mark authenticated student responses `Cache-Control: private, no-store`, including error responses.
 
 This intentionally chooses getUser's up-to-date Auth lookup at the cost of a network call. Supabase documents cookie clients through [its SSR guide](https://supabase.com/docs/guides/auth/server-side/nextjs) and authentic user retrieval through [getUser](https://supabase.com/docs/reference/javascript/auth-getuser). No SDK implementation has been added here.
 
@@ -40,7 +54,7 @@ Use snake_case JSON fields. IDs are UUID strings. Language values are exactly `p
 - Assignment detail: `{ id, title, instructions, language, publication_status }`. A list item omits instructions.
 - Submission detail: `{ id, assignment_id, student_id, source_code, language, revision, submitted_at }`. A history item omits source_code; use the own-revision detail route for source.
 - Submission ID is a server-generated UUID; revision is a positive integer allocated per student/assignment; submitted_at is a database-generated UTC ISO 8601 timestamp. Persist exact source without trimming or line-ending normalization.
-- These DTOs constrain behavior, not final physical table names. The teammate maps them to migrations and supplies protected student-role/ownership checks.
+- These DTOs constrain behavior, not final physical table names. The shared schema must provide protected student-role/ownership checks.
 
 | Method and route | Input | Success contract |
 | --- | --- | --- |
@@ -50,7 +64,7 @@ Use snake_case JSON fields. IDs are UUID strings. Language values are exactly `p
 | GET `/api/student/assignments/[assignmentId]/submissions` | UUID path; optional page/page_size | 200 `{ data: SubmissionSummary[], pagination: { page, page_size, has_more } }`, scoped to the signed-in student |
 | GET `/api/student/submissions/[submissionId]` | UUID path | 200 `{ data: SubmissionDetail }`; absent/not-owned uses the same 404 |
 
-All routes call requireStudent independently. Client components use these routes; server-rendered pages call the same server-only student services rather than issuing HTTP calls back into the app. The requester owns student route/service integration; the teammate owns shared auth and the atomic persistence operation/policies. Student pages are `/student/assignments`, `/student/assignments/[assignmentId]` and `/student/submissions/[submissionId]`.
+All routes call requireStudent independently. Client components use these routes; server-rendered pages call the same server-only student services rather than issuing HTTP calls back into the app. Student routes, shared auth and atomic persistence must use one agreed contract. Student pages are `/student/assignments`, `/student/assignments/[assignmentId]` and `/student/submissions/[submissionId]`.
 
 Pagination uses page 1/page_size 20 by default; explicit values must be single positive safe integers, with page_size at most 50. Reject unknown, duplicate or invalid query values with 400. Assignment order is id ascending; own history is revision descending. Fetch one extra row to calculate has_more; no total count is required. New submissions may shift offset pages, so history refresh restarts at page 1. Own history remains readable after assignment unpublication without returning hidden assignment fields. For an unpublished/nonexistent assignment with no own history, return the same 404; a published assignment with no own history returns an empty list.
 
@@ -79,7 +93,7 @@ All API errors use `{ error: { code, message, field_errors } }`, where message i
 
 Each intentional submission creates one request_id using crypto.randomUUID. Retain that ID and exact source/language for retries until the result is known; a new deliberate submission gets a new ID. Disable duplicate clicks while pending, but enforce idempotency on the server/database too.
 
-The teammate's transaction scopes idempotency by student_id + assignment_id + request_id. An identical committed replay returns the original revision without an additional write; changed source/language with the same ID returns 409. Verify current identity and ownership before replay. A replay may return the existing own revision after unpublication but must not create new source; a fresh write requires the assignment still be published at its transaction's serialization point.
+The persistence transaction scopes idempotency by student_id + assignment_id + request_id. An identical committed replay returns the original revision without an additional write; changed source/language with the same ID returns 409. Verify current identity and ownership before replay. A replay may return the existing own revision after unpublication but must not create new source; a fresh write requires the assignment still be published at its transaction's serialization point.
 
 Serialize revision allocation per student/assignment, enforce uniqueness on that tuple plus revision, and commit the retry mapping with the immutable source row. Coordinate assignment publication/language changes with the same transactional visibility check so stale client state cannot authorize a new write. Concurrent distinct requests get distinct revisions; concurrent identical retries get one stored revision. No raw max(revision)+1 calculation without locking or equivalent atomic protection. If a response is lost, retry with the original request_id. Do not add unbounded automatic retries.
 
@@ -93,13 +107,13 @@ Tracking: [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4
 
 | Dependency | Owner/status at planning time | Required handoff |
 | --- | --- | --- |
-| Shared app bootstrap, package versions and integration layout | Requester-owned; initialized and locally checked on 26 October 2026 | See package.json, lockfile, src/app, @/* alias and Developer Guide for commands/layout |
-| Verified student identity/session | Teammate-owned; not delivered here | Server session lookup, student role handling and unauthenticated error behavior |
-| Assignment/submission schema, policies and revision allocation | Teammate-owned; not delivered here | Concrete field/types, scoped reads/writes, immutable revision keys and local migration/test instructions |
-| Shared assignment creation | Teammate-owned; UI may arrive later | Synthetic published/draft fixtures matching the agreed schema; no production data |
-| AI gateway | Teammate-owned; later milestone | Not required by issue #5; do not implement a replacement |
+| Shared app bootstrap, package versions and integration layout | Initialized and locally checked on 26 October 2026 | See package.json, lockfile, src/app, @/* alias and Developer Guide for commands/layout |
+| Verified student identity/session | Shared foundation; not delivered at planning time | Server session lookup, student role handling and unauthenticated error behavior |
+| Assignment/submission schema, policies and revision allocation | Shared foundation; not delivered at planning time | Concrete field/types, scoped reads/writes, immutable revision keys and local migration/test instructions |
+| Shared assignment creation | Shared feature; UI may arrive later | Synthetic published/draft fixtures matching the agreed schema; no production data |
+| AI gateway | Shared feature; later milestone | Not required by issue #5; avoid competing implementations |
 
-These are pending delivery dependencies, not evidence that teammate work is blocked or incomplete on another branch. The contract above is requester-authorized; confirm teammate implementation compatibility at the handoff before integration.
+These were pending delivery dependencies at planning time. The contract above is requester-authorized; verify shared implementation compatibility before integration.
 
 #### Contract handoff before persistence work
 
@@ -112,11 +126,11 @@ The student contract v1 sections above select paths, transport, DTOs, limits and
 | Create submission revision | Assignment ID, source_code, language, request_id | Stored own revision and authoritative metadata |
 | Read own revision history | Assignment ID and page/page_size | Only the session student's stored revisions |
 
-At the handoff, verify the teammate's actual schema/session helpers implement student contract v1, record any necessary reconciliation and obtain the local migration/test instructions. Validate both server routes and direct RLS/database paths; route-only guards are insufficient. The migration owner supplies persistent invariants and the atomic submission operation. This plan specifies required behavior without implementing teammate-owned migrations.
+Before persistence integration, verify the actual shared schema/session helpers implement student contract v1, record any necessary reconciliation and retain local migration/test instructions. Validate both server routes and direct RLS/database paths; route-only guards are insufficient. The shared schema must supply persistent invariants and an atomic submission operation.
 
 #### Implementation sequence
 
-1. Record the shared app/session/persistence handoff and file ownership. Bring missing policy/migration changes to the teammate. Budget this milestone as one bounded task per checklist item, with targeted checks per step; revise estimates from actual work rather than inventing usage metrics.
+1. Record the shared app/session/persistence interfaces and implementation handoffs. Coordinate policy/migration changes across affected contributors. Budget this milestone as one bounded task per checklist item, with targeted checks per step; revise estimates from actual work rather than inventing usage metrics.
 2. Create synthetic published Python/Java assignments, a draft assignment and two student identities from the agreed contract. A temporary fixture adapter can support UI/unit work, but must stay test/development-only and cannot bypass production authorization.
 3. Implement published assignment list/detail and loading, empty, unavailable and error states. Consume shared sign-in/session handling rather than building a student-specific authentication system.
 4. Implement source entry with the assignment language, agreed input validation, pending/success/failure feedback and safe text rendering. Preserve entered code on failure; never execute it as part of submission or render it as active markup.
@@ -130,7 +144,7 @@ At the handoff, verify the teammate's actual schema/session helpers implement st
 
 Continue UI work independently on feature/5-student-assignment-preview, branched from the bootstrap commit d8dd1c6 while PR #6 is reviewed. Compose reusable list/detail views from explicit public DTO projections and a separate server-only synthetic adapter. Do not implement replacement authentication, public fixture APIs or a production fixture fallback.
 
-The temporary student assignment pages require both NODE_ENV=development and STUDENT_PREVIEW_ENABLED=true; otherwise they call notFound before reading preview scenarios/data. Check this at the layout and data-adapter entry points. Production must deny the pages even with the flag set. Real authenticated reads will replace this temporary adapter only after the teammate handoff and access-control tests.
+The temporary student assignment pages require both NODE_ENV=development and STUDENT_PREVIEW_ENABLED=true; otherwise they call notFound before reading preview scenarios/data. Check this at the layout and data-adapter entry points. Production must deny the pages even with the flag set. Real authenticated reads will replace this temporary adapter only after shared services and access-control tests are ready.
 
 Synthetic fixtures cover published Python/Java assignments and a draft. Display only explicit public fields; render instructions as plain text. Local list query scenarios preview=empty, preview=error and preview=slow exercise empty/error/loading views; these are preview controls, not production API query contracts. Navigation and unavailable states are tested in Chromium, including a narrow mobile viewport. This work does not close tasks 7.2/7.3, which still require shared-schema fixtures and authenticated integration.
 
@@ -172,7 +186,7 @@ Execution budget: 5 seconds per case after the interpreter/program starts, separ
 
 Deliver an additional opt-in local preview with STUDENT_RUNNER_PREVIEW_ENABLED=true, only inside the existing development-only fixture preview, using the reviewed local static runner at fixed http://127.0.0.1:3130. Validate bridge origin, source window, nonce, request ID, result shape/size and lifetime. The outer bridge runs on the separate loopback origin; all student source stays in its inner opaque worker. This is synthetic-data development testing only, not an approved credential-free production deployment (cookies are not isolated by port). Production pages remain denied. Runtime binaries stay ignored/local pending distribution and provenance review.
 
-Teammate owns test-case authoring, publishing, schema/migrations/RLS. Requester owns student display/checker/browser execution. Do not implement competing teacher persistence. Agree GET /api/student/assignments/[assignmentId]/test-cases returning only public cases for published assignments, with assignment/test-set revision; drafts/private rubrics/hidden tests excluded. The current slice uses explicit synthetic cases, never a production fallback. Hidden browser tests and client results cannot establish trusted grades/XP.
+Test-case authoring, publishing, schema/migrations/RLS and student display/checker/browser execution must share an agreed contract; either member may implement any part. Do not build competing teacher persistence. Agree GET /api/student/assignments/[assignmentId]/test-cases returning only public cases for published assignments, with assignment/test-set revision; drafts/private rubrics/hidden tests excluded. The current slice uses explicit synthetic cases, never a production fallback. Hidden browser tests and client results cannot establish trusted grades/XP.
 
 ### Access and revision contracts
 
@@ -216,7 +230,7 @@ No existing application data. Bootstrap tooling, prove runtimes, implement revie
 
 ## Open Questions
 
-- Personal names and remaining shared/instructor task allocation; confirmed requester-owned bootstrap and student/shared-service division are recorded above.
+- Personal names and coordination budget; the primary responsibility split is non-exclusive as recorded above.
 - Runtime versions/licenses, supported browsers, isolation headers and tested limits.
 - Resolve runtime source-provenance/distribution and production-origin/browser-matrix gates before selecting a production Java runtime. Buffered input is demonstrated for the documented compatibility subset; app integration remains pending. Do not substitute a remote compiler.
 - SoCLaaS endpoint/model/key limits.

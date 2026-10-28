@@ -111,138 +111,165 @@ async function initialize(data) {
   self.postMessage({ type: 'ready' });
 }
 
-self.onmessage = async ({ data }) => {
-  try {
-    if (data?.command === 'initialize') {
-      try {
-        await initialize(data);
-      } catch (error) {
-        self.postMessage({
-          type: 'done',
-          status: 'initialization-error',
-          detail: String(error),
-        });
-      }
-    } else if (data?.command === 'run') {
-      if (language === 'python') {
-        const stdin = encoder.encode(data.stdin);
-        let read = false;
-        runtime.setStdin({
-          stdin: () => {
-            if (read || !stdin.length) return null;
-            read = true;
-            return stdin;
-          },
-        });
-        runtime.setStdout({
-          write: (buffer) => {
-            emit('stdout', new TextDecoder().decode(buffer));
-            return buffer.length;
-          },
-        });
-        runtime.setStderr({
-          write: (buffer) => {
-            emit('stderr', new TextDecoder().decode(buffer));
-            return buffer.length;
-          },
-        });
-        self.postMessage({ type: 'executing' });
-        await runtime.runPythonAsync(data.source);
-      } else {
-        const { compiler, load, support } = runtime;
-        for (const [path, source] of Object.entries(
-          support.javaSupportSources(data.stdin),
-        ))
-          compiler.addSourceFile(path, source);
-        if (!compiler.compile()) {
-          self.postMessage({ type: 'done', status: 'compile-error' });
-          return;
-        }
-        const inputClass = support.relocateClass(
-          compiler.getOutputFile('codeleet/runtime/BrowserInputStream.class'),
-          'codeleet/runtime/BrowserInputStream',
-          'org/teavm/classlib/java/lang/TConsoleInputStream',
-        );
-        const sdk = {};
-        const classlib = {
-          'org/teavm/classlib/java/lang/TConsoleInputStream.class': inputClass,
-        };
-        for (const [helper, standard] of Object.entries({
-          BrowserScanner: 'java/util/Scanner',
-          BrowserInputStreamReader: 'java/io/InputStreamReader',
-          BrowserInputMismatchException: 'java/util/InputMismatchException',
-        })) {
-          let bytes = compiler.getOutputFile(
-            `codeleet/runtime/${helper}.class`,
-          );
-          // References between first-party helpers are relocated along with the class name.
-          if (helper !== 'BrowserInputMismatchException')
-            bytes = support.relocateClass(
-              bytes,
-              'codeleet/runtime/BrowserInputMismatchException',
-              'java/util/InputMismatchException',
-            );
-          sdk[`${standard}.class`] = support.relocateClass(
-            bytes,
-            `codeleet/runtime/${helper}`,
-            standard,
-          );
-          const split = standard.lastIndexOf('/');
-          const implementation = `org/teavm/classlib/${standard.slice(0, split + 1)}T${standard.slice(split + 1)}`;
-          classlib[`${implementation}.class`] = support.relocateClass(
-            bytes,
-            `codeleet/runtime/${helper}`,
-            implementation,
-          );
-        }
-        await compiler.setSdk(new Int8Array(await support.classArchive(sdk)));
-        await compiler.setTeaVMClasslib(
-          new Int8Array(await support.classArchive(classlib)),
-        );
-        compiler.clearSourceFiles();
-        compiler.clearOutputFiles();
-        compiler.addSourceFile('Main.java', data.source);
-        if (
-          !compiler.compile() ||
-          !compiler.generateWebAssembly({
-            outputName: 'app',
-            mainClass: 'Main',
-          })
-        ) {
-          self.postMessage({ type: 'done', status: 'compile-error' });
-          return;
-        }
-        const program = await load(
-          compiler.getWebAssemblyOutputFile('app.wasm'),
-          {
-            noAutoImports: true,
-            installImports(imports) {
-              imports.teavmConsole.putcharStdout = consoleWriter('stdout');
-              imports.teavmConsole.putcharStderr = consoleWriter('stderr');
-            },
-          },
-        );
-        self.postMessage({ type: 'executing' });
-        await program.exports.main([]);
-        for (const flush of consoleWriters) flush();
-      }
-      self.postMessage({ type: 'done', status: 'ok' });
-    }
-  } catch (error) {
-    if (!outputLimitHit) {
-      try {
-        for (const flush of consoleWriters) flush();
-      } catch {
-        /* Preserve output-limit status. */
-      }
-    }
-    self.postMessage({
-      type: 'done',
-      status:
-        outputLimitHit || String(error).includes('LAB_OUTPUT_LIMIT')
-          ? 'output-limit'
-          : 'error',
-      detail: String(error),
-    });
+async function runPython(source, stdinText) {
+  const stdin = encoder.encode(stdinText);
+  let read = false;
+  runtime.setStdin({
+    stdin: () => {
+      if (read || !stdin.length) return null;
+      read = true;
+      return stdin;
+    },
+  });
+  runtime.setStdout({ write: (buffer) => writeOutput('stdout', buffer) });
+  runtime.setStderr({ write: (buffer) => writeOutput('stderr', buffer) });
+  self.postMessage({ type: 'executing' });
+  await runtime.runPythonAsync(source);
+  self.postMessage({ type: 'done', status: 'ok' });
+}
+
+function writeOutput(type, buffer) {
+  emit(type, new TextDecoder().decode(buffer));
+  return buffer.length;
+}
+
+function installJavaHelpers(compiler, support, sdk, classlib) {
+  for (const [helper, standard] of Object.entries({
+    BrowserScanner: 'java/util/Scanner',
+    BrowserInputStreamReader: 'java/io/InputStreamReader',
+    BrowserInputMismatchException: 'java/util/InputMismatchException',
+  })) {
+    const bytes = relocateJavaHelper(compiler, support, helper, standard);
+    sdk[`${standard}.class`] = bytes.sdk;
+    classlib[`${bytes.implementation}.class`] = bytes.classlib;
   }
+}
+
+function relocateJavaHelper(compiler, support, helper, standard) {
+  let bytes = compiler.getOutputFile(`codeleet/runtime/${helper}.class`);
+  if (helper !== 'BrowserInputMismatchException')
+    bytes = support.relocateClass(
+      bytes,
+      'codeleet/runtime/BrowserInputMismatchException',
+      'java/util/InputMismatchException',
+    );
+  const implementation = `org/teavm/classlib/${standard.slice(0, standard.lastIndexOf('/') + 1)}T${standard.slice(standard.lastIndexOf('/') + 1)}`;
+  return {
+    implementation,
+    sdk: support.relocateClass(bytes, `codeleet/runtime/${helper}`, standard),
+    classlib: support.relocateClass(
+      bytes,
+      `codeleet/runtime/${helper}`,
+      implementation,
+    ),
+  };
+}
+
+function archiveJavaHelpers(compiler, support) {
+  const inputClass = support.relocateClass(
+    compiler.getOutputFile('codeleet/runtime/BrowserInputStream.class'),
+    'codeleet/runtime/BrowserInputStream',
+    'org/teavm/classlib/java/lang/TConsoleInputStream',
+  );
+  const sdk = {};
+  const classlib = {
+    'org/teavm/classlib/java/lang/TConsoleInputStream.class': inputClass,
+  };
+  installJavaHelpers(compiler, support, sdk, classlib);
+  return { sdk, classlib };
+}
+
+async function compileJava(source, stdin) {
+  const { compiler, load, support } = runtime;
+  for (const [path, helper] of Object.entries(
+    support.javaSupportSources(stdin),
+  ))
+    compiler.addSourceFile(path, helper);
+  if (!compiler.compile()) return false;
+  const archives = archiveJavaHelpers(compiler, support);
+  await compiler.setSdk(
+    new Int8Array(await support.classArchive(archives.sdk)),
+  );
+  await compiler.setTeaVMClasslib(
+    new Int8Array(await support.classArchive(archives.classlib)),
+  );
+  compiler.clearSourceFiles();
+  compiler.clearOutputFiles();
+  compiler.addSourceFile('Main.java', source);
+  if (
+    !compiler.compile() ||
+    !compiler.generateWebAssembly({ outputName: 'app', mainClass: 'Main' })
+  )
+    return false;
+  await executeJavaProgram(compiler, load);
+  return true;
+}
+
+async function executeJavaProgram(compiler, load) {
+  const program = await load(compiler.getWebAssemblyOutputFile('app.wasm'), {
+    noAutoImports: true,
+    installImports(imports) {
+      imports.teavmConsole.putcharStdout = consoleWriter('stdout');
+      imports.teavmConsole.putcharStderr = consoleWriter('stderr');
+    },
+  });
+  self.postMessage({ type: 'executing' });
+  await program.exports.main([]);
+  for (const flush of consoleWriters) flush();
+}
+
+async function runJava(source, stdin) {
+  if (!(await compileJava(source, stdin))) {
+    self.postMessage({ type: 'done', status: 'compile-error' });
+    return;
+  }
+  self.postMessage({ type: 'done', status: 'ok' });
+}
+
+async function runSource(data) {
+  if (language === 'python') await runPython(data.source, data.stdin);
+  else await runJava(data.source, data.stdin);
+}
+
+async function handleMessage(data) {
+  if (data?.command === 'initialize') {
+    try {
+      await initialize(data);
+    } catch (error) {
+      self.postMessage({
+        type: 'done',
+        status: 'initialization-error',
+        detail: String(error),
+      });
+    }
+    return;
+  }
+  if (data?.command !== 'run') return;
+  try {
+    await runSource(data);
+  } catch (error) {
+    reportRunError(error);
+  }
+}
+
+function reportRunError(error) {
+  if (!outputLimitHit) {
+    try {
+      for (const flush of consoleWriters) flush();
+    } catch {
+      /* Preserve output-limit status. */
+    }
+  }
+  self.postMessage({
+    type: 'done',
+    status:
+      outputLimitHit || String(error).includes('LAB_OUTPUT_LIMIT')
+        ? 'output-limit'
+        : 'error',
+    detail: String(error),
+  });
+}
+
+self.onmessage = ({ data }) => {
+  void handleMessage(data);
 };

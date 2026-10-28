@@ -62,137 +62,197 @@ async function prepare(language, signal) {
 }
 
 export async function run({ language, source, stdin = '', timeoutMs = 5000 }) {
+  validateRunInput(language, source, stdin);
+  if (active) throw new Error('Only one lab run at a time');
+  const overallStarted = performance.now();
+  const controller = new AbortController();
+  active = { stop: () => controller.abort('stopped') };
+  const outcome = await prepareForRun(language, controller);
+  if (!outcome.runtime) {
+    active = undefined;
+    return stoppedRunResult(outcome.status, overallStarted);
+  }
+  return startRuntimeFrame({
+    language,
+    source,
+    stdin,
+    timeoutMs,
+    runtime: outcome.runtime,
+    overallStarted,
+  });
+}
+
+function validateRunInput(language, source, stdin) {
   if (
     !['python', 'java'].includes(language) ||
     encoder.encode(source).length > 32768 ||
     encoder.encode(stdin).length > 4096
   )
     throw new Error('Invalid or oversized lab input');
-  if (active) throw new Error('Only one lab run at a time');
-  const overallStarted = performance.now();
-  const controller = new AbortController();
-  active = { stop: () => controller.abort('stopped') };
-  const preparationDeadline = setTimeout(
+}
+
+async function prepareForRun(language, controller) {
+  const deadline = setTimeout(
     () => controller.abort('preparation-timeout'),
     45000,
   );
-  let outcome;
   try {
-    outcome = await Promise.race([
+    return await Promise.race([
       prepare(language, controller.signal).then((runtime) => ({ runtime })),
-      new Promise((resolve) =>
-        controller.signal.addEventListener(
-          'abort',
-          () => resolve({ status: controller.signal.reason }),
-          { once: true },
-        ),
-      ),
+      abortOutcome(controller.signal),
     ]);
   } catch (error) {
     active = undefined;
-    clearTimeout(preparationDeadline);
     throw error;
+  } finally {
+    clearTimeout(deadline);
   }
-  clearTimeout(preparationDeadline);
-  if (!outcome.runtime) {
-    active = undefined;
-    return {
-      status: outcome.status,
-      stdout: '',
-      stderr: '',
-      executionMs: null,
-      totalMs: performance.now() - overallStarted,
-    };
-  }
-  const runtime = outcome.runtime;
+}
+
+function abortOutcome(signal) {
+  return new Promise((resolve) =>
+    signal.addEventListener('abort', () => resolve({ status: signal.reason }), {
+      once: true,
+    }),
+  );
+}
+
+function stoppedRunResult(status, started) {
+  return {
+    status,
+    stdout: '',
+    stderr: '',
+    executionMs: null,
+    totalMs: performance.now() - started,
+  };
+}
+
+function startRuntimeFrame(options) {
   return new Promise((resolve, reject) => {
-    const started = performance.now();
-    const frame = document.createElement('iframe');
-    frame.sandbox = 'allow-scripts';
-    frame.referrerPolicy = 'no-referrer';
-    frame.hidden = true;
-    const nonce = crypto.randomUUID().replaceAll('-', '');
-    const policy = `default-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; script-src 'nonce-${nonce}' blob: 'unsafe-eval'; worker-src blob:`;
-    frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="${policy}"><script nonce="${nonce}">${runtime.supervisor.replaceAll('</script', '<\\/script')}</script>`;
-    const channel = new MessageChannel();
-    let finished = false;
-    let stopRequested = false;
-    let stopFallback;
-    const finish = (result) => {
-      if (finished) return;
-      finished = true;
-      clearTimeout(deadline);
-      clearTimeout(stopFallback);
-      channel.port1.postMessage({ command: 'stop' });
-      channel.port1.close();
-      frame.remove();
-      active = undefined;
-      resolve({
-        ...result,
-        language,
-        totalMs: performance.now() - started,
-        preparationMs: runtime.preparationMs,
-        warmAssets: runtime.warmAssets,
-        assetBytes: runtime.bytes,
-        executionMs: result.executionMs ?? null,
-      });
-    };
-    const deadline = setTimeout(
-      () => finish({ status: 'parent-timeout', stdout: '', stderr: '' }),
-      Math.max(1, 45000 - (performance.now() - overallStarted)),
-    );
-    active = {
-      stop: () => {
-        if (stopRequested) return;
-        stopRequested = true;
-        channel.port1.postMessage({ command: 'stop' });
-        // The trusted supervisor retains bounded output and terminates its worker.
-        // Still tear down the frame if it has not initialized or fails to reply.
-        stopFallback = setTimeout(
-          () => finish({ status: 'stopped', stdout: '', stderr: '' }),
-          100,
-        );
-      },
-    };
-    channel.port1.onmessage = ({ data }) => {
-      if (data?.type === 'ready') {
-        if (stopRequested) return;
-        channel.port1.postMessage({
-          command: 'run',
-          source,
-          stdin,
-          timeoutMs: Math.min(Math.max(timeoutMs, 100), 10000),
-        });
-      } else if (
-        data?.type === 'result' &&
-        typeof data.status === 'string' &&
-        typeof data.stdout === 'string' &&
-        typeof data.stderr === 'string' &&
-        encoder.encode(data.stdout + data.stderr).length <= 8192
-      )
-        finish({ ...data, status: stopRequested ? 'stopped' : data.status });
-    };
-    frame.onload = () => {
-      if (!finished)
-        frame.contentWindow.postMessage(
-          {
-            command: 'initialize',
-            language,
-            assets: runtime.assets,
-            workerSource: runtime.worker,
-          },
-          '*',
-          [channel.port2],
-        );
-    };
-    frame.onerror = () => {
-      finish({ status: 'frame-error', stdout: '', stderr: '' });
-      reject(new Error('Frame load failed'));
-    };
-    document.body.append(frame);
+    const context = createFrameContext(options, resolve, reject);
+    attachFrameHandlers(context);
+    document.body.append(context.frame);
   });
 }
 
+function createFrameContext(options, resolve, reject) {
+  const frame = document.createElement('iframe');
+  frame.sandbox = 'allow-scripts';
+  frame.referrerPolicy = 'no-referrer';
+  frame.hidden = true;
+  const nonce = crypto.randomUUID().replaceAll('-', '');
+  const policy = `default-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; script-src 'nonce-${nonce}' blob: 'unsafe-eval'; worker-src blob:`;
+  frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="${policy}"><script nonce="${nonce}">${options.runtime.supervisor.replaceAll('</script', '<\\/script')}</script>`;
+  const context = {
+    ...options,
+    frame,
+    nonce,
+    resolve,
+    reject,
+    channel: new MessageChannel(),
+    started: performance.now(),
+    finished: false,
+    stopRequested: false,
+  };
+  context.deadline = setTimeout(
+    () =>
+      finishFrameRun(context, {
+        status: 'parent-timeout',
+        stdout: '',
+        stderr: '',
+      }),
+    Math.max(1, 45000 - (performance.now() - options.overallStarted)),
+  );
+  active = { stop: () => requestFrameStop(context) };
+  return context;
+}
+
+function attachFrameHandlers(context) {
+  context.channel.port1.onmessage = ({ data }) =>
+    handleFrameMessage(context, data);
+  context.frame.onload = () => initializeFrame(context);
+  context.frame.onerror = () => handleFrameError(context);
+}
+
+function finishFrameRun(context, result) {
+  if (context.finished) return;
+  context.finished = true;
+  clearTimeout(context.deadline);
+  clearTimeout(context.stopFallback);
+  context.channel.port1.postMessage({ command: 'stop' });
+  context.channel.port1.close();
+  context.frame.remove();
+  active = undefined;
+  context.resolve({
+    ...result,
+    language: context.language,
+    totalMs: performance.now() - context.started,
+    preparationMs: context.runtime.preparationMs,
+    warmAssets: context.runtime.warmAssets,
+    assetBytes: context.runtime.bytes,
+    executionMs: result.executionMs ?? null,
+  });
+}
+
+function requestFrameStop(context) {
+  if (context.stopRequested) return;
+  context.stopRequested = true;
+  context.channel.port1.postMessage({ command: 'stop' });
+  context.stopFallback = setTimeout(
+    () =>
+      finishFrameRun(context, { status: 'stopped', stdout: '', stderr: '' }),
+    100,
+  );
+}
+
+function handleFrameMessage(context, data) {
+  if (data?.type === 'ready') return sendRunCommand(context);
+  if (isRuntimeResult(data))
+    finishFrameRun(context, runtimeResult(context, data));
+}
+
+function sendRunCommand(context) {
+  if (context.stopRequested) return;
+  context.channel.port1.postMessage({
+    command: 'run',
+    source: context.source,
+    stdin: context.stdin,
+    timeoutMs: Math.min(Math.max(context.timeoutMs, 100), 10000),
+  });
+}
+
+function isRuntimeResult(data) {
+  return (
+    data?.type === 'result' &&
+    typeof data.status === 'string' &&
+    typeof data.stdout === 'string' &&
+    typeof data.stderr === 'string' &&
+    encoder.encode(data.stdout + data.stderr).length <= 8192
+  );
+}
+
+function runtimeResult(context, data) {
+  return { ...data, status: context.stopRequested ? 'stopped' : data.status };
+}
+
+function initializeFrame(context) {
+  if (context.finished) return;
+  context.frame.contentWindow.postMessage(
+    {
+      command: 'initialize',
+      language: context.language,
+      assets: context.runtime.assets,
+      workerSource: context.runtime.worker,
+    },
+    '*',
+    [context.channel.port2],
+  );
+}
+
+function handleFrameError(context) {
+  finishFrameRun(context, { status: 'frame-error', stdout: '', stderr: '' });
+  context.reject(new Error('Frame load failed'));
+}
 window.runtimeLab = { run, prepare, stop: () => active?.stop() };
 const runButton = document.querySelector('#run');
 if (runButton)

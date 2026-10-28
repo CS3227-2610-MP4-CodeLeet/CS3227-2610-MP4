@@ -30,12 +30,8 @@ try {
   await page.waitForFunction(() => Boolean(window.runtimeLab));
   for (const test of cases) {
     const result = await page.evaluate((item) => window.runtimeLab.run(item), test);
-    let passed = true;
-    try {
-      assert.equal(result.status, test.expectedStatus);
-      if (test.expectedStdout !== undefined) assert.equal(result.stdout, test.expectedStdout);
-      if (test.expectedStderr !== undefined) assert.equal(result.stderr, test.expectedStderr);
-    } catch { passed = false; assertionFailures += 1; }
+    const passed = matchesCase(result, test);
+    if (!passed) assertionFailures += 1;
     results.push({ name: test.name, ...result, acceptanceGateOnly: Boolean(test.acceptanceGateOnly), passed });
     console.log(JSON.stringify(results.at(-1)));
   }
@@ -43,3 +39,17 @@ try {
   await writeFile('workflow/evidence/runtime-feasibility/browser-results.json', JSON.stringify(report, null, 2) + '\n');
   if (assertionFailures) process.exitCode = 1;
 } finally { await browser.close(); }
+
+function matchesCase(result, test) {
+  try {
+    assert.equal(result.status, test.expectedStatus);
+    assertOptionalOutput(result, test, 'expectedStdout', 'stdout');
+    assertOptionalOutput(result, test, 'expectedStderr', 'stderr');
+    return true;
+  } catch { return false; }
+}
+
+function assertOptionalOutput(result, test, expectedKey, actualKey) {
+  if (test[expectedKey] !== undefined)
+    assert.equal(result[actualKey], test[expectedKey]);
+}

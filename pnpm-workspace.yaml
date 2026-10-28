@@ -1,5 +1,6 @@
 packages:
   - '.'
+  - 'website'
 
 engineStrict: true
 savePrefix: ''
@@ -11,3 +12,5 @@ allowBuilds:
   # Optional completion tip; native resolver uses its platform package.
   '@fission-ai/openspec': false
   unrs-resolver: false
+  # Only prints a donation banner and writes a temporary banner cache.
+  core-js: false

@@ -7,7 +7,7 @@ const required = [
   'README.md', 'AGENTS.md', 'CONTRIBUTING.md', '.env.example',
   'docs/UserGuide.md', 'docs/DeveloperGuide.md', 'docs/Reflections.md',
   'workflow/ProjectBrief.md', 'workflow/AssignmentChecklist.md',
-  'workflow/AgentProcess.md', 'logs/README.md', 'website/index.html',
+  'workflow/AgentProcess.md', 'logs/README.md', 'website/docusaurus.config.js',
   'openspec/config.yaml',
   'openspec/changes/build-programming-platform/proposal.md',
   'openspec/changes/build-programming-platform/design.md',

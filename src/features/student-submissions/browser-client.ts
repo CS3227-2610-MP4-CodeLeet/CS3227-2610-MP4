@@ -2,6 +2,41 @@ import type { BrowserRun, RunInput } from './practice-tests';
 
 // LOCAL development only. Production runner hosting remains a separate gate.
 const origin = 'http://127.0.0.1:3130';
+
+function isTrustedMessage(
+  event: MessageEvent,
+  frame: HTMLIFrameElement,
+  nonce: string,
+) {
+  return (
+    event.origin === origin &&
+    event.source === frame.contentWindow &&
+    event.data?.nonce === nonce
+  );
+}
+
+function isValidExecutionTime(value: unknown) {
+  return (
+    value === null ||
+    (typeof value === 'number' && Number.isFinite(value) && value >= 0)
+  );
+}
+
+function parseBrowserRun(value: unknown): BrowserRun | null {
+  if (!value || typeof value !== 'object') return null;
+  const result = value as Partial<BrowserRun>;
+  if (
+    typeof result.status !== 'string' ||
+    result.status.length > 40 ||
+    typeof result.stdout !== 'string' ||
+    typeof result.stderr !== 'string' ||
+    new TextEncoder().encode(result.stdout + result.stderr).length > 8192 ||
+    !isValidExecutionTime(result.executionMs)
+  )
+    return null;
+  return result as BrowserRun;
+}
+
 export class BrowserRunnerClient {
   private frame = document.createElement('iframe');
   private nonce = crypto.randomUUID();
@@ -35,37 +70,18 @@ export class BrowserRunnerClient {
   }
   private resolveReady = () => {};
   private receive = (event: MessageEvent) => {
-    if (
-      event.origin !== origin ||
-      event.source !== this.frame.contentWindow ||
-      event.data?.nonce !== this.nonce
-    )
-      return;
+    if (!isTrustedMessage(event, this.frame, this.nonce)) return;
     const data = event.data;
     if (data.type === 'ready') {
       if (!this.disposed) this.resolveReady();
       return;
     }
-    if (data.type !== 'result' || !this.pending || data.id !== this.pending.id)
-      return;
-    const result = data.result;
-    if (
-      !result ||
-      typeof result.status !== 'string' ||
-      result.status.length > 40 ||
-      typeof result.stdout !== 'string' ||
-      typeof result.stderr !== 'string' ||
-      new TextEncoder().encode(result.stdout + result.stderr).length > 8192 ||
-      !(
-        result.executionMs === null ||
-        (typeof result.executionMs === 'number' &&
-          Number.isFinite(result.executionMs) &&
-          result.executionMs >= 0)
-      )
-    )
-      return;
-    clearTimeout(this.pending.timer);
-    this.pending.resolve(result);
+    const pending = this.pending;
+    if (data.type !== 'result' || !pending || data.id !== pending.id) return;
+    const result = parseBrowserRun(data.result);
+    if (!result) return;
+    clearTimeout(pending.timer);
+    pending.resolve(result);
     this.pending = undefined;
   };
   async run(input: RunInput): Promise<BrowserRun> {
