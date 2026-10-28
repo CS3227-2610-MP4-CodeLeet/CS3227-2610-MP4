@@ -14,7 +14,7 @@ This document defines a planned process. It does not claim agents have executed 
 
 ## Ownership and triggering
 
-Use [role definitions](agents/README.md) and [handoff template](templates/Handoff.md). Coordinator alone assigns write ownership for shared schema, generated types, lockfiles, and common services. Parallel tasks must have disjoint write sets and agreed contracts. An agent reports a dependency block rather than polling or editing another task's files.
+Use [role definitions](agents/README.md) and [handoff template](templates/Handoff.md). Role/task allocations describe primary responsibility, not exclusive implementation rights; either team member may implement any task. Coordinate shared schema, generated types, lockfiles, and common services, and give parallel work disjoint write sets with agreed contracts. An agent reports a dependency block rather than polling or editing another task's files.
 
 Record task/agent identifiers, start/end times, parent trigger, input artifact paths, output paths, tests, conflicts, and next owner. Roles in a document are not evidence of live multi-agent coordination; preserve actual runtime identifiers when available.
 

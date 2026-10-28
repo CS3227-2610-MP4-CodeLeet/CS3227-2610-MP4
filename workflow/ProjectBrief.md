@@ -1,6 +1,6 @@
 # Project brief
 
-Status: product scope and student contracts planned; Next.js/shared-tooling foundation, development-only assignment browsing and local code-entry validation. Real student/instructor services remain pending.
+Status: product scope and student contracts planned; Next.js/shared-tooling foundation, development-only synthetic student workspace, and opt-in local browser practice runner are present. Real student/instructor services and deployment remain pending.
 
 ## Sources and precedence
 
@@ -10,7 +10,7 @@ Coursemology's public guide is a reference for user journeys, not a requirement 
 
 ## Roles and journeys
 
-Two members cover student and instructor roles. The requester owns student features; their teammate owns shared authentication, database migrations, assignment creation, and the shared AI gateway. Personal names and remaining shared-task owners are not yet recorded.
+Two members cover student and instructor roles. Responsibility notes below identify primary accountability, not exclusive implementation rights: either member may implement any task. Coordinate changes to shared contracts, schemas, lockfiles and common services, and record the actual implementer and reviewer. Personal names and coordination budgets are not yet recorded.
 
 Student: register/sign in, edit text profile, browse assignments, enter a single Python or Java source file, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in discussions, and view XP/rank.
 
@@ -29,16 +29,16 @@ Use one shared course/assignment collection initially. Instructor access is limi
 
 ## Work allocation
 
-| Owner | Primary vertical slice | Shared work |
+| Primary responsibility | Vertical slice | Shared work |
 | --- | --- | --- |
-| Requester: student feature owner | Student browsing, submission integration/history, later student AI feature and tests | Initialize Next.js and shared tooling; coordinate shared contracts, student access tests, runtime evaluation and workflow evidence |
-| Teammate: shared service owner | Assignment creation; instructor grading/evaluation work to be confirmed | Shared authentication, all database migrations/RLS changes, shared AI gateway |
+| Requester | Student browsing, submission integration/history, student AI feature and tests | Next.js/shared tooling, student access tests, runtime evaluation and workflow evidence |
+| Teammate | Shared services and assignment creation; instructor grading/evaluation work to be confirmed | Authentication, database migrations/RLS changes and shared AI gateway |
 
-The requester confirmed ownership of Next.js/shared-tooling initialization on 26 October 2026. Instructor grading ownership, deployment, forum, XP/leaderboard and documentation tasks still need explicit allocation. Both members must own meaningful team work and their role's complete feature set. Do not edit teammate-owned shared code or migrations independently; agree an interface/change request first.
+The requester confirmed primary responsibility for Next.js/shared-tooling initialization on 26 October 2026. On 28 October 2026, the requester clarified that the split is guidance only: either member may implement any task. Coordinate interfaces and shared changes; no code area is reserved solely for its primary owner. Both members must contribute meaningful team work and complete their role's feature set. Instructor grading, deployment, forum, XP/leaderboard and documentation still need named primary owners.
 
 ## First student milestone: issue #5
 
-[Issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5) is developed on `feature/5-student-submissions` from `develop`. Deliver assignment list/detail, source entry/submission and the student's own immutable revision history. Consume the teammate's authentication and persistence contracts. Python/Java execution, student AI, grades, discussions and XP are later milestones; they remain in overall product scope.
+[Issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5) is developed on `feature/5-student-submissions` from `develop`. Deliver assignment list/detail, source entry/submission and the student's own immutable revision history. Use the team's agreed authentication and persistence contracts. The local synthetic browser runner is practice-only; production runtime integration, student AI, grades, discussions and XP remain later milestones in overall product scope.
 
 Continue synthetic list/detail UI separately on feature/5-student-assignment-preview, based on bootstrap commit d8dd1c6. The preview is opt-in development-only and cannot close the real integration milestone. PR #6 retains only its existing bootstrap/planning commit.
 
@@ -50,7 +50,7 @@ Agreed conceptual fields:
 - Submission: assignment ID, student ID, source code, language, revision, timestamp.
 - Students access only their own submissions; private rubrics and unpublished grades stay hidden. The server/database determines identity, revision and timestamp.
 
-On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. The design below is the authoritative detail. These are requester-authorized planning decisions; teammate acknowledgment and implementation have not been recorded. Bootstrap is now implemented locally; shared auth/migrations remain undelivered dependencies in this branch.
+On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. The design below is the authoritative detail. These are requester-authorized planning decisions; implementation and compatibility with the shared services remain to be verified. Bootstrap is implemented locally; authenticated services are still pending.
 
 See the [issue #5 implementation plan](../openspec/changes/build-programming-platform/design.md#issue-5-student-implementation-plan) and [task group 7](../openspec/changes/build-programming-platform/tasks.md#7-issue-5-student-assignment-browsing-and-submissions) for the sequence and completion gate.
 

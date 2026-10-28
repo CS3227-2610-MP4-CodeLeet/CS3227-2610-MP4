@@ -2,6 +2,9 @@
 
 Read `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, and the relevant OpenSpec change before editing.
 
+- Use the active OpenSpec change for planned work; check its status and apply instructions, update its artifacts when scope or decisions change, and mark tasks complete only after verification.
+- Group related changes into focused, incremental commits at verified milestones. Stage only files for that change; preserve unrelated workspace edits.
+
 - Build MP4 fresh. Do not copy previous MPs' implementation, configuration, or workflow text.
 - Preserve browser-only Python execution and Java compilation/execution. Never add a remote execution service or run submitted code in Next.js/Node.
 - No file uploads or badges. Keep forums to threads/replies and XP to auditable server-controlled awards.

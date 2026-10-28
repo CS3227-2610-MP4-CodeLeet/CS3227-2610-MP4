@@ -1,21 +1,21 @@
 ## 1. Contracts and feasibility
 
-- [ ] 1.1 Finish personal names, remaining shared-task ownership and coordination budget; retain requester-owned bootstrap/student work and teammate-owned auth/migrations/assignment creation/AI gateway.
+- [ ] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task.
 - [x] 1.2 Evaluate browser Python/Java candidates including Java source compilation, licensing and cold/warm behavior. See runtime-feasibility evidence: Python candidate retained; Java buffered input resolved in the local lab with first-party compatibility classes; provenance/distribution and production integration remain open, so no production Java runtime selected.
 - [ ] 1.3 Prove credential/network isolation, cancellation, output limits and supported browsers before package selection.
-- [ ] 1.4 Obtain teammate acknowledgment and map student contract v1 to actual schema/auth interfaces and atomic persistence; requester-authorized API types/limits/errors/retry decisions are in the design. XP/deadline decisions remain separate product work.
+- [ ] 1.4 Map student contract v1 to the implemented schema/auth interfaces and atomic persistence; requester-authorized API types/limits/errors/retry decisions are in the design. XP/deadline decisions remain separate product work.
 
 ## 2. Fresh foundation
 
-- [x] 2.1 Requester bootstraps Next.js/TypeScript/Tailwind/shadcn under src with pnpm, locked dependencies and shared tooling; keep auth/migration/gateway implementation with teammate.
+- [x] 2.1 Bootstrap Next.js/TypeScript/Tailwind/shadcn under src with pnpm, locked dependencies and shared tooling.
 - [ ] 2.2 Configure fresh local Supabase, auth, trusted roles, profiles and RLS tests.
 - [ ] 2.3 Add formatting, lint, types, unit, database, browser and build checks to CI.
 
 ## 3. Assignments and execution
 
-- [ ] 3.1 Implement teammate-owned assignment creation/private rubrics and requester-owned student browsing; student work is detailed in task group 7.
+- [ ] 3.1 Implement assignment creation/private rubrics and student browsing; student work is detailed in task group 7.
 - [ ] 3.2 Implement isolated browser Python/Java adapters with stdin, diagnostics, stop and rerun.
-- [ ] 3.3 Implement immutable code submission revisions and authorized history through teammate-owned migrations and student integration in task group 7.
+- [ ] 3.3 Implement immutable code submission revisions and authorized history through the agreed schema and student integration in task group 7.
 - [ ] 3.4 Implement version-checked grade publication with atomic idempotent XP adjustment.
 - [ ] 3.5 Test access boundaries, private grading data, revision races, forged run results and both languages.
 
@@ -46,20 +46,20 @@
 
 ## 7. Issue #5 student assignment browsing and submissions
 
-This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not a second implementation of them. Requester owns student integration; teammate owns shared auth, migrations/RLS, assignment creation and AI gateway. These tasks remain unchecked until delivered and verified. The design's dependency gates apply before persistence integration.
+This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not a second implementation of them. Work areas are coordinated but not exclusive; either member may implement shared auth, migrations/RLS, assignment creation, AI gateway or student integration. These tasks remain unchecked until delivered and verified. The design's dependency gates apply before persistence integration.
 
-- [ ] 7.1 Verify requester-owned bootstrap and teammate delivery against student contract v1: requireStudent/getUser, protected roles/RLS, DTOs/routes, 32 KiB byte bound, errors, and atomic request_id/revision handling; record compatibility changes before integration.
+- [ ] 7.1 Verify the shared implementation against student contract v1: requireStudent/getUser, protected roles/RLS, DTOs/routes, 32 KiB byte bound, errors, and atomic request_id/revision handling; record compatibility changes before integration.
 - [ ] 7.2 Prepare synthetic published Python/Java and draft assignments plus two student fixtures using the shared schema; keep any temporary fixture adapter out of production paths.
 - [ ] 7.3 Implement student published assignment list/detail with loading, empty, unavailable and error states through shared session/data services.
 - [ ] 7.4 Implement source entry, assignment language and agreed input validation with pending/success/failure states; preserve input on failure and render source as text.
 - [ ] 7.5 Integrate authenticated submission creation with server-derived identity/revision/time and an authoritative success response; implement agreed retry behavior without overwrites.
 - [ ] 7.6 Display only the current student's immutable revision history and verify resubmission preserves prior source.
-- [ ] 7.7 Test signed-out access, cross-student read/write and forged student/revision fields through actual local auth, routes and database policies; coordinate migration/policy fixes with teammate.
+- [ ] 7.7 Test signed-out access, cross-student read/write and forged student/revision fields through actual local auth, routes and database policies; coordinate shared policy fixes with affected implementers.
 - [ ] 7.8 Test python/java, exact UTF-8 byte boundaries and multibyte source, strict bodies/queries, Origin, language mismatch, assignment unpublication, hidden grading data, identical/different-payload retries and concurrent revision allocation.
 - [ ] 7.9 Run applicable checks and independent review, update only verified user-guide behavior, record session evidence/limitations and prepare a PR to develop referencing issue #5. Do not close the milestone on fixture-only results.
 - [x] 7.10 Deliver the separate development-only synthetic list/detail preview with state/navigation tests and production denial; this partial UI milestone does not complete shared-auth tasks 7.2/7.3.
 - [x] 7.11 Deliver development-only source entry with fixed language, byte counter, input-preserving local validation and disabled/unconnected submission; verify unit/browser boundaries without claiming real task 7.4/7.5 completion.
-- [x] 7.12 Deliver an additional opt-in local browser Run/published-tests preview with synthetic cases, deterministic output matching, separate execution/compile deadlines, stop/rerun, real Python/Java browser checks, production denial and teammate publication contract. This does not complete production task 3.2 or teacher persistence.
-- [x] 7.13 Adapt the Coursemology-inspired student workspace: compact assignment rows, responsive navigation, problem above editor/run panels, readable public test results and honest preview state; verify mobile/desktop and existing Python/Java journeys without changing execution/security or teammate services.
+- [x] 7.12 Deliver an additional opt-in local browser Run/published-tests preview with synthetic cases, deterministic output matching, separate execution/compile deadlines, stop/rerun, real Python/Java browser checks, production denial and public-case publication contract. This does not complete production task 3.2 or teacher persistence.
+- [x] 7.13 Adapt the Coursemology-inspired student workspace: compact assignment rows, responsive navigation, problem above editor/run panels, readable public test results and honest preview state; verify mobile/desktop and existing Python/Java journeys without changing execution/security or shared service contracts.
 - [x] 7.14 Add an accessible workspace light/dark toggle with system default, browser-local preference and storage-failure recovery; preserve editor/run state and verify persistence, keyboard/mobile use and readable theme-aware input/results.
 - [x] 7.15 Simplify workspace spacing and run panels; remove the visible Stop action while preserving deadlines/unmount cleanup, group Menu and theme at the far right on all screen sizes, and verify the revised navigation/run journeys.

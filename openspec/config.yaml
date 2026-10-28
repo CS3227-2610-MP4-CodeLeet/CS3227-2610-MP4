@@ -9,8 +9,10 @@ context: |
   No uploads, badges, server execution, arbitrary student dependencies or MP reuse.
   Browser results and AI suggestions cannot publish grades or award XP.
   Read workflow/ProjectBrief.md and workflow/AgentProcess.md for context.
-  Status: Next.js/shared-tooling foundation initialized; student/instructor
-  features, shared auth/database, AI, browser runners and hosting remain pending.
+  Status: Next.js/shared-tooling foundation, synthetic student workspace, and
+  opt-in browser-only Python/Java practice runner are implemented locally.
+  Authenticated features, Supabase integration, AI, production runner hosting,
+  and deployment remain pending.
 rules:
   design:
     - Specify isolation, ownership, revisioning, quotas and failure behavior.

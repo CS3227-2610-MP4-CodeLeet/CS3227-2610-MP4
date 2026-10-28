@@ -13,7 +13,7 @@ Students need simple programming practice and submission workflows; instructors 
 
 Exclude uploads, badges, arbitrary student dependencies, server execution and autonomous AI grade publication. All product features remain proposed.
 
-First student delivery is [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5): published assignment browsing, source submission and own revision history. The requester owns app/tooling initialization and student integration; the teammate owns shared authentication, database migrations/RLS, assignment creation and the AI gateway. The requester-authorized student contract v1 selects verified cookie sessions, student API routes, a 32 KiB UTF-8 source bound, structured errors and idempotent retries. The design and task group 7 record the contracts and delivery gates; teammate acknowledgment is pending. This milestone excludes runner and AI implementation without removing them from overall product scope.
+First student delivery is [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5): published assignment browsing, source submission and own revision history. The initial responsibility split identifies primary accountability only; either member may implement any task, coordinating shared interfaces and recording actual handoffs. The requester-authorized student contract v1 selects verified cookie sessions, student API routes, a 32 KiB UTF-8 source bound, structured errors and idempotent retries. The design and task group 7 record the contracts and delivery gates. The local browser runner is practice-only and does not replace the production integration milestone.
 
 ## Capabilities
 
