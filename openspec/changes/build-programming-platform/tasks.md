@@ -43,6 +43,7 @@
 - [ ] 6.5 Add fresh Docusaurus site tooling and publish reviewed product website to GitHub Pages.
 - [ ] 6.6 Verify deployed role journeys, both languages, AI failure behavior and security controls.
 - [ ] 6.7 Complete human review, strict validation, archival/spec synchronization and master release before deadline.
+- [x] 6.8 Install and review the Superpowers, Supabase and selected Vercel agent skills under `.agents/skills`, record source hashes in `skills-lock.json`, and exclude credential-disclosure guidance.
 
 ## 7. Issue #5 student assignment browsing and submissions
 

@@ -24,3 +24,11 @@ The system SHALL use team-managed deployment automation with separate developmen
 #### Scenario: Release guide review
 - **WHEN** a release is prepared
 - **THEN** guides match verified deployed behavior and explicitly state unresolved limitations
+
+### Requirement: Reproducible repository agent skills
+The repository SHALL keep reviewed agent skills in `.agents/skills` and record each installed external skill's source and content hash in `skills-lock.json`. Skill guidance SHALL preserve project security boundaries, including keeping credentials private and code execution in the browser.
+
+#### Scenario: Reproduce installed skills
+- **WHEN** a contributor inspects or refreshes repository agent skills
+- **THEN** each installed skill is discoverable under `.agents/skills` and its upstream source and content hash are recorded in `skills-lock.json`
+- **AND** skills that instruct agents to expose credentials are excluded
