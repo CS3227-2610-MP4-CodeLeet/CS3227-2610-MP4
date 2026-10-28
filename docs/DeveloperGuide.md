@@ -1,6 +1,6 @@
 # Developer Guide
 
-Status: Next.js foundation and a development-only synthetic student assignment/code preview, with an additional opt-in local browser runtime and published-test runner. Authentication, database, AI and production runtime hosting/deployment are not configured. Production student services remain proposed.
+Status: Next.js foundation, development-only synthetic student assignment/code preview, opt-in local browser runtime, and a fresh local Supabase profile/role foundation with RLS tests. Application authentication/routes, assignments/submissions, AI and hosted environments remain unimplemented.
 
 ## Technology and setup
 
@@ -19,11 +19,16 @@ Shared commands:
 | pnpm typecheck | Generate route types and run strict TypeScript |
 | pnpm test:unit | Public DTO projection, draft filtering and preview environment gate unit tests |
 | pnpm test:e2e | Production smoke/boundary checks on port 3100 and isolated dev-preview journeys on port 3101 |
+| pnpm db:start / pnpm db:stop | Start/stop the repository-pinned local Supabase stack; requires Docker Desktop |
+| pnpm db:reset | Destructively recreate the local database and apply checked-in migrations |
+| pnpm db:test | Run pgTAP access-control tests against the local database |
+| pnpm db:status | Show local Supabase endpoints and generated development credentials |
+| pnpm site:build | Build the Docusaurus site for GitHub Pages |
 | pnpm check:scaffold / pnpm spec:validate | Artifact/Markdown links and strict OpenSpec checks |
 
 Build before running browser tests. Install Chromium locally once using `pnpm exec playwright install chromium`. CI uses the official Playwright v1.64.1-noble container with browsers/OS libraries already installed, avoiding apt mirror stalls. Keep that image version aligned with @playwright/test when updating dependencies. actions/setup-node still selects Node 24 from .node-version and CI verifies the major version explicitly. Browser checks have a five-minute step timeout and failed traces are retained for seven days. See the [official Playwright image documentation](https://playwright.dev/docs/docker).
 
-Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks. Database checks remain pending teammate-owned schema/auth work; task 2.3 is not fully complete.
+Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks; a separate database job starts local Supabase and runs the pgTAP suite. The database tests verify student-only signup, own-profile access and protected role metadata; they do not implement application login or product routes.
 
 ## Temporary student preview and handoff
 
@@ -48,7 +53,7 @@ node workflow/scripts/check-scaffold.mjs
 openspec validate --all --strict
 ```
 
-Copy `.env.example` to ignored `.env.local` when integrating shared services. Fill values from the appropriate development environment; leave AI disabled until provider limits and security checks are verified. No app code reads these credentials yet.
+Copy `.env.example` to ignored `.env.local` when integrating shared services. Local Supabase URL and publishable key are available from `pnpm db:status`; use only those public client values in `NEXT_PUBLIC_*` variables. Never copy the local secret key, JWT secret, or service-role key to a browser variable. The current application does not consume Supabase credentials yet. Leave AI disabled until provider limits and security checks are verified.
 
 ## Proposed design
 

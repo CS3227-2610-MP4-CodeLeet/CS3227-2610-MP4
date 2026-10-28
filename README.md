@@ -14,7 +14,7 @@ A Coursemology-inspired programming assignment platform for students and instruc
 
 ## Technology direction
 
-Initialized: Next.js App Router, React, TypeScript, Tailwind CSS, shadcn configuration, ESLint, Prettier, Vitest, Playwright and pnpm. Exact dependencies are recorded in package.json and pnpm-lock.yaml. Supabase Auth/PostgreSQL/RLS, Zod, SoCLaaS and Vercel integration remain future work. The product website will use GitHub Pages; Docusaurus is the intended documentation framework.
+Initialized: Next.js App Router, React, TypeScript, Tailwind CSS, shadcn configuration, ESLint, Prettier, Vitest, Playwright, Supabase Auth/PostgreSQL/RLS foundations, Zod and pnpm. Exact dependencies are recorded in package.json and pnpm-lock.yaml. Local Supabase has a fresh profile/trusted-role migration and database security tests; application auth routes, SoCLaaS and hosted Vercel projects remain future work. The Docusaurus product site is configured for GitHub Pages but has not been published.
 
 Technology choices were informed by MP3. Its implementation and project files have not been copied; this is a fresh MP4 scaffold.
 
@@ -37,9 +37,9 @@ OpenSpec 1.8.0 generated project-local Codex skills under `.agents/skills/`. Res
 | `workflow/` | Development policy, specialist roles, templates, and evidence |
 | `docs/` | Required user guide, developer guide, and reflections |
 | `logs/` | Development interaction summaries and verification status |
-| `tests/` | Unit and browser preview suites; database and AI evaluation suites remain future work |
-| `supabase/` | Setup notes only; migrations, policies, and seed data remain future work |
-| `website/` | Static product website source for GitHub Pages; Docusaurus is not scaffolded yet |
+| `tests/` | Unit and browser preview suites; database security tests live in `supabase/tests/` |
+| `supabase/` | Fresh local configuration, profiles/trusted roles migration, and pgTAP access tests |
+| `website/` | Docusaurus product site configured for GitHub Pages |
 | `.github/` | CI and contribution templates |
 
 ## Run locally
@@ -54,6 +54,8 @@ pnpm dev
 Open http://localhost:3000. The coming-soon page needs no credentials or environment variables. You can also run the pinned package manager without a global install: `npx --yes pnpm@12.15.0 dev` (replace dev with the desired pnpm arguments).
 
 Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pnpm build`. For browser checks, run `pnpm exec playwright install chromium`, build, then `pnpm test:e2e`. See [Developer Guide](docs/DeveloperGuide.md) for boundaries and shared-work handoff.
+
+For local database work, start Docker Desktop, run `pnpm db:start`, then `pnpm db:reset` and `pnpm db:test`. `pnpm db:reset` deletes and recreates the local database. The checked-in migration contains no real user data or hosted credentials. Supabase Auth is not yet connected to application routes.
 
 ## Student assignment preview
 

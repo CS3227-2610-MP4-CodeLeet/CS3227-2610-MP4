@@ -9,10 +9,11 @@ context: |
   No uploads, badges, server execution, arbitrary student dependencies or MP reuse.
   Browser results and AI suggestions cannot publish grades or award XP.
   Read workflow/ProjectBrief.md and workflow/AgentProcess.md for context.
-  Status: Next.js/shared-tooling foundation, synthetic student workspace, and
-  opt-in browser-only Python/Java practice runner are implemented locally.
-  Authenticated features, Supabase integration, AI, production runner hosting,
-  and deployment remain pending.
+  Status: Next.js/shared-tooling foundation, fresh local Supabase profiles and
+  trusted roles with RLS tests, Docusaurus Pages build, synthetic student
+  workspace, and opt-in browser-only Python/Java practice runner are implemented.
+  Application authentication/routes, assignment and submission services, AI,
+  production runner hosting, hosted environments, and publication remain pending.
 rules:
   design:
     - Specify isolation, ownership, revisioning, quotas and failure behavior.

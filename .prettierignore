@@ -8,11 +8,13 @@ coverage/
 playwright-report/
 test-results/
 .agents/
+.claude/
 openspec/
 workflow/
 docs/
+!website/docs/
+!website/docs/**
 logs/
-website/
 README.md
 AGENTS.md
 CONTRIBUTING.md
