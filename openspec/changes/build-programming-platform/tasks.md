@@ -19,7 +19,7 @@
 - [x] 2.10 Remove Corepack command wrappers from package scripts and contributor/user docs; keep the exact `packageManager` pnpm pin and use direct `pnpm` invocations.
 - [x] 2.11 Pin Node.js to the latest Node 24 LTS patch available on 28 October 2026 (`24.22.1`) in `.node-version`; make CI and documentation use that pin and retain the Node 24 engine range.
 - [x] 2.12 Update repository and contributor workflow to require a matching GitHub issue, OpenSpec artifacts, relevant Superpowers skills, focused Conventional Commits, a reviewed/sanitized `logs/` summary, and a linked PR after verification. Reuse existing foundation issue #11 and PR #12.
-- [ ] 2.13 Verify no Corepack invocations remain, run applicable formatting/lint/type/unit checks and strict OpenSpec validation, create per-change summaries for the ESLint and current tooling/workflow updates, then push and update the linked PR. Record the installed Node version and any gap versus `.node-version`.
+- [x] 2.13 Verify no Corepack invocations remain, run applicable formatting/lint/type/unit checks and strict OpenSpec validation, create per-change summaries for the ESLint and current tooling/workflow updates, then push and update linked issue #11 / PR #12. Record installed Node v24.16.0 and the difference from `.node-version` 24.22.1.
 
 ## 3. Assignments and execution
 
