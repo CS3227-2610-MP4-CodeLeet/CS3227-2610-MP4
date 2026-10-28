@@ -10,6 +10,20 @@ pnpm db:test
 
 `db:reset` destroys and recreates the local database before applying migrations. `db:test` runs the pgTAP access tests. Use `pnpm db:stop` to stop the local services and retain their local database volume.
 
-The current migration provisions a text profile and protected student/instructor role table. Public signup always receives the `student` role; only trusted SQL/admin provisioning can grant `instructor`. Authenticated users can read their own role and profile and update only their own display name. Storage and Edge Functions are disabled; assignments, submissions, application session helpers, and hosted projects are not configured yet.
+Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
 
-Local generated keys are development-only. Only the Supabase URL and publishable key may be used by browser code. Never expose the secret key, service-role key, or JWT secret. Keep separate hosted projects for development and production and do not commit their credentials.
+To provision a trusted instructor locally, first register the account through `/sign-up`, then use the local Supabase SQL editor or a trusted admin SQL session to update that exact account UUID:
+
+```sql
+update public.user_roles
+set role = 'instructor'
+where user_id = 'REPLACE-WITH-VERIFIED-USER-UUID';
+```
+
+Never run this through an application route or accept an account UUID/role from an untrusted client. Hosted instructor provisioning is an administrator action in the team's own Supabase project.
+
+The app reads `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. AI is disabled unless `SOCLAAS_AI_ENABLED=true`, `SOCLAAS_BASE_URL`, `SOCLAAS_API_KEY`, and `SOCLAAS_MODEL` are configured server-side. Do not use a Supabase secret/service-role key in the app. This repository change configures only the local stack; no hosted project is configured.
+
+Local generated keys are development-only. Keep separate hosted projects for development and production and do not commit credentials. Submitted source is stored for review and never executed by Next.js/Node or a remote service; the separate opt-in practice runner remains browser-local.
+
+To stress the student daily quota locally, run `workflow/scripts/check-ai-quota-concurrency.mjs` with the local Supabase URL, publishable key, and service-role key in process environment variables (`MP4_LOCAL_SERVICE_ROLE_KEY` for the last value). The script creates and deletes synthetic accounts and fixtures. It sends 12 concurrent reservation requests and expects five accepted and seven rate-limited; it does not call SoCLaaS or execute submitted source.

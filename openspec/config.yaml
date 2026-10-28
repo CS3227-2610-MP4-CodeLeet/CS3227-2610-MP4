@@ -9,11 +9,11 @@ context: |
   No uploads, badges, server execution, arbitrary student dependencies or MP reuse.
   Browser results and AI suggestions cannot publish grades or award XP.
   Read workflow/ProjectBrief.md and workflow/AgentProcess.md for context.
-  Status: Next.js/shared-tooling foundation, fresh local Supabase profiles and
-  trusted roles with RLS tests, Docusaurus Pages build, synthetic student
-  workspace, and opt-in browser-only Python/Java practice runner are implemented.
-  Application authentication/routes, assignment and submission services, AI,
-  production runner hosting, hosted environments, and publication remain pending.
+  Status: Fresh Next.js application, Supabase auth/RLS/RPCs, student/instructor
+  CodeMentor assignment/revision/grade flows, server-only SoCLaaS integration,
+  local evidence, and opt-in browser-only Python/Java practice are implemented.
+  Hosted Supabase/Vercel environments, live SoCLaaS verification, production
+  browser-runner origin/licensing review, and release publication remain pending.
 rules:
   design:
     - Specify isolation, ownership, revisioning, quotas and failure behavior.
