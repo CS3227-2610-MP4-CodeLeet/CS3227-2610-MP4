@@ -9,7 +9,7 @@
 
 - [x] 2.1 Bootstrap Next.js/TypeScript/Tailwind/shadcn under src with pnpm, locked dependencies and shared tooling.
 - [x] 2.2 Configure fresh local Supabase, signup defaults, trusted roles, profiles and RLS tests. Verified clean `pnpm db:reset`; all 9 pgTAP access checks pass with `pnpm db:test`.
-- [x] 2.3 Add formatting, lint, types, unit, database, browser and build checks to CI. Application checks remain in the Playwright container job; a separate job starts local Supabase and runs pgTAP, with cleanup on success or failure.
+- [x] 2.3 Add formatting, lint, types, unit, database, browser, application-build and product-site-build checks to CI. Application checks remain in the Playwright container job; a separate job starts local Supabase and runs pgTAP, with cleanup on success or failure.
 
 ## 3. Assignments and execution
 
