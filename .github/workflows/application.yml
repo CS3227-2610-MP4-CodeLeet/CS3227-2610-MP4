@@ -10,6 +10,25 @@ env:
   NEXT_TELEMETRY_DISABLED: '1'
   OPENSPEC_TELEMETRY: '0'
 jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: Verify Node.js 24
+        run: node --eval "if (process.versions.node.split('.')[0] !== '24') process.exit(1)"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:start
+      - run: pnpm db:test
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm db:stop
+
   application:
     runs-on: ubuntu-latest
     # Match @playwright/test in package.json. Browsers and OS libraries are
