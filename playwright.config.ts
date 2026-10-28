@@ -41,6 +41,7 @@ export default defineConfig({
             env: {
               STUDENT_PREVIEW_ENABLED: 'true',
               STUDENT_RUNNER_PREVIEW_ENABLED: 'true',
+              MP4_E2E_SERVICE_ROLE_KEY: '',
             },
           },
           {
