@@ -22,9 +22,9 @@
     "db:reset": "supabase db reset --local",
     "db:test": "supabase test db",
     "db:status": "supabase status",
-    "site:dev": "corepack pnpm --filter @cs3227/mp4-website run start",
-    "site:build": "corepack pnpm --filter @cs3227/mp4-website run build",
-    "site:serve": "corepack pnpm --filter @cs3227/mp4-website run serve",
+    "site:dev": "pnpm --filter @cs3227/mp4-website run start",
+    "site:build": "pnpm --filter @cs3227/mp4-website run build",
+    "site:serve": "pnpm --filter @cs3227/mp4-website run serve",
     "check:scaffold": "node workflow/scripts/check-scaffold.mjs",
     "spec:validate": "openspec validate --all --strict"
   },

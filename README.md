@@ -44,14 +44,14 @@ OpenSpec 1.8.0 generated project-local Codex skills under `.agents/skills/`. Res
 
 ## Run locally
 
-Use Node.js 24 and pnpm 12.15.0 (`npm install --global pnpm@12.15.0` if pnpm is missing), then:
+Use Node.js 24.22.1 and pnpm 12.15.0 (`npm install --global pnpm@12.15.0` if pnpm is missing), then:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open http://localhost:3000. The coming-soon page needs no credentials or environment variables. You can also run the pinned package manager without a global install: `npx --yes pnpm@12.15.0 dev` (replace dev with the desired pnpm arguments).
+Open http://localhost:3000. The coming-soon page needs no credentials or environment variables. You can also run the pinned package manager without a global install: `npx --yes pnpm@12.15.0 dev` (replace `dev` with the desired pnpm arguments). The exact Node patch is pinned in `.node-version`; use that file with your Node version manager.
 
 Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pnpm build`. For browser checks, run `pnpm exec playwright install chromium`, build, then `pnpm test:e2e`. See [Developer Guide](docs/DeveloperGuide.md) for boundaries and shared-work handoff.
 
