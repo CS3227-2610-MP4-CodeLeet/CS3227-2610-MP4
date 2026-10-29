@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
+import { CodeEditor } from '@/features/student-submissions/code-editor';
 
 export function SubmissionForm({
   assignmentId,
@@ -48,15 +49,12 @@ export function SubmissionForm({
           {source.length.toLocaleString()} / 8,000 characters
         </span>
       </div>
-      <textarea
-        value={source}
-        onChange={(event) => setSource(event.target.value)}
+      <CodeEditor
+        language="python"
+        source={source}
+        onChange={setSource}
         maxLength={8_000}
-        required
         rows={18}
-        spellCheck={false}
-        aria-label="Python source code"
-        className="w-full resize-y rounded-md border bg-background p-3 font-mono text-sm"
       />
       <p className="text-sm text-muted-foreground">
         Submit saves a revision for feedback. Practice runs stay in your browser

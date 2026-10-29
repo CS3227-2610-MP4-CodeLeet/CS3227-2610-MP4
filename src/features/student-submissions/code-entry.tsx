@@ -8,6 +8,7 @@ import { languageLabels } from '@/features/student-assignments/types';
 import { MAX_SOURCE_BYTES, validateSource } from './source-validation';
 import { PracticeRunner } from './practice-runner';
 import type { PracticeCase } from './practice-tests';
+import { CodeEditor } from './code-editor';
 
 type SourceValidation = ReturnType<typeof validateSource>;
 
@@ -17,7 +18,6 @@ function SourceEditor({
   validation,
   checked,
   editor,
-  gutter,
   onChange,
 }: {
   language: AssignmentLanguage;
@@ -25,10 +25,8 @@ function SourceEditor({
   validation: SourceValidation;
   checked: boolean;
   editor: RefObject<HTMLTextAreaElement | null>;
-  gutter: RefObject<HTMLPreElement | null>;
   onChange: (source: string) => void;
 }) {
-  const lineCount = Math.min(source.split('\n').length, 1000);
   const showError = Boolean(
     validation.error && (checked || validation.byteLength > MAX_SOURCE_BYTES),
   );
@@ -36,36 +34,15 @@ function SourceEditor({
     <div className="space-y-2">
       <div className="overflow-hidden rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#182331]">
         <SourceEditorToolbar language={language} />
-        <div className="relative">
-          <pre
-            ref={gutter}
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 w-12 overflow-hidden border-r border-slate-200 dark:border-slate-700/60 py-4 pr-3 text-right font-mono text-sm leading-6 text-slate-500 dark:text-slate-400 select-none"
-          >
-            {Array.from({ length: lineCount }, (_, index) => index + 1).join(
-              '\n',
-            )}
-          </pre>
-          <textarea
-            ref={editor}
-            id="source-code"
-            aria-label={`${languageLabels[language]} source code`}
-            rows={10}
-            value={source}
-            onChange={(event) => onChange(event.target.value)}
-            onScroll={(event) => {
-              if (gutter.current)
-                gutter.current.scrollTop = event.currentTarget.scrollTop;
-            }}
-            spellCheck={false}
-            autoCapitalize="off"
-            autoCorrect="off"
-            wrap="off"
-            aria-invalid={showError}
-            aria-describedby={`source-size submission-preview-note${showError ? ' source-error' : ''}`}
-            className="block min-h-64 w-full min-w-0 max-w-full resize-y bg-transparent py-4 pr-4 pl-16 font-mono text-sm leading-6 text-slate-800 dark:text-slate-100 caret-cyan-700 dark:caret-cyan-300 outline-none placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-400 aria-invalid:ring-2 aria-invalid:ring-red-400"
-          />
-        </div>
+        <CodeEditor
+          language={language}
+          source={source}
+          onChange={onChange}
+          editorRef={editor}
+          rows={10}
+          invalid={showError}
+          describedBy={`source-size submission-preview-note${showError ? ' source-error' : ''}`}
+        />
       </div>
       <SourceValidationStatus validation={validation} checked={checked} />
     </div>
@@ -157,7 +134,6 @@ export function CodeEntry({
   const [source, setSource] = useState('');
   const [checked, setChecked] = useState(false);
   const editor = useRef<HTMLTextAreaElement>(null);
-  const gutter = useRef<HTMLPreElement>(null);
   const validation = validateSource(source);
   const checkSource = () => {
     setChecked(true);
@@ -196,7 +172,6 @@ export function CodeEntry({
           validation={validation}
           checked={checked}
           editor={editor}
-          gutter={gutter}
           onChange={setSource}
         />
         <CodeEntryActions onCheck={checkSource} />

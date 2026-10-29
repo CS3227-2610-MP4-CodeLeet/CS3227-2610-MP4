@@ -14,6 +14,102 @@ const assignmentsHeading = 'Your assignments';
 const submitCodeName = 'Submit code';
 const checkCodeName = 'Check code';
 const invalidAttribute = 'aria-invalid';
+const highlightTestId = 'source-highlight';
+const lineNumbersTestId = 'source-line-numbers';
+const keywordSelector = '.token.keyword';
+const switchToDarkLabel = 'Switch to dark mode';
+
+for (const [language, assignmentId, source] of [
+  [
+    'Python',
+    pythonId,
+    'for number in [1, 2]:\n    print("value", number)\n# comment',
+  ],
+  [
+    'Java',
+    javaId,
+    'public class Main {\n  public static void main(String[] args) {}\n}',
+  ],
+] as const) {
+  test(`${language} editor has syntax colours, synchronized line numbers and theme-aware source`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto(`/student/assignments/${assignmentId}`);
+    const editor = page.getByLabel(`${language} source code`, { exact: true });
+    await editor.fill(source);
+    const highlight = page.getByTestId(highlightTestId);
+    await expect(highlight.locator(keywordSelector).first()).toBeVisible();
+    await expect(page.getByTestId(lineNumbersTestId)).toHaveText('1\n2\n3');
+    const lightColor = await highlight
+      .locator(keywordSelector)
+      .first()
+      .evaluate((element) => getComputedStyle(element).color);
+    await page.getByRole('button', { name: switchToDarkLabel }).click();
+    await expect(editor).toHaveValue(source);
+    const darkColor = await highlight
+      .locator(keywordSelector)
+      .first()
+      .evaluate((element) => getComputedStyle(element).color);
+    expect(darkColor).not.toBe(lightColor);
+    await verifyEditorScrolling(page, `${language} source code`);
+  });
+}
+
+async function verifyEditorScrolling(page: Page, label: string) {
+  const editor = page.getByLabel(label, { exact: true });
+  const source = `${'x'.repeat(500)}\n${'print(1)\n'.repeat(60)}`;
+  await editor.fill(source);
+  await editor.evaluate((element) => {
+    element.scrollTop = 240;
+    element.scrollLeft = 120;
+    element.dispatchEvent(new Event('scroll'));
+  });
+  const scroll = await editor.evaluate((element) => ({
+    x: element.scrollLeft,
+    y: element.scrollTop,
+  }));
+  expect(scroll.x).toBeGreaterThan(0);
+  expect(scroll.y).toBeGreaterThan(0);
+  await expect
+    .poll(() =>
+      page
+        .getByTestId(highlightTestId)
+        .evaluate((element) => element.scrollTop),
+    )
+    .toBe(scroll.y);
+  await expect
+    .poll(() =>
+      page
+        .getByTestId(highlightTestId)
+        .evaluate((element) => element.scrollLeft),
+    )
+    .toBe(scroll.x);
+  await expect
+    .poll(() =>
+      page
+        .getByTestId(lineNumbersTestId)
+        .evaluate((element) => element.scrollTop),
+    )
+    .toBe(scroll.y);
+  await expect(editor).toHaveValue(source);
+}
+
+test('line numbers extend beyond 1000 and forced colors retain readable native text', async ({
+  page,
+}) => {
+  await page.goto(`/student/assignments/${pythonId}`);
+  const editor = page.getByLabel(pythonEditorLabel, { exact: true });
+  const source = `${'# line\n'.repeat(1200)}print("done")`;
+  await editor.fill(source);
+  await expect(page.getByTestId(lineNumbersTestId)).toContainText('1201');
+  await page.emulateMedia({ forcedColors: 'active' });
+  await expect(page.locator('.code-editor-overlay')).toBeHidden();
+  expect(
+    await editor.evaluate((element) => getComputedStyle(element).color),
+  ).not.toBe('rgba(0, 0, 0, 0)');
+  await expect(editor).toHaveValue(source);
+});
 
 test('Menu and theme stay adjacent at the far right on desktop and mobile', async ({
   page,
@@ -56,7 +152,7 @@ test('theme follows the device, preserves source and remembers an explicit choic
   await expect(shell).toHaveAttribute(themeAttribute, lightTheme);
   await expect(editor).toHaveValue('print("theme keeps this draft")');
   await page
-    .getByRole('button', { name: 'Switch to dark mode', exact: true })
+    .getByRole('button', { name: switchToDarkLabel, exact: true })
     .click();
   await expect(shell).toHaveAttribute(themeAttribute, darkTheme);
   await page
@@ -107,7 +203,7 @@ test('mobile theme toggle works when preference storage is blocked', async ({
     .getByLabel(javaEditorLabel, { exact: true })
     .fill('public class Main {}');
   await page
-    .getByRole('button', { name: 'Switch to dark mode', exact: true })
+    .getByRole('button', { name: switchToDarkLabel, exact: true })
     .click();
   await expect(page.locator(workspaceSelector)).toHaveAttribute(
     themeAttribute,

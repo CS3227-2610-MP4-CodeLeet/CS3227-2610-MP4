@@ -4,6 +4,8 @@ Status: CodeMentor student/instructor flows and local RLS policies are verified 
 
 ## Local CodeMentor app
 
+The code editor shows line numbers and colours Python/Java keywords, strings, comments and other syntax. Colours follow your light/dark preference. Line numbers scroll with the code and long lines scroll horizontally inside the editor. Highlighting does not reformat, validate or execute your program; the editable source remains plain text. Python is still the only language accepted by real submissions; Java highlighting is available in the practice preview.
+
 The moon/sun control applies to the landing page, sign-in, account creation and signed-in workspace. Your browser remembers the choice. Account creation requires matching **Password** and **Confirm password** fields; each has its own Show/Hide eye button. Signing in requires only the password. Signed-in student and instructor headers include **Sign out**. If signing out fails, the page shows an error and lets you retry.
 
 1. Install Node 24 and pnpm as described in the repository README.
@@ -33,7 +35,7 @@ To practise on a real Python assignment locally, set `STUDENT_RUNNER_PREVIEW_ENA
 
 The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. The preview is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
 
-On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a theme-aware plain-text area with line numbers and a filename label; it does not provide syntax highlighting or an external IDE service. Long lines scroll inside the editor rather than widening the page.
+On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a native text area with syntax colours, line numbers and a filename label; no external IDE service is involved. Long lines scroll inside the editor rather than widening the page.
 
 Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The same preference also applies to the public home and account pages.
 

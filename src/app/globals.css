@@ -94,3 +94,88 @@
   --ring: #22d3ee;
   --destructive: #fca5a5;
 }
+
+.code-editor-input,
+.code-editor-highlight,
+.code-editor-gutter {
+  margin: 0;
+  font-family:
+    var(--font-sans-mono, ui-monospace), 'Cascadia Code', 'Consolas', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: normal;
+  tab-size: 4;
+  white-space: pre;
+  font-variant-ligatures: none;
+}
+
+.code-editor-input {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 256px;
+  padding: 16px 16px 16px 72px;
+  border: 0;
+  resize: vertical;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--foreground);
+  outline: none;
+}
+
+.code-editor-input:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ring);
+}
+.code-editor-input[aria-invalid='true'] {
+  box-shadow: inset 0 0 0 2px var(--destructive);
+}
+.code-editor-input::selection {
+  background: color-mix(in srgb, var(--ring) 25%, transparent);
+  color: transparent;
+}
+.code-editor-overlay {
+  position: absolute;
+  inset: 0 0 0 56px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.code-editor-highlight {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 16px;
+}
+.code-editor-line {
+  display: block;
+  min-height: 24px;
+  width: max-content;
+  min-width: 100%;
+}
+.code-editor-gutter {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 56px;
+  overflow: hidden;
+  padding: 16px 12px 16px 0;
+  border-right: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  text-align: right;
+  user-select: none;
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  .code-editor-overlay {
+    display: none;
+  }
+  .code-editor-input {
+    color: CanvasText;
+    caret-color: CanvasText;
+  }
+  .code-editor-input::selection {
+    color: HighlightText;
+    background: Highlight;
+  }
+}

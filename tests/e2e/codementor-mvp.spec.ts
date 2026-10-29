@@ -168,6 +168,10 @@ async function verifySavedSource(page: Page) {
     page.getByRole('link', { name: revisionLinkName }),
   ).toBeVisible();
   await expect(page.getByLabel(sourceLabel)).toHaveValue(firstRevisionSource);
+  await expect(page.getByTestId('source-line-numbers')).toHaveText('1\n2');
+  await expect(
+    page.getByTestId('source-highlight').locator('.token.builtin').first(),
+  ).toBeVisible();
 }
 
 async function verifySignOutRecovery(page: Page) {

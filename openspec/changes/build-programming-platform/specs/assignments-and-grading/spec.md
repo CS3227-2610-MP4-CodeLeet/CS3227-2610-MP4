@@ -1,5 +1,16 @@
 ## ADDED Requirements
 
+### Requirement: Readable source editor
+Student source entry SHALL show syntax colours appropriate to the assignment language and line numbers synchronized with vertical scrolling. Horizontal scrolling SHALL remain inside the editor. Theme changes and highlighting SHALL preserve source, input validation and submission behavior. Source tokens SHALL be rendered as text, never trusted HTML or executed code. Forced-colors mode SHALL preserve readable native input text.
+
+#### Scenario: Python and Java source entry
+- **WHEN** the student types supported Python or Java syntax
+- **THEN** the editor colours tokens, updates line numbers and keeps the original editable source
+
+#### Scenario: Theme and scroll changes
+- **WHEN** the student switches theme or scrolls a long source document
+- **THEN** the syntax colours follow the theme and the gutter/highlight stay aligned with the input without widening the page
+
 ### Requirement: Isolated development fixture preview
 Before shared-service integration, synthetic assignment list/detail previews SHALL be available only when NODE_ENV is development and the server-only STUDENT_PREVIEW_ENABLED flag is true. Fixture data SHALL NOT provide a production fallback or establish authenticated feature acceptance. Instructions SHALL render as plain text, and drafts SHALL be omitted from list and direct detail reads.
 
