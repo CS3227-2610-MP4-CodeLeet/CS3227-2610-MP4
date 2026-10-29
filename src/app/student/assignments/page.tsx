@@ -41,8 +41,8 @@ export default async function AssignmentListPage({
     publication_status: 'published' as const,
   })) as AssignmentSummary[];
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <div>
       <AssignmentList assignments={assignments} />
-    </main>
+    </div>
   );
 }

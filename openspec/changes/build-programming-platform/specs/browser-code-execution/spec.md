@@ -1,6 +1,8 @@
 ## ADDED Requirements
 
 ### Requirement: Browser-native Python and Java
+
+The authenticated Python MVP editor MAY expose the existing loopback practice runner only in development with the explicit runner flag. It SHALL use the same in-memory source as submission without treating execution results as grades. Production SHALL NOT enable this local runner even if the flag is set. This partial integration does not select a hosted runtime or change Python-only MVP persistence.
 The system SHALL execute Python and compile/execute Java source entirely in the browser through evaluated compatible runtimes. It SHALL NOT send source to remote execution or compilation services.
 
 #### Scenario: Python with stdin

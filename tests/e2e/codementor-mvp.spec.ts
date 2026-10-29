@@ -9,18 +9,22 @@ import {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 const serviceKey = process.env.MP4_E2E_SERVICE_ROLE_KEY;
+test.use({
+  baseURL: process.env.ACCOUNT_TEST_BASE_URL ?? 'http://127.0.0.1:3100',
+});
 const localServicesAvailable = Boolean(
   supabaseUrl && publishableKey && serviceKey,
 );
 const password = 'Local-MP4-Test-Password-482!';
 const revisionLinkName = 'Revision 1';
+const sourceLabel = 'Python source code';
 const secondRevisionLinkName = 'Revision 2';
 const firstRevisionSource =
   'values = list(map(int, input().split()))\nprint(sum(values))';
 const secondRevisionSource =
   'values = list(map(int, input().split()))\nprint(sum(values) + 0)';
 
-test('student and instructor complete the CodeMentor MVP journey', async ({
+test('student and instructor complete the CodeLeet MVP journey', async ({
   page,
   request,
 }) => {
@@ -112,19 +116,20 @@ async function studentSubmitsAndRequestsFeedback(
   suffix: string,
 ) {
   await page.goto('/sign-up');
-  await page.getByLabel('Display name').fill('MVP Test Student');
+  await page.getByLabel('Username').fill('MVP Test Student');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByLabel('Confirm password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Create student account' }).click();
   await expect(page).toHaveURL(/\/student\/assignments$/);
+  await verifySignedInWorkspace(page);
   await page
     .getByRole('link', { name: `Loops ${suffix}`, exact: true })
     .click();
-  await page.getByLabel('Python source code').fill(firstRevisionSource);
+  await page.getByLabel(sourceLabel).fill(firstRevisionSource);
+  await verifyAuthenticatedPractice(page);
   await page.getByRole('button', { name: 'Submit revision' }).click();
-  await expect(
-    page.getByRole('link', { name: revisionLinkName }),
-  ).toBeVisible();
+  await verifySavedSource(page);
   await mockStudentFeedback(page);
   await page.getByRole('link', { name: revisionLinkName }).click();
   await page.getByRole('button', { name: 'Request review' }).click();
@@ -133,11 +138,81 @@ async function studentSubmitsAndRequestsFeedback(
   ).toBeVisible();
   await page.getByRole('link', { name: 'Back to assignment' }).click();
   await submitAndVerifySecondRevision(page);
+  await verifySignOutRecovery(page);
+}
+
+async function verifyAuthenticatedPractice(page: Page) {
+  await verifySubmissionKeyboard(page);
+  if (process.env.RUN_AUTHENTICATED_RUNTIME_TESTS !== '1') return;
+  await page.getByLabel('Standard input', { exact: true }).fill('2 3 4');
+  await page.getByRole('button', { name: 'Run code', exact: true }).click();
+  await expect(page.getByTestId('custom-run-result').locator('pre')).toHaveText(
+    '9\n',
+    { timeout: 45_000 },
+  );
+  await expect(
+    page.getByRole('button', { name: 'Run published tests' }),
+  ).toHaveCount(0);
+}
+
+async function verifySubmissionKeyboard(page: Page) {
+  const editor = page.getByLabel(sourceLabel);
+  await editor.press('End');
+  await editor.press('Tab');
+  await expect(editor).not.toHaveValue(firstRevisionSource);
+  await editor.press('Control+z');
+  await expect(editor).toHaveValue(firstRevisionSource);
+  const atLimit = 'x'.repeat(8000);
+  await editor.fill(atLimit);
+  await editor.press('Control+a');
+  await editor.press('Tab');
+  await expect(editor).toHaveValue(atLimit);
+  await editor.fill(firstRevisionSource);
+}
+
+async function verifySignedInWorkspace(page: Page) {
+  await expect(page.getByText(/Preview with sample|Local preview/)).toHaveCount(
+    0,
+  );
+  await expect(
+    page.getByRole('link', { name: 'Home', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+}
+
+async function verifySavedSource(page: Page) {
+  await expect(
+    page.getByRole('link', { name: revisionLinkName }),
+  ).toBeVisible();
+  await expect(page.getByLabel(sourceLabel)).toHaveValue(firstRevisionSource);
+  await expect(page.getByTestId('source-line-numbers')).toHaveText('1\n2');
+  await expect(
+    page.getByTestId('source-highlight').locator('.token.builtin').first(),
+  ).toBeVisible();
+}
+
+async function verifySignOutRecovery(page: Page) {
+  await page.route('**/auth/v1/logout*', (route) =>
+    route.fulfill({
+      status: 500,
+      contentType: 'application/json',
+      body: '{"message":"Synthetic failure"}',
+    }),
+  );
   await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Sign-out failed.' }),
+  ).toHaveText('Sign-out failed. Try again.');
+  await expect(page).not.toHaveURL(/\/sign-in$/);
+  await page.unroute('**/auth/v1/logout*');
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+  await page.goto('/student/assignments');
+  await expect(page).toHaveURL(/\/sign-in$/);
 }
 
 async function submitAndVerifySecondRevision(page: Page) {
-  await page.getByLabel('Python source code').fill(secondRevisionSource);
+  await page.getByLabel(sourceLabel).fill(secondRevisionSource);
   await page.getByRole('button', { name: 'Submit revision' }).click();
   await expect(
     page.getByRole('link', { name: secondRevisionLinkName }),
@@ -221,7 +296,7 @@ async function studentSeesPublishedGrade(
 
 async function signIn(page: Page, email: string) {
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
+  await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
 }
 

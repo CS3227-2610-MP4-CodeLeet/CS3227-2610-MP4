@@ -3,6 +3,7 @@ import { requireRole } from '@/lib/auth/verified-user';
 import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
 import { SignOutButton } from '@/features/auth/auth-form';
+import { AccountThemeButton } from '@/features/auth/app-theme';
 
 export default async function SubmissionPage({
   params,
@@ -28,9 +29,12 @@ export default async function SubmissionPage({
     <div>
       <header className="flex items-center justify-between border-b px-6 py-4">
         <Link href="/student/assignments" className="font-semibold">
-          CodeMentor · Student
+          CodeLeet · Student
         </Link>
-        <SignOutButton />
+        <div className="flex items-center gap-2">
+          <SignOutButton />
+          <AccountThemeButton />
+        </div>
       </header>
       <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
         <Link

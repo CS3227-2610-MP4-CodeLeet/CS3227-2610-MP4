@@ -1,21 +1,37 @@
 # User Guide
 
-Status: CodeMentor student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
+Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
 
-## Local CodeMentor app
+## Local CodeLeet app
+
+The code editor shows line numbers and colours Python/Java keywords, strings, comments and other syntax. Colours follow your light/dark preference. Line numbers scroll with the code and long lines scroll horizontally inside the editor. Highlighting does not reformat, validate or execute your program; the editable source remains plain text. Python is still the only language accepted by real submissions; Java highlighting is available in the practice preview.
+
+Use **Tab** to indent and **Shift+Tab** to unindent; select multiple lines to adjust a whole block. **Enter** keeps the current indentation and adds a level after Python block colons or opening brackets/Java braces. Enter between matching brackets creates an indented blank line. Typing a Java closing brace on an indented blank line removes one level. Indentation uses four-space stops. **Ctrl+Z** undoes an edit in the verified Chromium browser. To move keyboard focus out of the editor, press **Escape**, then **Tab** (or Shift+Tab to move backward). This is indentation assistance, not a full language formatter.
+
+The moon/sun control applies to the landing page, sign-in, account creation and signed-in workspace. Your browser remembers the choice. Account creation requires matching **Password** and **Confirm password** fields; each has its own Show/Hide eye button. Signing in requires only the password. Signed-in student and instructor headers include **Sign out**. If signing out fails, the page shows an error and lets you retry.
 
 1. Install Node 24 and pnpm as described in the repository README.
 2. Start the local Supabase stack and apply migrations with `pnpm db:start` and `pnpm db:reset`.
 3. Copy `.env.example` to the ignored `.env.local`, then set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the local Supabase status output. Keep all other local service keys private.
 4. Run `pnpm dev` and open the address printed by Next.js.
-5. Create a student account at **Create student account**. Local email confirmation is disabled by default. Public registration does not offer an instructor role.
+5. Create a student account at **Create student account**, entering your **Username**, email and matching passwords. Local email confirmation is disabled by default. Public registration does not offer an instructor role.
 6. To exercise instructor screens, first create an account and use a trusted local Supabase admin session to set that account's `user_roles.role` to `instructor`; see [local database setup](../supabase/README.md). Never expose this operation through the app.
 
 Students can browse published Python assignments, submit revisions (up to 8,000 characters), view their own history, request learning feedback, and see grades only after publication. Instructors can create/edit/publish assignments with 1–20 private rubric criteria, review owned submissions, request AI rubric suggestions, edit grade drafts, and explicitly publish grades. Both roles can inspect their own AI usage. Instructors can compare focused and broader authorized contexts; each uncached comparison may use two daily AI request slots.
 
 AI is disabled unless `SOCLAAS_AI_ENABLED=true` and a server-side SoCLaaS URL/key/model are configured. Without these values, the rest of the local assignment workflows remain available and review requests show a safe unavailable message. Do not enter real student data in the synthetic experiment harness. Product AI context includes source code as untrusted text, but submitted source is never executed by Next.js/Node, a remote service, or the AI model. The separate optional browser practice environment is described below.
 
-The CodeMentor submission MVP accepts Python source only. Java remains available only in the independent synthetic browser practice preview. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
+The CodeLeet submission MVP accepts Python source only. Java remains available only in the independent synthetic browser practice preview. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
+
+Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. **Assignments** returns to the list; **AI usage** is in the navigation. After saving a revision, history updates and your code stays in the editor.
+
+To practise on a real Python assignment locally, set `STUDENT_RUNNER_PREVIEW_ENABLED=true`, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The development flag does not enable the runner in production. Hosted execution remains unavailable.
+
+### Forgot password
+
+From **Sign in**, select **Forgot password?**, enter your account email and select **Send reset link**. The acknowledgement is the same for registered and unregistered addresses. Open the newest email link in the same browser where you requested it, enter matching new passwords (at least eight characters), and select **Update password**. Both password fields have independent eye buttons. After success, sign in using the new password. An expired, reused or invalid link offers **Request a new link**.
+
+Local Supabase captures emails in **[Mailpit](http://localhost:54324)**; they are not delivered to a real inbox. Use that local mailbox to open the link while testing. Requesting a link has a short resend delay, and provider rate limits may require a longer wait. Hosted email delivery has not been verified.
 
 ## Local assignment preview
 
@@ -27,9 +43,9 @@ The CodeMentor submission MVP accepts Python source only. Java remains available
 
 The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. The preview is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
 
-On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a theme-aware plain-text area with line numbers and a filename label; it does not provide syntax highlighting or an external IDE service. Long lines scroll inside the editor rather than widening the page.
+On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a native text area with syntax colours, line numbers and a filename label; no external IDE service is involved. Long lines scroll inside the editor rather than widening the page.
 
-Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The public home page keeps its existing appearance.
+Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The same preference also applies to the public home and account pages.
 
 ### Local code-entry checks
 
@@ -62,9 +78,9 @@ Open `/student/assignments` at the address printed by Next.js (normally http://l
 - **Run published tests:** runs the three synthetic public cases for that sample assignment, sequentially with fresh state. Each case shows its input, expected stdout, verdict and actual stdout. Custom stdin is ignored for this action.
 - To leave an active run, use **All assignments** or another navigation link. Leaving the assignment ends the runner; automatic execution and suite deadlines also remain active. There is no Stop button in the student workspace.
 
-These cases are explicitly sample data in the independent browser-practice preview. CodeMentor instructors can create and publish assignment records, but authored practice tests are not shared with this preview. Results are practice feedback only and do not submit code, publish grades or award XP. Edited source hides previous results until it is run again. Output is rendered as text, including any HTML-like content.
+These cases are explicitly sample data in the independent browser-practice preview. CodeLeet instructors can create and publish assignment records, but authored practice tests are not shared with this preview. Results are practice feedback only and do not submit code, publish grades or award XP. Edited source hides previous results until it is run again. Output is rendered as text, including any HTML-like content.
 
-The compact toolbar above input/output contains **Run code** and **Run published tests**. While a suite is running, the status identifies its current test number. The summary shows the number passed and run. Select a test-case row to expand its input, expected output, actual output and diagnostics; failed cases expand automatically. On wider screens these values appear next to one another, and on mobile they stack. **Run details** expands the input/runtime limits, output comparison rules and supported Java input. Custom-input output appears in the separate **Output** panel.
+The compact toolbar above input/output contains **Run code** and **Run published tests**. While a suite is running, the status identifies its current test number. The summary shows the number passed and run. Select a test-case row to expand its input, expected output, actual output and diagnostics; failed cases expand automatically. On wider screens these values appear next to one another, and on mobile they stack. Custom-input output appears in the separate **Output** panel.
 
 Matching normalizes CRLF/lone CR line endings and ignores one final newline on each output. All other spaces, blank lines and capitalization matter. A runtime error or timeout never passes even if partial output matches. Stderr is diagnostic output, not the expected answer. Passing published samples does not prove correctness for every possible input.
 

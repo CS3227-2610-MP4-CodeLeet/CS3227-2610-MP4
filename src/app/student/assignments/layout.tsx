@@ -6,8 +6,6 @@ import {
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { WorkspaceShell } from '@/features/student-assignments/workspace-shell';
 import { requireRole } from '@/lib/auth/verified-user';
-import Link from 'next/link';
-import { SignOutButton } from '@/features/auth/auth-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,21 +27,21 @@ export default async function AssignmentLayout({
       </WorkspaceShell>
     );
   }
-  await requireRole('student');
+  const { supabase } = await requireRole('student');
+  const { data, error } = await supabase
+    .from('assignments')
+    .select('id,title,language,publication_status')
+    .eq('publication_status', 'published')
+    .order('created_at', { ascending: false });
+  if (error) throw new Error('Assignments could not be loaded.');
+  const assignments = (data ?? []).map((assignment) => ({
+    ...assignment,
+    language: 'python' as const,
+    publication_status: 'published' as const,
+  }));
   return (
-    <div>
-      <header className="flex items-center justify-between border-b px-6 py-4">
-        <div className="flex items-center gap-5">
-          <Link href="/student/assignments" className="font-semibold">
-            CodeMentor · Student
-          </Link>
-          <Link className="text-sm underline" href="/ai/usage">
-            AI usage
-          </Link>
-        </div>
-        <SignOutButton />
-      </header>
+    <WorkspaceShell assignments={assignments} authenticated>
       {children}
-    </div>
+    </WorkspaceShell>
   );
 }

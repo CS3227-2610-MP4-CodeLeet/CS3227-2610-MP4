@@ -4,6 +4,8 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import { PasswordField } from './password-field';
+export { SignOutButton } from './sign-out-button';
 
 const supabaseReady = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -15,12 +17,12 @@ function AccountFields({ displayName = false }: { displayName?: boolean }) {
     <>
       {displayName && (
         <label className="block space-y-2 text-sm">
-          Display name
+          Username
           <input
-            name="displayName"
+            name="username"
             required
             maxLength={80}
-            autoComplete="name"
+            autoComplete="username"
             className="w-full rounded-md border bg-background px-3 py-2"
           />
         </label>
@@ -35,17 +37,8 @@ function AccountFields({ displayName = false }: { displayName?: boolean }) {
           className="w-full rounded-md border bg-background px-3 py-2"
         />
       </label>
-      <label className="block space-y-2 text-sm">
-        Password
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          autoComplete={displayName ? 'new-password' : 'current-password'}
-          className="w-full rounded-md border bg-background px-3 py-2"
-        />
-      </label>
+      <PasswordField newPassword={displayName} />
+      {displayName && <PasswordField confirmation newPassword />}
     </>
   );
 }
@@ -80,14 +73,19 @@ function SignInForm() {
   return (
     <AuthCard
       title="Sign in"
-      description="Use your CodeMentor account."
+      description="Use your CodeLeet account."
       busy={busy}
       message={message}
       onSubmit={submit}
     >
       <AccountFields />
+      <p className="text-sm">
+        <Link href="/forgot-password" className="underline">
+          Forgot password?
+        </Link>
+      </p>
       <p className="text-sm text-muted-foreground">
-        New to CodeMentor?{' '}
+        New to CodeLeet?{' '}
         <Link className="underline" href="/sign-up">
           Create an account
         </Link>
@@ -102,20 +100,17 @@ function SignUpForm() {
   const [message, setMessage] = useState('');
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const validationError = getSignupError(form);
+    if (validationError) return setMessage(validationError);
     setBusy(true);
     setMessage('');
-    if (!supabaseReady) {
-      setBusy(false);
-      setMessage('Authentication is not configured for this environment.');
-      return;
-    }
-    const form = new FormData(event.currentTarget);
     const { data, error } = await createSupabaseBrowserClient().auth.signUp({
       email: String(form.get('email') ?? '').trim(),
       password: String(form.get('password') ?? ''),
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: { display_name: String(form.get('displayName') ?? '').trim() },
+        data: { display_name: String(form.get('username') ?? '').trim() },
       },
     });
     setBusy(false);
@@ -151,13 +146,23 @@ function SignUpForm() {
   );
 }
 
-function AuthCard({
+function getSignupError(form: FormData) {
+  if (!supabaseReady)
+    return 'Authentication is not configured for this environment.';
+  return form.get('password') !== form.get('confirmPassword')
+    ? 'Passwords do not match.'
+    : '';
+}
+
+export function AuthCard({
   title,
   description,
   busy,
   message,
   onSubmit,
   children,
+  submitLabel = title,
+  disabled = false,
 }: {
   title: string;
   description: string;
@@ -165,6 +170,8 @@ function AuthCard({
   message: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   children: ReactNode;
+  submitLabel?: string;
+  disabled?: boolean;
 }) {
   return (
     <form
@@ -182,10 +189,10 @@ function AuthCard({
         </p>
       )}
       <button
-        disabled={busy || !supabaseReady}
+        disabled={busy || !supabaseReady || disabled}
         className="w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-60"
       >
-        {busy ? 'Please wait…' : title}
+        {busy ? 'Please wait…' : submitLabel}
       </button>
       {!supabaseReady && (
         <p className="text-sm text-muted-foreground">
@@ -198,23 +205,4 @@ function AuthCard({
 
 export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   return mode === 'sign-in' ? <SignInForm /> : <SignUpForm />;
-}
-
-export function SignOutButton() {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  return (
-    <button
-      className="text-sm underline"
-      disabled={busy}
-      onClick={async () => {
-        setBusy(true);
-        await createSupabaseBrowserClient().auth.signOut();
-        router.replace('/sign-in');
-        router.refresh();
-      }}
-    >
-      {busy ? 'Signing out…' : 'Sign out'}
-    </button>
-  );
 }

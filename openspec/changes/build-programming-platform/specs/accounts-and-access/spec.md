@@ -1,5 +1,41 @@
 ## ADDED Requirements
 
+### Requirement: Email password recovery
+The system SHALL provide a Forgot password email request from sign-in, use Supabase Auth's PKCE recovery and respond without disclosing account existence. It SHALL enforce pending/resend controls and show safe provider/rate errors without exposing provider details. Only a fixed same-origin recovery destination SHALL be accepted by the callback, and a server-verified identity SHALL be required to render the new-password form. Matching passwords with the existing visibility controls SHALL update only that authenticated identity; invalid, expired and replayed links SHALL offer a new request. Successful password update and any subsequent sign-out failure SHALL be reported distinctly. Passwords/tokens/email bodies SHALL NOT be logged by application code.
+
+#### Scenario: Recovery request
+- **WHEN** a visitor submits a valid email for password recovery
+- **THEN** Auth is asked to deliver a recovery link and the acknowledgement does not reveal account existence
+
+#### Scenario: Password update
+- **WHEN** a valid recovery session submits matching new passwords
+- **THEN** the user's password changes and the user can sign in with the new password while the old password fails
+
+#### Scenario: Invalid recovery access
+- **WHEN** a signed-out visitor opens the password form directly or a callback code is invalid/expired/replayed
+- **THEN** no unauthenticated password update is offered and a new recovery link can be requested
+
+#### Scenario: Untrusted redirect
+- **WHEN** a callback includes a next value other than the exact recovery path
+- **THEN** it is ignored in favor of the existing verified role destination without redirecting to an attacker-controlled URL
+
+### Requirement: Consistent account controls
+The visible product name SHALL be CodeLeet and the registration profile-name field SHALL be labeled Username. The label change SHALL preserve existing profile storage and email-based authentication.
+
+The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
+
+#### Scenario: Mismatched registration passwords
+- **WHEN** a user submits different password and confirmation values
+- **THEN** account creation is blocked locally with an explanatory message and no Auth signup request
+
+#### Scenario: Independent password visibility
+- **WHEN** the user changes visibility for either password field
+- **THEN** only that field changes visibility and the control name describes its next action
+
+#### Scenario: Sign-out failure and recovery
+- **WHEN** sign-out fails and the user retries successfully
+- **THEN** the failure stays visible on the current page until retry and success redirects to sign-in with protected pages requiring authentication again
+
 ### Requirement: Trusted role assignment
 The system SHALL support student/instructor identities with Supabase Auth. Public registration SHALL grant only student access and role elevation SHALL require trusted administration.
 

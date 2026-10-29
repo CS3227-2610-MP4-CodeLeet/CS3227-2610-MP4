@@ -38,7 +38,7 @@ function getOutcomeMessage(signal: AbortSignal) {
   if (signal.reason === 'suite-timeout')
     return 'Suite time limit reached. Remaining cases were not run.';
   if (signal.aborted) return 'Stopped. Remaining cases were not run.';
-  return 'Run finished. Results are practice feedback only.';
+  return '';
 }
 
 function getErrorMessage(error: unknown) {
@@ -113,15 +113,17 @@ function RunControls({
           <Play aria-hidden="true" className="size-3.5" />
           Run code
         </button>
-        <button
-          type="button"
-          className={`${buttonStyle} border bg-background text-foreground hover:bg-accent`}
-          disabled={busy || !casesAvailable}
-          onClick={onRunTests}
-        >
-          <TestTubes aria-hidden="true" className="size-3.5" />
-          Run published tests
-        </button>
+        {casesAvailable && (
+          <button
+            type="button"
+            className={`${buttonStyle} border bg-background text-foreground hover:bg-accent`}
+            disabled={busy || !casesAvailable}
+            onClick={onRunTests}
+          >
+            <TestTubes aria-hidden="true" className="size-3.5" />
+            Run published tests
+          </button>
+        )}
       </div>
     </div>
   );
@@ -187,41 +189,11 @@ function RunStatus({
   );
 }
 
-function RunDetails({ language }: { language: AssignmentLanguage }) {
-  return (
-    <details className="text-xs text-muted-foreground">
-      <summary className="cursor-pointer py-1 font-medium">Run details</summary>
-      <div className="space-y-2 pt-2 leading-6">
-        <p>
-          Practice only. Runs stay in your browser and do not award grades or
-          XP. Input: up to 4,096 UTF-8 bytes. Execution: up to 5 seconds per
-          case, with a separate Java compilation deadline. Leaving the page ends
-          the run.
-        </p>
-        <p>
-          Compare printed output. Line endings and one final newline are
-          ignored; other spaces and capitalization must match.
-        </p>
-        {language === 'java' && <JavaRunDetails />}
-      </div>
-    </details>
-  );
-}
-
 function StaleResultNotice({ visible }: { visible: boolean }) {
   if (!visible) return null;
   return (
     <p className="text-xs text-amber-800 dark:text-amber-200">
       Code changed. Run again to update the results.
-    </p>
-  );
-}
-
-function JavaRunDetails() {
-  return (
-    <p>
-      Use one public Main class. Buffered UTF-8 input and basic Scanner methods
-      are supported; advanced Scanner APIs are unavailable.
     </p>
   );
 }
@@ -286,7 +258,6 @@ export function PracticeRunner({
         message={message}
         cases={cases}
         results={results}
-        language={language}
       />
     </section>
   );
@@ -370,7 +341,6 @@ type PracticeOutputProps = {
   message: string;
   cases: readonly PracticeCase[];
   results: readonly PracticeResult[];
-  language: AssignmentLanguage;
 };
 
 function PracticeOutputArea({
@@ -385,7 +355,6 @@ function PracticeOutputArea({
   message,
   cases,
   results,
-  language,
 }: PracticeOutputProps) {
   return (
     <>
@@ -404,7 +373,6 @@ function PracticeOutputArea({
         visible={Boolean((single || results.length > 0) && changed)}
       />
       <CaseResults cases={cases} results={changed ? [] : results} />
-      <RunDetails language={language} />
     </>
   );
 }
