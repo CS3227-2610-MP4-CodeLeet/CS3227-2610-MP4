@@ -18,11 +18,13 @@
 5. Added the standalone server adapter, example selection wrapper, server-to-form props and example-aware runner/result labels. An initial PowerShell command used unsupported Bash brace expansion and did not execute; reran with explicit paths. Lint reported a long form/helper and duplicate test strings; extracted the props type and focused helper functions rather than disabling checks. The full unit suite passed 107 tests; ESLint, formatting, strict TypeScript/type generation, production build, scaffold/links and strict OpenSpec validation passed.
 6. Real Python/Java example journeys passed twice, including match/mismatch, expected/actual output, runtime/compile errors, five-second timeouts, stale results and private immutable saves. The final run also verified active opt-out cancellation, no iframe remaining, source preservation, fresh Not run state on re-selection and no API/data writes during practice (2 passed). Production tests with all preview/runner/fixture flags true passed 9 checks including both languages with no example controls, the existing rubric/grade journey with mocked AI, account/recovery and production preview denial. These tests use synthetic accounts; no live AI, hosted deployment or SMTP verification is claimed.
 
+7. Existing sample/editor/runtime regression passed 24 checks, preserving published-case labels, syntax/indentation, themes, mobile layout and all four runtime scenarios. Author reviewed server fixture gating/serialization, explicit provenance, runner remount cleanup and unchanged submission/grade boundaries. No independent reviewer was used under the repository delegation constraint. Committed verified integration at 3ea4eb4; documentation/PR closeout follows.
+
 ## Work and verification
 
 - Plan: workflow/plans/2026-10-29-student-assignment-tests.md
 - Contract: workflow/contracts/published-practice-cases.md
-- Checks/results: 107 unit tests; 2 extended authenticated browser journeys; 9 production/account regression checks; static/build/spec checks passed. Existing preview/runtime regression pending.
+- Checks/results: 107 unit tests; 2 extended authenticated browser journeys; 9 production/account regression checks; static/build/spec checks passed. Existing preview/runtime regression: 24 passed, including all four runtime scenarios.
 - Independent review: not performed; human review pending
 - Failures/retries: expected missing-module and missing-checkbox red checks; PowerShell syntax retry; lint-driven helper extraction. No unresolved application failure currently known.
 - Resource measurements: unavailable

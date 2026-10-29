@@ -27,6 +27,14 @@ Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The stud
 
 To practise on a real Python or Java assignment locally, set `STUDENT_RUNNER_PREVIEW_ENABLED=true`, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The development flag does not enable the runner in production. Hosted execution remains unavailable.
 
+### Example tests in real assignments (local development)
+
+Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts. With the local runtime prepared/running, set both `STUDENT_RUNNER_PREVIEW_ENABLED=true` and `STUDENT_TEST_CASE_FIXTURES_ENABLED=true` in ignored `.env.local`, then restart the development server. Open a published Python or Java assignment and select **Use example test cases** below the editor. These are standalone examples for a program that reads two integers and prints their sum; they are **not your instructor's assignment tests**.
+
+Select **Run tests** to compare the current editor source with the three examples. Expand a case to see its input, expected output and actual output. Results distinguish Passed, Wrong output, Compile error, Runtime error and Time limit exceeded. Editing code makes earlier results stale. Deselecting examples stops an active run and clears the results while keeping the code. Practice runs do not save revisions or affect grades; use **Submit revision** separately.
+
+The example option is absent by default and in production, even if the flag is set. Instructor-authored case creation/publication and real case loading are still pending. The existing browser runtime limits and supported Java library subset apply.
+
 ### Forgot password
 
 From **Sign in**, select **Forgot password?**, enter your account email and select **Send reset link**. The acknowledgement is the same for registered and unregistered addresses. Open the newest email link in the same browser where you requested it, enter matching new passwords (at least eight characters), and select **Update password**. Both password fields have independent eye buttons. After success, sign in using the new password. An expired, reused or invalid link offers **Request a new link**.

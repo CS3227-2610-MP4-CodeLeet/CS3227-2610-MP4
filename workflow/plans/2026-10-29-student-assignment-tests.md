@@ -10,7 +10,7 @@ Issue [#19](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/1
 
 **Files:** `assignment-practice.server.ts` handles fixture gating/data; its unit test proves default/production denial and bounded cases. `assignment-practice.tsx` owns the example opt-in and runner presentation. `submission-form.tsx` and the assignment page pass only server-approved data. Existing runner/results add example-aware labels without changing execution logic. Extend real Python/Java browser journeys for example success/mismatch/errors/timeouts, stale results and absence of result/grade writes. `.env.example` and guides document opt-in and limitations.
 
-- [ ] Write failing gate/browser checks and contract/spec scenarios.
-- [ ] Implement fixture adapter, explicit opt-in, shared runner labels and real-page integration; verify targeted unit/browser checks.
-- [ ] Verify flag-off and production denial, both languages, save/history privacy regressions, runtime failure/timeout behavior and static/build checks.
+- [x] Write failing gate/browser checks and contract/spec scenarios.
+- [x] Implement fixture adapter, explicit opt-in, shared runner labels and real-page integration; verify targeted unit/browser checks.
+- [x] Verify flag-off and production denial, both languages, save/history privacy regressions, runtime failure/timeout behavior and static/build checks.
 - [ ] Update guides and per-change summary, perform author review with independent review pending, commit/push focused work and create linked PR to develop. No merge or deployment.
