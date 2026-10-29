@@ -5,7 +5,7 @@
 - Issue: [#17](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/17), refs #5
 - OpenSpec: build-programming-platform, task group 8
 - Branch: feat/java-assignments; rebased onto origin/develop 71c0e6a after prerequisite PR #16 merged
-- PR: pending; prerequisite [PR #16](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/16) merged as 71c0e6a; publication will use the updated develop base
+- PR: [#18](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/18) to develop; prerequisite PR #16 is merged
 - Human verification: pending
 
 ## Prompt and interaction summaries
@@ -19,6 +19,8 @@
 7. Added an explicit unpublished Java-grade privacy fixture; database suite now passes 59 assertions across three files. Security advisor returned no issues. No live AI request, hosted runtime or deployment was tested. No specialist was delegated; author review is not independent review. PR #16 was observed merged, and origin/develop fetched for removing duplicate prerequisite commits from this branch.
 
 8. Rebasing only the two Java commits onto merged develop succeeded; generated Next declarations had no uncommitted change at that moment, so a scoped stash was unnecessary (no stash created). Final full browser regression included preview editing/layout, all four runtime scenarios and production fixture denial: 32 passed, 4 explicit local-service opt-ins skipped. No production runner was enabled. Author inspected data locks, DB derivation/grants, fixed language mapping, strict DTOs and text rendering; independent human review remains pending.
+
+9. Committed the migration/security tests and UI/API integration in focused commits, rebased onto merged develop, pushed feat/java-assignments and created PR #18 to develop linking issue #17, refs #5, OpenSpec, plan and summary. No merge/deployment is claimed. Human review is pending.
 
 ## Work and verification
 

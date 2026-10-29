@@ -10,4 +10,6 @@ Use existing row/advisory locks and grants. A seven-argument save_assignment ove
 - [x] Implement and apply the forward migration to local Supabase, verify backfill/count preservation and pgTAP. Do not reset existing accounts/data.
 - [x] Implement language selection, data/API projection, shared editor/runner and history/AI context; reject unsupported/forged language values and surface locked-language changes.
 - [x] Verify real Python/Java creation/run/submission/history, two-student privacy and RPC restrictions, regression checks and final build. Update current guides and summary; record actual review/hosting limits.
-- [ ] Commit/push focused changes and create a PR to develop linked to #17/#5, OpenSpec and log. Keep PR #16 dependency explicit; no merge/deployment.
+- [x] Commit/push focused changes and create a PR to develop linked to #17/#5, OpenSpec and log. Keep PR #16 dependency explicit; no merge/deployment.
+
+PR: [#18](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/18). Human verification pending.
