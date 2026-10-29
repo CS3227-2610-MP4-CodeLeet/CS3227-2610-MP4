@@ -12,4 +12,4 @@ Run is connected only for development with `STUDENT_RUNNER_PREVIEW_ENABLED=true`
 - [x] Add reusable account password fields, app theme wrapper and failure-aware sign-out. Apply the workspace to authenticated assignments without sample labels or Home links.
 - [x] Connect the existing practice runner to the same source used by authenticated submissions, gated to local development, retaining deadlines and cleanup. Refresh revision history without clearing the editor.
 - [x] Verify focused browser journeys, unit/lint/types/build/spec/scaffold checks; update guides and sanitized summary with actual limitations.
-- [ ] Commit focused verified work, push and open a linked PR to develop. No merge/deployment.
+- [x] Commit focused verified work, push and open a linked PR to develop: [PR #16](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/16). No merge/deployment.
