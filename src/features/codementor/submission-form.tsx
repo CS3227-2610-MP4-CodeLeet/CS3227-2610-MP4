@@ -67,27 +67,26 @@ export function SubmissionForm({
         maxLength={8_000}
         rows={18}
       />
-      <p className="text-sm text-muted-foreground">
-        Submit saves a revision for feedback. Practice runs stay in your browser
-        and do not determine your grade.
-      </p>
-      {message && (
-        <p role="status" className="text-sm text-muted-foreground">
-          {message}
-        </p>
-      )}
-      <button
-        disabled={busy || !source.trim()}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
-      >
-        {busy ? 'Saving…' : 'Submit revision'}
-      </button>
       <AssignmentPractice
         enabled={browserRunEnabled}
         source={source}
         language={language}
         examples={testExamples}
       />
+      <footer className="space-y-3 border-t pt-5">
+        <button
+          type="submit"
+          disabled={busy || !source.trim()}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+        >
+          {busy ? 'Saving…' : 'Submit revision'}
+        </button>
+        {message && (
+          <p role="status" className="text-sm text-muted-foreground">
+            {message}
+          </p>
+        )}
+      </footer>
     </form>
   );
 }

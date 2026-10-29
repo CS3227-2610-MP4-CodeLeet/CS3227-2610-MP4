@@ -5,6 +5,7 @@ import {
   type Page,
 } from '@playwright/test';
 import { verifyAssignmentExamples } from './helpers/assignment-test-examples';
+import { verifyAssignmentLayout } from './helpers/assignment-layout';
 
 const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.MP4_E2E_SERVICE_ROLE_KEY;
@@ -182,6 +183,7 @@ async function studentJourney(
     page.getByRole('heading', { name: `${fixture.label} submission` }),
   ).toBeVisible();
   await editor.fill(fixture.source);
+  await verifyAssignmentLayout(page);
   await verifyRun(page);
   await verifyAssignmentExamples(page, fixture);
   const first = await saveRevision(page, fixture.source);

@@ -94,3 +94,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 9.2 Add a server-gated standalone example adapter and explicit student opt-in in real assignments, with truthful example labels and no production/default fallback.
 - [x] 9.3 Reuse browser-only tests/results for Python/Java source without altering submissions, grades or XP; clear/cancel results on opt-out/navigation.
 - [x] 9.4 Verify both-language real-page tests, stale results/errors/deadlines, no automatic writes, default/production denial and saving/privacy regression. Update guides, summary and linked PR with actual evidence.
+- [x] 9.5 Issue #21: simplify sidebar/Menu to Assignments, uncramp branding and order real editor/run/input-output/test cases/submit/history; verify responsive navigation, source preservation and Python/Java actions and update PR #20.

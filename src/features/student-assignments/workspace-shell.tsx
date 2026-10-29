@@ -2,68 +2,30 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, ChevronRight, Code2, Menu, Terminal } from 'lucide-react';
+import { BookOpen, ChevronRight, Menu, Terminal } from 'lucide-react';
 import { createContext, useContext, type ReactNode } from 'react';
 import { SignOutButton } from '@/features/auth/sign-out-button';
 import type { AssignmentSummary } from './types';
-import { languageLabels } from './types';
 import { ThemeButton, useWorkspaceTheme } from './workspace-theme';
 
 const AuthenticatedWorkspace = createContext(false);
 
-function WorkspaceNavigation({
-  assignments,
-  current,
-}: {
-  assignments: readonly AssignmentSummary[];
-  current?: AssignmentSummary;
-}) {
+function WorkspaceNavigation() {
   return (
-    <nav aria-label="Student navigation" className="space-y-5">
+    <nav aria-label="Student navigation">
       <Link
         href="/student/assignments"
-        aria-current={!current ? 'page' : undefined}
+        aria-current="page"
         className="flex items-center gap-3 rounded-md bg-cyan-50 dark:bg-cyan-950/60 px-3 py-2.5 text-sm font-semibold text-cyan-800 dark:text-cyan-300"
       >
-        <BookOpen aria-hidden="true" className="size-4" /> Assignments
+        <BookOpen aria-hidden="true" className="size-4" />
+        <span>Assignments</span>
       </Link>
-      <div>
-        <p className="mb-2 px-3 text-[11px] font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
-          Published assignments
-        </p>
-        {assignments.map((item) => (
-          <Link
-            key={item.id}
-            href={`/student/assignments/${item.id}`}
-            aria-current={current?.id === item.id ? 'page' : undefined}
-            className={`mb-1 flex gap-3 rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${current?.id === item.id ? 'bg-white dark:bg-slate-900 font-medium text-cyan-800 dark:text-cyan-300 ring-1 ring-slate-200 dark:ring-slate-700' : 'text-slate-600 dark:text-slate-300'}`}
-          >
-            <Code2 aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-            <span className="min-w-0">
-              <span className="block leading-5">{item.title}</span>
-              <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
-                {languageLabels[item.language]}
-              </span>
-            </span>
-          </Link>
-        ))}
-      </div>
-      {useContext(AuthenticatedWorkspace) && (
-        <Link href="/ai/usage" className="block px-3 text-sm underline">
-          AI usage
-        </Link>
-      )}
     </nav>
   );
 }
 
-function WorkspaceSidebar({
-  assignments,
-  current,
-}: {
-  assignments: readonly AssignmentSummary[];
-  current?: AssignmentSummary;
-}) {
+function WorkspaceSidebar() {
   return (
     <aside
       aria-label="Workspace sidebar"
@@ -71,7 +33,7 @@ function WorkspaceSidebar({
     >
       <Link
         href="/student/assignments"
-        className="flex h-16 items-center gap-2.5 border-b border-slate-200 dark:border-slate-700 px-5 text-lg font-semibold tracking-tight"
+        className="flex min-h-24 shrink-0 items-center gap-2.5 border-b border-slate-200 dark:border-slate-700 px-6 py-7 text-lg font-semibold tracking-tight"
       >
         <span className="rounded-lg bg-cyan-700 p-1.5 text-white">
           <Terminal aria-hidden="true" className="size-5" />
@@ -79,7 +41,7 @@ function WorkspaceSidebar({
         CodeLeet
       </Link>
       <div className="px-4 py-5">
-        <WorkspaceNavigation assignments={assignments} current={current} />
+        <WorkspaceNavigation />
       </div>
       {!useContext(AuthenticatedWorkspace) && (
         <p className="mt-auto border-t px-7 py-4 text-xs text-muted-foreground">
@@ -90,15 +52,7 @@ function WorkspaceSidebar({
   );
 }
 
-function WorkspaceMenu({
-  pathname,
-  assignments,
-  current,
-}: {
-  pathname: string;
-  assignments: readonly AssignmentSummary[];
-  current?: AssignmentSummary;
-}) {
+function WorkspaceMenu({ pathname }: { pathname: string }) {
   return (
     <details key={pathname} className="relative shrink-0">
       <summary
@@ -108,7 +62,7 @@ function WorkspaceMenu({
         <Menu aria-hidden="true" className="size-4" /> Menu
       </summary>
       <div className="absolute top-full right-0 z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border bg-white dark:bg-slate-900 p-3 shadow-lg">
-        <WorkspaceNavigation assignments={assignments} current={current} />
+        <WorkspaceNavigation />
       </div>
     </details>
   );
@@ -116,12 +70,10 @@ function WorkspaceMenu({
 
 function WorkspaceHeader({
   pathname,
-  assignments,
   current,
   theme,
 }: {
   pathname: string;
-  assignments: readonly AssignmentSummary[];
   current?: AssignmentSummary;
   theme: 'light' | 'dark';
 }) {
@@ -147,11 +99,7 @@ function WorkspaceHeader({
         aria-label="Workspace controls"
       >
         {useContext(AuthenticatedWorkspace) && <SignOutButton />}
-        <WorkspaceMenu
-          pathname={pathname}
-          assignments={assignments}
-          current={current}
-        />
+        <WorkspaceMenu pathname={pathname} />
         <ThemeButton theme={theme} />
       </div>
     </header>
@@ -193,11 +141,10 @@ export function WorkspaceShell({
         >
           Skip to content
         </a>
-        <WorkspaceSidebar assignments={assignments} current={current} />
+        <WorkspaceSidebar />
         <div className="min-w-0 lg:ml-60">
           <WorkspaceHeader
             pathname={pathname}
-            assignments={assignments}
             current={current}
             theme={theme}
           />

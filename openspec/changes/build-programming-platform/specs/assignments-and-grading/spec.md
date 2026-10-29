@@ -1,5 +1,12 @@
 ## ADDED Requirements
 
+### Requirement: Focused student assignment layout
+The student sidebar and Menu SHALL contain only the Assignments navigation entry, with nonshrinking padded CodeLeet branding. Assignment discovery SHALL remain in the main list. For an enabled local runner, the real assignment page SHALL order instructions, source editor, Run code, Run & test input/output, test cases and their action, Submit revision/status, then Your revisions. Run/test actions SHALL remain non-submitting buttons, and changes to layout SHALL preserve source, saving and execution behavior.
+
+#### Scenario: Navigate and work on an assignment
+- **WHEN** a student opens an assignment on desktop or uses Menu on mobile
+- **THEN** navigation offers Assignments without duplicated published-assignment shortcuts, the problem precedes source, and submission/history follow practice results
+
 ### Requirement: Real assignment language and immutable revision language
 The authenticated assignment workflow SHALL accept Python or Java, defaulting omitted assignment language to Python for existing callers. Instructor creation/editing SHALL expose this choice. Every stored revision SHALL derive its language from the assignment on the server and retain that language with its source. The real editor, browser runner, revision views and AI context SHALL use the validated stored language. Unsupported assignment languages and client-supplied submission language fields SHALL be rejected. This integration retains the authenticated MVP's 8,000-character source bound and 201 response for successful or identical retried submissions; the earlier 32 KiB preview contract is separate.
 
