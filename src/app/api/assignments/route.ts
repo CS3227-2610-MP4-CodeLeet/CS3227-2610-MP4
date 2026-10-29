@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     p_instructions: parsed.data.instructions,
     p_criteria: parsed.data.rubric,
     p_publication_status: parsed.data.publicationStatus,
+    p_language: parsed.data.language,
   });
   if (error)
     return privateJson(

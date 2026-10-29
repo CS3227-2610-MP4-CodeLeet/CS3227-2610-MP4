@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
 import { GradeForm } from '@/features/codementor/grade-form';
 import { requireRole } from '@/lib/auth/verified-user';
+import { assignmentLanguageSchema } from '@/features/codementor/contracts';
+import { languageLabels } from '@/features/student-assignments/types';
 
 type Criterion = {
   id: string;
@@ -20,7 +22,7 @@ export default async function InstructorSubmissionPage({
   const { supabase } = await requireRole('instructor');
   const { data: submission } = await supabase
     .from('submissions')
-    .select('id,assignment_id,source,revision,created_at')
+    .select('id,assignment_id,source,language,revision,created_at')
     .eq('id', submissionId)
     .maybeSingle();
   if (!submission) notFound();
@@ -57,6 +59,10 @@ export default async function InstructorSubmissionPage({
           {assignment.title} · revision {submission.revision}
         </p>
         <h1 className="text-3xl font-semibold">Review submission</h1>
+        <p className="text-sm text-muted-foreground">
+          {languageLabels[assignmentLanguageSchema.parse(submission.language)]}{' '}
+          source
+        </p>
       </div>
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>

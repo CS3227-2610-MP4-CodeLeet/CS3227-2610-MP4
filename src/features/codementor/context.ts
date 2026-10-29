@@ -1,6 +1,7 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
 import { estimatePromptTokens } from './contracts';
+import type { AssignmentLanguage } from '@/features/student-assignments/types';
 
 export const PROMPT_VERSION = 'codementor-review-v1';
 export const STUDENT_SYSTEM_PROMPT =
@@ -12,7 +13,7 @@ export type PublicAssignmentContext = {
   id: string;
   title: string;
   instructions: string;
-  language: 'python';
+  language: AssignmentLanguage;
   version: number;
   createdAt?: string;
   updatedAt?: string;

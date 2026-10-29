@@ -32,6 +32,22 @@ const injections = [
 ];
 
 describe('role-specific AI contexts', () => {
+  it('preserves Java language in context and separates its cache key', () => {
+    const javaAssignment = { ...assignment, language: 'java' as const };
+    expect(
+      JSON.parse(studentReviewMessages(javaAssignment, 'class Main {}').user)
+        .assignment.language,
+    ).toBe('java');
+    const base = {
+      requesterId: 'one',
+      reviewType: 'student_feedback',
+      source: 'same source',
+      model: 'm1',
+    };
+    expect(reviewCacheKey({ ...base, assignment })).not.toBe(
+      reviewCacheKey({ ...base, assignment: javaAssignment }),
+    );
+  });
   it.each(injections)(
     'keeps attack text in untrusted user data: %s',
     (attack) => {

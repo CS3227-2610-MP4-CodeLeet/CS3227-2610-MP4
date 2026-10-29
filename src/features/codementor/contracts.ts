@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { assignmentLanguages } from '@/features/student-assignments/types';
+
+export const assignmentLanguageSchema = z.enum(assignmentLanguages);
 
 const uuid = z.uuid();
 const cleanText = (max: number) =>
@@ -13,6 +16,7 @@ export const assignmentInputSchema = z
   .object({
     title: cleanText(160),
     instructions: cleanText(12_000),
+    language: assignmentLanguageSchema.default('python'),
     rubric: z
       .array(
         z

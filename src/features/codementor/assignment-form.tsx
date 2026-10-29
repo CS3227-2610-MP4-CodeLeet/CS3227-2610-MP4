@@ -2,6 +2,11 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  assignmentLanguages,
+  languageLabels,
+  type AssignmentLanguage,
+} from '@/features/student-assignments/types';
 
 type Criterion = {
   id: string;
@@ -13,6 +18,8 @@ type AssignmentDraft = {
   id: string;
   title: string;
   instructions: string;
+  language: AssignmentLanguage;
+  languageLocked?: boolean;
   publication_status: 'draft' | 'published';
   version: number;
   criteria?: Criterion[];
@@ -23,6 +30,7 @@ type AssignmentFieldsData = Omit<AssignmentDraft, 'criteria'> & {
 type Payload = {
   title: string;
   instructions: string;
+  language: string;
   rubric: Criterion[];
   publicationStatus: string;
   expectedVersion?: number;
@@ -37,6 +45,7 @@ const blankAssignment: AssignmentFieldsData = {
   id: '',
   title: '',
   instructions: '',
+  language: 'python',
   publication_status: 'draft',
   version: 0,
   criteria: [defaultCriterion],
@@ -76,6 +85,7 @@ function buildPayload(form: FormData, assignment?: AssignmentDraft): Payload {
   const payload: Payload = {
     title: readText(form, 'title'),
     instructions: readText(form, 'instructions'),
+    language: readText(form, 'language'),
     rubric: criteriaFor(form),
     publicationStatus: readText(form, 'publicationStatus') || 'draft',
   };
@@ -176,6 +186,7 @@ function AssignmentFields({
           className="w-full rounded-md border bg-background px-3 py-2"
         />
       </label>
+      <AssignmentLanguageField assignment={assignment} />
       <PrivateRubricFields criteria={assignment.criteria} />
       <label className="block space-y-2 text-sm">
         Status
@@ -335,5 +346,38 @@ function SaveButton({ busy }: { busy: boolean }) {
     >
       {busy ? 'Saving…' : 'Save assignment'}
     </button>
+  );
+}
+
+function AssignmentLanguageField({
+  assignment,
+}: {
+  assignment: AssignmentFieldsData;
+}) {
+  return (
+    <label className="block space-y-2 text-sm">
+      Language
+      <select
+        name="language"
+        aria-label="Language"
+        disabled={assignment.languageLocked}
+        defaultValue={assignment.language}
+        className="w-full rounded-md border bg-background px-3 py-2"
+      >
+        {assignmentLanguages.map((language) => (
+          <option key={language} value={language}>
+            {languageLabels[language]}
+          </option>
+        ))}
+      </select>
+      {assignment.languageLocked && (
+        <input type="hidden" name="language" value={assignment.language} />
+      )}
+      {assignment.languageLocked && (
+        <span className="block text-xs text-muted-foreground">
+          Language is fixed once students submit.
+        </span>
+      )}
+    </label>
   );
 }

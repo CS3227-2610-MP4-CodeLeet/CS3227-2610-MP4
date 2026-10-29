@@ -1,4 +1,5 @@
-export type AssignmentLanguage = 'python' | 'java';
+export const assignmentLanguages = ['python', 'java'] as const;
+export type AssignmentLanguage = (typeof assignmentLanguages)[number];
 
 export type AssignmentRecord = {
   id: string;

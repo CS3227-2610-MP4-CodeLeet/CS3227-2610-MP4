@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { requireRole } from '@/lib/auth/verified-user';
+import { assignmentLanguageSchema } from '@/features/codementor/contracts';
+import { languageLabels } from '@/features/student-assignments/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,7 +9,7 @@ export default async function InstructorPage() {
   const { supabase } = await requireRole('instructor');
   const { data: assignments, error } = await supabase
     .from('assignments')
-    .select('id,title,publication_status,updated_at,version')
+    .select('id,title,language,publication_status,updated_at,version')
     .order('updated_at', { ascending: false });
   if (error) throw new Error('Assignments could not be loaded');
   return (
@@ -38,7 +40,13 @@ export default async function InstructorPage() {
               <div>
                 <h2 className="font-semibold">{assignment.title}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {assignment.publication_status} · updated{' '}
+                  {assignment.publication_status} ·{' '}
+                  {
+                    languageLabels[
+                      assignmentLanguageSchema.parse(assignment.language)
+                    ]
+                  }{' '}
+                  · updated{' '}
                   {new Date(assignment.updated_at).toLocaleDateString()}
                 </p>
               </div>

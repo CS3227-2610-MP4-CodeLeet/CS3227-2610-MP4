@@ -1,3 +1,4 @@
+import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { AssignmentList } from '@/features/student-assignments/components';
 import {
   listPreviewAssignments,
@@ -38,6 +39,7 @@ export default async function AssignmentListPage({
   if (error) throw new Error('Published assignments could not be loaded');
   const assignments = (data ?? []).map((item) => ({
     ...item,
+    language: assignmentLanguageSchema.parse(item.language),
     publication_status: 'published' as const,
   })) as AssignmentSummary[];
   return (

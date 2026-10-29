@@ -1,3 +1,4 @@
+import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import type { ReactNode } from 'react';
 import {
   listPreviewAssignments,
@@ -36,7 +37,7 @@ export default async function AssignmentLayout({
   if (error) throw new Error('Assignments could not be loaded.');
   const assignments = (data ?? []).map((assignment) => ({
     ...assignment,
-    language: 'python' as const,
+    language: assignmentLanguageSchema.parse(assignment.language),
     publication_status: 'published' as const,
   }));
   return (
