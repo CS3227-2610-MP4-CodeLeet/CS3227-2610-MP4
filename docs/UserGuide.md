@@ -6,6 +6,8 @@ Status: CodeLeet student/instructor flows and local RLS policies are verified wi
 
 The code editor shows line numbers and colours Python/Java keywords, strings, comments and other syntax. Colours follow your light/dark preference. Line numbers scroll with the code and long lines scroll horizontally inside the editor. Highlighting does not reformat, validate or execute your program; the editable source remains plain text. Python is still the only language accepted by real submissions; Java highlighting is available in the practice preview.
 
+Use **Tab** to indent and **Shift+Tab** to unindent; select multiple lines to adjust a whole block. **Enter** keeps the current indentation and adds a level after Python block colons or opening brackets/Java braces. Enter between matching brackets creates an indented blank line. Typing a Java closing brace on an indented blank line removes one level. Indentation uses four-space stops. **Ctrl+Z** undoes an edit in the verified Chromium browser. To move keyboard focus out of the editor, press **Escape**, then **Tab** (or Shift+Tab to move backward). This is indentation assistance, not a full language formatter.
+
 The moon/sun control applies to the landing page, sign-in, account creation and signed-in workspace. Your browser remembers the choice. Account creation requires matching **Password** and **Confirm password** fields; each has its own Show/Hide eye button. Signing in requires only the password. Signed-in student and instructor headers include **Sign out**. If signing out fails, the page shows an error and lets you retry.
 
 1. Install Node 24 and pnpm as described in the repository README.

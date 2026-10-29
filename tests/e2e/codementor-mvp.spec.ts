@@ -142,6 +142,7 @@ async function studentSubmitsAndRequestsFeedback(
 }
 
 async function verifyAuthenticatedPractice(page: Page) {
+  await verifySubmissionKeyboard(page);
   if (process.env.RUN_AUTHENTICATED_RUNTIME_TESTS !== '1') return;
   await page.getByLabel('Standard input', { exact: true }).fill('2 3 4');
   await page.getByRole('button', { name: 'Run code', exact: true }).click();
@@ -152,6 +153,21 @@ async function verifyAuthenticatedPractice(page: Page) {
   await expect(
     page.getByRole('button', { name: 'Run published tests' }),
   ).toHaveCount(0);
+}
+
+async function verifySubmissionKeyboard(page: Page) {
+  const editor = page.getByLabel(sourceLabel);
+  await editor.press('End');
+  await editor.press('Tab');
+  await expect(editor).not.toHaveValue(firstRevisionSource);
+  await editor.press('Control+z');
+  await expect(editor).toHaveValue(firstRevisionSource);
+  const atLimit = 'x'.repeat(8000);
+  await editor.fill(atLimit);
+  await editor.press('Control+a');
+  await editor.press('Tab');
+  await expect(editor).toHaveValue(atLimit);
+  await editor.fill(firstRevisionSource);
 }
 
 async function verifySignedInWorkspace(page: Page) {

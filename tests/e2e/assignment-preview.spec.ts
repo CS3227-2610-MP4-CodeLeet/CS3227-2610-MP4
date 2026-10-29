@@ -14,6 +14,44 @@ const assignmentsHeading = 'Your assignments';
 const submitCodeName = 'Submit code';
 const checkCodeName = 'Check code';
 const invalidAttribute = 'aria-invalid';
+
+for (const [label, assignmentId, source, expected] of [
+  [pythonEditorLabel, pythonId, 'if True:', 'if True:\n    '],
+  [javaEditorLabel, javaId, 'class Main {', 'class Main {\n    '],
+] as const) {
+  test(`${label} supports indentation, undo and keyboard focus exit`, async ({
+    page,
+  }) => {
+    await page.goto(`/student/assignments/${assignmentId}`);
+    const editor = page.getByLabel(label, { exact: true });
+    await editor.fill(source);
+    await editor.press('End');
+    await editor.press('Enter');
+    await expect(editor).toHaveValue(expected);
+    await editor.press('Tab');
+    await expect(editor).toHaveValue(`${expected}    `);
+    await editor.press('Control+z');
+    await expect(editor).toHaveValue(expected);
+    await editor.press('Shift+Tab');
+    await expect(editor).toHaveValue(`${source}\n`);
+    await editor.press('Escape');
+    await editor.press('Tab');
+    await expect(editor).not.toBeFocused();
+  });
+}
+
+test('selected code lines indent and unindent without changing their content', async ({
+  page,
+}) => {
+  await page.goto(`/student/assignments/${pythonId}`);
+  const editor = page.getByLabel(pythonEditorLabel, { exact: true });
+  await editor.fill('print(1)\nprint(2)');
+  await editor.press('Control+a');
+  await editor.press('Tab');
+  await expect(editor).toHaveValue('    print(1)\n    print(2)');
+  await editor.press('Shift+Tab');
+  await expect(editor).toHaveValue('print(1)\nprint(2)');
+});
 const highlightTestId = 'source-highlight';
 const lineNumbersTestId = 'source-line-numbers';
 const keywordSelector = '.token.keyword';

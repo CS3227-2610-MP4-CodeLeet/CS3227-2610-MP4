@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type RefObject, type UIEvent } from 'react';
+import { useId, useRef, type RefObject, type UIEvent } from 'react';
 import { Highlight, themes } from 'prism-react-renderer';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-python';
@@ -8,6 +8,7 @@ import 'prismjs/components/prism-java';
 import type { AssignmentLanguage } from '@/features/student-assignments/types';
 import { languageLabels } from '@/features/student-assignments/types';
 import { useWorkspaceTheme } from '@/features/student-assignments/workspace-theme';
+import { useCodeIndentation } from './use-code-indentation';
 
 Prism.manual = true;
 
@@ -73,6 +74,8 @@ export function CodeEditor({
 }: CodeEditorProps) {
   const gutter = useRef<HTMLPreElement>(null);
   const highlight = useRef<HTMLPreElement>(null);
+  const keyboard = useCodeIndentation(language, onChange);
+  const helpId = useId();
   function syncScroll(event: UIEvent<HTMLTextAreaElement>) {
     const input = event.currentTarget;
     if (gutter.current) gutter.current.scrollTop = input.scrollTop;
@@ -108,10 +111,12 @@ export function CodeEditor({
         id="source-code"
         aria-label={`${languageLabels[language]} source code`}
         aria-invalid={invalid}
-        aria-describedby={describedBy}
+        aria-describedby={[describedBy, helpId].filter(Boolean).join(' ')}
         value={source}
         onChange={(event) => onChange(event.target.value)}
         onScroll={syncScroll}
+        onKeyDown={keyboard.onKeyDown}
+        onBlur={keyboard.onBlur}
         maxLength={maxLength}
         rows={rows}
         required
@@ -121,6 +126,10 @@ export function CodeEditor({
         wrap="off"
         className="code-editor-input"
       />
+      <span id={helpId} className="sr-only">
+        Tab indents code; Shift+Tab unindents. Press Escape then Tab to move
+        focus.
+      </span>
     </div>
   );
 }

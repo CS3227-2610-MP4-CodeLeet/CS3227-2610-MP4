@@ -1,5 +1,7 @@
 ## Context
 
+Issue #15 / PR #16 indentation follow-up: shared native input handles four-space Tab/Shift+Tab, Python/Java Enter indentation, matching delimiters and Java closing-brace dedent. Pure edit calculations use a small unfinished-buffer string/comment mask, separate from DOM application and undo. Escape then Tab releases focus. Composition/modifier shortcuts and source-size/persistence/runtime rules remain unchanged. See `workflow/plans/2026-10-29-editor-indentation.md`; this is not full VS Code language-service parity.
+
 Issue #15 / PR #16 Run copy refinement: remove the Run details disclosure and redundant normal-completion message at the requester's direction. Show output and test verdicts directly, retaining progress and actionable failures. Runtime policies and comparison behavior remain documented and enforced; this is presentation-only.
 
 Issue #15 / PR #16 branding correction: the product name is CodeLeet. Registration labels the existing display-name profile value as Username and maps it to unchanged `display_name` storage. This is a presentation correction, without a unique-handle contract or username-based sign-in. Internal module paths and historical change/log names remain evidence identifiers.
