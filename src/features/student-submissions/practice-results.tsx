@@ -3,6 +3,7 @@ import {
   verdictLabels,
   type BrowserRun,
   type PracticeCase,
+  type PracticeCaseKind,
   type PracticeResult,
 } from './practice-tests';
 
@@ -89,18 +90,22 @@ function CaseHeading({
   cases,
   results,
   passed,
+  kind,
 }: {
   cases: readonly PracticeCase[];
   results: readonly PracticeResult[];
   passed: number;
+  kind: PracticeCaseKind;
 }) {
   const count = cases.length;
   const summary = results.length
     ? `${passed} of ${count} passed · ${results.length} run`
-    : `${count} public ${count === 1 ? 'case' : 'cases'}`;
+    : `${count} ${kind === 'examples' ? 'example' : 'public'} ${count === 1 ? 'case' : 'cases'}`;
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <h4 className="text-sm font-semibold">Published test cases</h4>
+      <h4 className="text-sm font-semibold">
+        {kind === 'examples' ? 'Example test cases' : 'Published test cases'}
+      </h4>
       <p
         className="text-xs text-slate-500 dark:text-slate-400"
         aria-live="polite"
@@ -240,14 +245,21 @@ function PracticeCaseItem({
 export function CaseResults({
   cases,
   results,
+  kind = 'published',
 }: {
   cases: readonly PracticeCase[];
   results: readonly PracticeResult[];
+  kind?: PracticeCaseKind;
 }) {
   const passed = results.filter((result) => result.verdict === 'passed').length;
   return (
     <div className="space-y-3">
-      <CaseHeading cases={cases} results={results} passed={passed} />
+      <CaseHeading
+        cases={cases}
+        results={results}
+        passed={passed}
+        kind={kind}
+      />
       {!cases.length && (
         <p className="rounded-md border p-4 text-sm text-slate-500 dark:text-slate-400">
           No published test cases.

@@ -232,6 +232,8 @@ Use separate development/production Supabase projects and Vercel environments, r
 
 ## Risks / Trade-offs
 
+Issue #19 prepares real student assignment practice cases while teacher authoring/publication/storage remains pending. The [contract](../../../workflow/contracts/published-practice-cases.md) and linked team issue share the existing public-case DTO and limits. A server-only adapter returns standalone sum-of-two-integers examples only with development, runner and fixture flags. An unchecked client choice describes the example task and clearly says it is not the assignment's tests. Use the existing editor source and runner; label example results separately, invalidate after edits, and remount/cancel on selection changes. Do not infer published cases from missing teacher data or alter source-submission/grade/XP payloads. Production supplies no examples regardless of flags. This temporary adapter does not close teacher persistence or production runner gates.
+
 - Browser Java compilation and licensing may constrain package choice: prove source compilation first.
 - Runtime JS bridges can expose network/app data: isolate and test before running untrusted source.
 - Large runtimes affect cold starts: lazy load and measure.

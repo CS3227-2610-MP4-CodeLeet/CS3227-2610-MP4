@@ -6,6 +6,7 @@ export type PracticeCase = {
   stdin: string;
   expected_stdout: string;
 };
+export type PracticeCaseKind = 'published' | 'examples';
 export type BrowserRun = {
   status: string;
   stdout: string;

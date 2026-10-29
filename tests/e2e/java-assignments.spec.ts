@@ -4,6 +4,7 @@ import {
   type APIRequestContext,
   type Page,
 } from '@playwright/test';
+import { verifyAssignmentExamples } from './helpers/assignment-test-examples';
 
 const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.MP4_E2E_SERVICE_ROLE_KEY;
@@ -182,6 +183,7 @@ async function studentJourney(
   ).toBeVisible();
   await editor.fill(fixture.source);
   await verifyRun(page);
+  await verifyAssignmentExamples(page, fixture);
   const first = await saveRevision(page, fixture.source);
   expect(first.language).toBe(fixture.language);
   const second = await saveRevision(

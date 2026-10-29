@@ -9,6 +9,7 @@ import { CodeEntry } from '@/features/student-submissions/code-entry';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { requireRole } from '@/lib/auth/verified-user';
 import { SubmissionForm } from '@/features/codementor/submission-form';
+import { getAssignmentTestExamples } from '@/features/student-submissions/assignment-practice.server';
 import Link from 'next/link';
 
 type SubmissionSummary = { id: string; revision: number; created_at: string };
@@ -98,6 +99,11 @@ export default async function AssignmentDetailPage({
         assignmentId={assignmentId}
         language={detail.language}
         key={assignmentId}
+        testExamples={getAssignmentTestExamples(
+          process.env.NODE_ENV,
+          process.env.STUDENT_RUNNER_PREVIEW_ENABLED,
+          process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
+        )}
         browserRunEnabled={
           process.env.NODE_ENV === 'development' &&
           process.env.STUDENT_RUNNER_PREVIEW_ENABLED === 'true'

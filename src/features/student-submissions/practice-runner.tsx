@@ -15,6 +15,7 @@ import {
   runPracticeTests,
   type BrowserRun,
   type PracticeCase,
+  type PracticeCaseKind,
   type PracticeResult,
   type RunInput,
 } from './practice-tests';
@@ -90,11 +91,13 @@ function RunControls({
   casesAvailable,
   onRunCode,
   onRunTests,
+  caseKind,
 }: {
   busy: boolean;
   casesAvailable: boolean;
   onRunCode: () => void;
   onRunTests: () => void;
+  caseKind: PracticeCaseKind;
 }) {
   const buttonStyle =
     'inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50';
@@ -121,7 +124,7 @@ function RunControls({
             onClick={onRunTests}
           >
             <TestTubes aria-hidden="true" className="size-3.5" />
-            Run published tests
+            {caseKind === 'examples' ? 'Run tests' : 'Run published tests'}
           </button>
         )}
       </div>
@@ -202,10 +205,12 @@ export function PracticeRunner({
   language,
   source,
   cases,
+  caseKind = 'published',
 }: {
   language: AssignmentLanguage;
   source: string;
   cases: readonly PracticeCase[];
+  caseKind?: PracticeCaseKind;
 }) {
   const [stdin, setStdin] = useState('');
   const [busy, setBusy] = useState(false);
@@ -241,12 +246,14 @@ export function PracticeRunner({
       aria-labelledby="practice-heading"
     >
       <RunControls
+        caseKind={caseKind}
         busy={busy}
         casesAvailable={Boolean(cases.length)}
         onRunCode={() => void start(false)}
         onRunTests={() => void start(true)}
       />
       <PracticeOutputArea
+        caseKind={caseKind}
         stdin={stdin}
         busy={busy}
         onStdinChange={setStdin}
@@ -330,6 +337,7 @@ async function startPracticeRun({
 }
 
 type PracticeOutputProps = {
+  caseKind: PracticeCaseKind;
   stdin: string;
   busy: boolean;
   onStdinChange: (value: string) => void;
@@ -344,6 +352,7 @@ type PracticeOutputProps = {
 };
 
 function PracticeOutputArea({
+  caseKind,
   stdin,
   busy,
   onStdinChange,
@@ -372,7 +381,11 @@ function PracticeOutputArea({
       <StaleResultNotice
         visible={Boolean((single || results.length > 0) && changed)}
       />
-      <CaseResults cases={cases} results={changed ? [] : results} />
+      <CaseResults
+        cases={cases}
+        results={changed ? [] : results}
+        kind={caseKind}
+      />
     </>
   );
 }
@@ -415,7 +428,7 @@ function beginRun({
   setResults([]);
   setSingle(null);
   setTestedSource(source);
-  setMessage(tests ? 'Running published tests…' : 'Running code…');
+  setMessage(tests ? 'Running tests…' : 'Running code…');
 }
 
 function completeRun(
