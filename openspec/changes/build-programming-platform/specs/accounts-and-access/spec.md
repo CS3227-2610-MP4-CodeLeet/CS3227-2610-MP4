@@ -1,5 +1,24 @@
 ## ADDED Requirements
 
+### Requirement: Email password recovery
+The system SHALL provide a Forgot password email request from sign-in, use Supabase Auth's PKCE recovery and respond without disclosing account existence. It SHALL enforce pending/resend controls and show safe provider/rate errors without exposing provider details. Only a fixed same-origin recovery destination SHALL be accepted by the callback, and a server-verified identity SHALL be required to render the new-password form. Matching passwords with the existing visibility controls SHALL update only that authenticated identity; invalid, expired and replayed links SHALL offer a new request. Successful password update and any subsequent sign-out failure SHALL be reported distinctly. Passwords/tokens/email bodies SHALL NOT be logged by application code.
+
+#### Scenario: Recovery request
+- **WHEN** a visitor submits a valid email for password recovery
+- **THEN** Auth is asked to deliver a recovery link and the acknowledgement does not reveal account existence
+
+#### Scenario: Password update
+- **WHEN** a valid recovery session submits matching new passwords
+- **THEN** the user's password changes and the user can sign in with the new password while the old password fails
+
+#### Scenario: Invalid recovery access
+- **WHEN** a signed-out visitor opens the password form directly or a callback code is invalid/expired/replayed
+- **THEN** no unauthenticated password update is offered and a new recovery link can be requested
+
+#### Scenario: Untrusted redirect
+- **WHEN** a callback includes a next value other than the exact recovery path
+- **THEN** it is ignored in favor of the existing verified role destination without redirecting to an attacker-controlled URL
+
 ### Requirement: Consistent account controls
 The visible product name SHALL be CodeLeet and the registration profile-name field SHALL be labeled Username. The label change SHALL preserve existing profile storage and email-based authentication.
 

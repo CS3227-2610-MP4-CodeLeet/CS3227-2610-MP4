@@ -1,5 +1,7 @@
 ## Context
 
+Issue #15 / PR #16 password recovery: see `workflow/plans/2026-10-29-password-recovery.md`. Request email via existing Supabase PKCE with a fixed same-origin recovery destination and a generic acknowledgement. The callback verifies exchanged identity and allowlists only `/reset-password`; reset page access uses server `getUser`. Confirmation/eye controls update only the authenticated user's password. Attempt Auth sign-out after success and report update/sign-out failures distinctly. Invalid/replayed links request another email. Preserve provider quotas and existing role/RLS contracts; hosted SMTP/environment URL setup remains a release gate.
+
 Issue #15 / PR #16 indentation follow-up: shared native input handles four-space Tab/Shift+Tab, Python/Java Enter indentation, matching delimiters and Java closing-brace dedent. Pure edit calculations use a small unfinished-buffer string/comment mask, separate from DOM application and undo. Escape then Tab releases focus. Composition/modifier shortcuts and source-size/persistence/runtime rules remain unchanged. See `workflow/plans/2026-10-29-editor-indentation.md`; this is not full VS Code language-service parity.
 
 Issue #15 / PR #16 Run copy refinement: remove the Run details disclosure and redundant normal-completion message at the requester's direction. Show output and test verdicts directly, retaining progress and actionable failures. Runtime policies and comparison behavior remain documented and enforced; this is presentation-only.

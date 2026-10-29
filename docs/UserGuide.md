@@ -27,6 +27,12 @@ Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The stud
 
 To practise on a real Python assignment locally, set `STUDENT_RUNNER_PREVIEW_ENABLED=true`, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The development flag does not enable the runner in production. Hosted execution remains unavailable.
 
+### Forgot password
+
+From **Sign in**, select **Forgot password?**, enter your account email and select **Send reset link**. The acknowledgement is the same for registered and unregistered addresses. Open the newest email link in the same browser where you requested it, enter matching new passwords (at least eight characters), and select **Update password**. Both password fields have independent eye buttons. After success, sign in using the new password. An expired, reused or invalid link offers **Request a new link**.
+
+Local Supabase captures emails in **[Mailpit](http://localhost:54324)**; they are not delivered to a real inbox. Use that local mailbox to open the link while testing. Requesting a link has a short resend delay, and provider rate limits may require a longer wait. Hosted email delivery has not been verified.
+
 ## Local assignment preview
 
 1. Follow the README installation steps using Node 24.22.1.

@@ -10,9 +10,14 @@ import {
 export function AppTheme({ children }: { children: ReactNode }) {
   const theme = useWorkspaceTheme();
   const pathname = usePathname();
-  const publicPage = ['/', '/sign-in', '/sign-up', '/unauthorized'].includes(
-    pathname,
-  );
+  const publicPage = [
+    '/',
+    '/sign-in',
+    '/sign-up',
+    '/forgot-password',
+    '/reset-password',
+    '/unauthorized',
+  ].includes(pathname);
   return (
     <div
       data-theme={theme}

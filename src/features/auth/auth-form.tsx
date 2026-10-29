@@ -79,6 +79,11 @@ function SignInForm() {
       onSubmit={submit}
     >
       <AccountFields />
+      <p className="text-sm">
+        <Link href="/forgot-password" className="underline">
+          Forgot password?
+        </Link>
+      </p>
       <p className="text-sm text-muted-foreground">
         New to CodeLeet?{' '}
         <Link className="underline" href="/sign-up">
@@ -149,13 +154,15 @@ function getSignupError(form: FormData) {
     : '';
 }
 
-function AuthCard({
+export function AuthCard({
   title,
   description,
   busy,
   message,
   onSubmit,
   children,
+  submitLabel = title,
+  disabled = false,
 }: {
   title: string;
   description: string;
@@ -163,6 +170,8 @@ function AuthCard({
   message: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   children: ReactNode;
+  submitLabel?: string;
+  disabled?: boolean;
 }) {
   return (
     <form
@@ -180,10 +189,10 @@ function AuthCard({
         </p>
       )}
       <button
-        disabled={busy || !supabaseReady}
+        disabled={busy || !supabaseReady || disabled}
         className="w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-60"
       >
-        {busy ? 'Please wait…' : title}
+        {busy ? 'Please wait…' : submitLabel}
       </button>
       {!supabaseReady && (
         <p className="text-sm text-muted-foreground">
