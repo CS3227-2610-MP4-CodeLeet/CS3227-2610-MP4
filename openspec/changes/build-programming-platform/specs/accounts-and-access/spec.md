@@ -1,6 +1,8 @@
 ## ADDED Requirements
 
 ### Requirement: Consistent account controls
+The visible product name SHALL be CodeLeet and the registration profile-name field SHALL be labeled Username. The label change SHALL preserve existing profile storage and email-based authentication.
+
 The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
 
 #### Scenario: Mismatched registration passwords

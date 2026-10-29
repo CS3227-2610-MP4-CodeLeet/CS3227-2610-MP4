@@ -12,9 +12,7 @@ test('app landing and student registration load without service credentials', as
 
   const response = await page.goto('/');
   expect(response?.status()).toBe(200);
-  await expect(page).toHaveTitle(
-    'CodeMentor | Programming Assignment Platform',
-  );
+  await expect(page).toHaveTitle('CodeLeet | Programming Assignment Platform');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Programming Assignment Platform',
   );
@@ -38,7 +36,7 @@ test('public registration offers a student account only and protected routes red
   await expect(
     page.getByRole('heading', { name: 'Create student account' }),
   ).toBeVisible();
-  await expect(page.getByLabel('Display name')).toBeVisible();
+  await expect(page.getByLabel('Username')).toBeVisible();
   await expect(page.getByLabel('Email')).toBeVisible();
   await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   await expect(page.getByLabel(/role|instructor/i)).toHaveCount(0);

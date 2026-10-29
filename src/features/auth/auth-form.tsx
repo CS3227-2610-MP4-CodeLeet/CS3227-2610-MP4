@@ -17,12 +17,12 @@ function AccountFields({ displayName = false }: { displayName?: boolean }) {
     <>
       {displayName && (
         <label className="block space-y-2 text-sm">
-          Display name
+          Username
           <input
-            name="displayName"
+            name="username"
             required
             maxLength={80}
-            autoComplete="name"
+            autoComplete="username"
             className="w-full rounded-md border bg-background px-3 py-2"
           />
         </label>
@@ -73,14 +73,14 @@ function SignInForm() {
   return (
     <AuthCard
       title="Sign in"
-      description="Use your CodeMentor account."
+      description="Use your CodeLeet account."
       busy={busy}
       message={message}
       onSubmit={submit}
     >
       <AccountFields />
       <p className="text-sm text-muted-foreground">
-        New to CodeMentor?{' '}
+        New to CodeLeet?{' '}
         <Link className="underline" href="/sign-up">
           Create an account
         </Link>
@@ -105,7 +105,7 @@ function SignUpForm() {
       password: String(form.get('password') ?? ''),
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: { display_name: String(form.get('displayName') ?? '').trim() },
+        data: { display_name: String(form.get('username') ?? '').trim() },
       },
     });
     setBusy(false);

@@ -1,6 +1,6 @@
 # Developer Guide
 
-Status: CodeMentor student/instructor MVP routes, assignment/submission/grade flows, SoCLaaS integration, context comparison, usage views, and additive Supabase RLS/RPC migrations are implemented. Local schema and security tests are available. Hosted Supabase/Vercel setup and live SoCLaaS verification remain external gates.
+Status: CodeLeet student/instructor MVP routes, assignment/submission/grade flows, SoCLaaS integration, context comparison, usage views, and additive Supabase RLS/RPC migrations are implemented. Local schema and security tests are available. Hosted Supabase/Vercel setup and live SoCLaaS verification remain external gates.
 
 ## Technology and setup
 
@@ -17,7 +17,7 @@ Shared commands:
 | pnpm lint | ESLint for app, tests and configuration |
 | pnpm format:check / pnpm format | Check/write formatting for owned code/configuration |
 | pnpm typecheck | Generate route types and run strict TypeScript |
-| pnpm test:unit | Auth identity, request/response boundaries, CodeMentor schemas/context, and browser-practice domain tests |
+| pnpm test:unit | Auth identity, request/response boundaries, CodeLeet schemas/context, and browser-practice domain tests |
 | pnpm test:e2e | Local Supabase role journeys, production auth/preview boundary checks on port 3100, and isolated dev-preview journeys on port 3101 |
 | pnpm db:start / pnpm db:stop | Start/stop the repository-pinned local Supabase stack; requires Docker Desktop |
 | pnpm db:reset | Destructively recreate the local database and apply checked-in migrations |
@@ -34,13 +34,13 @@ The default browser suite was verified locally with 18 passing tests and four op
 
 Set STUDENT_PREVIEW_ENABLED=true in ignored .env.local and restart the development server. Student pages under /student/assignments then render synthetic Python/Java assignments. Data lives in src/features/student-assignments/preview.server.ts with a server-only import marker. Layout and adapter guards both require NODE_ENV=development and the explicit flag; this is never a production fallback for missing credentials or auth.
 
-Public DTO selectors project known fields and filter publication status; components accept those DTOs and render plain text. The opt-in preview uses synthetic data; when the preview flag is off, the same assignment routes use authenticated Supabase-backed CodeMentor services. The preview does not simulate persisted submissions, grades or AI reviews.
+Public DTO selectors project known fields and filter publication status; components accept those DTOs and render plain text. The opt-in preview uses synthetic data; when the preview flag is off, the same assignment routes use authenticated Supabase-backed CodeLeet services. The preview does not simulate persisted submissions, grades or AI reviews.
 
 The local list accepts preview=empty/error/slow only after the development gate. The error recovery action deliberately performs a fresh document navigation to clear both the failed RSC response and synthetic scenario; router navigation plus reset retained the failed view during testing. The one scoped ESLint exception documents that reason.
 
 The source-entry preview is in src/features/student-submissions/code-entry.tsx, mounted only by the guarded assignment-detail page with assignment ID as its React key. Instructions remain server-rendered; the client receives the language only. A pure source-validation.ts helper counts UTF-8 bytes with TextEncoder and rejects blank, NUL, malformed Unicode and source over 32,768 bytes. No maxLength/truncation is applied because byte limits differ from character limits and invalid input must remain editable. Checks retain the original source state and display accessible associated messages.
 
-This synthetic practice code-entry preview is a local component with input-check actions; its **Submit code** button remains disabled. The separate CodeMentor assignment workflow stores bounded Python source as immutable revisions, with server validation and database ownership policies. The browser-practice tests check that a source sentinel is not transferred, oversized multibyte source remains in the editor, HTML-like source is inert, languages are fixed and another assignment starts empty. Unit tests cover byte boundaries, surrogate pairs and invalid/blank inputs.
+This synthetic practice code-entry preview is a local component with input-check actions; its **Submit code** button remains disabled. The separate CodeLeet assignment workflow stores bounded Python source as immutable revisions, with server validation and database ownership policies. The browser-practice tests check that a source sentinel is not transferred, oversized multibyte source remains in the editor, HTML-like source is inert, languages are fixed and another assignment starts empty. Unit tests cover byte boundaries, surrogate pairs and invalid/blank inputs.
 
 Playwright starts a separate development server with PLAYWRIGHT_PREVIEW=true, output in ignored .next-preview and tsconfig.preview.json so an existing developer server is not stopped. Production tests start normally from .next. Do not use the test-only output flag for hosting. Next manages next-env.d.ts during type/build/dev runs; do not treat generated import-path changes as feature logic.
 
@@ -83,7 +83,7 @@ Domain comparator/suite tests run in the normal unit suite. Full real-runtime we
 
 ## Data and API contracts
 
-The CodeMentor MVP data model uses profiles/roles, public assignment rows, separately stored private rubrics, immutable submission revisions, draft/published grades, AI review cache, quota reservations, and usage records. Forums, XP awards and broad analytics are outside this selected MVP. `openspec/changes/deliver-codementor-mvp/design.md` defines ownership, RLS, RPC boundaries, lifecycle/versioning, and quota behavior.
+The CodeLeet MVP data model uses profiles/roles, public assignment rows, separately stored private rubrics, immutable submission revisions, draft/published grades, AI review cache, quota reservations, and usage records. Forums, XP awards and broad analytics are outside this selected MVP. `openspec/changes/deliver-codementor-mvp/design.md` defines ownership, RLS, RPC boundaries, lifecycle/versioning, and quota behavior.
 
 ## Workflow artifact catalog
 

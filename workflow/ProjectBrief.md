@@ -1,6 +1,6 @@
 # Project brief
 
-Status: CodeMentor student/instructor MVP routes and local Supabase-backed services are implemented and verified with synthetic records and mocked AI. Broader forums/XP features, hosted Supabase/Vercel deployment, live SoCLaaS verification, and production browser-runner origin/licensing review remain pending.
+Status: CodeLeet student/instructor MVP routes and local Supabase-backed services are implemented and verified with synthetic records and mocked AI. Broader forums/XP features, hosted Supabase/Vercel deployment, live SoCLaaS verification, and production browser-runner origin/licensing review remain pending.
 
 ## Sources and precedence
 
@@ -50,7 +50,7 @@ Agreed conceptual fields:
 - Submission: assignment ID, student ID, source code, language, revision, timestamp.
 - Students access only their own submissions; private rubrics and unpublished grades stay hidden. The server/database determines identity, revision and timestamp.
 
-On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. These contracts remain the authoritative basis for the separate browser practice preview. The CodeMentor MVP has its own authenticated Python submission flow and is documented in `openspec/changes/deliver-codementor-mvp/`; it is verified locally, while hosted provider/deployment gates remain open.
+On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. These contracts remain the authoritative basis for the separate browser practice preview. The CodeLeet MVP has its own authenticated Python submission flow and is documented in `openspec/changes/deliver-codementor-mvp/`; it is verified locally, while hosted provider/deployment gates remain open.
 
 See the [issue #5 implementation plan](../openspec/changes/build-programming-platform/design.md#issue-5-student-implementation-plan) and [task group 7](../openspec/changes/build-programming-platform/tasks.md#7-issue-5-student-assignment-browsing-and-submissions) for the sequence and completion gate.
 

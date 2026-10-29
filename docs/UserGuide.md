@@ -1,8 +1,8 @@
 # User Guide
 
-Status: CodeMentor student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
+Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
 
-## Local CodeMentor app
+## Local CodeLeet app
 
 The code editor shows line numbers and colours Python/Java keywords, strings, comments and other syntax. Colours follow your light/dark preference. Line numbers scroll with the code and long lines scroll horizontally inside the editor. Highlighting does not reformat, validate or execute your program; the editable source remains plain text. Python is still the only language accepted by real submissions; Java highlighting is available in the practice preview.
 
@@ -12,14 +12,14 @@ The moon/sun control applies to the landing page, sign-in, account creation and 
 2. Start the local Supabase stack and apply migrations with `pnpm db:start` and `pnpm db:reset`.
 3. Copy `.env.example` to the ignored `.env.local`, then set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the local Supabase status output. Keep all other local service keys private.
 4. Run `pnpm dev` and open the address printed by Next.js.
-5. Create a student account at **Create student account**. Local email confirmation is disabled by default. Public registration does not offer an instructor role.
+5. Create a student account at **Create student account**, entering your **Username**, email and matching passwords. Local email confirmation is disabled by default. Public registration does not offer an instructor role.
 6. To exercise instructor screens, first create an account and use a trusted local Supabase admin session to set that account's `user_roles.role` to `instructor`; see [local database setup](../supabase/README.md). Never expose this operation through the app.
 
 Students can browse published Python assignments, submit revisions (up to 8,000 characters), view their own history, request learning feedback, and see grades only after publication. Instructors can create/edit/publish assignments with 1–20 private rubric criteria, review owned submissions, request AI rubric suggestions, edit grade drafts, and explicitly publish grades. Both roles can inspect their own AI usage. Instructors can compare focused and broader authorized contexts; each uncached comparison may use two daily AI request slots.
 
 AI is disabled unless `SOCLAAS_AI_ENABLED=true` and a server-side SoCLaaS URL/key/model are configured. Without these values, the rest of the local assignment workflows remain available and review requests show a safe unavailable message. Do not enter real student data in the synthetic experiment harness. Product AI context includes source code as untrusted text, but submitted source is never executed by Next.js/Node, a remote service, or the AI model. The separate optional browser practice environment is described below.
 
-The CodeMentor submission MVP accepts Python source only. Java remains available only in the independent synthetic browser practice preview. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
+The CodeLeet submission MVP accepts Python source only. Java remains available only in the independent synthetic browser practice preview. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
 
 Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. **Assignments** returns to the list; **AI usage** is in the navigation. After saving a revision, history updates and your code stays in the editor.
 
@@ -70,7 +70,7 @@ Open `/student/assignments` at the address printed by Next.js (normally http://l
 - **Run published tests:** runs the three synthetic public cases for that sample assignment, sequentially with fresh state. Each case shows its input, expected stdout, verdict and actual stdout. Custom stdin is ignored for this action.
 - To leave an active run, use **All assignments** or another navigation link. Leaving the assignment ends the runner; automatic execution and suite deadlines also remain active. There is no Stop button in the student workspace.
 
-These cases are explicitly sample data in the independent browser-practice preview. CodeMentor instructors can create and publish assignment records, but authored practice tests are not shared with this preview. Results are practice feedback only and do not submit code, publish grades or award XP. Edited source hides previous results until it is run again. Output is rendered as text, including any HTML-like content.
+These cases are explicitly sample data in the independent browser-practice preview. CodeLeet instructors can create and publish assignment records, but authored practice tests are not shared with this preview. Results are practice feedback only and do not submit code, publish grades or award XP. Edited source hides previous results until it is run again. Output is rendered as text, including any HTML-like content.
 
 The compact toolbar above input/output contains **Run code** and **Run published tests**. While a suite is running, the status identifies its current test number. The summary shows the number passed and run. Select a test-case row to expand its input, expected output, actual output and diagnostics; failed cases expand automatically. On wider screens these values appear next to one another, and on mobile they stack. **Run details** expands the input/runtime limits, output comparison rules and supported Java input. Custom-input output appears in the separate **Output** panel.
 

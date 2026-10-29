@@ -17,7 +17,7 @@ export default async function InstructorLayout({
       <header className="flex items-center justify-between border-b px-6 py-4">
         <div className="flex flex-wrap items-center gap-5">
           <Link href="/instructor" className="font-semibold">
-            CodeMentor · Instructor
+            CodeLeet · Instructor
           </Link>
           <Link className="text-sm underline" href="/ai/usage">
             AI usage

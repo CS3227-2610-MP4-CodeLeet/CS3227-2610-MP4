@@ -4,7 +4,7 @@ import './globals.css';
 import { AppTheme } from '@/features/auth/app-theme';
 
 export const metadata: Metadata = {
-  title: 'CodeMentor | Programming Assignment Platform',
+  title: 'CodeLeet | Programming Assignment Platform',
   description:
     'Programming assignments and learning feedback for students and instructors.',
 };

@@ -29,7 +29,7 @@ export default async function SubmissionPage({
     <div>
       <header className="flex items-center justify-between border-b px-6 py-4">
         <Link href="/student/assignments" className="font-semibold">
-          CodeMentor · Student
+          CodeLeet · Student
         </Link>
         <div className="flex items-center gap-2">
           <SignOutButton />

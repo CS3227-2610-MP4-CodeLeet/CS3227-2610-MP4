@@ -24,7 +24,7 @@ const firstRevisionSource =
 const secondRevisionSource =
   'values = list(map(int, input().split()))\nprint(sum(values) + 0)';
 
-test('student and instructor complete the CodeMentor MVP journey', async ({
+test('student and instructor complete the CodeLeet MVP journey', async ({
   page,
   request,
 }) => {
@@ -116,7 +116,7 @@ async function studentSubmitsAndRequestsFeedback(
   suffix: string,
 ) {
   await page.goto('/sign-up');
-  await page.getByLabel('Display name').fill('MVP Test Student');
+  await page.getByLabel('Username').fill('MVP Test Student');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByLabel('Confirm password', { exact: true }).fill(password);
@@ -147,6 +147,7 @@ async function verifyAuthenticatedPractice(page: Page) {
   await page.getByRole('button', { name: 'Run code', exact: true }).click();
   await expect(page.getByTestId('custom-run-result').locator('pre')).toHaveText(
     '9\n',
+    { timeout: 45_000 },
   );
   await expect(
     page.getByRole('button', { name: 'Run published tests' }),

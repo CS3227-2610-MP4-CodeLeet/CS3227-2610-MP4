@@ -56,7 +56,7 @@ test('mismatched confirmation blocks signup without sending passwords', async ({
     await route.abort();
   });
   await page.goto('/sign-up');
-  await page.getByLabel('Display name').fill('Synthetic student');
+  await page.getByLabel('Username').fill('Synthetic student');
   test.skip(
     await page
       .getByRole('button', { name: 'Create student account', exact: true })
