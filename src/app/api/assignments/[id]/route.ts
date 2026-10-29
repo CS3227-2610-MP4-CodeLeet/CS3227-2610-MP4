@@ -8,6 +8,12 @@ import { privateJson } from '@/lib/http/responses';
 const updateSchema = assignmentInputSchema
   .extend({ expectedVersion: z.number().int().min(1) })
   .strict();
+
+function saveFailureMessage(message: string) {
+  return message === 'assignment_language_locked'
+    ? 'Language cannot change after students have submitted code.'
+    : 'Assignment could not be saved.';
+}
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
@@ -64,13 +70,14 @@ export async function PATCH(
     p_instructions: parsed.data.instructions,
     p_criteria: parsed.data.rubric,
     p_publication_status: parsed.data.publicationStatus,
+    p_language: parsed.data.language,
   });
   if (error)
     return privateJson(
       {
         error: {
           code: 'save_failed',
-          message: 'Assignment could not be saved.',
+          message: saveFailureMessage(error.message),
         },
       },
       error.code === '40001' ? 409 : 400,

@@ -21,7 +21,7 @@ export async function GET(
   const { data, error } = await supabase
     .from('submissions')
     .select(
-      'id,assignment_id,student_id,source,revision,created_at,assignments(title,instructions,language),grades(id,scores,feedback,total_score,published_at,version)',
+      'id,assignment_id,student_id,source,language,revision,created_at,assignments(title,instructions,language),grades(id,scores,feedback,total_score,published_at,version)',
     )
     .eq('id', id)
     .maybeSingle();

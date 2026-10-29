@@ -1,7 +1,11 @@
 import 'server-only';
 import { z } from 'zod';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { validateModelEvaluation, validateModelFeedback } from './contracts';
+import {
+  assignmentLanguageSchema,
+  validateModelEvaluation,
+  validateModelFeedback,
+} from './contracts';
 import {
   PROMPT_VERSION,
   promptTokenEstimate,
@@ -77,7 +81,7 @@ async function loadContext(
 ) {
   const { data: submission } = await supabase
     .from('submissions')
-    .select('id,assignment_id,student_id,source,revision,created_at')
+    .select('id,assignment_id,student_id,source,language,revision,created_at')
     .eq('id', submissionId)
     .maybeSingle();
   if (!submission || (role === 'student' && submission.student_id !== userId))
@@ -96,7 +100,7 @@ async function loadContext(
     id: rawAssignment.id,
     title: rawAssignment.title,
     instructions: rawAssignment.instructions,
-    language: 'python',
+    language: assignmentLanguageSchema.parse(submission.language),
     version: rawAssignment.version,
   };
   if (role === 'student')

@@ -9,6 +9,54 @@ import {
   validateGradeScores,
 } from './contracts';
 
+it.each(['python', 'java'])(
+  'accepts an explicit %s assignment language',
+  (language) => {
+    const result = assignmentInputSchema.safeParse({
+      title: 'Loops',
+      instructions: 'Read input.',
+      language,
+      rubric: [
+        {
+          id: crypto.randomUUID(),
+          title: 'Output',
+          description: 'Correct result',
+          maxScore: 10,
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    if (result.success)
+      expect(result.data).toHaveProperty('language', language);
+  },
+);
+
+it('rejects unsupported assignment languages and forged submission language', () => {
+  expect(
+    assignmentInputSchema.safeParse({
+      title: 'Loops',
+      instructions: 'Read input.',
+      language: 'javascript',
+      rubric: [
+        {
+          id: crypto.randomUUID(),
+          title: 'Output',
+          description: 'Correct result',
+          maxScore: 10,
+        },
+      ],
+    }).success,
+  ).toBe(false);
+  expect(
+    submissionInputSchema.safeParse({
+      assignmentId: crypto.randomUUID(),
+      source: 'class Main {}',
+      requestId: crypto.randomUUID(),
+      language: 'java',
+    }).success,
+  ).toBe(false);
+});
+
 it('rejects assignment fields outside the published contract', () => {
   expect(
     assignmentInputSchema.safeParse({

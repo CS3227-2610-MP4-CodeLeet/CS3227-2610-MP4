@@ -4,12 +4,18 @@ import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
 import { CodeEditor } from '@/features/student-submissions/code-editor';
+import {
+  languageLabels,
+  type AssignmentLanguage,
+} from '@/features/student-assignments/types';
 
 export function SubmissionForm({
   assignmentId,
+  language,
   browserRunEnabled = false,
 }: {
   assignmentId: string;
+  language: AssignmentLanguage;
   browserRunEnabled?: boolean;
 }) {
   const router = useRouter();
@@ -44,13 +50,13 @@ export function SubmissionForm({
   return (
     <form className="space-y-3 rounded-xl border bg-card p-5" onSubmit={submit}>
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-semibold">Python submission</h2>
+        <h2 className="font-semibold">{languageLabels[language]} submission</h2>
         <span className="text-xs text-muted-foreground">
           {source.length.toLocaleString()} / 8,000 characters
         </span>
       </div>
       <CodeEditor
-        language="python"
+        language={language}
         source={source}
         onChange={setSource}
         maxLength={8_000}
@@ -71,7 +77,11 @@ export function SubmissionForm({
       >
         {busy ? 'Saving…' : 'Submit revision'}
       </button>
-      <SubmissionPractice enabled={browserRunEnabled} source={source} />
+      <SubmissionPractice
+        enabled={browserRunEnabled}
+        source={source}
+        language={language}
+      />
     </form>
   );
 }
@@ -79,12 +89,14 @@ export function SubmissionForm({
 function SubmissionPractice({
   enabled,
   source,
+  language,
 }: {
   enabled: boolean;
   source: string;
+  language: AssignmentLanguage;
 }) {
   if (enabled)
-    return <PracticeRunner language="python" source={source} cases={[]} />;
+    return <PracticeRunner language={language} source={source} cases={[]} />;
   return (
     <p className="text-sm text-muted-foreground">
       Browser practice is available in the local development setup. Hosted code

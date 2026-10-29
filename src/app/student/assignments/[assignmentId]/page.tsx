@@ -1,3 +1,4 @@
+import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { notFound } from 'next/navigation';
 import { AssignmentInstructions } from '@/features/student-assignments/components';
 import {
@@ -87,7 +88,7 @@ export default async function AssignmentDetailPage({
     .order('revision', { ascending: false });
   const detail = {
     ...assignment,
-    language: 'python' as const,
+    language: assignmentLanguageSchema.parse(assignment.language),
     publication_status: 'published' as const,
   };
   return (
@@ -95,6 +96,8 @@ export default async function AssignmentDetailPage({
       <AssignmentInstructions assignment={detail} />
       <SubmissionForm
         assignmentId={assignmentId}
+        language={detail.language}
+        key={assignmentId}
         browserRunEnabled={
           process.env.NODE_ENV === 'development' &&
           process.env.STUDENT_RUNNER_PREVIEW_ENABLED === 'true'

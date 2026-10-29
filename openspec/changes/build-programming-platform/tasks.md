@@ -80,3 +80,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 7.19 Issue #15 / PR #16 Run copy refinement: remove the Run details disclosure and redundant completion/practice-feedback sentence, retaining output/results, progress and actionable errors; verify existing run behavior.
 - [x] 7.20 Issue #15 / PR #16 editor indentation: support Tab/Shift+Tab and language-aware Enter in the shared Python/Java editor, preserving selection, undo, limits and an accessible keyboard focus exit; verify real submission integration.
 - [x] 7.21 Issue #15 / PR #16 email password recovery: add email request, generic acknowledgement/rate handling, fixed PKCE callback routing, server-verified new-password/confirmation form and sign-in after update; verify real local email recovery, failures and access/redirect boundaries.
+
+## 8. Issue #17 Java assignment/submission integration
+
+- [x] 8.1 Add Python/Java contract and instructor selection with backwards-compatible Python defaults and explicit unsupported-language rejection.
+- [x] 8.2 Apply a forward migration for allowed assignment languages, server-derived immutable revision language and guarded submission RPCs; prevent language changes after submissions and preserve local history/data.
+- [x] 8.3 Use validated assignment/revision language in real student editor/runner/history and AI context without changing execution/persistence limits or exposing private grading data.
+- [x] 8.4 Verify both-language real browser journeys, private revisions/RLS/API access, retries/unsupported and forged fields, published/draft boundaries and language-change guard. Update guides, summary and linked PR with actual evidence and prerequisite #16.

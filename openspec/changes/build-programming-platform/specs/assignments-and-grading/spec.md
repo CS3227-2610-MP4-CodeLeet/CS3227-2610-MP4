@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Real assignment language and immutable revision language
+The authenticated assignment workflow SHALL accept Python or Java, defaulting omitted assignment language to Python for existing callers. Instructor creation/editing SHALL expose this choice. Every stored revision SHALL derive its language from the assignment on the server and retain that language with its source. The real editor, browser runner, revision views and AI context SHALL use the validated stored language. Unsupported assignment languages and client-supplied submission language fields SHALL be rejected. This integration retains the authenticated MVP's 8,000-character source bound and 201 response for successful or identical retried submissions; the earlier 32 KiB preview contract is separate.
+
+#### Scenario: Both real languages
+- **WHEN** an instructor publishes a Python or Java assignment and a student runs and submits its source
+- **THEN** execution stays in the browser and saved revisions record the assignment language, with prior revisions unchanged
+
+#### Scenario: Language change after submission
+- **WHEN** an instructor attempts to change the language of an assignment with submissions
+- **THEN** the database rejects the whole save without changing assignment or rubric versions
+
+#### Scenario: Private language revisions
+- **WHEN** another student or unrelated instructor requests a saved revision
+- **THEN** its source and language remain inaccessible and private rubrics/unpublished grades remain hidden
+
 ### Requirement: Readable source editor
 Student source entry SHALL show syntax colours appropriate to the assignment language and line numbers synchronized with vertical scrolling. Horizontal scrolling SHALL remain inside the editor. Theme changes and highlighting SHALL preserve source, input validation and submission behavior. Source tokens SHALL be rendered as text, never trusted HTML or executed code. Forced-colors mode SHALL preserve readable native input text.
 
