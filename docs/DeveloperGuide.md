@@ -1,6 +1,6 @@
 # Developer Guide
 
-Status: Next.js foundation, development-only synthetic student assignment/code preview, opt-in local browser runtime, and a fresh local Supabase profile/role foundation with RLS tests. Application authentication/routes, assignments/submissions, AI and hosted environments remain unimplemented.
+Status: CodeMentor student/instructor MVP routes, assignment/submission/grade flows, SoCLaaS integration, context comparison, usage views, and additive Supabase RLS/RPC migrations are implemented. Local schema and security tests are available. Hosted Supabase/Vercel setup and live SoCLaaS verification remain external gates.
 
 ## Technology and setup
 
@@ -17,8 +17,8 @@ Shared commands:
 | pnpm lint | ESLint for app, tests and configuration |
 | pnpm format:check / pnpm format | Check/write formatting for owned code/configuration |
 | pnpm typecheck | Generate route types and run strict TypeScript |
-| pnpm test:unit | Public DTO projection, draft filtering and preview environment gate unit tests |
-| pnpm test:e2e | Production smoke/boundary checks on port 3100 and isolated dev-preview journeys on port 3101 |
+| pnpm test:unit | Auth identity, request/response boundaries, CodeMentor schemas/context, and browser-practice domain tests |
+| pnpm test:e2e | Local Supabase role journeys, production auth/preview boundary checks on port 3100, and isolated dev-preview journeys on port 3101 |
 | pnpm db:start / pnpm db:stop | Start/stop the repository-pinned local Supabase stack; requires Docker Desktop |
 | pnpm db:reset | Destructively recreate the local database and apply checked-in migrations |
 | pnpm db:test | Run pgTAP access-control tests against the local database |
@@ -28,19 +28,19 @@ Shared commands:
 
 Build before running browser tests. Install Chromium locally once using `pnpm exec playwright install chromium`. CI uses the official Playwright v1.64.1-noble container with browsers/OS libraries already installed, avoiding apt mirror stalls. Keep that image version aligned with @playwright/test when updating dependencies. actions/setup-node selects the exact Node patch from `.node-version`; application CI also verifies the Node 24 major version. Browser checks have a five-minute step timeout and failed traces are retained for seven days. See the [official Playwright image documentation](https://playwright.dev/docs/docker).
 
-Browser checks cover the home page, production fixture denial even with the flag set, and local sample list/detail/state navigation including mobile layout. They do not prove authenticated student functionality. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks; a separate database job starts local Supabase and runs the pgTAP suite. The database tests verify student-only signup, own-profile access and protected role metadata; they do not implement application login or product routes.
+The default browser suite was verified locally with 18 passing tests and four opt-in browser-runtime tests skipped because runtime assets were not enabled. It covers the authenticated student/instructor journey against local Supabase with mocked AI, the production auth/preview boundary, and local sample navigation/layout behavior. The suite runs one browser worker to avoid concurrent compilation/asset startup contention. The authenticated journey verifies a two-criterion rubric, two immutable revisions, AI feedback/review and explicit grade publication. Application CI installs the frozen lockfile and runs formatting/lint/types/unit/build/Chromium checks; a separate database job starts local Supabase and runs pgTAP. Live SoCLaaS, hosted Supabase and Vercel deployment remain unverified.
 
 ## Temporary student preview and handoff
 
 Set STUDENT_PREVIEW_ENABLED=true in ignored .env.local and restart the development server. Student pages under /student/assignments then render synthetic Python/Java assignments. Data lives in src/features/student-assignments/preview.server.ts with a server-only import marker. Layout and adapter guards both require NODE_ENV=development and the explicit flag; this is never a production fallback for missing credentials or auth.
 
-Public DTO selectors project known fields and filter publication status; components accept those DTOs and render plain text. No auth, migration, submission operation or fixture API is simulated. Replace the preview route wiring with verified shared session/data services after teammate handoff. Keep tasks 7.2/7.3 open until schema fixtures and authenticated integration actually pass.
+Public DTO selectors project known fields and filter publication status; components accept those DTOs and render plain text. The opt-in preview uses synthetic data; when the preview flag is off, the same assignment routes use authenticated Supabase-backed CodeMentor services. The preview does not simulate persisted submissions, grades or AI reviews.
 
 The local list accepts preview=empty/error/slow only after the development gate. The error recovery action deliberately performs a fresh document navigation to clear both the failed RSC response and synthetic scenario; router navigation plus reset retained the failed view during testing. The one scoped ESLint exception documents that reason.
 
 The source-entry preview is in src/features/student-submissions/code-entry.tsx, mounted only by the guarded assignment-detail page with assignment ID as its React key. Instructions remain server-rendered; the client receives the language only. A pure source-validation.ts helper counts UTF-8 bytes with TextEncoder and rejects blank, NUL, malformed Unicode and source over 32,768 bytes. No maxLength/truncation is applied because byte limits differ from character limits and invalid input must remain editable. Checks retain the original source state and display accessible associated messages.
 
-This is a section with local type=button actions, not a native submitting form: there is no default form GET, server action, fetch, storage, fake response, request ID or backend handler. Submit code is disabled until real auth/persistence exists. The browser tests check that a source sentinel is not transferred, oversized multibyte source remains in the editor, HTML-like source is inert, languages are fixed and another assignment starts empty. Unit tests cover byte boundaries, surrogate pairs and invalid/blank inputs. Both shared server validation and database invariants remain required later; tasks 7.4/7.5 stay open.
+This synthetic practice code-entry preview is a local component with input-check actions; its **Submit code** button remains disabled. The separate CodeMentor assignment workflow stores bounded Python source as immutable revisions, with server validation and database ownership policies. The browser-practice tests check that a source sentinel is not transferred, oversized multibyte source remains in the editor, HTML-like source is inert, languages are fixed and another assignment starts empty. Unit tests cover byte boundaries, surrogate pairs and invalid/blank inputs.
 
 Playwright starts a separate development server with PLAYWRIGHT_PREVIEW=true, output in ignored .next-preview and tsconfig.preview.json so an existing developer server is not stopped. Production tests start normally from .next. Do not use the test-only output flag for hosting. Next manages next-env.d.ts during type/build/dev runs; do not treat generated import-path changes as feature logic.
 
@@ -53,9 +53,9 @@ node workflow/scripts/check-scaffold.mjs
 openspec validate --all --strict
 ```
 
-Copy `.env.example` to ignored `.env.local` when integrating shared services. Local Supabase URL and publishable key are available from `pnpm db:status`; use only those public client values in `NEXT_PUBLIC_*` variables. Never copy the local secret key, JWT secret, or service-role key to a browser variable. The current application does not consume Supabase credentials yet. Leave AI disabled until provider limits and security checks are verified.
+Copy `.env.example` to ignored `.env.local`. The app reads the local Supabase URL and publishable key from `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; use only those public values in browser-visible variables. Never copy the local secret key, JWT secret or service-role key to a browser variable. Product AI stays disabled until `SOCLAAS_AI_ENABLED=true` and the SoCLaaS URL/key/model are configured server-side. Local auth/assignment/grade workflows remain available with AI disabled.
 
-## Proposed design
+## Implemented application architecture
 
 Next.js provides the UI and authenticated server routes. Supabase Auth supplies identity; PostgreSQL and RLS enforce access. Shared services separate assignment/submission persistence, grading, XP, AI context construction, quotas/cache, and usage metadata.
 
@@ -77,7 +77,7 @@ Domain comparator/suite tests run in the normal unit suite. Full real-runtime we
 
 ## Data and API contracts
 
-To be designed before implementation: profiles/immutable roles, assignments/public criteria, private rubrics, immutable submission revisions, draft/published grades, discussion threads/replies, XP awards, AI cache, quota reservations, and usage records. Define ownership, foreign keys, unique constraints, RLS policies, lifecycle/versioning, and race behavior in the capability design.
+The CodeMentor MVP data model uses profiles/roles, public assignment rows, separately stored private rubrics, immutable submission revisions, draft/published grades, AI review cache, quota reservations, and usage records. Forums, XP awards and broad analytics are outside this selected MVP. `openspec/changes/deliver-codementor-mvp/design.md` defines ownership, RLS, RPC boundaries, lifecycle/versioning, and quota behavior.
 
 ## Workflow artifact catalog
 

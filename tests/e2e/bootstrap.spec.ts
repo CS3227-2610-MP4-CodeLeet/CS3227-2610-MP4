@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('production app loads without service credentials or broken assets', async ({
+test('app landing and student registration load without service credentials', async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -12,11 +12,16 @@ test('production app loads without service credentials or broken assets', async 
 
   const response = await page.goto('/');
   expect(response?.status()).toBe(200);
-  await expect(page).toHaveTitle('Programming Assignment Platform');
+  await expect(page).toHaveTitle(
+    'CodeMentor | Programming Assignment Platform',
+  );
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'Programming Assignment Platform',
   );
-  await expect(page.getByText('Coming soon.', { exact: false })).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Create student account' }),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   expect(
     await page
@@ -24,4 +29,19 @@ test('production app loads without service credentials or broken assets', async 
       .evaluate((element) => getComputedStyle(element).display),
   ).toBe('flex');
   expect(errors).toEqual([]);
+});
+
+test('public registration offers a student account only and protected routes redirect', async ({
+  page,
+}) => {
+  await page.goto('/sign-up');
+  await expect(
+    page.getByRole('heading', { name: 'Create student account' }),
+  ).toBeVisible();
+  await expect(page.getByLabel('Display name')).toBeVisible();
+  await expect(page.getByLabel('Email')).toBeVisible();
+  await expect(page.getByLabel('Password')).toBeVisible();
+  await expect(page.getByLabel(/role|instructor/i)).toHaveCount(0);
+  await page.goto('/student/assignments');
+  await expect(page).toHaveURL(/\/sign-in$/);
 });

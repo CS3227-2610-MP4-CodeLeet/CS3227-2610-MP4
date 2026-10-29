@@ -17,9 +17,9 @@ test('production denies fixture routes even when the preview flag is true', asyn
     await expect(
       page.getByText('Preview with sample assignments.', { exact: false }),
     ).toHaveCount(0);
-    await expect(
-      page.getByText('This page could not be found.', { exact: false }),
-    ).toBeVisible();
-    await expect(page.getByRole('textbox')).toHaveCount(0);
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+    await expect(page.getByLabel('Email')).toBeVisible();
+    await expect(page.getByLabel('Password')).toBeVisible();
   }
 });
