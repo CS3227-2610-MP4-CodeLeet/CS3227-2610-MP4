@@ -1,5 +1,7 @@
 ## Context
 
+Issue #15 account/workspace refinement: see `workflow/plans/2026-10-29-account-workspace-controls.md`. Account and authenticated assignment pages share theme state. Signup requires matching confirmation with independent visibility controls; sign-out reports failure without falsely redirecting. Authenticated workspace navigation omits redundant Home and fixture notices. The existing browser runner can be used by the authenticated Python editor only in opt-in development, retaining all current isolation/deadline limits; hosted runtime selection remains unapproved. This change does not alter Python-only/8,000-character MVP persistence or add teacher test persistence.
+
 Two-member team, student/instructor roles, MP3 technology direction with fresh implementation. The user explicitly requires browser-only Python and Java execution, superseding the brainstorming PDF's no-execution advice.
 
 On 28 October 2026, the requester clarified that the work split is indicative of primary responsibility only; either member may implement any task. Coordinate shared contracts and service changes, and record the actual implementer/reviewer. No implementation is prohibited solely because it was initially assigned to the other member.

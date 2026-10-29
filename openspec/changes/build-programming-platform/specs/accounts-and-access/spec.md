@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Consistent account controls
+The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
+
+#### Scenario: Mismatched registration passwords
+- **WHEN** a user submits different password and confirmation values
+- **THEN** account creation is blocked locally with an explanatory message and no Auth signup request
+
+#### Scenario: Independent password visibility
+- **WHEN** the user changes visibility for either password field
+- **THEN** only that field changes visibility and the control name describes its next action
+
+#### Scenario: Sign-out failure and recovery
+- **WHEN** sign-out fails and the user retries successfully
+- **THEN** the failure stays visible on the current page until retry and success redirects to sign-in with protected pages requiring authentication again
+
 ### Requirement: Trusted role assignment
 The system SHALL support student/instructor identities with Supabase Auth. Public registration SHALL grant only student access and role elevation SHALL require trusted administration.
 

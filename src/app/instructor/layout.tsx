@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { SignOutButton } from '@/features/auth/auth-form';
 import { requireRole } from '@/lib/auth/verified-user';
+import { AccountThemeButton } from '@/features/auth/app-theme';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,10 @@ export default async function InstructorLayout({
             Context comparison
           </Link>
         </div>
-        <SignOutButton />
+        <div className="flex items-center gap-2">
+          <SignOutButton />
+          <AccountThemeButton />
+        </div>
       </header>
       {children}
     </div>

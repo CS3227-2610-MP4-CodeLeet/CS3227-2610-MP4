@@ -40,7 +40,7 @@ test('public registration offers a student account only and protected routes red
   ).toBeVisible();
   await expect(page.getByLabel('Display name')).toBeVisible();
   await expect(page.getByLabel('Email')).toBeVisible();
-  await expect(page.getByLabel('Password')).toBeVisible();
+  await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   await expect(page.getByLabel(/role|instructor/i)).toHaveCount(0);
   await page.goto('/student/assignments');
   await expect(page).toHaveURL(/\/sign-in$/);

@@ -62,6 +62,7 @@
   }
 }
 
+.app-theme,
 .student-workspace {
   color-scheme: light;
   --primary: #087f8c;
@@ -75,6 +76,7 @@
   --accent-foreground: #155e75;
 }
 
+.app-theme[data-theme='dark'],
 .student-workspace[data-theme='dark'] {
   color-scheme: dark;
   background: #0b1220;

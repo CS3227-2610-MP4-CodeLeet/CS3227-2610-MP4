@@ -113,15 +113,17 @@ function RunControls({
           <Play aria-hidden="true" className="size-3.5" />
           Run code
         </button>
-        <button
-          type="button"
-          className={`${buttonStyle} border bg-background text-foreground hover:bg-accent`}
-          disabled={busy || !casesAvailable}
-          onClick={onRunTests}
-        >
-          <TestTubes aria-hidden="true" className="size-3.5" />
-          Run published tests
-        </button>
+        {casesAvailable && (
+          <button
+            type="button"
+            className={`${buttonStyle} border bg-background text-foreground hover:bg-accent`}
+            disabled={busy || !casesAvailable}
+            onClick={onRunTests}
+          >
+            <TestTubes aria-hidden="true" className="size-3.5" />
+            Run published tests
+          </button>
+        )}
       </div>
     </div>
   );

@@ -91,10 +91,16 @@ export default async function AssignmentDetailPage({
     publication_status: 'published' as const,
   };
   return (
-    <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
+    <div className="space-y-8">
       <AssignmentInstructions assignment={detail} />
-      <SubmissionForm assignmentId={assignmentId} />
+      <SubmissionForm
+        assignmentId={assignmentId}
+        browserRunEnabled={
+          process.env.NODE_ENV === 'development' &&
+          process.env.STUDENT_RUNNER_PREVIEW_ENABLED === 'true'
+        }
+      />
       <SubmissionHistory submissions={submissions ?? []} />
-    </main>
+    </div>
   );
 }

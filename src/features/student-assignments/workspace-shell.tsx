@@ -2,18 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  BookOpen,
-  ChevronRight,
-  Code2,
-  House,
-  Menu,
-  Terminal,
-} from 'lucide-react';
-import type { ReactNode } from 'react';
+import { BookOpen, ChevronRight, Code2, Menu, Terminal } from 'lucide-react';
+import { createContext, useContext, type ReactNode } from 'react';
+import { SignOutButton } from '@/features/auth/sign-out-button';
 import type { AssignmentSummary } from './types';
 import { languageLabels } from './types';
 import { ThemeButton, useWorkspaceTheme } from './workspace-theme';
+
+const AuthenticatedWorkspace = createContext(false);
 
 function WorkspaceNavigation({
   assignments,
@@ -33,7 +29,7 @@ function WorkspaceNavigation({
       </Link>
       <div>
         <p className="mb-2 px-3 text-[11px] font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
-          Published practice
+          Published assignments
         </p>
         {assignments.map((item) => (
           <Link
@@ -52,12 +48,11 @@ function WorkspaceNavigation({
           </Link>
         ))}
       </div>
-      <Link
-        href="/"
-        className="flex items-center gap-3 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-      >
-        <House aria-hidden="true" className="size-4" /> Home
-      </Link>
+      {useContext(AuthenticatedWorkspace) && (
+        <Link href="/ai/usage" className="block px-3 text-sm underline">
+          AI usage
+        </Link>
+      )}
     </nav>
   );
 }
@@ -75,7 +70,7 @@ function WorkspaceSidebar({
       className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-slate-200 dark:border-slate-700 bg-[#f6f8fa] dark:bg-[#111b2b] lg:flex"
     >
       <Link
-        href="/"
+        href="/student/assignments"
         className="flex h-16 items-center gap-2.5 border-b border-slate-200 dark:border-slate-700 px-5 text-lg font-semibold tracking-tight"
       >
         <span className="rounded-lg bg-cyan-700 p-1.5 text-white">
@@ -86,9 +81,11 @@ function WorkspaceSidebar({
       <div className="px-4 py-5">
         <WorkspaceNavigation assignments={assignments} current={current} />
       </div>
-      <p className="mt-auto border-t px-7 py-4 text-xs text-muted-foreground">
-        Local preview · sample data
-      </p>
+      {!useContext(AuthenticatedWorkspace) && (
+        <p className="mt-auto border-t px-7 py-4 text-xs text-muted-foreground">
+          Local preview · sample data
+        </p>
+      )}
     </aside>
   );
 }
@@ -149,6 +146,7 @@ function WorkspaceHeader({
         className="ml-auto flex shrink-0 items-center gap-2"
         aria-label="Workspace controls"
       >
+        {useContext(AuthenticatedWorkspace) && <SignOutButton />}
         <WorkspaceMenu
           pathname={pathname}
           assignments={assignments}
@@ -172,9 +170,11 @@ function PreviewNotice() {
 export function WorkspaceShell({
   children,
   assignments,
+  authenticated = false,
 }: {
   children: ReactNode;
   assignments: readonly AssignmentSummary[];
+  authenticated?: boolean;
 }) {
   const pathname = usePathname();
   const theme = useWorkspaceTheme();
@@ -182,33 +182,35 @@ export function WorkspaceShell({
     (item) => pathname === `/student/assignments/${item.id}`,
   );
   return (
-    <div
-      data-theme={theme}
-      className={`student-workspace min-h-screen bg-slate-50/70 dark:bg-slate-950 text-slate-800 dark:text-slate-100 ${theme === 'dark' ? 'dark' : ''}`}
-    >
-      <a
-        href="#student-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded focus:bg-white dark:focus:bg-slate-900 focus:p-3"
+    <AuthenticatedWorkspace.Provider value={authenticated}>
+      <div
+        data-theme={theme}
+        className={`student-workspace min-h-screen bg-slate-50/70 dark:bg-slate-950 text-slate-800 dark:text-slate-100 ${theme === 'dark' ? 'dark' : ''}`}
       >
-        Skip to content
-      </a>
-      <WorkspaceSidebar assignments={assignments} current={current} />
-      <div className="min-w-0 lg:ml-60">
-        <WorkspaceHeader
-          pathname={pathname}
-          assignments={assignments}
-          current={current}
-          theme={theme}
-        />
-        <main
-          id="student-content"
-          tabIndex={-1}
-          className="mx-auto max-w-[1200px] space-y-5 px-4 py-5 outline-none sm:px-8 sm:py-6"
+        <a
+          href="#student-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded focus:bg-white dark:focus:bg-slate-900 focus:p-3"
         >
-          <PreviewNotice />
-          {children}
-        </main>
+          Skip to content
+        </a>
+        <WorkspaceSidebar assignments={assignments} current={current} />
+        <div className="min-w-0 lg:ml-60">
+          <WorkspaceHeader
+            pathname={pathname}
+            assignments={assignments}
+            current={current}
+            theme={theme}
+          />
+          <main
+            id="student-content"
+            tabIndex={-1}
+            className="mx-auto max-w-[1200px] space-y-5 px-4 py-5 outline-none sm:px-8 sm:py-6"
+          >
+            {!authenticated && <PreviewNotice />}
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthenticatedWorkspace.Provider>
   );
 }

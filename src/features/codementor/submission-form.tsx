@@ -1,8 +1,17 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { PracticeRunner } from '@/features/student-submissions/practice-runner';
 
-export function SubmissionForm({ assignmentId }: { assignmentId: string }) {
+export function SubmissionForm({
+  assignmentId,
+  browserRunEnabled = false,
+}: {
+  assignmentId: string;
+  browserRunEnabled?: boolean;
+}) {
+  const router = useRouter();
   const [source, setSource] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -23,7 +32,7 @@ export function SubmissionForm({ assignmentId }: { assignmentId: string }) {
         throw new Error(result.error?.message ?? 'Submission failed.');
       setMessage(`Saved revision ${result.submission.revision}.`);
       setRequestId(crypto.randomUUID());
-      window.location.reload();
+      router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Submission failed.');
     } finally {
@@ -50,8 +59,8 @@ export function SubmissionForm({ assignmentId }: { assignmentId: string }) {
         className="w-full resize-y rounded-md border bg-background p-3 font-mono text-sm"
       />
       <p className="text-sm text-muted-foreground">
-        Submissions are stored for static educational feedback. This form does
-        not run code.
+        Submit saves a revision for feedback. Practice runs stay in your browser
+        and do not determine your grade.
       </p>
       {message && (
         <p role="status" className="text-sm text-muted-foreground">
@@ -64,6 +73,24 @@ export function SubmissionForm({ assignmentId }: { assignmentId: string }) {
       >
         {busy ? 'Saving…' : 'Submit revision'}
       </button>
+      <SubmissionPractice enabled={browserRunEnabled} source={source} />
     </form>
+  );
+}
+
+function SubmissionPractice({
+  enabled,
+  source,
+}: {
+  enabled: boolean;
+  source: string;
+}) {
+  if (enabled)
+    return <PracticeRunner language="python" source={source} cases={[]} />;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Browser practice is available in the local development setup. Hosted code
+      execution is not configured.
+    </p>
   );
 }

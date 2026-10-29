@@ -4,6 +4,8 @@ Status: CodeMentor student/instructor flows and local RLS policies are verified 
 
 ## Local CodeMentor app
 
+The moon/sun control applies to the landing page, sign-in, account creation and signed-in workspace. Your browser remembers the choice. Account creation requires matching **Password** and **Confirm password** fields; each has its own Show/Hide eye button. Signing in requires only the password. Signed-in student and instructor headers include **Sign out**. If signing out fails, the page shows an error and lets you retry.
+
 1. Install Node 24 and pnpm as described in the repository README.
 2. Start the local Supabase stack and apply migrations with `pnpm db:start` and `pnpm db:reset`.
 3. Copy `.env.example` to the ignored `.env.local`, then set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the local Supabase status output. Keep all other local service keys private.
@@ -17,6 +19,10 @@ AI is disabled unless `SOCLAAS_AI_ENABLED=true` and a server-side SoCLaaS URL/ke
 
 The CodeMentor submission MVP accepts Python source only. Java remains available only in the independent synthetic browser practice preview. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
 
+Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. **Assignments** returns to the list; **AI usage** is in the navigation. After saving a revision, history updates and your code stays in the editor.
+
+To practise on a real Python assignment locally, set `STUDENT_RUNNER_PREVIEW_ENABLED=true`, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The development flag does not enable the runner in production. Hosted execution remains unavailable.
+
 ## Local assignment preview
 
 1. Follow the README installation steps using Node 24.22.1.
@@ -29,7 +35,7 @@ The banner identifies sample data; no account or database data is shown. Draft a
 
 On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a theme-aware plain-text area with line numbers and a filename label; it does not provide syntax highlighting or an external IDE service. Long lines scroll inside the editor rather than widening the page.
 
-Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The public home page keeps its existing appearance.
+Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The same preference also applies to the public home and account pages.
 
 ### Local code-entry checks
 
