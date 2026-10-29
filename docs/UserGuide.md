@@ -23,9 +23,17 @@ AI is disabled unless `SOCLAAS_AI_ENABLED=true` and a server-side SoCLaaS URL/ke
 
 When creating an assignment, instructors select **Python** or **Java**. Its language is fixed once a student submits code. Each saved revision records its language, and students can see only their own revisions. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
 
-Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. **Assignments** returns to the list; **AI usage** is in the navigation. After saving a revision, history updates and your code stays in the editor.
+Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. The sidebar and Menu contain only **Assignments**, which returns to the list. The page is ordered as instructions, editor, **Run code**, input/output, test cases, **Submit revision**, then **Your revisions**. The tests action sits beside the test cases. After saving a revision, history updates and your code stays in the editor.
 
 To practise on a real Python or Java assignment locally, set `STUDENT_RUNNER_PREVIEW_ENABLED=true`, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The development flag does not enable the runner in production. Hosted execution remains unavailable.
+
+### Example tests in real assignments (local development)
+
+Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts. With the local runtime prepared/running, set both `STUDENT_RUNNER_PREVIEW_ENABLED=true` and `STUDENT_TEST_CASE_FIXTURES_ENABLED=true` in ignored `.env.local`, then restart the development server. Open a published Python or Java assignment and select **Use example test cases** below the editor. These are standalone examples for a program that reads two integers and prints their sum; they are **not your instructor's assignment tests**.
+
+Select **Run tests** to compare the current editor source with the three examples. Expand a case to see its input, expected output and actual output. Results distinguish Passed, Wrong output, Compile error, Runtime error and Time limit exceeded. Editing code makes earlier results stale. Deselecting examples stops an active run and clears the results while keeping the code. Practice runs do not save revisions or affect grades; use **Submit revision** separately.
+
+The example option is absent by default and in production, even if the flag is set. Instructor-authored case creation/publication and real case loading are still pending. The existing browser runtime limits and supported Java library subset apply.
 
 ### Forgot password
 

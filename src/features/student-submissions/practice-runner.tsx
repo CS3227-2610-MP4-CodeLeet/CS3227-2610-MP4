@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type ReactNode,
   type Dispatch,
   type MutableRefObject,
   type SetStateAction,
@@ -15,6 +16,7 @@ import {
   runPracticeTests,
   type BrowserRun,
   type PracticeCase,
+  type PracticeCaseKind,
   type PracticeResult,
   type RunInput,
 } from './practice-tests';
@@ -85,47 +87,44 @@ function stopActiveRun(active: ActiveRun | null) {
   active?.client.dispose();
 }
 
-function RunControls({
+const runButtonStyle =
+  'inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50';
+
+function RunCodeButton({ busy, onRun }: { busy: boolean; onRun: () => void }) {
+  return (
+    <button
+      type="button"
+      className={runButtonStyle + ' bg-cyan-700 text-white hover:bg-cyan-800'}
+      disabled={busy}
+      onClick={onRun}
+    >
+      <Play aria-hidden="true" className="size-3.5" />
+      Run code
+    </button>
+  );
+}
+
+function TestCasesAction({
   busy,
-  casesAvailable,
-  onRunCode,
-  onRunTests,
+  kind,
+  onRun,
 }: {
   busy: boolean;
-  casesAvailable: boolean;
-  onRunCode: () => void;
-  onRunTests: () => void;
+  kind: PracticeCaseKind;
+  onRun: () => void;
 }) {
-  const buttonStyle =
-    'inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50';
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <h3 id="practice-heading" className="text-sm font-semibold">
-        Run &amp; test
-      </h3>
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className={`${buttonStyle} bg-cyan-700 text-white hover:bg-cyan-800`}
-          disabled={busy}
-          onClick={onRunCode}
-        >
-          <Play aria-hidden="true" className="size-3.5" />
-          Run code
-        </button>
-        {casesAvailable && (
-          <button
-            type="button"
-            className={`${buttonStyle} border bg-background text-foreground hover:bg-accent`}
-            disabled={busy || !casesAvailable}
-            onClick={onRunTests}
-          >
-            <TestTubes aria-hidden="true" className="size-3.5" />
-            Run published tests
-          </button>
-        )}
-      </div>
-    </div>
+    <button
+      type="button"
+      className={
+        runButtonStyle + ' border bg-background text-foreground hover:bg-accent'
+      }
+      disabled={busy}
+      onClick={onRun}
+    >
+      <TestTubes aria-hidden="true" className="size-3.5" />
+      {kind === 'examples' ? 'Run tests' : 'Run published tests'}
+    </button>
   );
 }
 
@@ -198,15 +197,21 @@ function StaleResultNotice({ visible }: { visible: boolean }) {
   );
 }
 
+type PracticeRunnerProps = {
+  language: AssignmentLanguage;
+  source: string;
+  cases: readonly PracticeCase[];
+  caseKind?: PracticeCaseKind;
+  beforeCases?: ReactNode;
+};
+
 export function PracticeRunner({
   language,
   source,
   cases,
-}: {
-  language: AssignmentLanguage;
-  source: string;
-  cases: readonly PracticeCase[];
-}) {
+  caseKind = 'published',
+  beforeCases = null,
+}: PracticeRunnerProps) {
   const [stdin, setStdin] = useState('');
   const [busy, setBusy] = useState(false);
   const [runningTests, setRunningTests] = useState(false);
@@ -240,12 +245,10 @@ export function PracticeRunner({
       className="min-w-0 space-y-4 border-t pt-4"
       aria-labelledby="practice-heading"
     >
-      <RunControls
-        busy={busy}
-        casesAvailable={Boolean(cases.length)}
-        onRunCode={() => void start(false)}
-        onRunTests={() => void start(true)}
-      />
+      <RunCodeButton busy={busy} onRun={() => void start(false)} />
+      <h3 id="practice-heading" className="text-sm font-semibold">
+        Run &amp; test
+      </h3>
       <PracticeOutputArea
         stdin={stdin}
         busy={busy}
@@ -256,9 +259,23 @@ export function PracticeRunner({
         resultCount={results.length}
         caseCount={cases.length}
         message={message}
-        cases={cases}
-        results={results}
-      />
+      >
+        {beforeCases}
+        <CaseResults
+          cases={cases}
+          results={changed ? [] : results}
+          kind={caseKind}
+          action={
+            cases.length > 0 ? (
+              <TestCasesAction
+                busy={busy}
+                kind={caseKind}
+                onRun={() => void start(true)}
+              />
+            ) : null
+          }
+        />
+      </PracticeOutputArea>
     </section>
   );
 }
@@ -330,6 +347,7 @@ async function startPracticeRun({
 }
 
 type PracticeOutputProps = {
+  children: ReactNode;
   stdin: string;
   busy: boolean;
   onStdinChange: (value: string) => void;
@@ -339,11 +357,10 @@ type PracticeOutputProps = {
   resultCount: number;
   caseCount: number;
   message: string;
-  cases: readonly PracticeCase[];
-  results: readonly PracticeResult[];
 };
 
 function PracticeOutputArea({
+  children,
   stdin,
   busy,
   onStdinChange,
@@ -353,8 +370,6 @@ function PracticeOutputArea({
   resultCount,
   caseCount,
   message,
-  cases,
-  results,
 }: PracticeOutputProps) {
   return (
     <>
@@ -370,9 +385,9 @@ function PracticeOutputArea({
         message={message}
       />
       <StaleResultNotice
-        visible={Boolean((single || results.length > 0) && changed)}
+        visible={Boolean((single || resultCount > 0) && changed)}
       />
-      <CaseResults cases={cases} results={changed ? [] : results} />
+      {children}
     </>
   );
 }
@@ -415,7 +430,7 @@ function beginRun({
   setResults([]);
   setSingle(null);
   setTestedSource(source);
-  setMessage(tests ? 'Running published tests…' : 'Running code…');
+  setMessage(tests ? 'Running tests…' : 'Running code…');
 }
 
 function completeRun(

@@ -2,22 +2,27 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { PracticeRunner } from '@/features/student-submissions/practice-runner';
+import { AssignmentPractice } from '@/features/student-submissions/assignment-practice';
+import type { PracticeCase } from '@/features/student-submissions/practice-tests';
 import { CodeEditor } from '@/features/student-submissions/code-editor';
 import {
   languageLabels,
   type AssignmentLanguage,
 } from '@/features/student-assignments/types';
 
+type SubmissionFormProps = {
+  assignmentId: string;
+  language: AssignmentLanguage;
+  browserRunEnabled?: boolean;
+  testExamples?: readonly PracticeCase[] | null;
+};
+
 export function SubmissionForm({
   assignmentId,
   language,
   browserRunEnabled = false,
-}: {
-  assignmentId: string;
-  language: AssignmentLanguage;
-  browserRunEnabled?: boolean;
-}) {
+  testExamples = null,
+}: SubmissionFormProps) {
   const router = useRouter();
   const [source, setSource] = useState('');
   const [message, setMessage] = useState('');
@@ -62,45 +67,26 @@ export function SubmissionForm({
         maxLength={8_000}
         rows={18}
       />
-      <p className="text-sm text-muted-foreground">
-        Submit saves a revision for feedback. Practice runs stay in your browser
-        and do not determine your grade.
-      </p>
-      {message && (
-        <p role="status" className="text-sm text-muted-foreground">
-          {message}
-        </p>
-      )}
-      <button
-        disabled={busy || !source.trim()}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
-      >
-        {busy ? 'Saving…' : 'Submit revision'}
-      </button>
-      <SubmissionPractice
+      <AssignmentPractice
         enabled={browserRunEnabled}
         source={source}
         language={language}
+        examples={testExamples}
       />
+      <footer className="space-y-3 border-t pt-5">
+        <button
+          type="submit"
+          disabled={busy || !source.trim()}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+        >
+          {busy ? 'Saving…' : 'Submit revision'}
+        </button>
+        {message && (
+          <p role="status" className="text-sm text-muted-foreground">
+            {message}
+          </p>
+        )}
+      </footer>
     </form>
-  );
-}
-
-function SubmissionPractice({
-  enabled,
-  source,
-  language,
-}: {
-  enabled: boolean;
-  source: string;
-  language: AssignmentLanguage;
-}) {
-  if (enabled)
-    return <PracticeRunner language={language} source={source} cases={[]} />;
-  return (
-    <p className="text-sm text-muted-foreground">
-      Browser practice is available in the local development setup. Hosted code
-      execution is not configured.
-    </p>
   );
 }

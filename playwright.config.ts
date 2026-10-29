@@ -16,6 +16,7 @@ export default defineConfig({
       testIgnore: [
         '**/assignment-preview.spec.ts',
         '**/browser-runtime.spec.ts',
+        '**/workspace-layout.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'] },
     },
@@ -24,6 +25,7 @@ export default defineConfig({
       testMatch: [
         '**/assignment-preview.spec.ts',
         '**/browser-runtime.spec.ts',
+        '**/workspace-layout.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:3101' },
     },

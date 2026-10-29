@@ -1,8 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 
+const assignmentsPath = '/student/assignments';
 const pythonId = '10000000-0000-4000-8000-000000000001';
 const javaId = '10000000-0000-4000-8000-000000000002';
 const themeAttribute = 'data-theme';
+const javaAssignmentAction = 'View assignment: Count the vowels';
+const assignmentNavName = 'Assignments';
 const pythonEditorLabel = 'Python source code';
 const javaEditorLabel = 'Java source code';
 const assignmentsLinkName = 'All assignments';
@@ -268,15 +271,17 @@ test('mobile menu supports keyboard navigation and problems precede the editor',
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('/student/assignments');
+  await page.goto(assignmentsPath);
+  await page.getByRole('link', { name: javaAssignmentAction }).click();
   const menu = page.getByLabel('Workspace menu', { exact: true });
   await menu.focus();
   await menu.press('Enter');
   await page
     .getByRole('navigation', { name: 'Student navigation' })
-    .getByRole('link', { name: 'Count the vowels' })
+    .getByRole('link', { name: assignmentNavName, exact: true })
     .click();
-  await expect(page).toHaveURL(`/student/assignments/${javaId}`);
+  await expect(page).toHaveURL(assignmentsPath);
+  await page.getByRole('link', { name: javaAssignmentAction }).click();
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }),
   ).not.toBeVisible();
@@ -299,7 +304,7 @@ test('mobile menu supports keyboard navigation and problems precede the editor',
 test('shows published samples and navigates to Java and Python instructions', async ({
   page,
 }) => {
-  await page.goto('/student/assignments');
+  await page.goto(assignmentsPath);
   await expect(
     page.getByRole('heading', { name: assignmentsHeading }),
   ).toBeVisible();
@@ -312,9 +317,7 @@ test('shows published samples and navigates to Java and Python instructions', as
       .locator('tbody tr'),
   ).toHaveCount(2);
   await expect(page.getByText('Draft sorting exercise')).toHaveCount(0);
-  await page
-    .getByRole('link', { name: 'View assignment: Count the vowels' })
-    .click();
+  await page.getByRole('link', { name: javaAssignmentAction }).click();
   await expect(page).toHaveURL(`/student/assignments/${javaId}`);
   await expect(
     page.getByRole('heading', { name: 'Count the vowels' }),
@@ -481,9 +484,7 @@ test('Java language is fixed and navigation does not reuse another assignment dr
   await page
     .getByRole('link', { name: assignmentsLinkName, exact: true })
     .click();
-  await page
-    .getByRole('link', { name: 'View assignment: Count the vowels' })
-    .click();
+  await page.getByRole('link', { name: javaAssignmentAction }).click();
   const editor = page.getByLabel(javaEditorLabel, { exact: true });
   await expect(editor).toHaveValue('');
   await expect(
