@@ -13,4 +13,6 @@ Issue [#19](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/1
 - [x] Write failing gate/browser checks and contract/spec scenarios.
 - [x] Implement fixture adapter, explicit opt-in, shared runner labels and real-page integration; verify targeted unit/browser checks.
 - [x] Verify flag-off and production denial, both languages, save/history privacy regressions, runtime failure/timeout behavior and static/build checks.
-- [ ] Update guides and per-change summary, perform author review with independent review pending, commit/push focused work and create linked PR to develop. No merge or deployment.
+- [x] Update guides and per-change summary, perform author review with independent review pending, commit/push focused work and create linked PR to develop. No merge or deployment.
+
+PR: [#20](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/20). Human verification and teammate contract acceptance pending.

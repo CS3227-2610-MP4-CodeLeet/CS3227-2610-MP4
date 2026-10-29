@@ -6,7 +6,7 @@
 - Issue: [#19](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/19), refs #5
 - OpenSpec: build-programming-platform, task group 9
 - Branch: feat/student-assignment-tests from develop f177b7d, after PR #18 merged
-- PR: pending
+- PR: [#20](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/20) to develop
 - Human verification: pending; verifier/date not recorded
 
 ## Prompt and interaction summaries
@@ -19,6 +19,8 @@
 6. Real Python/Java example journeys passed twice, including match/mismatch, expected/actual output, runtime/compile errors, five-second timeouts, stale results and private immutable saves. The final run also verified active opt-out cancellation, no iframe remaining, source preservation, fresh Not run state on re-selection and no API/data writes during practice (2 passed). Production tests with all preview/runner/fixture flags true passed 9 checks including both languages with no example controls, the existing rubric/grade journey with mocked AI, account/recovery and production preview denial. These tests use synthetic accounts; no live AI, hosted deployment or SMTP verification is claimed.
 
 7. Existing sample/editor/runtime regression passed 24 checks, preserving published-case labels, syntax/indentation, themes, mobile layout and all four runtime scenarios. Author reviewed server fixture gating/serialization, explicit provenance, runner remount cleanup and unchanged submission/grade boundaries. No independent reviewer was used under the repository delegation constraint. Committed verified integration at 3ea4eb4; documentation/PR closeout follows.
+
+8. Pushed feat/student-assignment-tests and created PR #20 to develop, linking issue #19/#5, OpenSpec group 9, contract, plan and summary. Publication does not claim merge, deployment or teammate contract acceptance. Human verification remains pending. Temporary test servers were stopped after verification and the pre-existing local generated Next declaration paths were preserved without committing them.
 
 ## Work and verification
 
