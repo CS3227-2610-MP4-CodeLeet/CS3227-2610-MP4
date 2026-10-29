@@ -1,5 +1,7 @@
 ## Context
 
+Issue #15 / PR #16 Run copy refinement: remove the Run details disclosure and redundant normal-completion message at the requester's direction. Show output and test verdicts directly, retaining progress and actionable failures. Runtime policies and comparison behavior remain documented and enforced; this is presentation-only.
+
 Issue #15 / PR #16 branding correction: the product name is CodeLeet. Registration labels the existing display-name profile value as Username and maps it to unchanged `display_name` storage. This is a presentation correction, without a unique-handle contract or username-based sign-in. Internal module paths and historical change/log names remain evidence identifiers.
 
 Issue #15 / PR #16 editor follow-up uses a shared native textarea, aria-hidden syntax layer rendered as safe React token text, and synchronized line gutter for real Python submissions and Python/Java practice. See `workflow/plans/2026-10-29-code-editor.md`. Pin existing website-resolved Prism packages as direct app dependencies. Theme changes do not change source or selection; validation, submission and browser runtime data flow remain unchanged. Highlighting falls back to plain text beyond 32,768 characters, and the gutter is capped at 32,769 labels (covering every valid practice line); oversized input remains editable for correction. Forced-colors mode shows native text without the token overlay.
