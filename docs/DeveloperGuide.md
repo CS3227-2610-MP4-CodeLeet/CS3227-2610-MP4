@@ -20,7 +20,8 @@ Shared commands:
 | pnpm test:unit | Auth identity, request/response boundaries, CodeLeet schemas/context, and browser-practice domain tests |
 | pnpm test:e2e | Local Supabase role journeys, production auth/preview boundary checks on port 3100, and isolated dev-preview journeys on port 3101 |
 | pnpm db:start / pnpm db:stop | Start/stop the repository-pinned local Supabase stack; requires Docker Desktop |
-| pnpm db:reset | Destructively recreate the local database and apply checked-in migrations |
+| pnpm db:reset | Destructively recreate the entire local database, apply migrations and seed synthetic coursework |
+| pnpm db:seed | Add missing local fixture rows and print a new generated password for seed accounts; preserve other data |
 | pnpm db:test | Run pgTAP access-control tests against the local database |
 | pnpm db:status | Show local Supabase endpoints and generated development credentials |
 | pnpm site:build | Build the Docusaurus site for GitHub Pages |
@@ -159,6 +160,8 @@ Plan separate development and production Supabase projects/credentials, correspo
 
 ## Acknowledgements and AI use
 
+Local seed lifecycle/configuration follows the [official Supabase seeding guide](https://supabase.com/docs/guides/local-development/seeding-your-database); fixture content and local command were written fresh for MP4.
+
 - Source syntax colouring uses [prism-react-renderer](https://github.com/FormidableLabs/prism-react-renderer) 2.4.1 and [Prism](https://prismjs.com/) 1.30.0, both MIT licensed; `@types/prismjs` 1.26.6 supplies development types. These versions were already resolved for the website and are now pinned as direct app dependencies. The Java/Python grammars are loaded explicitly. Theme definitions are imported from the package; the editor layout and synchronization are first-party code.
 
 - Coursemology's [public guide](https://coursemology.github.io/coursemology-help/) informed assignment, grading, feedback, and discussion journeys. No guide text or code was copied.
@@ -169,3 +172,9 @@ Plan separate development and production Supabase projects/credentials, correspo
 - The fresh bootstrap follows official [Next.js installation](https://nextjs.org/docs/app/getting-started/installation), [Tailwind PostCSS integration](https://tailwindcss.com/docs/installation/framework-guides/nextjs), and [shadcn manual setup](https://ui.shadcn.com/docs/installation/manual) conventions. No previous MP configuration was copied.
 - Codex assisted with source review, scope synthesis, and generation of this scaffold. Team members must review these files and update this declaration with actual later use before submission.
 - Runtime/library acknowledgements and licenses: pending selection. Record them before distributing any runtime assets.
+
+## Maintaining local seed data
+
+The [local database guide](../supabase/README.md#synthetic-local-workspaces) lists the synthetic accounts and dataset. `supabase/seed.sql` is a data-only, transactional local seed configured in `supabase/config.toml`, separate from migrations. `workflow/scripts/seed-local.mjs` uses the local Docker socket and container, supplies a random password over stdin and suppresses raw database output. No password or privileged key is stored in source. `tests/integration/local-seed.mjs` checks repeat application, empty-fixture recreation, missing-row recovery, preserved edits/unrelated data, identity collision rollback, generated-password sign-in and role/privacy boundaries; run it explicitly against local Docker. `supabase/tests/database/local_seed.test.sql` adds fifteen seed/RLS assertions to `db:test`.
+
+When changing relevant schema, auth or RPC contracts, update the seed and its checks in the same PR. Existing seed coursework edits are retained; deleted fixture rows may be recreated. Seed grades are synthetic records, never browser-derived official scores. Custom Docker sockets and hosted seeding are unsupported. Local Windows verification is recorded in the session summary; no macOS/Linux execution or destructive reset is claimed.

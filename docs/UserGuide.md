@@ -132,3 +132,9 @@ Complete the following for each verified feature before release. Do not present 
 Document account access/profiles, assignment creation, Python and Java practice runs, code submission, student AI feedback, instructor AI evaluation and grade publication, forum threads/replies, XP, and leaderboard behavior only once implemented.
 
 Explain that practice runs happen on the user's device and do not prove official correctness. Explain when code is sent to the server for submission or SoCLaaS feedback, how AI output should be checked, and the published limits/cancellation behavior verified for the selected runtimes.
+
+## Local test accounts
+
+For local testing, start Docker Desktop and run `pnpm db:start`, then `pnpm db:seed`. The command prints a generated password shared by `student01@codeleet.example.test` through `student10@codeleet.example.test` and `instructor01@codeleet.example.test` through `instructor03@codeleet.example.test`. Rerunning it rotates these accounts’ passwords and restores missing fixture rows without resetting other local data. These accounts are for your local database only.
+
+Students 01–09 each have 32 Python/Java submission revisions and published feedback; student 10 has empty history. Instructors own different assignments, including drafts visible only to their owner. Synthetic coursework titles start with `[Local seed]`. See the [local database guide](../supabase/README.md#synthetic-local-workspaces) for details.

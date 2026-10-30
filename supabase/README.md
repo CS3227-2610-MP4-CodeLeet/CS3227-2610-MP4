@@ -4,13 +4,31 @@ This is a fresh MP4 Supabase setup; no MP3 configuration or schema is reused. St
 
 ```sh
 pnpm db:start
-pnpm db:reset
+pnpm db:seed
 pnpm db:test
 ```
 
-`db:reset` destroys and recreates the local database before applying migrations. `db:test` runs the pgTAP access tests. Use `pnpm db:stop` to stop the local services and retain their local database volume.
+`db:seed` adds missing local fixtures without resetting the database. It prints a freshly generated password shared by the thirteen seed accounts, rotating only their passwords each time. Keep this output local. It uses Docker's local socket and the configured project container; it does not read `.env.local`, use hosted credentials or accept a remote target. Windows uses Docker Desktop's Linux engine pipe; Linux/macOS use `/var/run/docker.sock`. Custom Docker socket locations are not supported by this command.
 
-Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
+Native Supabase seeds run after migrations on a fresh local start or `db:reset`. Their initial account passwords are random and unknown; run `db:seed` to obtain usable login credentials. Starting an already initialized stack does not reseed it. `db:reset` destroys and recreates **all** local data; use it only when you intend that. `db:seed` alone does not apply pending migrations. `db:test` runs the pgTAP access/seed tests and expects the seed dataset to be present. Use `pnpm db:stop` to retain the local database volume.
+
+## Synthetic local workspaces
+
+| Accounts | What to test |
+| --- | --- |
+| `student01@codeleet.example.test` through `student09@codeleet.example.test` | Each has 32 revisions across eight published Python/Java assignments, eight published grades and eight hidden draft grades |
+| `student10@codeleet.example.test` | Empty submission history |
+| `instructor01@codeleet.example.test` | Four owned assignments, including one draft |
+| `instructor02@codeleet.example.test` | Three owned assignments |
+| `instructor03@codeleet.example.test` | Three owned assignments, including one draft |
+
+The ten assignments use simple stdin/stdout exercises; five are Python and five Java. Titles start with `[Local seed]`. All have private rubrics; two remain unpublished. There are 288 immutable revisions and 144 synthetic grades total. Seed grades are test records, not results inferred from running code or calling AI. No public teacher test-case records or XP awards are added.
+
+Stable reserved UUIDs and `.example.test` emails make seeding repeatable. Existing profiles, assignment text, submissions and grades are retained; missing rows are restored. Conflicting reserved account IDs/emails without trusted seed metadata abort the transaction before instructor provisioning. Keep this seed out of hosted deployment inputs; never use it to provision real users.
+
+Run `node tests/integration/local-seed.mjs` for the opt-in local integration checks. They reapply seeds, rotate seed-account passwords, test password sign-in and role/privacy rules, and use rollback-only transactions for fresh-fixture recreation, recovery, identity conflicts and preservation checks. Run `db:seed` afterwards to obtain a new displayed login password.
+
+Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python/Java submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
 
 To provision a trusted instructor locally, first register the account through `/sign-up`, then use the local Supabase SQL editor or a trusted admin SQL session to update that exact account UUID:
 

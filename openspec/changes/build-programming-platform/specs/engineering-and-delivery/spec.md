@@ -1,5 +1,16 @@
 ## ADDED Requirements
 
+### Requirement: Reproducible local workspaces
+The repository SHALL provide repeatable local seed data with at least ten synthetic student accounts, three instructor accounts, ten Python/Java assignments, private rubrics, immutable revisions and draft/published grades. Seed commands SHALL target only local development, preserve unrelated records, reject conflicting seed identities and avoid committed passwords or hosted secrets. Contributors SHALL update seeds when relevant schema contracts change.
+
+#### Scenario: Reapply local seed
+- **WHEN** a developer runs `db:seed` repeatedly against the local stack
+- **THEN** missing fixture rows are created without duplicates or resetting unrelated data, existing fixture edits remain, and only seed-account passwords are rotated to the generated password shown by the command
+
+#### Scenario: Fresh local setup
+- **WHEN** migrations and configured local seeds run on a fresh local database
+- **THEN** both role workspaces contain synthetic records and a subsequent `db:seed` provides usable generated local login credentials
+
 ### Requirement: Actual specialist coordination evidence
 The process SHALL retain proposed specs before implementation and actual specialist triggers, bounded context, file ownership, handoffs, review outcomes and available usage metrics. Generated roles SHALL NOT be represented as executed coordination.
 

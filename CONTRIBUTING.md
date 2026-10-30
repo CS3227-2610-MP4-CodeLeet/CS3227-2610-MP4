@@ -36,3 +36,7 @@ openspec validate --all --strict
 ```
 
 The application foundation uses Node.js 24 and pnpm 12.15.0. Run `pnpm install --frozen-lockfile`, `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test:unit`, and `pnpm build`. For production-boundary and development-preview browser checks, install Chromium with `pnpm exec playwright install chromium`, then run `pnpm test:e2e`. Local Supabase access tests use `pnpm db:start`, `pnpm db:reset`, and `pnpm db:test`; `db:reset` deletes the local database. Run `pnpm site:build` to verify the Docusaurus Pages site. These checks do not establish that the still-proposed authenticated product features are implemented.
+
+## Keep local seed data compatible
+
+When changing database schemas, auth identities, language values or grading contracts, update `supabase/seed.sql` and the local seed checks in the same PR. Preserve stable fixture UUIDs and keep all accounts/data synthetic. Run `pnpm db:seed`, `pnpm db:test` and `node tests/integration/local-seed.mjs`. The seed command is additive and rotates only seed-account passwords; `pnpm db:reset` destroys the whole local database. See [local setup and accounts](supabase/README.md). Never include local seeds in hosted deployment inputs.

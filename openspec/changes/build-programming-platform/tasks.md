@@ -108,3 +108,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 11.1 Remove student preview configuration flags; make real data default and local runner enabled in development, with samples restricted to an explicit UI-test harness setting and production still denied.
 - [x] 11.2 Preserve local credentials/configuration values, retain the separate example-case opt-in and update setup guides/specs.
 - [x] 11.3 Verify real local Python/Java/history, fixture tests and production boundaries, record evidence and publish a linked PR with prerequisite #24 identified.
+
+## 12. Issue #27 local workspace seed
+
+- [x] 12.1 Add repeatable local-only seed accounts (10 students, 3 instructors), 10 Python/Java assignments, private rubrics, revisions and draft/published grades without schema or production changes.
+- [x] 12.2 Add `db:seed`, native local start/reset seed configuration, generated login passwords and schema-maintenance documentation; preserve unrelated data and reject identity collisions.
+- [ ] 12.3 Verify idempotency, recovery, sign-in, role/ownership/privacy boundaries and applicable regression checks; record evidence and publish linked PR to develop.
