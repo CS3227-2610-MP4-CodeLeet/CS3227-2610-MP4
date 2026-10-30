@@ -6,7 +6,7 @@
 - Related issue: [#19](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/19)
 - OpenSpec: build-programming-platform, browser-code-execution
 - Branch: docs/run-code-check from develop a714fa6
-- PR: documentation follow-up pending; predecessor #20 was observed merged
+- PR: [#22](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/22); predecessor #20 was observed merged
 - Human verification: pending; verifier/date not recorded
 
 ## Prompt and interaction summaries
