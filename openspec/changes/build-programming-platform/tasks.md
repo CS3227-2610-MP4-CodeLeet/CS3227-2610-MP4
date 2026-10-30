@@ -95,3 +95,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 9.3 Reuse browser-only tests/results for Python/Java source without altering submissions, grades or XP; clear/cancel results on opt-out/navigation.
 - [x] 9.4 Verify both-language real-page tests, stale results/errors/deadlines, no automatic writes, default/production denial and saving/privacy regression. Update guides, summary and linked PR with actual evidence.
 - [x] 9.5 Issue #21: simplify sidebar/Menu to Assignments, uncramp branding and order real editor/run/input-output/test cases/submit/history; verify responsive navigation, source preservation and Python/Java actions and update PR #20.
+
+## 10. Issue #23 My submissions
+
+- [x] 10.1 Add a verified-student, metadata-only cross-assignment history loader with stable pagination, page validation, hidden-assignment fallback and safe errors; preserve RLS and exclude source/rubrics/grades from list reads.
+- [x] 10.2 Add My submissions to authenticated sidebar/Menu, loading/empty/error/list states and detail return navigation in the shared workspace; keep signed-out/instructor and preview boundaries enforced.
+- [x] 10.3 Verify both languages, multiple revisions, pagination, two-student privacy/forged query denial, hidden grades/rubrics, safe text, mobile navigation and existing detail/run/save behavior.
+- [x] 10.4 Update verified guides, plan/spec/log evidence and linked PR to develop; leave independent human review and deployment claims accurate.

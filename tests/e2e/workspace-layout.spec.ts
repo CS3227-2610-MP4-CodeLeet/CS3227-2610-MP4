@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 const javaId = '10000000-0000-4000-8000-000000000002';
 
+test('real history requires sign-in even when assignment preview is enabled', async ({
+  page,
+}) => {
+  await page.goto('/student/submissions');
+  await expect(page).toHaveURL(/\/sign-in$/);
+});
+
 test('sidebar gives branding space and contains only Assignments navigation', async ({
   page,
 }) => {
