@@ -8,7 +8,7 @@ pnpm db:seed
 pnpm db:test
 ```
 
-`db:seed` destroys and recreates the local database, applies migrations, and loads the synthetic fixtures from `supabase/seed.sql`. `db:reset` does the same. Both commands target only the local Supabase database. `db:test` runs the pgTAP access tests. Use `pnpm db:stop` to stop the local services and retain their local database volume.
+`db:seed` destroys and recreates the local database, applies migrations, and explicitly loads the synthetic fixtures from `supabase/seed.sql`. `db:reset` does the same. Automatic CLI seed loading is disabled, so `pnpm db:start` starts an empty migrated database and local fixtures are never implicitly added by a linked/hosted reset. Both pnpm reset commands explicitly target only the local Supabase database. `db:test` runs the pgTAP access tests. Use `pnpm db:stop` to stop the local services and retain their local database volume.
 
 Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python/Java submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
 

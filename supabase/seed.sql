@@ -1,5 +1,7 @@
 -- Synthetic local development fixtures only. Never run against a hosted project.
 
+do $seed$
+begin
 with seed_accounts as (
   select
     format('91000000-0000-4000-8000-%s', lpad(account_number::text, 12, '0'))::uuid as id,
@@ -165,3 +167,5 @@ join public.submissions s
   )::uuid
 join public.assignments a on a.id = s.assignment_id
 on conflict (submission_id) do nothing;
+end
+$seed$;

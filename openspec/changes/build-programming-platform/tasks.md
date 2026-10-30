@@ -112,6 +112,6 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 ## 12. Issue #27 local development seed data
 
-- [x] 12.1 Configure the local Supabase seed and add deterministic synthetic Auth users, roles, assignments, rubrics, submissions and representative grades meeting issue #27's minimum counts.
-- [x] 12.2 Add `pnpm db:seed`, document its local destructive reset behavior and password-reset path for seeded accounts, and instruct contributors to maintain seeds when schema requirements change.
-- [x] 12.3 Verify clean local startup/reset and seeded record counts, run applicable static/spec checks, and record actual results and limitations in the dated session summary.
+- [x] 12.1 Configure deterministic synthetic Auth users, roles, assignments, rubrics, submissions and representative grades meeting issue #27's minimum counts; keep automatic Supabase CLI seeding disabled to prevent hosted linked resets from loading local fixtures.
+- [x] 12.2 Add explicit local-only `pnpm db:seed`, document its destructive reset behavior and password-reset path for seeded accounts, and instruct contributors to maintain seeds when schema requirements change.
+- [x] 12.3 Verify clean local reset leaves fixtures unloaded, explicitly seed local data and inspect counts, run applicable static/spec checks, and record actual results and limitations in the dated session summary.
