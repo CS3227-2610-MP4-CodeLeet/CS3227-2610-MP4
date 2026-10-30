@@ -13,4 +13,6 @@ Keep the server loader separate from pure row/page validation and presentation. 
 - [x] Write failing tests for metadata-only identity-scoped query, page bounds, pagination, hidden metadata and safe errors; add authenticated browser acceptance checks.
 - [x] Implement list/data/route states and shared navigation/detail integration. Verify unit and targeted browser tests before marking complete.
 - [x] Test Python/Java, multiple assignments/revisions, first/second page, empty account, two-student privacy, forged queries, signed-out/instructor denial, hidden grading data, safe title rendering and mobile fit. Run appropriate regressions/static/build checks; no database reset.
-- [ ] Update guides/specs/log with actual evidence, perform author review (independent review pending), commit/push focused milestones and create a PR to develop linked to #23/#5. No merge/deployment.
+- [x] Update guides/specs/log with actual evidence, perform author review (independent review pending), commit/push focused milestones and create a PR to develop linked to #23/#5. No merge/deployment.
+
+PR: [#24](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/24). Human verification pending.
