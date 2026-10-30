@@ -2,7 +2,7 @@
 
 ### Requirement: Browser-native Python and Java
 
-The authenticated Python/Java editor MAY expose the existing loopback practice runner only in development with the explicit runner flag. It SHALL use the same in-memory source as submission without treating execution results as grades. Production SHALL NOT enable this local runner even if the flag is set. This partial integration does not select a hosted runtime or change the authenticated submission contract.
+The authenticated Python/Java editor MAY expose the existing loopback practice runner automatically in development without a student runner flag. It SHALL use the same in-memory source as submission without treating execution results as grades. Production SHALL NOT enable this local runner regardless of test configuration. This partial integration does not select a hosted runtime or change the authenticated submission contract.
 The system SHALL execute Python and compile/execute Java source entirely in the browser through evaluated compatible runtimes. It SHALL NOT send source to remote execution or compilation services.
 
 #### Scenario: Python with stdin
@@ -49,7 +49,7 @@ Students SHALL be able to run up to five public stdin/expected-stdout cases sequ
 - **THEN** its five-second per-case execution deadline starts separately from runtime loading/compilation, and displayed timing is approximate local wall time
 
 ### Requirement: Development examples in real student assignments
-While teacher cases are unavailable, the authenticated assignment workspace MAY expose standalone example cases only when development, browser-runner and example-fixture flags are enabled. The student SHALL explicitly select the examples, whose task and provenance SHALL be clearly distinguished from the assignment. Production and default configuration SHALL not supply fixture cases. Existing browser-only execution, limits and safe results rendering SHALL apply; running examples SHALL not submit source/results or award grades/XP.
+While teacher cases are unavailable, the authenticated assignment workspace MAY expose standalone example cases only in development with the explicit example-fixture setting. The student SHALL explicitly select the examples, whose task and provenance SHALL be clearly distinguished from the assignment. Production and default configuration SHALL not supply fixture cases. Existing browser-only execution, limits and safe results rendering SHALL apply; running examples SHALL not submit source/results or award grades/XP.
 
 #### Scenario: Explicit example selection
 - **WHEN** a student selects the development examples and runs the current Python/Java editor source
@@ -60,5 +60,12 @@ While teacher cases are unavailable, the authenticated assignment workspace MAY 
 - **THEN** deselection cancels/discards example results and source changes invalidate earlier results without changing saved revisions
 
 #### Scenario: Production or disabled fixtures
-- **WHEN** the environment is production or either fixture/runner flag is disabled
+- **WHEN** the environment is production or the example-fixture setting is disabled
 - **THEN** the server supplies no example cases and no fixture fallback is offered
+
+### Requirement: Real-data local defaults
+Real accounts and assignments SHALL be the normal development workflow. Synthetic assignments SHALL require PLAYWRIGHT_ASSIGNMENT_FIXTURES=true on a development UI-test server and SHALL never be a production fallback. The two former student preview flags SHALL not control application behavior. Local browser execution SHALL still require prepared assets and the separate static runtime service.
+
+#### Scenario: Normal local startup
+- **WHEN** a developer starts Next.js without fixture settings
+- **THEN** student pages require real authentication and local Run code is available for real Python/Java assignments

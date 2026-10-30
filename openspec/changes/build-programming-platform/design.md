@@ -256,3 +256,5 @@ No existing application data. Bootstrap tooling, prove runtimes, implement revie
 - SoCLaaS endpoint/model/key limits.
 - XP formula, grade correction, deadlines and resubmission rules.
 - Product name and deployment URLs.
+
+Issue #25 simplifies local configuration after the requester selected real-data defaults and automatic local Run code. Remove STUDENT_PREVIEW_ENABLED and STUDENT_RUNNER_PREVIEW_ENABLED; use development mode alone for the existing runner. Preserve fixture isolation through the test-only PLAYWRIGHT_ASSIGNMENT_FIXTURES setting plus development mode, and keep standalone example cases separately opt-in. Production loopback execution stays denied. Runtime assets/service prerequisites remain separate.

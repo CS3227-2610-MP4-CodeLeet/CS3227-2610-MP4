@@ -23,9 +23,9 @@ AI is disabled unless `SOCLAAS_AI_ENABLED=true` and a server-side SoCLaaS URL/ke
 
 When creating an assignment, instructors select **Python** or **Java**. Its language is fixed once a student submits code. Each saved revision records its language, and students can see only their own revisions. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
 
-Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts and assignments. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. The signed-in sidebar and Menu contain **Assignments** and **My submissions**; sample preview navigation keeps only Assignments. The assignment page is ordered as instructions, editor, **Run code**, input/output, test cases, **Submit revision**, then **Your revisions**. The tests action sits beside the test cases. After saving a revision, history updates and your code stays in the editor.
+Local development uses real accounts and assignments by default. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. The signed-in sidebar and Menu contain **Assignments** and **My submissions**; sample preview navigation keeps only Assignments. The assignment page is ordered as instructions, editor, **Run code**, input/output, test cases, **Submit revision**, then **Your revisions**. The tests action sits beside the test cases. After saving a revision, history updates and your code stays in the editor.
 
-To practise on a real Python or Java assignment locally, set `STUDENT_RUNNER_PREVIEW_ENABLED=true`, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The development flag does not enable the runner in production. Hosted execution remains unavailable.
+To practise on a real Python or Java assignment locally, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The local runner remains disabled in production. Hosted execution remains unavailable.
 
 ### My submissions
 
@@ -37,7 +37,7 @@ An empty account shows **No submissions yet** and a **Browse assignments** link.
 
 ### Example tests in real assignments (local development)
 
-Keep `STUDENT_PREVIEW_ENABLED=false` for real accounts. With the local runtime prepared/running, set both `STUDENT_RUNNER_PREVIEW_ENABLED=true` and `STUDENT_TEST_CASE_FIXTURES_ENABLED=true` in ignored `.env.local`, then restart the development server. Open a published Python or Java assignment and select **Use example test cases** below the editor. These are standalone examples for a program that reads two integers and prints their sum; they are **not your instructor's assignment tests**.
+With the local runtime prepared/running, set `STUDENT_TEST_CASE_FIXTURES_ENABLED=true` in ignored `.env.local`, then restart the development server. Open a published Python or Java assignment and select **Use example test cases** below the editor. These are standalone examples for a program that reads two integers and prints their sum; they are **not your instructor's assignment tests**.
 
 Select **Run tests** to compare the current editor source with the three examples. Expand a case to see its input, expected output and actual output. Results distinguish Passed, Wrong output, Compile error, Runtime error and Time limit exceeded. Editing code makes earlier results stale. Deselecting examples stops an active run and clears the results while keeping the code. Practice runs do not save revisions or affect grades; use **Submit revision** separately.
 
@@ -52,7 +52,7 @@ Local Supabase captures emails in **[Mailpit](http://localhost:54324)**; they ar
 ## Local assignment preview
 
 1. Follow the README installation steps using Node 24.22.1.
-2. Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and restart the development server with `pnpm dev` (or `npx --yes pnpm@12.15.0 dev`).
+2. For UI tests only, set `PLAYWRIGHT_ASSIGNMENT_FIXTURES=true` in the test server environment and restart the development server with `pnpm dev` (or `npx --yes pnpm@12.15.0 dev`).
 3. Open `/student/assignments` at the local address printed by Next.js.
 4. Select **View** in the assignment table for **Find the largest number** (Python) or **Count the vowels** (Java).
 5. Read the instructions, then use **All assignments** to return.
@@ -83,8 +83,7 @@ node src/runtime-lab/server.mjs
 In another terminal start the website:
 
 ```powershell
-$env:STUDENT_PREVIEW_ENABLED = "true"
-$env:STUDENT_RUNNER_PREVIEW_ENABLED = "true"
+$env:PLAYWRIGHT_ASSIGNMENT_FIXTURES = "true"
 pnpm dev
 ```
 
@@ -102,7 +101,7 @@ Matching normalizes CRLF/lone CR line endings and ignores one final newline on e
 
 Limits: up to five cases (current samples have three), 4,096 UTF-8 bytes of stdin and 8,192 bytes of combined output per case, five seconds of program execution per case, a separate 20-second preparation/Java compilation deadline, and a 90-second suite deadline. Runtime loading has separate bounded recovery. Execution timing excludes initialization/compilation and is approximate local wall time; machine/browser differences make it unsuitable for official performance comparisons. No hard browser memory quota is claimed.
 
-If the bridge is unavailable, the page asks you to start port 3130; start the static runner and try again. Missing/failed runtime assets show a recovery error; prepare the assets and retry. Stop both terminal processes with Ctrl+C when finished. The runner preview is available only in development with both flags true and remains unavailable in production. It is verified locally in Chromium, not deployed or approved for use with real authenticated data. Supported Java API details and remaining production gates are in the [input report](../workflow/evidence/runtime-feasibility/java-input-resolution.md).
+If the bridge is unavailable, the page asks you to start port 3130; start the static runner and try again. Missing/failed runtime assets show a recovery error; prepare the assets and retry. Stop both terminal processes with Ctrl+C when finished. The runner preview is available only in development with the explicit test fixture setting and remains unavailable in production. It is verified locally in Chromium, not deployed or approved for use with real authenticated data. Supported Java API details and remaining production gates are in the [input report](../workflow/evidence/runtime-feasibility/java-input-resolution.md).
 
 For local UI checks, add `?preview=empty` to the assignment list for **No assignments yet**, `?preview=slow` for a brief loading state or `?preview=error` for the failure state. **Try again** reloads the normal list. These controls exist only in the development preview.
 

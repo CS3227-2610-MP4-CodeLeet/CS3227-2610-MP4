@@ -4,18 +4,18 @@ import { validateCases } from './practice-tests';
 
 describe('real assignment development examples', () => {
   it.each([
-    ['production', 'true', 'true'],
-    ['test', 'true', 'true'],
-    ['development', undefined, 'true'],
-    ['development', 'false', 'true'],
-    ['development', 'true', undefined],
-    ['development', 'true', 'false'],
-  ])('denies mode=%s runner=%s fixture=%s', (mode, runner, fixtures) => {
-    expect(getAssignmentTestExamples(mode, runner, fixtures)).toBeNull();
+    ['production', 'true'],
+    ['test', 'true'],
+    [undefined, 'true'],
+    ['development', undefined],
+    ['development', 'false'],
+    ['development', '1'],
+  ])('denies mode=%s fixture=%s', (mode, fixtures) => {
+    expect(getAssignmentTestExamples(mode, fixtures)).toBeNull();
   });
 
   it('provides bounded standalone examples only with all development gates', () => {
-    const cases = getAssignmentTestExamples('development', 'true', 'true');
+    const cases = getAssignmentTestExamples('development', 'true');
     expect(cases).toHaveLength(3);
     expect(() => validateCases(cases!)).not.toThrow();
     expect(cases?.map((item) => item.expected_stdout)).toEqual([
@@ -29,11 +29,10 @@ describe('real assignment development examples', () => {
   });
 
   it('returns fresh records so one caller cannot change later examples', () => {
-    const first = getAssignmentTestExamples('development', 'true', 'true')!;
+    const first = getAssignmentTestExamples('development', 'true')!;
     first[0].expected_stdout = 'changed';
     expect(
-      getAssignmentTestExamples('development', 'true', 'true')![0]
-        .expected_stdout,
+      getAssignmentTestExamples('development', 'true')![0].expected_stdout,
     ).toBe('5\n');
   });
 });

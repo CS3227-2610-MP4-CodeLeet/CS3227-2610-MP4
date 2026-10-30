@@ -102,3 +102,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 10.2 Add My submissions to authenticated sidebar/Menu, loading/empty/error/list states and detail return navigation in the shared workspace; keep signed-out/instructor and preview boundaries enforced.
 - [x] 10.3 Verify both languages, multiple revisions, pagination, two-student privacy/forged query denial, hidden grades/rubrics, safe text, mobile navigation and existing detail/run/save behavior.
 - [x] 10.4 Update verified guides, plan/spec/log evidence and linked PR to develop; leave independent human review and deployment claims accurate.
+
+## 11. Issue #25 local defaults
+
+- [x] 11.1 Remove student preview configuration flags; make real data default and local runner enabled in development, with samples restricted to an explicit UI-test harness setting and production still denied.
+- [x] 11.2 Preserve local credentials/configuration values, retain the separate example-case opt-in and update setup guides/specs.
+- [ ] 11.3 Verify real local Python/Java/history, fixture tests and production boundaries, record evidence and publish a linked PR with prerequisite #24 identified.

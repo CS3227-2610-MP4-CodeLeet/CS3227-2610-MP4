@@ -1,3 +1,4 @@
+import { isLocalBrowserRunnerEnabled } from '@/features/student-submissions/runner-environment';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { notFound } from 'next/navigation';
 import { AssignmentInstructions } from '@/features/student-assignments/components';
@@ -57,7 +58,7 @@ export default async function AssignmentDetailPage({
   if (
     isAssignmentPreviewEnabled(
       process.env.NODE_ENV,
-      process.env.STUDENT_PREVIEW_ENABLED,
+      process.env.PLAYWRIGHT_ASSIGNMENT_FIXTURES,
     )
   ) {
     const assignment = getPreviewAssignment(assignmentId);
@@ -101,13 +102,9 @@ export default async function AssignmentDetailPage({
         key={assignmentId}
         testExamples={getAssignmentTestExamples(
           process.env.NODE_ENV,
-          process.env.STUDENT_RUNNER_PREVIEW_ENABLED,
           process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
         )}
-        browserRunEnabled={
-          process.env.NODE_ENV === 'development' &&
-          process.env.STUDENT_RUNNER_PREVIEW_ENABLED === 'true'
-        }
+        browserRunEnabled={isLocalBrowserRunnerEnabled(process.env.NODE_ENV)}
       />
       <SubmissionHistory submissions={submissions ?? []} />
     </div>

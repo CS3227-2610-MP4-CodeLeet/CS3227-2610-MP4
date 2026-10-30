@@ -3,11 +3,9 @@ import type { PracticeCase } from './practice-tests';
 
 export function getAssignmentTestExamples(
   mode: string | undefined,
-  runner: string | undefined,
   fixtures: string | undefined,
 ): PracticeCase[] | null {
-  if (mode !== 'development' || runner !== 'true' || fixtures !== 'true')
-    return null;
+  if (mode !== 'development' || fixtures !== 'true') return null;
   return [
     {
       id: 'example-sum-positive',

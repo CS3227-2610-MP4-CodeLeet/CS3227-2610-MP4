@@ -18,7 +18,7 @@ export default async function AssignmentLayout({
   if (
     isAssignmentPreviewEnabled(
       process.env.NODE_ENV,
-      process.env.STUDENT_PREVIEW_ENABLED,
+      process.env.PLAYWRIGHT_ASSIGNMENT_FIXTURES,
     )
   ) {
     requireAssignmentPreview();
