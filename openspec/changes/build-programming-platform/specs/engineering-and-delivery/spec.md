@@ -55,6 +55,21 @@ The repository SHALL pin one exact supported Node.js 24 patch in `.node-version`
 - **WHEN** a contributor runs an application or website command
 - **THEN** project scripts and documentation invoke the pinned pnpm directly without requiring Corepack
 
+### Requirement: Synthetic local development seed
+Local Supabase SHALL seed synthetic development accounts and related records after migrations: at least 10 students, 3 instructors, 10 assignments, rubrics, submissions, and published/unpublished grades. Instructor roles SHALL be assigned only by trusted seed data. A pnpm command SHALL target only local Supabase and warn that rebuilding deletes local data. Contributors SHALL keep seeds aligned with schema changes; no real student data SHALL be included.
+
+#### Scenario: Fresh local database
+- **WHEN** a contributor starts or seeds a fresh local Supabase database
+- **THEN** the migrated schema is populated with the required synthetic users and related assignment records without connecting to a hosted project
+
+#### Scenario: Schema fixture upkeep
+- **WHEN** a migration changes required fields, constraints, or relationships used by seed records
+- **THEN** the seed is updated to satisfy the new schema and retains enough linked records for local development and testing
+
+#### Scenario: Explicit local reseed
+- **WHEN** a contributor runs the seed pnpm command
+- **THEN** only the local Supabase database is reset and repopulated, and documentation warns that existing local data is deleted
+
 ### Requirement: Issue-linked development and closeout records
 Every material change SHALL link to a scope-matched GitHub issue and an active OpenSpec change before implementation. Contributors SHALL apply relevant repository-local Superpowers skills and commit verified related work incrementally using the repository's Conventional Commit branch/message rules. Before pushing and creating/updating a PR, the contributor SHALL finalize a dated per-change `logs/` summary linking the issue, OpenSpec change, branch/commits and PR, and summarizing each prompt/interaction chronologically, decisions, actual handoffs, checks and limitations. Summaries SHALL be concise and reviewed by a human; they SHALL NOT contain raw transcripts, secrets, credentials, real student data or sensitive prompt content.
 

@@ -4,15 +4,17 @@ This is a fresh MP4 Supabase setup; no MP3 configuration or schema is reused. St
 
 ```sh
 pnpm db:start
-pnpm db:reset
+pnpm db:seed
 pnpm db:test
 ```
 
-`db:reset` destroys and recreates the local database before applying migrations. `db:test` runs the pgTAP access tests. Use `pnpm db:stop` to stop the local services and retain their local database volume.
+`db:seed` destroys and recreates the local database, applies migrations, and loads the synthetic fixtures from `supabase/seed.sql`. `db:reset` does the same. Both commands target only the local Supabase database. `db:test` runs the pgTAP access tests. Use `pnpm db:stop` to stop the local services and retain their local database volume.
 
-Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
+Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python/Java submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
 
-To provision a trusted instructor locally, first register the account through `/sign-up`, then use the local Supabase SQL editor or a trusted admin SQL session to update that exact account UUID:
+The seed creates 12 synthetic students, 3 synthetic instructors, 12 assignments (10 published and 2 drafts), rubrics, student submissions, and a mix of published and unpublished grades. Seed account emails use `studentNN@codeleet.test` and `instructorN@codeleet.test`. Seeded accounts have no preset password; to sign in, request a password reset for a seeded address and retrieve the message from local Mailpit. No password is committed to the repository.
+
+To provision an additional trusted instructor locally, first register the account through `/sign-up`, then use the local Supabase SQL editor or a trusted admin SQL session to update that exact account UUID:
 
 ```sql
 update public.user_roles

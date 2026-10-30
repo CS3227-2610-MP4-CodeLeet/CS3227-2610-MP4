@@ -1,3 +1,11 @@
+## Issue #27: local development seed data
+
+Use Supabase's standard `supabase/seed.sql` pipeline, enabled in `supabase/config.toml`, so seeds run after migrations on first local startup and database reset. Keep fixture IDs deterministic. Create 12 synthetic student Auth users and 3 synthetic instructor Auth users, then set instructor roles only from the trusted seed. Add 12 Python/Java assignments across the instructors (10 published, 2 draft), matching rubrics, 24 synthetic submissions, and one published or unpublished grade per student to cover both visibility states. Do not seed AI outputs, community, or XP tables that are not in the current schema.
+
+Expose `pnpm db:seed` as an explicit alias for `supabase db reset --local`; it rebuilds and deletes the local database. Keep `pnpm db:reset` working as before. Document seeded account email patterns and the local Mailpit password-reset path without committing passwords. Include a contributor reminder to update fixtures when schema changes affect seed requirements. No new table, migration, dependency, hosted operation, or change to application authorization is needed.
+
+**Acceptance:** fresh local startup/reset reaches the required record counts; all assignment relationships and rubric/grade data satisfy the schema; repeated supported seed workflows produce one copy of the deterministic fixture set; `pnpm db:seed` is explicitly local and its destructive effect is clear.
+
 ## Context
 
 Issue #17 extends real assignment/submission workflows to Python and Java; see `workflow/plans/2026-10-29-java-assignments.md`. Store assignment language on each immutable revision using a DB-derived value and prohibit assignment language changes after submissions. Preserve 8,000-character source, identity/revision/idempotency, private grading and browser-only execution rules. New instructor payloads carry language while omitted language remains Python for compatibility. The forward migration preserves local records; the existing six-argument save RPC stays available and a validated seven-argument overload adds language. UI and AI context use validated stored language rather than Python constants. This branch depends on unmerged PR #16 until integration catches up.
