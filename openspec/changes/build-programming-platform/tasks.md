@@ -98,7 +98,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 ## 10. Issue #23 My submissions
 
-- [ ] 10.1 Add a verified-student, metadata-only cross-assignment history loader with stable pagination, page validation, hidden-assignment fallback and safe errors; preserve RLS and exclude source/rubrics/grades from list reads.
-- [ ] 10.2 Add My submissions to authenticated sidebar/Menu, loading/empty/error/list states and detail return navigation in the shared workspace; keep signed-out/instructor and preview boundaries enforced.
-- [ ] 10.3 Verify both languages, multiple revisions, pagination, two-student privacy/forged query denial, hidden grades/rubrics, safe text, mobile navigation and existing detail/run/save behavior.
+- [x] 10.1 Add a verified-student, metadata-only cross-assignment history loader with stable pagination, page validation, hidden-assignment fallback and safe errors; preserve RLS and exclude source/rubrics/grades from list reads.
+- [x] 10.2 Add My submissions to authenticated sidebar/Menu, loading/empty/error/list states and detail return navigation in the shared workspace; keep signed-out/instructor and preview boundaries enforced.
+- [x] 10.3 Verify both languages, multiple revisions, pagination, two-student privacy/forged query denial, hidden grades/rubrics, safe text, mobile navigation and existing detail/run/save behavior.
 - [ ] 10.4 Update verified guides, plan/spec/log evidence and linked PR to develop; leave independent human review and deployment claims accurate.
