@@ -74,6 +74,14 @@ Local Supabase SHALL provide an explicit local-only seed command for synthetic d
 - **WHEN** a contributor resets a linked Supabase project
 - **THEN** the local fixture file is not automatically loaded
 
+#### Scenario: Seeded account recovery
+- **WHEN** a contributor requests a local password reset for a seeded account
+- **THEN** GoTrue finds the account and the contributor can complete password recovery through local Mailpit
+
+#### Scenario: Destructive reset warning
+- **WHEN** a contributor runs `pnpm db:seed` or `pnpm db:reset`
+- **THEN** the command warns before deleting local database contents
+
 ### Requirement: Issue-linked development and closeout records
 Every material change SHALL link to a scope-matched GitHub issue and an active OpenSpec change before implementation. Contributors SHALL apply relevant repository-local Superpowers skills and commit verified related work incrementally using the repository's Conventional Commit branch/message rules. Before pushing and creating/updating a PR, the contributor SHALL finalize a dated per-change `logs/` summary linking the issue, OpenSpec change, branch/commits and PR, and summarizing each prompt/interaction chronologically, decisions, actual handoffs, checks and limitations. Summaries SHALL be concise and reviewed by a human; they SHALL NOT contain raw transcripts, secrets, credentials, real student data or sensitive prompt content.
 

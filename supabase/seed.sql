@@ -17,10 +17,19 @@ with seed_accounts as (
 )
 insert into auth.users (
   id,
+  instance_id,
   aud,
   role,
   email,
   encrypted_password,
+  confirmation_token,
+  recovery_token,
+  email_change,
+  email_change_token_current,
+  email_change_token_new,
+  phone_change,
+  phone_change_token,
+  reauthentication_token,
   email_confirmed_at,
   raw_app_meta_data,
   raw_user_meta_data,
@@ -29,9 +38,18 @@ insert into auth.users (
 )
 select
   id,
+  '00000000-0000-0000-0000-000000000000'::uuid,
   'authenticated',
   'authenticated',
   email,
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
+  '',
   '',
   now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
@@ -39,7 +57,16 @@ select
   now(),
   now()
 from seed_accounts
-on conflict (id) do nothing;
+on conflict (id) do update
+set instance_id = excluded.instance_id,
+  confirmation_token = excluded.confirmation_token,
+  recovery_token = excluded.recovery_token,
+  email_change = excluded.email_change,
+  email_change_token_current = excluded.email_change_token_current,
+  email_change_token_new = excluded.email_change_token_new,
+  phone_change = excluded.phone_change,
+  phone_change_token = excluded.phone_change_token,
+  reauthentication_token = excluded.reauthentication_token;
 
 with seed_accounts as (
   select
