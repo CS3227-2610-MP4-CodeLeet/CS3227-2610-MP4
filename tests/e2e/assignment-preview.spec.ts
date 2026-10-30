@@ -340,7 +340,7 @@ test('shows published samples and navigates to Java and Python instructions', as
   ).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'Run code', exact: true }),
-  ).toHaveCount(process.env.RUN_BROWSER_RUNTIME_TESTS === '1' ? 1 : 0);
+  ).toHaveCount(1);
 });
 
 test('empty list communicates availability without fake assignments', async ({

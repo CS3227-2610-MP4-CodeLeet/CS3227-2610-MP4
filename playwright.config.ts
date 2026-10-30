@@ -44,8 +44,7 @@ export default defineConfig({
             // Even accidentally setting this flag must not enable fixtures in production.
             env: {
               APP_SITE_URL: productionTestUrl,
-              STUDENT_PREVIEW_ENABLED: 'true',
-              STUDENT_RUNNER_PREVIEW_ENABLED: 'true',
+              PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
               MP4_E2E_SERVICE_ROLE_KEY: '',
             },
           },
@@ -56,12 +55,8 @@ export default defineConfig({
             reuseExistingServer: false,
             timeout: 60_000,
             env: {
-              STUDENT_PREVIEW_ENABLED: 'true',
+              PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
               PLAYWRIGHT_PREVIEW: 'true',
-              STUDENT_RUNNER_PREVIEW_ENABLED:
-                process.env.RUN_BROWSER_RUNTIME_TESTS === '1'
-                  ? 'true'
-                  : 'false',
             },
           },
           ...(process.env.RUN_BROWSER_RUNTIME_TESTS === '1'

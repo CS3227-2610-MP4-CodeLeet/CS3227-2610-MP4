@@ -39,7 +39,7 @@ export function requireAssignmentPreview() {
   if (
     !isAssignmentPreviewEnabled(
       process.env.NODE_ENV,
-      process.env.STUDENT_PREVIEW_ENABLED,
+      process.env.PLAYWRIGHT_ASSIGNMENT_FIXTURES,
     )
   ) {
     notFound();
@@ -58,7 +58,6 @@ export function getPreviewAssignment(id: string) {
 
 export function getPreviewPracticeCases(id: string) {
   requireAssignmentPreview();
-  if (process.env.STUDENT_RUNNER_PREVIEW_ENABLED !== 'true') return undefined;
   if (!publishedDetail(fixtures, id)) return undefined;
   return id === fixtures[0].id
     ? [

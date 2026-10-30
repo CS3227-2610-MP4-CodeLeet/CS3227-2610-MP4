@@ -59,7 +59,7 @@ For local database work, start Docker Desktop, run `pnpm db:start`, then `pnpm d
 
 ## Student assignment preview
 
-Add `STUDENT_PREVIEW_ENABLED=true` to ignored `.env.local` and start/restart `pnpm dev`. Visit http://localhost:3000/student/assignments (use the port printed by Next.js). Browse the Python/Java sample assignments and open their instructions. Draft samples are hidden.
+For UI tests only, set `PLAYWRIGHT_ASSIGNMENT_FIXTURES=true` in the test server environment and start/restart `pnpm dev`. Visit http://localhost:3000/student/assignments (use the port printed by Next.js). Browse the Python/Java sample assignments and open their instructions. Draft samples are hidden.
 
 This is development-only synthetic data, not a login or database-backed flow. Production ignores the flag and denies these preview pages. Assignment details include a plain-text code editor with the fixed language, a 32 KiB UTF-8 counter and local input checks. Submit code remains disabled; code is not saved or submitted. The separate runner preview can execute code locally in the browser when enabled; follow the [runner setup and limitations](docs/UserGuide.md#browser-runs-and-published-practice-tests-additional-local-opt-in). Local list state examples are `?preview=empty`, `?preview=slow` and `?preview=error`; error recovery returns to the normal list.
 
