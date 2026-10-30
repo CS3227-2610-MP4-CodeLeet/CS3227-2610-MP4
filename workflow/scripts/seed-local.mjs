@@ -23,6 +23,9 @@ async function seedLocal() {
     process.platform === 'win32'
       ? 'npipe:////./pipe/dockerDesktopLinuxEngine'
       : 'unix:///var/run/docker.sock';
+  const dockerEnv = Object.fromEntries(
+    Object.entries(process.env).filter(([name]) => !name.startsWith('DOCKER_')),
+  );
   const result = spawnSync(
     'docker',
     [
@@ -42,6 +45,7 @@ async function seedLocal() {
     ],
     {
       cwd: root,
+      env: dockerEnv,
       encoding: 'utf8',
       timeout: 120_000,
       input: sql.replace(

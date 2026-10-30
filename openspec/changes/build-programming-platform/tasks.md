@@ -113,4 +113,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 12.1 Add repeatable local-only seed accounts (10 students, 3 instructors), 10 Python/Java assignments, private rubrics, revisions and draft/published grades without schema or production changes.
 - [x] 12.2 Add `db:seed`, native local start/reset seed configuration, generated login passwords and schema-maintenance documentation; preserve unrelated data and reject identity collisions.
-- [ ] 12.3 Verify idempotency, recovery, sign-in, role/ownership/privacy boundaries and applicable regression checks; record evidence and publish linked PR to develop.
+- [x] 12.3 Verify idempotency, recovery, sign-in, role/ownership/privacy boundaries and applicable regression checks; record evidence and publish linked PR to develop.
