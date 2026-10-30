@@ -6,4 +6,6 @@ The requester clarified real accounts/assignments plus automatic local Run code,
 
 - [x] Add failing default-runner and example-adapter tests; update test harness selection and expectations.
 - [x] Replace application flag reads, remove obsolete environment entries/comments while preserving values, update current setup guides/specs.
-- [ ] Verify unit/static/build, real local Python/Java/own-history flows, synthetic UI tests and production denial. Record actual evidence, push and create a PR to develop with explicit #24 dependency. No merge/deployment.
+- [x] Verify unit/static/build, real local Python/Java/own-history flows, synthetic UI tests and production denial. Record actual evidence, push and create a PR to develop with explicit #24 dependency. No merge/deployment.
+
+PR: [#26](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/26); rebased onto merged develop 3263914. Human verification pending.

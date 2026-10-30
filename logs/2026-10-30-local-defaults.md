@@ -5,7 +5,7 @@
 - Issue: [#25](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/25), refs #23
 - OpenSpec: build-programming-platform, group 11
 - Branch: refactor/local-development-defaults; rebased onto develop 3263914 after #24 merged
-- PR: pending; prerequisite #24 merged as 3263914
+- PR: [#26](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/26) to develop; prerequisite #24 merged
 - Human verification: pending
 
 ## Prompt and interaction summaries
@@ -22,6 +22,8 @@
 ## Work and verification
 
 - Plan: workflow/plans/2026-10-30-local-defaults.md
-- Checks/results: 129 unit tests; 26 fixture browser checks; 12 production checks, one email opt-in skipped; Python/Java real browser runs; build/static/spec checks passed. All 3 real-data checks passed; PR publication pending.
+- Checks/results: 129 unit tests; 26 fixture browser checks; 12 production checks, one email opt-in skipped; Python/Java real browser runs; build/static/spec checks passed. All 3 real-data checks passed; PR #26 published; CI/human review remain separate.
 - Independent review: not performed; human review pending
 - Resource measurements: unavailable
+
+Publication: pushed the feature branch and created #26 linked to #25/#23, plan/spec/log. Test-owned services stopped after checks; generated Next declarations preserved outside commits. No merge or deployment.

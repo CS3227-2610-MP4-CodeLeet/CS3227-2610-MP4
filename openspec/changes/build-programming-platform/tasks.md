@@ -107,4 +107,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 11.1 Remove student preview configuration flags; make real data default and local runner enabled in development, with samples restricted to an explicit UI-test harness setting and production still denied.
 - [x] 11.2 Preserve local credentials/configuration values, retain the separate example-case opt-in and update setup guides/specs.
-- [ ] 11.3 Verify real local Python/Java/history, fixture tests and production boundaries, record evidence and publish a linked PR with prerequisite #24 identified.
+- [x] 11.3 Verify real local Python/Java/history, fixture tests and production boundaries, record evidence and publish a linked PR with prerequisite #24 identified.
