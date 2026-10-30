@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Private cross-assignment submission history
+Authenticated students SHALL have a My submissions list of their own stored revisions across assignments, with assignment title, stored language, revision, submitted time and links to existing authorized detail/feedback/published-grade views. The server SHALL derive student identity from the verified session and enforce an explicit ownership filter alongside RLS. List reads SHALL exclude source, private rubrics and grades. The list SHALL use deterministic newest-first pagination of 25 items, show loading/empty/safe retry states and retain own revisions when assignment metadata is unavailable. This real-data feature SHALL require authentication even when the synthetic assignment preview is enabled.
+
+#### Scenario: Find and revisit revisions
+- **WHEN** a student opens My submissions after saving Python/Java revisions to different assignments
+- **THEN** their revisions appear newest first with paging and each link opens the original immutable source and existing feedback/grade view
+
+#### Scenario: Foreign identity or role
+- **WHEN** a student supplies another student ID through query parameters or a signed-out/instructor account requests the list
+- **THEN** query parameters cannot change the verified identity and role/session guards prevent unauthorized list access
+
+#### Scenario: Missing assignment metadata or failed query
+- **WHEN** an own revision has unavailable assignment metadata or the history query fails
+- **THEN** unavailable metadata uses a neutral label without losing the revision, while failures show a retry state without disclosing backend details or using fixtures
+
 ### Requirement: Focused student assignment layout
 The student sidebar and Menu SHALL contain only the Assignments navigation entry, with nonshrinking padded CodeLeet branding. Assignment discovery SHALL remain in the main list. For an enabled local runner, the real assignment page SHALL order instructions, source editor, Run code, Run & test input/output, test cases and their action, Submit revision/status, then Your revisions. Run/test actions SHALL remain non-submitting buttons, and changes to layout SHALL preserve source, saving and execution behavior.
 

@@ -253,8 +253,8 @@ async function checkPrivacy(
   await signIn(page, cohort.peer);
   const privateApi = await page.request.get(`/api/submissions/${first.id}`);
   expect(privateApi.status()).toBe(404);
-  const privatePage = await page.goto(`/student/submissions/${first.id}`);
-  expect(privatePage?.status()).toBe(404);
+  await page.goto(`/student/submissions/${first.id}`);
+  await expect(page.getByText('This page could not be found.')).toBeVisible();
   await expect(page.locator('pre code')).toHaveCount(0);
   await page.goto(`/student/assignments/${assignment.id}`);
   const peer = await saveRevision(page, first.source);

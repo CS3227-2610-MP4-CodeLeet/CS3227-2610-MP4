@@ -2,27 +2,50 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, ChevronRight, Menu, Terminal } from 'lucide-react';
+import {
+  BookOpen,
+  ChevronRight,
+  FileCode2,
+  Menu,
+  Terminal,
+} from 'lucide-react';
 import { createContext, useContext, type ReactNode } from 'react';
 import { SignOutButton } from '@/features/auth/sign-out-button';
 import type { AssignmentSummary } from './types';
 import { ThemeButton, useWorkspaceTheme } from './workspace-theme';
 
+const submissionsPath = '/student/submissions';
 const AuthenticatedWorkspace = createContext(false);
 
 function WorkspaceNavigation() {
+  const authenticated = useContext(AuthenticatedWorkspace);
+  const submissions = usePathname().startsWith(submissionsPath);
   return (
-    <nav aria-label="Student navigation">
+    <nav aria-label="Student navigation" className="space-y-2">
       <Link
         href="/student/assignments"
-        aria-current="page"
-        className="flex items-center gap-3 rounded-md bg-cyan-50 dark:bg-cyan-950/60 px-3 py-2.5 text-sm font-semibold text-cyan-800 dark:text-cyan-300"
+        aria-current={!submissions ? 'page' : undefined}
+        className={navigationLinkStyle(!submissions)}
       >
         <BookOpen aria-hidden="true" className="size-4" />
         <span>Assignments</span>
       </Link>
+      {authenticated && (
+        <Link
+          href="/student/submissions"
+          aria-current={submissions ? 'page' : undefined}
+          className={navigationLinkStyle(submissions)}
+        >
+          <FileCode2 aria-hidden="true" className="size-4" />
+          <span>My submissions</span>
+        </Link>
+      )}
     </nav>
   );
+}
+
+function navigationLinkStyle(active: boolean) {
+  return `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${active ? 'bg-cyan-50 dark:bg-cyan-950/60 font-semibold text-cyan-800 dark:text-cyan-300' : 'text-muted-foreground hover:bg-muted'}`;
 }
 
 function WorkspaceSidebar() {
@@ -77,14 +100,15 @@ function WorkspaceHeader({
   current?: AssignmentSummary;
   theme: 'light' | 'dark';
 }) {
+  const submissions = pathname.startsWith(submissionsPath);
   return (
     <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background px-4 sm:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground sm:text-sm">
         <Link
-          href="/student/assignments"
+          href={submissions ? submissionsPath : '/student/assignments'}
           className="shrink-0 text-cyan-800 dark:text-cyan-300 hover:underline"
         >
-          Assignments
+          {submissions ? 'My submissions' : 'Assignments'}
         </Link>
         {current && (
           <>

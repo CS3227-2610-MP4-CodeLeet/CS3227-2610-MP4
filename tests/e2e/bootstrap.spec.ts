@@ -42,4 +42,6 @@ test('public registration offers a student account only and protected routes red
   await expect(page.getByLabel(/role|instructor/i)).toHaveCount(0);
   await page.goto('/student/assignments');
   await expect(page).toHaveURL(/\/sign-in$/);
+  await page.goto('/student/submissions');
+  await expect(page).toHaveURL(/\/sign-in$/);
 });

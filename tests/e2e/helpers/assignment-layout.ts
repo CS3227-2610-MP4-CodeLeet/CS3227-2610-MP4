@@ -4,7 +4,10 @@ export async function verifyAssignmentLayout(page: Page) {
   const navigation = page.getByRole('navigation', {
     name: 'Student navigation',
   });
-  await expect(navigation.getByRole('link')).toHaveText(['Assignments']);
+  await expect(navigation.getByRole('link')).toHaveText([
+    'Assignments',
+    'My submissions',
+  ]);
   if (process.env.RUN_AUTHENTICATED_RUNTIME_TESTS !== '1') return;
   const controls = [
     page.getByLabel(/^(Python|Java) source code$/),
