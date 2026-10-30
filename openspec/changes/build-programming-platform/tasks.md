@@ -112,5 +112,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 ## 12. Issue #27 local workspace seed
 
 - [x] 12.1 Add repeatable local-only seed accounts (10 students, 3 instructors), 10 Python/Java assignments, private rubrics, revisions and draft/published grades without schema or production changes.
-- [x] 12.2 Add `db:seed`, native local start/reset seed configuration, generated login passwords and schema-maintenance documentation; preserve unrelated data and reject identity collisions.
+- [x] 12.2 Add `db:seed`, native local start/reset seed configuration, process-scoped login passwords without logging and schema-maintenance documentation; preserve unrelated data and reject identity collisions.
 - [x] 12.3 Verify idempotency, recovery, sign-in, role/ownership/privacy boundaries and applicable regression checks; record evidence and publish linked PR to develop.
+
+- [x] 12.4 PR #29 CodeQL follow-up: remove password logging, validate process-scoped password input, verify output secrecy and sign-in, update guides and push the reviewed fix.

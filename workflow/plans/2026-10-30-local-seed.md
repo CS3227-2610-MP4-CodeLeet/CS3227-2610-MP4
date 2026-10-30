@@ -4,7 +4,7 @@ Issue: [#27](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/
 
 ## Design and decisions
 
-The user requested the proposed reproducible local dataset. Use one native Supabase SQL seed, rather than a new fixture service or API-based importer, so fresh local starts and resets share the same data definition. A Node 24 command runs that file through psql in the local Docker container, supplying a generated password over stdin. There is no committed password or admin key. Normal seed application preserves existing passwords; `db:seed` deliberately rotates only the thirteen seed accounts' passwords and prints their new shared local password. It never resets the database.
+The user requested the proposed reproducible local dataset. Use one native Supabase SQL seed, rather than a new fixture service or API-based importer, so fresh local starts and resets share the same data definition. A Node 24 command runs that file through psql in the local Docker container, supplying a process-scoped password over stdin. There is no committed password or admin key. Normal seed application preserves existing passwords; `db:seed` deliberately rotates only the thirteen seed accounts' passwords to the supplied CODELEET_SEED_PASSWORD without printing it. It never resets the database.
 
 Use reserved UUIDs, `.example.test` addresses and trusted seed metadata. Reject conflicting identities before granting instructor roles. Insert missing records only; preserve edited assignments, profiles, grades and existing submissions. Seed ten students (the last has no submissions), three instructors, ten assignments (both languages, eight published and two drafts), private rubrics, four revisions per submitted assignment and both draft/published grades. No AI calls, grade inference, execution or XP awards occur.
 
@@ -15,7 +15,7 @@ Ruling: The installed CLI rejects multi-statement SQL in `db query --local --fil
 ## Tasks and checks
 
 - [x] Write failing command-boundary tests and dataset/RLS pgTAP assertions.
-- [x] Add atomic, idempotent SQL seed and generated-password local command; enable native fresh-start/reset seeding.
+- [x] Add atomic, idempotent SQL seed and non-logging password local command; enable native fresh-start/reset seeding.
 - [x] Verify repeated application, partial recovery, preservation of unrelated data and edited fixtures, both-language password sign-in, instructor ownership and private student history/grades.
 - [x] Document seed command, destructive reset distinction, accounts, schema-maintenance rule and actual evidence; run unit/database/static checks.
 - [x] Commit focused verified changes, push and create PR to `develop` linked to issue, spec and summary.
@@ -25,3 +25,7 @@ Ruling: The installed CLI rejects multi-statement SQL in `db query --local --fil
 Auth schema compatibility, identity collisions, full transaction rollback, hidden rubrics/draft grades, no hosted target or secret leakage, stable identifiers across repeated runs, and retaining manually edited seed data.
 
 Outcome: [PR #29](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/29) targets develop. All planned checks passed. Independent teammate/log review remains pending.
+
+## PR #29 security review follow-up
+
+CodeQL correctly identified clear-text password logging. Remove the output entirely, require CODELEET_SEED_PASSWORD in the process environment, validate it without echoing input, and encode it for safe SQL transport over stdin. Integration tests generate their own ephemeral password and assert raw/base64 forms are absent from stdout/stderr before checking sign-in. Document hidden PowerShell entry and keep passwords out of files/history. No alert suppression or dismissal.

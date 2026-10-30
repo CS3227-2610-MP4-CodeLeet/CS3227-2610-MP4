@@ -55,7 +55,7 @@ Open http://localhost:3000. The coming-soon page needs no credentials or environ
 
 Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pnpm build`. For browser checks, run `pnpm exec playwright install chromium`, build, then `pnpm test:e2e`. See [Developer Guide](docs/DeveloperGuide.md) for boundaries and shared-work handoff.
 
-For local database work, start Docker Desktop, run `pnpm db:start`, then `pnpm db:seed` and `pnpm db:test`. Seeding adds synthetic accounts and coursework without resetting other data and prints a generated local password. `pnpm db:reset` deletes and recreates the entire local database. See [local seed accounts and commands](supabase/README.md#synthetic-local-workspaces). Normal development uses authenticated Supabase-backed assignments; UI-test fixtures are separate.
+For local database work, start Docker Desktop, run `pnpm db:start`, then `pnpm db:seed` and `pnpm db:test`. Seeding adds synthetic accounts and coursework without resetting other data and uses a process-scoped `CODELEET_SEED_PASSWORD` without logging it. Set it using the hidden-prompt instructions in the local database guide first. `pnpm db:reset` deletes and recreates the entire local database. See [local seed accounts and commands](supabase/README.md#synthetic-local-workspaces). Normal development uses authenticated Supabase-backed assignments; UI-test fixtures are separate.
 
 ## Student assignment preview
 

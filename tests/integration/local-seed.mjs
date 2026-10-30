@@ -1,6 +1,7 @@
 // Local-only integration checks. No reset, hosted access, AI calls or source execution.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { createClient } from '@supabase/supabase-js';
 
@@ -8,6 +9,7 @@ const sql = await readFile('supabase/seed.sql', 'utf8');
 const body = sql.replace('begin;', '').replace(/commit;\s*$/, '');
 const firstStudent = 'c0de0000-0000-4000-8000-000000000001';
 const assignment = 'c0de1000-0000-4000-8000-000000000001';
+const password = `Local-'\\-` + randomBytes(24).toString('hex');
 const host =
   process.platform === 'win32'
     ? 'npipe:////./pipe/dockerDesktopLinuxEngine'
@@ -39,7 +41,18 @@ function command(file, args = []) {
   const result = spawnSync(process.execPath, [file, ...args], {
     encoding: 'utf8',
     timeout: 120_000,
+    env: { ...process.env, CODELEET_SEED_PASSWORD: password },
   });
+  assert.ok(
+    !`${result.stdout}${result.stderr}`.includes(password),
+    'Command output must not contain the local password.',
+  );
+  assert.ok(
+    !`${result.stdout}${result.stderr}`.includes(
+      Buffer.from(password).toString('base64'),
+    ),
+    'Command output must not contain an encoded local password.',
+  );
   assert.equal(
     result.status,
     0,
@@ -48,11 +61,9 @@ function command(file, args = []) {
   return result.stdout;
 }
 
-// First and repeated application must both work; never print the generated password.
+// Supply an ephemeral password over environment only; never print or parse one.
 command('workflow/scripts/seed-local.mjs');
-const output = command('workflow/scripts/seed-local.mjs');
-const password = output.match(/accounts: ([a-f0-9]{48})/)?.[1];
-assert.ok(password, 'Seed command returns a generated password.');
+command('workflow/scripts/seed-local.mjs');
 
 const fresh = query(`begin;
   delete from public.grades where submission_id::text like 'c0de2000-%';
@@ -182,5 +193,5 @@ for (const [index, expected] of [
   await client.auth.signOut();
 }
 console.log(
-  'PASS: generated-password sign-in, both languages, two-student privacy, empty history, hidden rubrics/draft grades, instructor ownership.',
+  'PASS: supplied-password sign-in, both languages, two-student privacy, empty history, hidden rubrics/draft grades, instructor ownership.',
 );

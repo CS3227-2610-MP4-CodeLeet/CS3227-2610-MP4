@@ -5,11 +5,11 @@ The repository SHALL provide repeatable local seed data with at least ten synthe
 
 #### Scenario: Reapply local seed
 - **WHEN** a developer runs `db:seed` repeatedly against the local stack
-- **THEN** missing fixture rows are created without duplicates or resetting unrelated data, existing fixture edits remain, and only seed-account passwords are rotated to the generated password shown by the command
+- **THEN** missing fixture rows are created without duplicates or resetting unrelated data, existing fixture edits remain, and only seed-account passwords are set from CODELEET_SEED_PASSWORD in the process environment without logging its value or encoded representations
 
 #### Scenario: Fresh local setup
 - **WHEN** migrations and configured local seeds run on a fresh local database
-- **THEN** both role workspaces contain synthetic records and a subsequent `db:seed` provides usable generated local login credentials
+- **THEN** both role workspaces contain synthetic records and a subsequent `db:seed` sets usable local login credentials from the process environment without disclosing them
 
 ### Requirement: Actual specialist coordination evidence
 The process SHALL retain proposed specs before implementation and actual specialist triggers, bounded context, file ownership, handoffs, review outcomes and available usage metrics. Generated roles SHALL NOT be represented as executed coordination.

@@ -1,8 +1,22 @@
 import { spawnSync } from 'node:child_process';
-import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+function seedPassword() {
+  const password = process.env.CODELEET_SEED_PASSWORD;
+  if (
+    !password ||
+    password.length < 12 ||
+    Buffer.byteLength(password, 'utf8') > 72 ||
+    /[\r\n]/.test(password)
+  ) {
+    throw new Error(
+      'Set CODELEET_SEED_PASSWORD to at least 12 characters, at most 72 UTF-8 bytes, without line breaks.',
+    );
+  }
+  return Buffer.from(password, 'utf8').toString('base64');
+}
 
 async function seedLocal() {
   if (process.argv.length !== 2) {
@@ -14,7 +28,7 @@ async function seedLocal() {
     throw new Error('db:seed is for local development only.');
   }
   const root = fileURLToPath(new URL('../../', import.meta.url));
-  const password = randomBytes(24).toString('hex');
+  const encodedPassword = seedPassword();
   const sql = await readFile(join(root, 'supabase/seed.sql'), 'utf8');
   const config = await readFile(join(root, 'supabase/config.toml'), 'utf8');
   const project = config.match(/^project_id = "([a-zA-Z0-9_-]+)"$/m)?.[1];
@@ -24,7 +38,10 @@ async function seedLocal() {
       ? 'npipe:////./pipe/dockerDesktopLinuxEngine'
       : 'unix:///var/run/docker.sock';
   const dockerEnv = Object.fromEntries(
-    Object.entries(process.env).filter(([name]) => !name.startsWith('DOCKER_')),
+    Object.entries(process.env).filter(
+      ([name]) =>
+        !name.startsWith('DOCKER_') && name !== 'CODELEET_SEED_PASSWORD',
+    ),
   );
   const result = spawnSync(
     'docker',
@@ -50,7 +67,7 @@ async function seedLocal() {
       timeout: 120_000,
       input: sql.replace(
         'begin;',
-        `begin;\nselect set_config('codeleet.seed_password', '${password}', true);`,
+        `begin;\nselect set_config('codeleet.seed_password', convert_from(decode('${encodedPassword}', 'base64'), 'UTF8'), true);`,
       ),
     },
   );
@@ -66,7 +83,9 @@ async function seedLocal() {
   console.log(
     'Instructors: instructor01@codeleet.example.test through instructor03@codeleet.example.test',
   );
-  console.log(`Generated local password for these accounts: ${password}`);
+  console.log(
+    'Seed accounts now use the supplied local password (value not logged).',
+  );
   console.log(
     'Seed-account passwords rotated; existing coursework and unrelated data preserved.',
   );

@@ -21,7 +21,7 @@ Shared commands:
 | pnpm test:e2e | Local Supabase role journeys, production auth/preview boundary checks on port 3100, and isolated dev-preview journeys on port 3101 |
 | pnpm db:start / pnpm db:stop | Start/stop the repository-pinned local Supabase stack; requires Docker Desktop |
 | pnpm db:reset | Destructively recreate the entire local database, apply migrations and seed synthetic coursework |
-| pnpm db:seed | Add missing local fixture rows and print a new generated password for seed accounts; preserve other data |
+| pnpm db:seed | Add missing local fixture rows and use CODELEET_SEED_PASSWORD for seed accounts without logging it; preserve other data |
 | pnpm db:test | Run pgTAP access-control tests against the local database |
 | pnpm db:status | Show local Supabase endpoints and generated development credentials |
 | pnpm site:build | Build the Docusaurus site for GitHub Pages |
@@ -175,6 +175,6 @@ Local seed lifecycle/configuration follows the [official Supabase seeding guide]
 
 ## Maintaining local seed data
 
-The [local database guide](../supabase/README.md#synthetic-local-workspaces) lists the synthetic accounts and dataset. `supabase/seed.sql` is a data-only, transactional local seed configured in `supabase/config.toml`, separate from migrations. `workflow/scripts/seed-local.mjs` uses the local Docker socket and container, supplies a random password over stdin and suppresses raw database output. No password or privileged key is stored in source. `tests/integration/local-seed.mjs` checks repeat application, empty-fixture recreation, missing-row recovery, preserved edits/unrelated data, identity collision rollback, generated-password sign-in and role/privacy boundaries; run it explicitly against local Docker. `supabase/tests/database/local_seed.test.sql` adds fifteen seed/RLS assertions to `db:test`.
+The [local database guide](../supabase/README.md#synthetic-local-workspaces) lists the synthetic accounts and dataset. `supabase/seed.sql` is a data-only, transactional local seed configured in `supabase/config.toml`, separate from migrations. `workflow/scripts/seed-local.mjs` uses the local Docker socket and container, supplies the process-scoped seed password over stdin and suppresses raw database output. No password or privileged key is stored in source. `tests/integration/local-seed.mjs` checks repeat application, empty-fixture recreation, missing-row recovery, preserved edits/unrelated data, identity collision rollback, supplied-password sign-in and role/privacy boundaries; run it explicitly against local Docker. `supabase/tests/database/local_seed.test.sql` adds fifteen seed/RLS assertions to `db:test`.
 
 When changing relevant schema, auth or RPC contracts, update the seed and its checks in the same PR. Existing seed coursework edits are retained; deleted fixture rows may be recreated. Seed grades are synthetic records, never browser-derived official scores. Custom Docker sockets and hosted seeding are unsupported. Local Windows verification is recorded in the session summary; no macOS/Linux execution or destructive reset is claimed.

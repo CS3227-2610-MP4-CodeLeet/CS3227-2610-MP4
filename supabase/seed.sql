@@ -1,5 +1,5 @@
 -- Local development fixtures, not a migration or hosted deployment input.
--- db:seed injects a generated password transaction-locally. Native start/reset
+-- db:seed injects a process-scoped password transaction-locally. Native start/reset
 -- uses unguessable passwords until db:seed provides a usable local login.
 begin;
 select pg_advisory_xact_lock(3227, 27);

@@ -8,9 +8,26 @@ pnpm db:seed
 pnpm db:test
 ```
 
-`db:seed` adds missing local fixtures without resetting the database. It prints a freshly generated password shared by the thirteen seed accounts, rotating only their passwords each time. Keep this output local. It uses Docker's local socket and the configured project container; it does not read `.env.local`, use hosted credentials or accept a remote target. Windows uses Docker Desktop's Linux engine pipe; Linux/macOS use `/var/run/docker.sock`. Custom Docker socket locations are not supported by this command.
+`db:seed` adds missing local fixtures without resetting the database. Set `CODELEET_SEED_PASSWORD` in the current process before running it (at least 12 characters, at most 72 UTF-8 bytes, without line breaks). It applies that password to the thirteen seed accounts without logging the value. It uses Docker's local socket and the configured project container; it does not read `.env.local`, use hosted credentials or accept a remote target. Windows uses Docker Desktop's Linux engine pipe; Linux/macOS use `/var/run/docker.sock`. Custom Docker socket locations are not supported by this command.
 
-Native Supabase seeds run after migrations on a fresh local start or `db:reset`. Their initial account passwords are random and unknown; run `db:seed` to obtain usable login credentials. Starting an already initialized stack does not reseed it. `db:reset` destroys and recreates **all** local data; use it only when you intend that. `db:seed` alone does not apply pending migrations. `db:test` runs the pgTAP access/seed tests and expects the seed dataset to be present. Use `pnpm db:stop` to retain the local database volume.
+Native Supabase seeds run after migrations on a fresh local start or `db:reset`. Their initial account passwords are random and unknown; run `db:seed` with `CODELEET_SEED_PASSWORD` set to choose usable local login credentials. Starting an already initialized stack does not reseed it. `db:reset` destroys and recreates **all** local data; use it only when you intend that. `db:seed` alone does not apply pending migrations. `db:test` runs the pgTAP access/seed tests and expects the seed dataset to be present. Use `pnpm db:stop` to retain the local database volume.
+
+## Set a local seed password
+
+In PowerShell, enter the password through a hidden prompt so its value stays out of shell history and command output:
+
+```powershell
+$localSeedSecret = Read-Host "Local seed password (12+ characters, max 72 UTF-8 bytes)" -AsSecureString
+$env:CODELEET_SEED_PASSWORD = [System.Net.NetworkCredential]::new("", $localSeedSecret).Password
+try {
+  npx.cmd --yes pnpm@12.15.0 db:seed
+} finally {
+  Remove-Item Env:CODELEET_SEED_PASSWORD
+  $localSeedSecret.Dispose()
+}
+```
+
+Sign in using that password and an account below. Keep it out of `.env.local`, committed files, command arguments and logs. For noninteractive local automation, supply it in the process environment. The integration test generates an ephemeral password internally and verifies that neither it nor its base64 representation appears in command output.
 
 ## Synthetic local workspaces
 
@@ -26,7 +43,7 @@ The ten assignments use simple stdin/stdout exercises; five are Python and five 
 
 Stable reserved UUIDs and `.example.test` emails make seeding repeatable. Existing profiles, assignment text, submissions and grades are retained; missing rows are restored. Conflicting reserved account IDs/emails without trusted seed metadata abort the transaction before instructor provisioning. Keep this seed out of hosted deployment inputs; never use it to provision real users.
 
-Run `node tests/integration/local-seed.mjs` for the opt-in local integration checks. They reapply seeds, rotate seed-account passwords, test password sign-in and role/privacy rules, and use rollback-only transactions for fresh-fixture recreation, recovery, identity conflicts and preservation checks. Run `db:seed` afterwards to obtain a new displayed login password.
+Run `node tests/integration/local-seed.mjs` for the opt-in local integration checks. They reapply seeds, rotate seed-account passwords, test supplied-password sign-in and role/privacy rules, and use rollback-only transactions for fresh-fixture recreation, recovery, identity conflicts and preservation checks. Run `db:seed` afterwards with your own process-scoped password to restore a known login password.
 
 Migrations provide text profiles, protected student/instructor roles, assignments with a separately protected rubric, immutable Python/Java submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. There is no public instructor-role selector or upgrade endpoint.
 
