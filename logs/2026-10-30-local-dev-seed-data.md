@@ -5,8 +5,8 @@
 - AI tools/models, where known: Codex; exact model identifier unavailable
 - GitHub issue: [#27 — seed local student and instructor workspaces](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/27)
 - OpenSpec change: `openspec/changes/build-programming-platform/` (active)
-- Branch and commits: `feat/local-dev-seed-data`, based on `develop`; `315a147` implementation and `8022fb2` local-only safety correction; push pending
-- Pull request: Not created yet
+- Branch and commits: `feat/local-dev-seed-data`, based on `develop`; `315a147` implementation, `8022fb2` local-only safety correction, `bb0406b` review record; pushed to `origin`
+- Pull request: [#28 — feat: seed local development workspaces](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/28) to `develop`
 - Human verification: pending
 - Verifier/date: Not yet reviewed
 
@@ -30,4 +30,4 @@
 - Failures/retries: The first pgTAP run failed because seeded account IDs overlapped fixture IDs in `accounts_and_access.test.sql`; the seed IDs were moved to unique prefixes, then reset counts and all 59 database checks passed. An Auth seed reset initially failed because email is a generated column; removing it from the insert fixed the reset. `supabase db query --file` could not execute the original multi-statement SQL in prepared-statement mode; the file is now a single `DO` block and the local query succeeded. A config edit briefly changed API TLS while enabling seed settings; the original TLS setting was restored and confirmed in the final diff.
 - Runtime limitation: The installed Node.js is v24.16.0 while `.node-version` pins v24.22.1; the checks above ran on the installed version. Seeded-account password-reset behavior was not exercised during this task.
 - Resource measurements: Not available.
-- Remaining: Human verification is pending. Push and PR closeout remain pending.
+- Remaining: Human verification is pending. Merge, deployment and release have not occurred.
