@@ -10,40 +10,6 @@ const warningScriptPath = fileURLToPath(
   new URL('workflow/scripts/warn-local-db-reset.mjs', root),
 );
 
-function splitSqlList(source: string): string[] {
-  const expressions: string[] = [];
-  let current = '';
-  let depth = 0;
-  let inString = false;
-
-  for (let index = 0; index < source.length; index += 1) {
-    const character = source[index];
-    const nextCharacter = source[index + 1];
-
-    if (character === "'" && inString && nextCharacter === "'") {
-      current += "''";
-      index += 1;
-    } else if (character === "'") {
-      inString = !inString;
-      current += character;
-    } else if (!inString && character === '(') {
-      depth += 1;
-      current += character;
-    } else if (!inString && character === ')') {
-      depth -= 1;
-      current += character;
-    } else if (!inString && depth === 0 && character === ',') {
-      expressions.push(current.trim());
-      current = '';
-    } else {
-      current += character;
-    }
-  }
-
-  if (current.trim()) expressions.push(current.trim());
-  return expressions;
-}
-
 describe('local database reset warning', () => {
   it('warns before both destructive pnpm reset commands', () => {
     const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
@@ -77,18 +43,11 @@ describe('local database reset warning', () => {
 
     expect(authUserInsert).not.toBeNull();
 
-    const columns = splitSqlList(authUserInsert?.[1] ?? '').map((column) =>
-      column.toLowerCase(),
-    );
-    const values = splitSqlList(authUserInsert?.[2] ?? '');
-    const valuesByColumn = new Map(
-      columns.map((column, index) => [column, values[index]]),
-    );
-
-    expect(valuesByColumn.get('instance_id')).toBe(
-      "'00000000-0000-0000-0000-000000000000'::uuid",
-    );
-    for (const tokenColumn of [
+    const columns = (authUserInsert?.[1] ?? '')
+      .split(',')
+      .map((column) => column.trim().toLowerCase());
+    const values = (authUserInsert?.[2] ?? '').replace(/\s+/g, ' ').trim();
+    const requiredTokenColumns = [
       'confirmation_token',
       'recovery_token',
       'email_change',
@@ -97,8 +56,14 @@ describe('local database reset warning', () => {
       'phone_change',
       'phone_change_token',
       'reauthentication_token',
-    ]) {
-      expect(valuesByColumn.get(tokenColumn)).toBe("''");
+    ];
+
+    expect(columns).toContain('instance_id');
+    for (const tokenColumn of requiredTokenColumns) {
+      expect(columns).toContain(tokenColumn);
     }
+    expect(values).toMatch(
+      /^id, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', email,( '',){9} now\(\)/i,
+    );
   });
 });

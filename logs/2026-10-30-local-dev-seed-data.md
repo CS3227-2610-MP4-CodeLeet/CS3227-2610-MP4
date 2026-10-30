@@ -36,3 +36,5 @@
 - Runtime limitation: The installed Node.js is v24.16.0 while `.node-version` pins v24.22.1; the checks above ran on the installed version.
 - Resource measurements: Not available.
 - Remaining: Human verification is pending. Merge, deployment and release have not occurred.
+
+13. The user reported that PR #28's “Application checks” failed and asked whether to rename the workflow. GitHub Actions logs show `pnpm lint` failed because the SQL-list parsing helper in `tests/unit/local-db-reset-warning.test.ts` exceeded max-statements (21 vs 20) and complexity (14 vs 10). Removed the generic parser and retained the regression by checking the column contract and the seed SELECT's ordered auth-field prefix. `pnpm` was unavailable in the restricted shell; with the user's prior authorization, the elevated retry succeeded. `pnpm lint`, the focused Vitest file (2 tests), `pnpm format:check`, and `git diff --check` passed. Recommendation: keep “Application checks”; this workflow explicitly covers app checks plus a database job, while scaffold validation has its own workflow, so “CI” would be less informative.
