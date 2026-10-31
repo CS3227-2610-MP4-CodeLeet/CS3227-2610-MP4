@@ -203,7 +203,11 @@ async function assertNavigationAndFreshRun(
 test('unavailable bridge recovers and ignores forged results', async ({
   page,
 }) => {
-  await page.route('http://127.0.0.1:3130/embed?**', (route) => route.abort());
+  let iframeRequestBlocked = false;
+  await page.route('**/embed.html**', (route) => {
+    iframeRequestBlocked = true;
+    return route.abort();
+  });
   await page.goto(`/student/assignments/${pythonId}`);
   await page.getByLabel(pythonEditorLabel, { exact: true }).fill('print(1)');
   await page.getByRole('button', { name: runCodeName, exact: true }).click();
@@ -215,11 +219,12 @@ test('unavailable bridge recovers and ignores forged results', async ({
   );
   await expect(
     page.getByText(
-      'Start the local browser runner on port 3130, then try again.',
+      'The browser runner did not initialize. Reload and try again.',
     ),
   ).toBeVisible({ timeout: 15000 });
+  expect(iframeRequestBlocked).toBe(true);
   await expect(page.getByTestId(customResultId)).toHaveCount(0);
-  await page.unroute('http://127.0.0.1:3130/embed?**');
+  await page.unroute('**/embed.html**');
   await page.getByRole('button', { name: runCodeName, exact: true }).click();
   await expect(page.getByTestId(customResultId)).toContainText('Completed', {
     timeout: 30000,

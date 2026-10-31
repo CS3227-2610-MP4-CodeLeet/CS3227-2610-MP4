@@ -6,7 +6,7 @@
 
 **Tracking:** [Issue #31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31); active OpenSpec change `build-programming-platform`; branch `feat/31-vercel-browser-runner`; [dated summary](../../logs/2026-10-31-vercel-browser-runner.md); draft [PR #32](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/32).
 
-**Architecture:** Build versioned static runner files and reviewed runtime assets into `/runtime/` in the existing Next.js project's deployment. The trusted app client fetches those fixed same-origin files, verifies them, and transfers them into a fresh opaque `srcdoc` sandbox (`allow-scripts` only); local development keeps its existing loopback runner. Add the existing runner UI to the instructor's owner-authorized submission review page. Keep runtime code and submitted source out of Next.js server execution and Vercel Functions.
+**Architecture:** Build versioned static runner files and reviewed runtime assets into `/runtime/` in the existing Next.js project's deployment. The trusted app client fetches those fixed same-origin files, verifies them, and transfers them into a fresh opaque `srcdoc` sandbox (`allow-scripts` only). `pnpm dev` verifies/fetches pinned local runtime assets into the ignored cache and starts the loopback static runner alongside Next.js, removing the separate-terminal setup. Add the existing runner UI to the instructor's owner-authorized submission review page. Keep runtime code and submitted source out of Next.js server execution and Vercel Functions.
 
 **Tech Stack:** Next.js 16 App Router, TypeScript, Node build script, Vercel static output, Pyodide, TeaVM-javac, Vitest, Playwright.
 

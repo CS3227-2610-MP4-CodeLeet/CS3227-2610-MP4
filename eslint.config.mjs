@@ -31,6 +31,7 @@ export default defineConfig([
     '.next/**',
     '.next-preview/**',
     '.runtime-cache/**',
+    'public/runtime/**',
     'node_modules/**',
     'next-env.d.ts',
     'coverage/**',

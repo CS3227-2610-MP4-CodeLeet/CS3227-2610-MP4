@@ -53,10 +53,8 @@ Pyodide metadata/source identifies MPL-2.0; its Python/stdlib distribution conta
 
 ## Reproduce
 
-1. From the repository root on Node 24, fetch the reviewed assets: `node workflow/scripts/fetch-runtime-assets.mjs`. Existing fingerprints are enforced. On the original Windows environment, process-scoped NODE_OPTIONS=--use-system-ca was needed for trusted TLS; verification was never disabled.
+1. From the repository root on Node 24, run `pnpm dev`. It verifies or fetches the hash-pinned assets into ignored `.runtime-cache/`, starts Next.js, and starts the file-only loopback lab on 127.0.0.1:3130. The runner serves files only and does not load `.env.local`.
 2. Install Chromium if missing: `pnpm exec playwright install chromium`.
-3. Start `node src/runtime-lab/server.mjs`, bound to 127.0.0.1:3130 only. It has no execute/compile endpoint and does not load .env.local.
-4. In another terminal, run `node workflow/scripts/run-runtime-probes.mjs` and `node workflow/scripts/verify-runtime-boundary.mjs`.
-5. Run `node workflow/scripts/verify-java-input.mjs` for the Java input assertions. For a coordinator boundary replay, pass `workflow/evidence/runtime-feasibility/java-input-boundary-tests.json` as the boundary script's output argument to preserve the original independent report. Scripts use synthetic public source and replace the selected evidence files with fresh measurements.
+3. To rerun the historical standalone lab probes, keep `pnpm dev` running and execute `node workflow/scripts/run-runtime-probes.mjs`, `node workflow/scripts/verify-runtime-boundary.mjs`, and `node workflow/scripts/verify-java-input.mjs` from another terminal. These use synthetic public source and replace the selected evidence files with fresh measurements. For a coordinator boundary replay, pass `workflow/evidence/runtime-feasibility/java-input-boundary-tests.json` as the boundary script's output argument to preserve the original independent report.
 
 Primary runtime references: [Pyodide worker guide](https://pyodide.org/en/stable/usage/webworker.html), [streams](https://pyodide.org/en/stable/usage/streams.html), [API](https://pyodide.org/en/stable/usage/api/js-api.html), [TeaVM-javac](https://github.com/konsoletyper/teavm-javac). Detailed independent sources are linked in the research/review reports.

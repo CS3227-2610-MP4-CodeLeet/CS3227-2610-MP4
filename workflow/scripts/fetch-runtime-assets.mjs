@@ -5,41 +5,37 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 
 const cache = resolve('.runtime-cache');
-let previous;
-try { previous = JSON.parse(await readFile('workflow/evidence/runtime-feasibility/assets.json', 'utf8')); } catch { /* First reviewed fetch. */ }
+const manifest = JSON.parse(await readFile('workflow/evidence/runtime-feasibility/assets.json', 'utf8'));
 const definitions = {
   python: {
     base: 'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/',
     files: ['pyodide.mjs', 'pyodide.asm.mjs', 'pyodide.asm.wasm', 'python_stdlib.zip', 'pyodide-lock.json'],
-    license: 'MPL-2.0; bundled CPython/stdlib notices require retention before distribution',
-    source: 'https://github.com/pyodide/pyodide',
   },
   java: {
     base: 'https://www.teavm.org/playground/',
     files: ['compiler.wasm', 'compiler.wasm-runtime.js', 'compile-classlib-teavm.bin', 'runtime-classlib-teavm.bin'],
-    license: 'TeaVM-javac Apache-2.0 and OpenJDK GPLv2 with Classpath exception; distribution review pending',
-    source: 'https://github.com/konsoletyper/teavm-javac',
   },
 };
 
-const report = { fetched_at: new Date().toISOString(), assets: [] };
 for (const [language, definition] of Object.entries(definitions)) {
   await mkdir(resolve(cache, language), { recursive: true });
   for (const name of definition.files) {
-    const entry = await fetchAsset(language, definition, name);
-    verifyPinnedAsset(previous, language, name, entry.sha256);
-    report.assets.push(entry);
-    console.log(`${language}/${name}: ${entry.bytes} bytes`);
+    const pinned = manifest.assets.find((item) => item.language === language && item.name === name);
+    if (!pinned || pinned.url !== definition.base + name)
+      throw new Error(`No matching pinned manifest entry for ${language}/${name}.`);
+    const path = resolve(cache, language, name);
+    const cached = await readCachedAsset(path);
+    if (cached && isVerifiedAsset(pinned, cached, language, name)) {
+      console.log(`${language}/${name}: verified cached ${cached.length} bytes`);
+      continue;
+    }
+    if (cached)
+      console.log(`${language}/${name}: cached bytes differ; fetching the pinned asset again`);
+    const bytes = await downloadAsset(definition, name);
+    verifyPinnedAsset(pinned, bytes, language, name);
+    await writeFile(path, bytes);
+    console.log(`${language}/${name}: fetched and verified ${bytes.length} bytes`);
   }
-}
-await mkdir('workflow/evidence/runtime-feasibility', { recursive: true });
-await writeFile('workflow/evidence/runtime-feasibility/assets.json', JSON.stringify(report, null, 2) + '\n');
-
-async function fetchAsset(language, definition, name) {
-  const path = resolve(cache, language, name);
-  const bytes = await readCachedAsset(path) ?? await downloadAsset(path, definition, name);
-  const sha256 = createHash('sha256').update(bytes).digest('hex');
-  return { language, name, url: definition.base + name, bytes: bytes.length, sha256, license: definition.license, source: definition.source };
 }
 
 async function readCachedAsset(path) {
@@ -47,16 +43,23 @@ async function readCachedAsset(path) {
   catch { return undefined; }
 }
 
-async function downloadAsset(path, definition, name) {
+async function downloadAsset(definition, name) {
   const response = await fetch(definition.base + name, { signal: AbortSignal.timeout(60_000) });
   if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
-  const bytes = Buffer.from(await response.arrayBuffer());
-  await writeFile(path, bytes);
-  return bytes;
+  return Buffer.from(await response.arrayBuffer());
 }
 
-function verifyPinnedAsset(previous, language, name, sha256) {
-  const pinned = previous?.assets.find((item) => item.language === language && item.name === name);
-  if (pinned && pinned.sha256 !== sha256)
+function verifyPinnedAsset(pinned, bytes, language, name) {
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  if (pinned.bytes !== bytes.length || pinned.sha256 !== sha256)
     throw new Error(`Asset changed since review: ${language}/${name}. Re-review provenance before updating its hash.`);
+}
+
+function isVerifiedAsset(pinned, bytes, language, name) {
+  try {
+    verifyPinnedAsset(pinned, bytes, language, name);
+    return true;
+  } catch {
+    return false;
+  }
 }

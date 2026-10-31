@@ -16,6 +16,7 @@ export default defineConfig({
       testIgnore: [
         '**/assignment-preview.spec.ts',
         '**/browser-runtime.spec.ts',
+        '**/local-runtime-startup.spec.ts',
         '**/workspace-layout.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'] },
@@ -25,6 +26,7 @@ export default defineConfig({
       testMatch: [
         '**/assignment-preview.spec.ts',
         '**/browser-runtime.spec.ts',
+        '**/local-runtime-startup.spec.ts',
         '**/workspace-layout.spec.ts',
       ],
       use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:3101' },
@@ -50,23 +52,18 @@ export default defineConfig({
           },
           {
             command:
-              'node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3101',
+              'node workflow/scripts/dev.mjs --hostname 127.0.0.1 --port 3101',
             url: 'http://127.0.0.1:3101',
             reuseExistingServer: false,
             timeout: 60_000,
             env: {
               PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
               PLAYWRIGHT_PREVIEW: 'true',
+              MP4_DEV_SKIP_RUNTIME_FETCH:
+                process.env.RUN_BROWSER_RUNTIME_TESTS === '1'
+                  ? 'false'
+                  : 'true',
             },
           },
-          ...(process.env.RUN_BROWSER_RUNTIME_TESTS === '1'
-            ? [
-                {
-                  command: 'node src/runtime-lab/server.mjs',
-                  url: 'http://127.0.0.1:3130',
-                  reuseExistingServer: false,
-                },
-              ]
-            : []),
         ],
 });

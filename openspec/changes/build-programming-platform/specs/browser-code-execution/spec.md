@@ -64,11 +64,13 @@ While teacher cases are unavailable, the authenticated assignment workspace MAY 
 - **THEN** the server supplies no example cases and no fixture fallback is offered
 
 ### Requirement: Real-data local defaults
-Real accounts and assignments SHALL be the normal development workflow. Synthetic assignments SHALL require PLAYWRIGHT_ASSIGNMENT_FIXTURES=true on a development UI-test server and SHALL never be a production fallback. The two former student preview flags SHALL not control application behavior. Local browser execution SHALL still require prepared assets and the separate static runtime service.
+Real accounts and assignments SHALL be the normal development workflow. Synthetic assignments SHALL require PLAYWRIGHT_ASSIGNMENT_FIXTURES=true on a development UI-test server and SHALL never be a production fallback. The two former student preview flags SHALL not control application behavior. A normal `pnpm dev` startup SHALL verify or fetch the pinned local runtime assets into the ignored cache and start the loopback static runtime server alongside Next.js. The Node process may fetch and serve runtime files only; Python/Java source SHALL continue to compile and execute in the browser.
 
 #### Scenario: Normal local startup
 - **WHEN** a developer starts Next.js without fixture settings
 - **THEN** student pages require real authentication and local Run code is available for real Python/Java assignments
+- **AND** the command starts both Next.js and the local static runner, fetching pinned assets into the ignored cache when absent
+- **AND** Python/Java compilation and execution remain in the browser
 
 ### Requirement: Vercel-hosted browser execution for students and instructors
 The system SHALL expose explicit Run code for authenticated students on their assignment editor and authenticated instructors on an owned assignment's submission-review page in Vercel Preview and Production. It SHALL use the current editor source or the already-authorized submission source/language and execute only in the browser through Pyodide/TeaVM. It SHALL NOT execute source in Next.js, Node.js, a Vercel Function or a remote execution/compiler service. Runs and results SHALL NOT submit revisions, publish grades or award XP.
