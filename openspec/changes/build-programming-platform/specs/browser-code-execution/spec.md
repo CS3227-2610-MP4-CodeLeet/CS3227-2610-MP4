@@ -69,3 +69,20 @@ Real accounts and assignments SHALL be the normal development workflow. Syntheti
 #### Scenario: Normal local startup
 - **WHEN** a developer starts Next.js without fixture settings
 - **THEN** student pages require real authentication and local Run code is available for real Python/Java assignments
+
+### Requirement: Vercel-hosted browser execution for students and instructors
+The system SHALL expose explicit Run code for authenticated students on their assignment editor and authenticated instructors on an owned assignment's submission-review page in Vercel Preview and Production. It SHALL use the current editor source or the already-authorized submission source/language and execute only in the browser through Pyodide/TeaVM. It SHALL NOT execute source in Next.js, Node.js, a Vercel Function or a remote execution/compiler service. Runs and results SHALL NOT submit revisions, publish grades or award XP.
+
+The deployed bridge/runtime SHALL be served from a separate static, credential-free Vercel origin that auto-deploys for the matching repository branch and Production. The static build SHALL fetch only approved runtime artifacts matching committed SHA-256 values, include their required notices, use versioned static paths and expose no execution endpoint. The app SHALL resolve Preview to that branch's static runner and Production to one exact configured HTTPS runner origin. The bridge SHALL accept only the configured app project's exact Production origin and narrowly constrained Preview deployment origins for the configured Vercel scope; it SHALL reject unrelated Vercel tenants, non-HTTPS hosted origins, malformed or missing runtime configuration, and requests with the wrong source window/nonce/protocol/run ID. It SHALL omit credentials for every asset/bootstrap fetch and preserve the opaque sandbox/worker, network denial, input/output bounds and deadlines. Authenticated app CSP SHALL NOT receive the runner's eval allowance.
+
+#### Scenario: Student runs code on a hosted assignment
+- **WHEN** an authenticated student explicitly runs Python or Java source in a Vercel Preview or Production assignment workspace
+- **THEN** the source executes in the browser sandbox, output/diagnostics return to that workspace, and no submission/grade/XP write or application-server execution occurs
+
+#### Scenario: Instructor runs an authorized submission
+- **WHEN** an authenticated instructor explicitly runs source shown on an assignment they own in the submission-review page
+- **THEN** that stored source/language executes in the same browser-only runner, with output shown to the instructor and no submission/grade/XP mutation
+
+#### Scenario: Untrusted parent or unavailable runner
+- **WHEN** an unconfigured, unrelated, non-HTTPS or unauthorized app origin attempts to use the runner, or static assets fail integrity/configuration checks
+- **THEN** the bridge rejects initialization and the UI reports a safe actionable error without sending source to a server or falling back to another execution method

@@ -10,7 +10,12 @@ const files = new Map([
   ['/supervisor.mjs', ['src/runtime-lab/supervisor.mjs', javascriptMime]],
   ['/worker.mjs', ['src/runtime-lab/worker.mjs', javascriptMime]],
   ['/embed', ['src/runtime-lab/embed.html', 'text/html']],
+  ['/embed.html', ['src/runtime-lab/embed.html', 'text/html']],
   ['/embed.mjs', ['src/runtime-lab/embed.mjs', javascriptMime]],
+  [
+    '/deployment-policy.mjs',
+    ['src/runtime-lab/deployment-policy.mjs', javascriptMime],
+  ],
   ['/java-support.mjs', ['src/runtime-lab/java-support.mjs', javascriptMime]],
   [
     '/assets.json',

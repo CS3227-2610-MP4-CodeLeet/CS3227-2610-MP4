@@ -5,6 +5,8 @@ import { GradeForm } from '@/features/codementor/grade-form';
 import { requireRole } from '@/lib/auth/verified-user';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
+import { PracticeRunner } from '@/features/student-submissions/practice-runner';
+import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
 
 type Criterion = {
   id: string;
@@ -12,6 +14,29 @@ type Criterion = {
   description: string;
   maxScore: number;
 };
+
+function SubmissionCodeRunner({
+  runnerOrigin,
+  language,
+  source,
+}: {
+  runnerOrigin: string | null;
+  language: 'python' | 'java';
+  source: string;
+}) {
+  return runnerOrigin ? (
+    <PracticeRunner
+      runnerOrigin={runnerOrigin}
+      language={language}
+      source={source}
+      cases={[]}
+    />
+  ) : (
+    <p className="text-sm text-muted-foreground">
+      Browser code execution is not configured for this deployment.
+    </p>
+  );
+}
 
 export default async function InstructorSubmissionPage({
   params,
@@ -46,6 +71,8 @@ export default async function InstructorSubmissionPage({
     ]);
   if (!assignment || !rubric) notFound();
   const criteria = rubric.criteria as Criterion[];
+  const language = assignmentLanguageSchema.parse(submission.language);
+  const runnerOrigin = resolveBrowserRunnerOrigin(process.env);
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
@@ -60,13 +87,17 @@ export default async function InstructorSubmissionPage({
         </p>
         <h1 className="text-3xl font-semibold">Review submission</h1>
         <p className="text-sm text-muted-foreground">
-          {languageLabels[assignmentLanguageSchema.parse(submission.language)]}{' '}
-          source
+          {languageLabels[language]} source
         </p>
       </div>
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>
       </pre>
+      <SubmissionCodeRunner
+        runnerOrigin={runnerOrigin}
+        language={language}
+        source={submission.source}
+      />
       <ReviewButton role="instructor" submissionId={submission.id} />
       <GradeForm
         submissionId={submission.id}

@@ -21,7 +21,9 @@ async function prepare(language, signal) {
       if (!selected.length) throw new Error('No reviewed assets for language');
       const assets = {};
       for (const asset of selected) {
-        const response = await get(`/assets/${language}/${asset.name}`);
+        const response = await get(
+          asset.path ?? `/assets/${language}/${asset.name}`,
+        );
         if (!response.ok) throw new Error(`Missing asset: ${asset.name}`);
         const bytes = await response.arrayBuffer();
         const hash = Array.from(

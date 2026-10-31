@@ -6,26 +6,26 @@ import type { PracticeCase } from './practice-tests';
 import { PracticeRunner } from './practice-runner';
 
 export function AssignmentPractice({
-  enabled,
+  runnerOrigin,
   language,
   source,
   examples,
 }: {
-  enabled: boolean;
+  runnerOrigin: string | null;
   language: AssignmentLanguage;
   source: string;
   examples: readonly PracticeCase[] | null;
 }) {
   const [useExamples, setUseExamples] = useState(false);
-  if (!enabled)
+  if (!runnerOrigin)
     return (
       <p className="text-sm text-muted-foreground">
-        Browser practice is available in the local development setup. Hosted
-        code execution is not configured.
+        Browser code execution is not configured for this deployment.
       </p>
     );
   return (
     <PracticeRunner
+      runnerOrigin={runnerOrigin}
       key={useExamples ? 'examples' : 'custom'}
       language={language}
       source={source}

@@ -2,6 +2,7 @@ node_modules/
 .next/
 .next-preview/
 .runtime-cache/
+.runner-dist/
 out/
 coverage/
 playwright-report/

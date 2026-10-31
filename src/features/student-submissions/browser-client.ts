@@ -1,12 +1,10 @@
 import type { BrowserRun, RunInput } from './practice-tests';
 
-// LOCAL development only. Production runner hosting remains a separate gate.
-const origin = 'http://127.0.0.1:3130';
-
 function isTrustedMessage(
   event: MessageEvent,
   frame: HTMLIFrameElement,
   nonce: string,
+  origin: string,
 ) {
   return (
     event.origin === origin &&
@@ -50,9 +48,11 @@ export class BrowserRunnerClient {
   private disposed = false;
   private readyTimer?: ReturnType<typeof setTimeout>;
   private cancelReady?: () => void;
-  constructor() {
+  private readonly origin: string;
+  constructor(origin: string) {
+    this.origin = validateRunnerOrigin(origin);
     this.frame.hidden = true;
-    this.frame.title = 'Local browser code runner';
+    this.frame.title = 'Browser code runner';
     this.frame.referrerPolicy = 'no-referrer';
     this.frame.sandbox.add('allow-scripts', 'allow-same-origin');
     this.ready = new Promise((resolve) => {
@@ -65,12 +65,12 @@ export class BrowserRunnerClient {
       };
     });
     window.addEventListener('message', this.receive);
-    this.frame.src = `${origin}/embed?parentOrigin=${encodeURIComponent(location.origin)}&nonce=${this.nonce}`;
+    this.frame.src = `${this.origin}/embed.html?parentOrigin=${encodeURIComponent(location.origin)}&nonce=${this.nonce}`;
     document.body.append(this.frame);
   }
   private resolveReady = () => {};
   private receive = (event: MessageEvent) => {
-    if (!isTrustedMessage(event, this.frame, this.nonce)) return;
+    if (!isTrustedMessage(event, this.frame, this.nonce, this.origin)) return;
     const data = event.data;
     if (data.type === 'ready') {
       if (!this.disposed) this.resolveReady();
@@ -90,7 +90,7 @@ export class BrowserRunnerClient {
       return { status: 'stopped', stdout: '', stderr: '', executionMs: null };
     if (!this.connected)
       throw new Error(
-        'Start the local browser runner on port 3130, then try again.',
+        'The browser runner did not initialize. Reload and try again.',
       );
     if (this.pending) throw new Error('A browser run is already active.');
     return new Promise((resolve) => {
@@ -106,7 +106,7 @@ export class BrowserRunnerClient {
       this.pending = { id, resolve, timer };
       this.frame.contentWindow?.postMessage(
         { type: 'run', nonce: this.nonce, id, input },
-        origin,
+        this.origin,
       );
     });
   }
@@ -114,7 +114,7 @@ export class BrowserRunnerClient {
     if (this.pending) {
       this.frame.contentWindow?.postMessage(
         { type: 'stop', nonce: this.nonce, id: this.pending.id },
-        origin,
+        this.origin,
       );
       clearTimeout(this.pending.timer);
       this.pending.timer = setTimeout(() => this.dispose(), 500);
@@ -141,4 +141,22 @@ export class BrowserRunnerClient {
     window.removeEventListener('message', this.receive);
     this.frame.remove();
   }
+}
+
+function validateRunnerOrigin(value: string) {
+  const url = new URL(value);
+  const isLocal =
+    url.protocol === 'http:' &&
+    url.hostname === '127.0.0.1' &&
+    url.port === '3130';
+  const isHosted =
+    url.protocol === 'https:' &&
+    url.origin === value &&
+    !url.username &&
+    !url.password &&
+    !url.search &&
+    !url.hash;
+  if (!isLocal && !isHosted)
+    throw new Error('The configured browser runner origin is invalid.');
+  return url.origin;
 }

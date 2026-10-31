@@ -115,3 +115,12 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 12.1 Configure deterministic synthetic Auth users with GoTrue-compatible instance/token fields, roles, assignments, rubrics, submissions and representative grades meeting issue #27's minimum counts; keep automatic Supabase CLI seeding disabled to prevent hosted linked resets from loading local fixtures.
 - [x] 12.2 Add explicit local-only `pnpm db:seed` with a warning before destructive reset, document its behavior and seeded-account password-recovery path, and instruct contributors to maintain seeds when schema requirements change.
 - [x] 12.3 Verify clean local reset leaves fixtures unloaded, explicitly seed local data and inspect counts, run applicable static/spec checks, and record actual results and limitations in the dated session summary.
+
+## 13. Issue #31 hosted browser runner for student and instructor
+
+- [x] 13.1 Record the separate static Vercel project topology, Preview branch pairing, exact Production configuration, deployment-protection requirements and current Pyodide/TeaVM asset provenance/license decisions.
+- [ ] 13.2 Add a deterministic static runner build that stages only fixed bridge/runtime paths, fails closed on missing or changed SHA-256 assets, retains all required notices, and exposes no source-execution endpoint.
+- [x] 13.3 Resolve local, Preview and Production runner origins; strictly validate Vercel project/scope/deployment hosts and bridge messages; omit credentials on runtime bootstrap and asset fetches.
+- [x] 13.4 Enable the shared runner on authenticated student assignment pages and the instructor's owner-authorized submission-review page. Runs/results remain browser-only and cannot mutate submissions, grades or XP.
+- [ ] 13.5 Verify static build/hash/license output, origin rejection/acceptance, both languages, both roles, ownership boundaries, network/credential denial, lifecycle/deadlines, local regressions and static application build. Record the exact runtime/source hashes, browsers and any limitations.
+- [ ] 13.6 Configure and smoke the Vercel runner and app Preview deployments; run Production smoke only after provenance/license, independent review and deployment configuration gates pass. Update verified docs and the dated issue/OpenSpec/branch/PR log. Keep human verification pending.

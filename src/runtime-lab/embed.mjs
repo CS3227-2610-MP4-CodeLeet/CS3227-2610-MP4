@@ -1,15 +1,12 @@
 import { run } from './lab.mjs';
+import { isAllowedParentOrigin } from './deployment-policy.mjs';
 const parameters = new URLSearchParams(location.search);
 const parentOrigin = parameters.get('parentOrigin');
 const nonce = parameters.get('nonce');
 let allowed = false;
 try {
-  const url = new URL(parentOrigin);
   allowed =
-    url.origin === parentOrigin &&
-    url.protocol === 'http:' &&
-    ['localhost', '127.0.0.1'].includes(url.hostname) &&
-    /^[a-f0-9-]{36}$/.test(nonce);
+    isAllowedParentOrigin(parentOrigin) && /^[a-f0-9-]{36}$/.test(nonce);
 } catch {
   /* Invalid bridge context: do not initialize. */
 }
@@ -36,8 +33,7 @@ if (allowed && parent !== window) {
         result: {
           status: 'unavailable',
           stdout: '',
-          stderr:
-            'Browser runtime unavailable. Check the local runtime assets and try again.',
+          stderr: 'Browser runtime unavailable. Reload the page and try again.',
           executionMs: null,
         },
       });
