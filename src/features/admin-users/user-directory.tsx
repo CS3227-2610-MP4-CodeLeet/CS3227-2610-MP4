@@ -217,7 +217,10 @@ export function UserDirectory({
   return (
     <section className="space-y-4">
       {error && (
-        <p role="alert" className="rounded-md border border-destructive p-3 text-sm">
+        <p
+          role="alert"
+          className="rounded-md border border-destructive p-3 text-sm"
+        >
           {error}
         </p>
       )}

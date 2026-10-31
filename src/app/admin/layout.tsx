@@ -6,7 +6,11 @@ import { requireRole } from '@/lib/auth/verified-user';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   await requireRole('admin');
   return (
     <div>

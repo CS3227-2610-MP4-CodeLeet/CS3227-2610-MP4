@@ -1,5 +1,8 @@
 import { NextRequest } from 'next/server';
-import { adminUserSchema, userIdSchema } from '@/features/admin-users/contracts';
+import {
+  adminUserSchema,
+  userIdSchema,
+} from '@/features/admin-users/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { privateJson } from '@/lib/http/responses';
 
@@ -12,7 +15,11 @@ function failure(code: string, message: string, status: number) {
 function databaseFailure(code: string) {
   return code === '42501'
     ? failure('forbidden', 'Admin access required.', 403)
-    : failure('directory_failed', 'The user directory could not be loaded.', 500);
+    : failure(
+        'directory_failed',
+        'The user directory could not be loaded.',
+        500,
+      );
 }
 
 function pageResult(data: unknown) {
@@ -27,7 +34,7 @@ function pageResult(data: unknown) {
   const users = parsed.data.slice(0, pageSize);
   return privateJson({
     users,
-    nextAfter: hasMore ? users.at(-1)?.user_id ?? null : null,
+    nextAfter: hasMore ? (users.at(-1)?.user_id ?? null) : null,
   });
 }
 

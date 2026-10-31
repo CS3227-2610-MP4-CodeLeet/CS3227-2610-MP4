@@ -1,8 +1,51 @@
 import { NextRequest } from 'next/server';
-import { roleChangeSchema, userIdSchema } from '@/features/admin-users/contracts';
+import {
+  type AppRole,
+  roleChangeSchema,
+  userIdSchema,
+} from '@/features/admin-users/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson } from '@/lib/http/responses';
+
+type SupabaseClient = NonNullable<
+  Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']
+>;
+
+function roleUpdateFailure(code: string) {
+  const known = {
+    '42501': [403, 'forbidden', 'Admin access required.'],
+    P0001: [409, 'final_admin_required', 'At least one admin must remain.'],
+    P0002: [404, 'target_not_found', 'User was not found.'],
+    '22023': [400, 'invalid_role', 'Select a supported role.'],
+  } as const;
+  const mapped = known[code as keyof typeof known];
+  return mapped
+    ? privateJson({ error: { code: mapped[1], message: mapped[2] } }, mapped[0])
+    : privateJson(
+        {
+          error: {
+            code: 'role_change_failed',
+            message: 'The role could not be changed.',
+          },
+        },
+        500,
+      );
+}
+
+async function updateUserRole(
+  supabase: SupabaseClient,
+  userId: string,
+  role: AppRole,
+) {
+  const { error } = await supabase.rpc('admin_set_user_role', {
+    p_user_id: userId,
+    p_role: role,
+  });
+  return error
+    ? roleUpdateFailure(error.code)
+    : privateJson({ success: true, userId, role });
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -10,7 +53,12 @@ export async function PATCH(
 ) {
   if (!sameOriginRequest(request))
     return privateJson(
-      { error: { code: 'origin_rejected', message: 'Request origin could not be verified.' } },
+      {
+        error: {
+          code: 'origin_rejected',
+          message: 'Request origin could not be verified.',
+        },
+      },
       403,
     );
   const { supabase, user, role } = await getVerifiedUserRole();
@@ -27,13 +75,20 @@ export async function PATCH(
   const { userId } = await context.params;
   if (!userIdSchema.safeParse(userId).success)
     return privateJson(
-      { error: { code: 'invalid_user', message: 'User identifier is invalid.' } },
+      {
+        error: { code: 'invalid_user', message: 'User identifier is invalid.' },
+      },
       400,
     );
   const body = await readJsonBody(request, 1_024);
   if (!body.ok)
     return privateJson(
-      { error: { code: 'invalid_body', message: 'Request must be bounded JSON.' } },
+      {
+        error: {
+          code: 'invalid_body',
+          message: 'Request must be bounded JSON.',
+        },
+      },
       400,
     );
   const parsed = roleChangeSchema.safeParse(body.value);
@@ -42,27 +97,5 @@ export async function PATCH(
       { error: { code: 'invalid_role', message: 'Select a supported role.' } },
       400,
     );
-  const { error } = await supabase.rpc('admin_set_user_role', {
-    p_user_id: userId,
-    p_role: parsed.data.role,
-  });
-  if (error) {
-    const known = {
-      '42501': [403, 'forbidden', 'Admin access required.'],
-      P0001: [409, 'final_admin_required', 'At least one admin must remain.'],
-      P0002: [404, 'target_not_found', 'User was not found.'],
-      '22023': [400, 'invalid_role', 'Select a supported role.'],
-    } as const;
-    const mapped = known[error.code as keyof typeof known];
-    return mapped
-      ? privateJson(
-          { error: { code: mapped[1], message: mapped[2] } },
-          mapped[0],
-        )
-      : privateJson(
-          { error: { code: 'role_change_failed', message: 'The role could not be changed.' } },
-          500,
-        );
-  }
-  return privateJson({ success: true, userId, role: parsed.data.role });
+  return updateUserRole(supabase, userId, parsed.data.role);
 }

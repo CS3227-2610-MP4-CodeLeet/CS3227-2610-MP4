@@ -20,13 +20,16 @@ export default async function AdminPage() {
         <p className="text-sm text-muted-foreground">Administration</p>
         <h1 className="text-3xl font-semibold">User roles</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Change a user between student, instructor, and admin. At least one admin must remain.
+          Change a user between student, instructor, and admin. At least one
+          admin must remain.
         </p>
       </header>
       <UserDirectory
         currentUserId={user.id}
         initialUsers={initialUsers}
-        initialNextAfter={hasMore ? initialUsers.at(-1)?.user_id ?? null : null}
+        initialNextAfter={
+          hasMore ? (initialUsers.at(-1)?.user_id ?? null) : null
+        }
       />
     </main>
   );

@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const mocks = vi.hoisted(() => ({ getVerifiedUserRole: vi.fn(), rpc: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  getVerifiedUserRole: vi.fn(),
+  rpc: vi.fn(),
+}));
 vi.mock('@/lib/auth/verified-user', () => ({
   getVerifiedUserRole: mocks.getVerifiedUserRole,
 }));
@@ -32,9 +35,7 @@ beforeEach(() => {
 
 describe('GET /api/admin/users', () => {
   it('returns the restricted directory projection without caching', async () => {
-    const response = await GET(
-      new NextRequest(directoryUrl),
-    );
+    const response = await GET(new NextRequest(directoryUrl));
     expect(response.status).toBe(200);
     expect(response.headers.get('cache-control')).toBe('private, no-store');
     expect(await response.json()).toMatchObject({
@@ -53,9 +54,7 @@ describe('GET /api/admin/users', () => {
       role: 'student',
       supabase: { rpc: mocks.rpc },
     });
-    const response = await GET(
-      new NextRequest(directoryUrl),
-    );
+    const response = await GET(new NextRequest(directoryUrl));
     expect(response.status).toBe(403);
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
@@ -76,12 +75,14 @@ describe('GET /api/admin/users', () => {
       role: 'student',
     }));
     mocks.rpc.mockResolvedValueOnce({ data: rows, error: null });
-    const response = await GET(
-      new NextRequest(directoryUrl),
-    );
+    const response = await GET(new NextRequest(directoryUrl));
     const payload = await response.json();
     expect(payload.users).toHaveLength(50);
     expect(payload.nextAfter).toBe(rows[49].user_id);
-    expect(payload.users.some((row: { user_id: string }) => row.user_id === rows[50].user_id)).toBe(false);
+    expect(
+      payload.users.some(
+        (row: { user_id: string }) => row.user_id === rows[50].user_id,
+      ),
+    ).toBe(false);
   });
 });

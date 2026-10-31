@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const mocks = vi.hoisted(() => ({ getVerifiedUserRole: vi.fn(), rpc: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  getVerifiedUserRole: vi.fn(),
+  rpc: vi.fn(),
+}));
 vi.mock('@/lib/auth/verified-user', () => ({
   getVerifiedUserRole: mocks.getVerifiedUserRole,
 }));
