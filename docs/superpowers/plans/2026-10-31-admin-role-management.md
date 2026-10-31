@@ -48,16 +48,20 @@
 - [x] **Step 3: Add the forward migration** expanding the role constraint, extending instructor database authorization to admins, and adding the two guarded functions. Serialize mutations with one transaction-scoped advisory lock; check caller and admin count while holding it.
 - [x] **Step 4: Add a deterministic local admin fixture** and a trusted SQL instruction for provisioning the initial admin by a verified existing account.
 - [x] **Step 5: Re-run `pnpm db:test`** and require the admin assertions and existing database suite to pass.
-- [ ] **Step 6: Commit verified database milestone** as `feat: add guarded admin role operations`.
+- [x] **Step 6: Commit verified database milestone** as `feat: add guarded admin role operations`.
 
 ### Task 2: Extend verified application role capabilities
 
 **Files:**
 - Create: `src/lib/auth/roles.ts`
+- Create: `src/lib/auth/roles.test.ts`
 - Modify: `src/lib/auth/verified-user.ts`
 - Modify: `src/lib/auth/verified-user.test.ts`
 - Modify: `src/app/page.tsx`
 - Modify: `src/app/instructor/layout.tsx`
+- Modify: `src/app/auth/callback/route.ts`
+- Modify: `src/app/auth/callback/route.test.ts`
+- Modify: `src/app/ai/usage/page.tsx`
 - Modify: `src/app/api/assignments/route.ts`
 - Modify: `src/app/api/assignments/[id]/route.ts`
 - Modify: `src/app/api/grades/[id]/route.ts`
@@ -69,12 +73,12 @@
 - `hasInstructorAccess(role: AppRole | null): boolean` returns true for instructor/admin only.
 - `canAccessRole(expected: AppRole, actual: AppRole | null): boolean` treats admin as instructor-capable, while student and admin-only routes remain exact.
 
-- [ ] **Step 1: Add failing auth tests** for resolving `admin`, allowing admin through instructor guards, and denying admin access to student-only expectations.
-- [ ] **Step 2: Run the focused Vitest file** with `pnpm exec vitest run src/lib/auth/verified-user.test.ts`; confirm the new assertions fail.
-- [ ] **Step 3: Implement role parsing and shared capability checks**, then use the shared check in every instructor route and review path; preserve exact student-only checks.
-- [ ] **Step 4: Add a link to the admin panel only for admins** and route signed-in admins to the instructor workspace by default.
-- [ ] **Step 5: Re-run the focused auth tests and affected app tests**; require student boundaries and instructor ownership behavior to remain unchanged.
-- [ ] **Step 6: Commit verified auth milestone** as `feat: authorize admins for instructor workflows`.
+- [x] **Step 1: Add failing auth tests** for resolving `admin`, allowing admin through instructor guards, and denying admin access to student-only expectations.
+- [x] **Step 2: Run the focused Vitest file** with `pnpm exec vitest run src/lib/auth/verified-user.test.ts`; confirm the new assertions fail.
+- [x] **Step 3: Implement role parsing and shared capability checks**, then use the shared check in every instructor route and review path; preserve exact student-only checks.
+- [x] **Step 4: Add a link to the admin panel only for admins** and route signed-in admins to the instructor workspace by default.
+- [x] **Step 5: Re-run the focused auth tests and affected app tests**; require student boundaries and instructor ownership behavior to remain unchanged.
+- [x] **Step 6: Commit verified auth milestone** as `feat: authorize admins for instructor workflows` (`75b2995`).
 
 ### Task 3: Build the admin directory and role editor
 
@@ -95,12 +99,12 @@
 - `PATCH /api/admin/users/:userId/role` accepts `{ "role": "student" | "instructor" | "admin" }`, checks origin and verified admin identity, and calls `admin_set_user_role`.
 - The role editor uses native `window.confirm` only for the current admin's own role, warns that access changes immediately, and redirects to the new role's workspace after success.
 
-- [ ] **Step 1: Add failing API and UI tests** asserting admin-only reads/writes, role and target validation, final-admin RPC error mapping, no request on self-change cancel, one request after confirmation, and navigation to the destination workspace.
-- [ ] **Step 2: Run the focused Vitest file** with `pnpm exec vitest run src/features/admin-users/user-directory.test.tsx`; confirm the new assertions fail.
-- [ ] **Step 3: Add the admin-only server page/layout and guarded GET/PATCH handlers** with Zod validation, same-origin protection, private/no-store responses, and explicit database error mapping.
-- [ ] **Step 4: Implement the paged user directory and role controls**, including the self-role warning, cancel path, and new-role navigation.
-- [ ] **Step 5: Re-run the UI and API tests** and perform the authenticated browser journey with synthetic local accounts if the local Supabase stack is available.
-- [ ] **Step 6: Commit verified panel milestone** as `feat: add admin user role management panel`.
+- [x] **Step 1: Add failing API and UI tests** asserting admin-only reads/writes, role and target validation, final-admin RPC error mapping, no request on self-change cancel, one request after confirmation, and navigation to the destination workspace.
+- [x] **Step 2: Run the focused Vitest file** with `pnpm exec vitest run src/features/admin-users/user-directory.test.tsx`; confirm the new assertions fail.
+- [x] **Step 3: Add the admin-only server page/layout and guarded GET/PATCH handlers** with Zod validation, same-origin protection, private/no-store responses, and explicit database error mapping.
+- [x] **Step 4: Implement the paged user directory and role controls**, including the self-role warning, cancel path, and new-role navigation.
+- [ ] **Step 5: Re-run the UI and API tests** and perform the authenticated browser journey with synthetic local accounts if the local Supabase stack is available. Automated API/UI tests passed; local browser access was unavailable (`cua.getState()` reported the browser host unavailable), so the authenticated journey remains pending.
+- [x] **Step 6: Commit verified panel milestone** as `feat: add admin user role management panel`.
 
 ### Task 4: Document, audit and validate the full change
 
@@ -110,8 +114,10 @@
 - Modify: `logs/2026-10-31-admin-role-management.md`
 - Review: all files in this change and the OpenSpec requirements.
 
-- [ ] **Step 1: Update the user guide** with verified admin access, role changes, confirmation, and initial-admin provisioning behavior.
-- [ ] **Step 2: Run the focused database, auth, API, and UI suites**, then `pnpm test:unit`, `pnpm lint`, `pnpm typecheck`, and `pnpm spec:validate`.
-- [ ] **Step 3: Run `git diff --check` and review every role comparison** in `src/` and `supabase/` for missed instructor/admin or student-only boundaries.
+- [x] **Step 1: Update the user guide** with verified admin access, role changes, confirmation, and initial-admin provisioning behavior.
+- [x] **Step 2: Run the focused database, auth, API, and UI suites**, then `pnpm test:unit`, `pnpm lint`, `pnpm typecheck`, and `pnpm spec:validate`.
+- [x] **Step 3: Run `git diff --check` and review every role comparison** in `src/` and `supabase/` for missed instructor/admin or student-only boundaries.
 - [ ] **Step 4: Record actual commands, results, limitations, commits, and pending human verification** in the session log and link it from issue #33.
 - [ ] **Step 5: Push the feature branch and open/update a PR to `develop`** linking issue #33, the OpenSpec change, and session summary; leave merge, deployment, and release separate.
+
+Execution note: the application and local Supabase stack started, but the browser-control host reported unavailable during `cua.getState()`. No authenticated browser walkthrough was claimed; API, UI helper, full unit, and database coverage provide the recorded evidence instead.
