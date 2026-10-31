@@ -21,6 +21,7 @@
 7. Same-project security decision: the trusted app client fetches only fixed relative runtime paths with same-origin credentials as needed for protected Preview access, verifies sizes/hashes, and transfers runtime bytes into an opaque `srcdoc` sandbox. The hosted frame uses `sandbox="allow-scripts"` only, validates `event.source`, `event.origin === "null"`, nonce and run IDs, and receives no secrets. Student source is sent only through the in-browser message bridge. Local development keeps the loopback runner.
 8. Updated the builder, Next static headers, environment selector, client bridge, asset loader, OpenSpec, plans and notices. The app build omits runtime files while distribution approval is pending and fails closed if approval is enabled with incomplete notices or changed assets.
 9. Final local verification passed, and committed the same-project implementation as `4581d1b`. The runtime asset distribution and post-change hosted smoke gates remain pending.
+10. Pushed implementation and log commits to the issue branch, updated draft PR #32 to reflect the same-project approach and current checks, and observed a successful Vercel status for commit `7ecd5d6`. This is build status only; no browser execution smoke was run.
 
 ## Work and verification
 
@@ -50,4 +51,5 @@
   - `git diff --check`: passed.
 - Environment limitation: local Node.js was v24.16.0; the repository pins v24.22.1. The prior [Vercel Preview build](https://cs3227-mp4-git-feat-31-verc-678108-john-wongs-projects-9a7f897d.vercel.app) predates the same-project changes and is not evidence for this head. No post-change hosted Preview/Production smoke was performed. The Java playground assets still lack reproducible source-release mapping; complete upstream notices and independent license/security review remain open. Hosted runtime assets must stay omitted until that gate passes.
 - `next-env.d.ts` is now ignored, but remains tracked in Git; the request was to add the ignore rule only. No secrets or runtime binaries were added.
+- GitHub reports the Vercel status as successful for pushed commit `7ecd5d6`; this does not establish a Python/Java browser smoke, and no post-change role/language smoke was performed.
 - Next steps: update the existing draft PR #32 with the same-project architecture and evidence, then obtain a new Preview deployment. Run student/instructor Python/Java smoke only after actual runtime assets are approved and available; keep Production smoke gated until independent review and clearance.
