@@ -13,14 +13,14 @@ import {
 type SubmissionFormProps = {
   assignmentId: string;
   language: AssignmentLanguage;
-  browserRunEnabled?: boolean;
+  browserRunnerOrigin?: string | null;
   testExamples?: readonly PracticeCase[] | null;
 };
 
 export function SubmissionForm({
   assignmentId,
   language,
-  browserRunEnabled = false,
+  browserRunnerOrigin = null,
   testExamples = null,
 }: SubmissionFormProps) {
   const router = useRouter();
@@ -68,7 +68,7 @@ export function SubmissionForm({
         rows={18}
       />
       <AssignmentPractice
-        enabled={browserRunEnabled}
+        runnerOrigin={browserRunnerOrigin}
         source={source}
         language={language}
         examples={testExamples}

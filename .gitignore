@@ -1,7 +1,10 @@
 node_modules/
 .next/
+next-env.d.ts
 .next-preview/
 .runtime-cache/
+/.runtime.staging-*/
+/public/runtime/
 out/
 coverage/
 playwright-report/

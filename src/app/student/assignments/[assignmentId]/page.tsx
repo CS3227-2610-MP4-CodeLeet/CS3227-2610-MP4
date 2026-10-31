@@ -1,4 +1,4 @@
-import { isLocalBrowserRunnerEnabled } from '@/features/student-submissions/runner-environment';
+import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { notFound } from 'next/navigation';
 import { AssignmentInstructions } from '@/features/student-assignments/components';
@@ -70,6 +70,7 @@ export default async function AssignmentDetailPage({
           key={assignment.id}
           language={assignment.language}
           practiceCases={getPreviewPracticeCases(assignment.id)}
+          runnerOrigin={resolveBrowserRunnerOrigin(process.env)}
         />
       </div>
     );
@@ -104,7 +105,7 @@ export default async function AssignmentDetailPage({
           process.env.NODE_ENV,
           process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
         )}
-        browserRunEnabled={isLocalBrowserRunnerEnabled(process.env.NODE_ENV)}
+        browserRunnerOrigin={resolveBrowserRunnerOrigin(process.env)}
       />
       <SubmissionHistory submissions={submissions ?? []} />
     </div>

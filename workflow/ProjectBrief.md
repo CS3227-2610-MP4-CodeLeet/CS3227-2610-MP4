@@ -1,6 +1,6 @@
 # Project brief
 
-Status: CodeLeet student/instructor MVP routes and local Supabase-backed services are implemented and verified with synthetic records and mocked AI. Broader forums/XP features, hosted Supabase/Vercel deployment, live SoCLaaS verification, and production browser-runner origin/licensing review remain pending.
+Status: CodeLeet student/instructor MVP routes and local Supabase-backed services are implemented and verified with synthetic records and mocked AI. Broader forums/XP features, hosted Supabase/Vercel deployment, live SoCLaaS verification, and same-project browser-runtime distribution/licensing review remain pending.
 
 ## Sources and precedence
 

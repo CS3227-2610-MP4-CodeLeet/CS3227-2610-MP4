@@ -2,7 +2,7 @@ const prepared = new Map();
 const encoder = new TextEncoder();
 let active;
 
-async function prepare(language, signal) {
+async function prepare(language, signal, suppliedRuntime) {
   const warm = prepared.has(language);
   const started = performance.now();
   if (!prepared.has(language)) {
@@ -13,42 +13,47 @@ async function prepare(language, signal) {
           ? AbortSignal.any([signal, AbortSignal.timeout(15000)])
           : AbortSignal.timeout(15000),
       });
-    const pending = (async () => {
-      const manifest = await (await get('/assets.json')).json();
-      const selected = manifest.assets.filter(
-        (item) => item.language === language,
-      );
-      if (!selected.length) throw new Error('No reviewed assets for language');
-      const assets = {};
-      for (const asset of selected) {
-        const response = await get(`/assets/${language}/${asset.name}`);
-        if (!response.ok) throw new Error(`Missing asset: ${asset.name}`);
-        const bytes = await response.arrayBuffer();
-        const hash = Array.from(
-          new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)),
-          (byte) => byte.toString(16).padStart(2, '0'),
-        ).join('');
-        if (hash !== asset.sha256)
-          throw new Error(`Integrity mismatch: ${asset.name}`);
-        assets[asset.name] = bytes;
-      }
-      const [supervisor, worker] = await Promise.all(
-        ['/supervisor.mjs', '/worker.mjs'].map(async (url) =>
-          (await get(url)).text(),
-        ),
-      );
-      if (language === 'java') {
-        assets['java-support.mjs'] = encoder.encode(
-          await (await get('/java-support.mjs')).text(),
-        ).buffer;
-      }
-      return {
-        assets,
-        supervisor,
-        worker,
-        bytes: selected.reduce((sum, item) => sum + item.bytes, 0),
-      };
-    })();
+    const pending = suppliedRuntime
+      ? Promise.resolve(prepareSuppliedRuntime(language, suppliedRuntime))
+      : (async () => {
+          const manifest = await (await get('/assets.json')).json();
+          const selected = manifest.assets.filter(
+            (item) => item.language === language,
+          );
+          if (!selected.length)
+            throw new Error('No reviewed assets for language');
+          const assets = {};
+          for (const asset of selected) {
+            const response = await get(
+              asset.path ?? `/assets/${language}/${asset.name}`,
+            );
+            if (!response.ok) throw new Error(`Missing asset: ${asset.name}`);
+            const bytes = await response.arrayBuffer();
+            const hash = Array.from(
+              new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)),
+              (byte) => byte.toString(16).padStart(2, '0'),
+            ).join('');
+            if (hash !== asset.sha256)
+              throw new Error(`Integrity mismatch: ${asset.name}`);
+            assets[asset.name] = bytes;
+          }
+          const [supervisor, worker] = await Promise.all(
+            ['/supervisor.mjs', '/worker.mjs'].map(async (url) =>
+              (await get(url)).text(),
+            ),
+          );
+          if (language === 'java') {
+            assets['java-support.mjs'] = encoder.encode(
+              await (await get('/java-support.mjs')).text(),
+            ).buffer;
+          }
+          return {
+            assets,
+            supervisor,
+            worker,
+            bytes: selected.reduce((sum, item) => sum + item.bytes, 0),
+          };
+        })();
     prepared.set(language, pending);
     pending.catch(() => {
       if (prepared.get(language) === pending) prepared.delete(language);
@@ -61,13 +66,16 @@ async function prepare(language, signal) {
   };
 }
 
-export async function run({ language, source, stdin = '', timeoutMs = 5000 }) {
+export async function run(
+  { language, source, stdin = '', timeoutMs = 5000 },
+  suppliedRuntime,
+) {
   validateRunInput(language, source, stdin);
   if (active) throw new Error('Only one lab run at a time');
   const overallStarted = performance.now();
   const controller = new AbortController();
   active = { stop: () => controller.abort('stopped') };
-  const outcome = await prepareForRun(language, controller);
+  const outcome = await prepareForRun(language, controller, suppliedRuntime);
   if (!outcome.runtime) {
     active = undefined;
     return stoppedRunResult(outcome.status, overallStarted);
@@ -82,6 +90,41 @@ export async function run({ language, source, stdin = '', timeoutMs = 5000 }) {
   });
 }
 
+function prepareSuppliedRuntime(language, supplied) {
+  if (!hasRequiredRuntime(supplied) || !hasLanguageSupport(language, supplied))
+    throw new Error('Browser runtime files are incomplete.');
+  const assets = { ...supplied.assets };
+  if (language === 'java') {
+    assets['java-support.mjs'] = encoder.encode(
+      supplied.scripts['java-support'],
+    ).buffer;
+  }
+  return {
+    assets,
+    supervisor: supplied.scripts.supervisor,
+    worker: supplied.scripts.worker,
+    bytes: supplied.bytes,
+    cspNonce: supplied.cspNonce,
+  };
+}
+
+function hasRequiredRuntime(supplied) {
+  return (
+    Boolean(supplied?.assets) &&
+    typeof supplied.scripts?.supervisor === 'string' &&
+    typeof supplied.scripts?.worker === 'string' &&
+    Number.isSafeInteger(supplied.bytes) &&
+    supplied.bytes > 0
+  );
+}
+
+function hasLanguageSupport(language, supplied) {
+  return (
+    language !== 'java' ||
+    typeof supplied.scripts?.['java-support'] === 'string'
+  );
+}
+
 function validateRunInput(language, source, stdin) {
   if (
     !['python', 'java'].includes(language) ||
@@ -91,14 +134,16 @@ function validateRunInput(language, source, stdin) {
     throw new Error('Invalid or oversized lab input');
 }
 
-async function prepareForRun(language, controller) {
+async function prepareForRun(language, controller, suppliedRuntime) {
   const deadline = setTimeout(
     () => controller.abort('preparation-timeout'),
     45000,
   );
   try {
     return await Promise.race([
-      prepare(language, controller.signal).then((runtime) => ({ runtime })),
+      prepare(language, controller.signal, suppliedRuntime).then((runtime) => ({
+        runtime,
+      })),
       abortOutcome(controller.signal),
     ]);
   } catch (error) {
@@ -140,7 +185,8 @@ function createFrameContext(options, resolve, reject) {
   frame.sandbox = 'allow-scripts';
   frame.referrerPolicy = 'no-referrer';
   frame.hidden = true;
-  const nonce = crypto.randomUUID().replaceAll('-', '');
+  const nonce =
+    options.runtime.cspNonce ?? crypto.randomUUID().replaceAll('-', '');
   const policy = `default-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; script-src 'nonce-${nonce}' blob: 'unsafe-eval'; worker-src blob:`;
   frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="${policy}"><script nonce="${nonce}">${options.runtime.supervisor.replaceAll('</script', '<\\/script')}</script>`;
   const context = {
@@ -253,7 +299,11 @@ function handleFrameError(context) {
   finishFrameRun(context, { status: 'frame-error', stdout: '', stderr: '' });
   context.reject(new Error('Frame load failed'));
 }
-window.runtimeLab = { run, prepare, stop: () => active?.stop() };
+export function stop() {
+  active?.stop();
+}
+
+window.runtimeLab = { run, prepare, stop };
 const runButton = document.querySelector('#run');
 if (runButton)
   runButton.onclick = async () => {

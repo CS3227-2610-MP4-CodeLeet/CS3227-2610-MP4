@@ -127,9 +127,11 @@ function CodeEntryActions({ onCheck }: { onCheck: () => void }) {
 export function CodeEntry({
   language,
   practiceCases,
+  runnerOrigin,
 }: {
   language: AssignmentLanguage;
   practiceCases?: readonly PracticeCase[];
+  runnerOrigin: string | null;
 }) {
   const [source, setSource] = useState('');
   const [checked, setChecked] = useState(false);
@@ -175,8 +177,9 @@ export function CodeEntry({
           onChange={setSource}
         />
         <CodeEntryActions onCheck={checkSource} />
-        {practiceCases && (
+        {practiceCases && runnerOrigin && (
           <PracticeRunner
+            runnerOrigin={runnerOrigin}
             language={language}
             source={source}
             cases={practiceCases}

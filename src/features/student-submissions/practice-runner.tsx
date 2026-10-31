@@ -198,6 +198,7 @@ function StaleResultNotice({ visible }: { visible: boolean }) {
 }
 
 type PracticeRunnerProps = {
+  runnerOrigin: string;
   language: AssignmentLanguage;
   source: string;
   cases: readonly PracticeCase[];
@@ -206,6 +207,7 @@ type PracticeRunnerProps = {
 };
 
 export function PracticeRunner({
+  runnerOrigin,
   language,
   source,
   cases,
@@ -237,6 +239,7 @@ export function PracticeRunner({
       setSingle,
       setTestedSource,
       setMessage,
+      runnerOrigin,
     });
   }
 
@@ -281,6 +284,7 @@ export function PracticeRunner({
 }
 
 type StartRunOptions = {
+  runnerOrigin: string;
   tests: boolean;
   source: string;
   stdin: string;
@@ -296,6 +300,7 @@ type StartRunOptions = {
 };
 
 async function startPracticeRun({
+  runnerOrigin,
   tests,
   source,
   stdin,
@@ -312,7 +317,7 @@ async function startPracticeRun({
   if (active.current) return;
   const inputError = getInputError(source, stdin, tests);
   if (inputError) return setMessage(inputError);
-  const run = createActiveRun();
+  const run = createActiveRun(runnerOrigin);
   active.current = run;
   const deadline = createRunDeadline(run);
   beginRun({
@@ -392,9 +397,9 @@ function PracticeOutputArea({
   );
 }
 
-function createActiveRun(): ActiveRun {
+function createActiveRun(runnerOrigin: string): ActiveRun {
   return {
-    client: new BrowserRunnerClient(),
+    client: new BrowserRunnerClient(runnerOrigin),
     controller: new AbortController(),
   };
 }
