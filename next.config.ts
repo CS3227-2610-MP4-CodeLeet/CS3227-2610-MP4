@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/runtime/:version/:path*',
+        source: '/runtime/:version/:path+',
         headers: [
           {
             key: 'Cache-Control',

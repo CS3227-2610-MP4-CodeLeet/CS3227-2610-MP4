@@ -188,6 +188,23 @@ it('includes runtime assets without a distribution environment switch', async ()
   expect(fetchImpl).toHaveBeenCalledOnce();
 });
 
+it('removes abandoned public staging directories before packaging runtime assets', async () => {
+  const { root, manifest, bytes } = await fixture();
+  const publicDirectory = join(root, 'public');
+  const abandonedStaging = join(publicDirectory, 'runtime.staging-12345');
+  await mkdir(abandonedStaging, { recursive: true });
+  await writeFile(join(abandonedStaging, 'stale-manifest.json'), '{}');
+
+  await buildStaticRunner({
+    repositoryRoot: root,
+    outputDirectory: runnerOutputPath(root),
+    fetchImpl: async () => new Response(bytes),
+    assetManifest: manifest,
+  });
+
+  expect(await readdir(publicDirectory)).toEqual(['runtime']);
+});
+
 it('fails the build when any required notice is still under review', async () => {
   const { root, manifest } = await fixture();
   await writeFile(

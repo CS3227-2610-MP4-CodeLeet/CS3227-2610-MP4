@@ -1,5 +1,12 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import {
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -165,6 +172,18 @@ async function replaceOutput(staging, output) {
   await rename(staging, output);
 }
 
+async function removeAbandonedStagingDirectories(publicDirectory) {
+  const entries = await readdir(publicDirectory, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !/^runtime\.staging-\d+$/.test(entry.name))
+      continue;
+    const candidate = resolve(publicDirectory, entry.name);
+    if (dirname(candidate) !== publicDirectory)
+      throw new Error('Runtime staging directory escaped the public directory.');
+    await rm(candidate, { recursive: true, force: true });
+  }
+}
+
 export async function buildStaticRunner({
   repositoryRoot: root = repositoryRoot,
   outputDirectory = resolve(root, 'public/runtime'),
@@ -176,7 +195,10 @@ export async function buildStaticRunner({
   const bridgeSources = await readBridgeSources(absoluteRoot);
   const approvedNotices = await loadApprovedNotices(absoluteRoot, manifest);
   const version = createVersion(manifest.assets, bridgeSources, approvedNotices);
-  const staging = `${output}.staging-${process.pid}`;
+  const publicDirectory = dirname(output);
+  await mkdir(publicDirectory, { recursive: true });
+  await removeAbandonedStagingDirectories(publicDirectory);
+  const staging = resolve(absoluteRoot, `.runtime.staging-${process.pid}`);
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
   try {

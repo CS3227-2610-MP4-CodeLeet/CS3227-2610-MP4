@@ -3,6 +3,7 @@ node_modules/
 next-env.d.ts
 .next-preview/
 .runtime-cache/
+/.runtime.staging-*/
 /public/runtime/
 out/
 coverage/
