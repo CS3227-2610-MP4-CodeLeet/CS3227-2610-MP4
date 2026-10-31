@@ -2,6 +2,6 @@ REVIEW REQUIRED — DO NOT DISTRIBUTE
 
 The candidate Java runtime/compiler snapshot is pinned by SHA-256 in workflow/evidence/runtime-feasibility/assets.json, but its mutable TeaVM playground files have no verified mapping to a reproducible source commit or release. The manifest records TeaVM-javac Apache-2.0 and OpenJDK GPLv2 with the Classpath Exception; the exact bundled files, copyrights, full notices, and source obligations have not been independently reviewed.
 
-Before distribution, establish reproducible provenance, replace this file with complete notices and required source/license information for every bundled component, and obtain the repository's independent distribution review. Set BROWSER_RUNTIME_DISTRIBUTION_APPROVED=true only after that review approves these exact files.
+Before distribution, establish reproducible provenance, replace this file with complete notices and required source/license information for every bundled component, and obtain the repository's independent distribution review. Set BROWSER_RUNTIME_DISTRIBUTION_APPROVED=true in the app's Vercel project only after that review approves these exact files.
 
 Upstream source: https://github.com/konsoletyper/teavm-javac

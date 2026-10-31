@@ -13,7 +13,7 @@ context: |
   CodeMentor assignment/revision/grade flows, server-only SoCLaaS integration,
   local evidence, and opt-in browser-only Python/Java practice are implemented.
   Hosted Supabase/Vercel environments, live SoCLaaS verification, production
-  browser-runner origin/licensing review, and release publication remain pending.
+  same-project browser-runtime distribution/licensing review, hosted smoke checks, and release publication remain pending.
 rules:
   design:
     - Specify isolation, ownership, revisioning, quotas and failure behavior.

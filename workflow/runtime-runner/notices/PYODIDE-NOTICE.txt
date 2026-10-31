@@ -2,6 +2,6 @@ REVIEW REQUIRED — DO NOT DISTRIBUTE
 
 The candidate runtime assets are pinned in workflow/evidence/runtime-feasibility/assets.json at the Pyodide v314.0.7 asset URL. The manifest identifies MPL-2.0, but the complete upstream license, copyright, bundled CPython and standard-library notices, and corresponding source obligations have not been assembled or reviewed for this exact asset set.
 
-Before distribution, replace this file with the complete notices and required source/license information for every bundled component. Then obtain the repository's independent distribution review and set BROWSER_RUNTIME_DISTRIBUTION_APPROVED=true only in the Vercel runner project.
+Before distribution, replace this file with the complete notices and required source/license information for every bundled component. Then obtain the repository's independent distribution review and set BROWSER_RUNTIME_DISTRIBUTION_APPROVED=true only in the app's Vercel project.
 
 Upstream source: https://github.com/pyodide/pyodide

@@ -1,40 +1,23 @@
-# Issue #31 Vercel runner deployment setup
+# Issue #31 same-project runtime deployment
 
 ## Topology
 
-Use two Vercel projects connected to this repository and the same production branch:
+Use the existing Next.js Vercel project. Its build may publish fixed, versioned static runtime files beneath `/runtime/` in the same deployment. The app client fetches the manifest, bridge modules and approved runtime bytes through relative same-origin paths, verifies hashes/lengths, and transfers them into a fresh opaque sandboxed `srcdoc` iframe. Python and Java compilation/execution remain entirely in browser workers. There is no second Vercel project, remote execution/compiler endpoint, or runner-origin pairing.
 
-1. The existing Next.js application project keeps authentication, Supabase and all user data.
-2. The `workflow/runtime-runner` project builds the versioned static files in `workflow/runtime-runner/.runner-dist`. It has no application secrets, serverless functions, source execution endpoint or authenticated data.
-
-Each app Preview computes the runner's branch alias from `VERCEL_BRANCH_URL` and the configured app/runner project slugs and Vercel scope. Production uses the explicit `BROWSER_RUNNER_PRODUCTION_ORIGIN`. The generated bridge policy accepts only the configured production app origin and constrained Vercel app-project branch/unique deployment hosts for that same scope.
+The hosted iframe uses `sandbox="allow-scripts"` without `allow-same-origin`. The child has an opaque origin; the parent accepts messages only from that exact iframe window with a fresh nonce and valid run ID/protocol/result. The parent targets the opaque child with `*` only for that exact window and sends no credentials or secrets. The inner worker CSP denies network access. The app CSP does not receive the runtime's eval allowance.
 
 ## Vercel configuration
 
-Create the runner project from the same repository and set Root Directory to `workflow/runtime-runner`, Framework Preset to `Other`, and let the checked-in `vercel.json` select the Node build command and `.runner-dist` output. Enable **Include source files outside of the Root Directory in the Build Step** because the build script and canonical bridge sources are shared elsewhere in this repository. Vercel Git integration should create branch Previews and a Production deployment from the same branch mapping as the app. Turn off Deployment Protection on the runner project because a browser iframe cannot provide Vercel's bypass credentials. The runner contains public, credential-free code and assets only. Keep normal app protection enabled where required.
+Keep the existing app project, repository connection, root directory, build command and Preview/Production environments. No runner project or runner origin variables are needed. Enable automatic Vercel system environment variables as already configured for the app. Same-origin relative requests from the browser allow protected Preview deployments to use Vercel's normal access session; this session is sent only to the app's own deployment. Runtime requests contain no source code. Continue using distinct Preview/Production Supabase environment values and normal application authorization/RLS.
 
-App project variables in Preview and Production:
+The only additional nonsecret environment value is `BROWSER_RUNTIME_DISTRIBUTION_APPROVED=true`, set only after exact asset provenance, full notices and distribution review are approved. While absent or false, the build removes/omits generated runtime files and succeeds with hosted Run unavailable. When true, the build must verify every exact manifest size/hash and complete notice before packaging; any mismatch fails the app build. Do not set this flag to bypass pending review.
 
-- `BROWSER_APP_VERCEL_PROJECT_SLUG`
-- `BROWSER_RUNNER_VERCEL_PROJECT_SLUG`
-- `BROWSER_VERCEL_SCOPE_SLUG`
-- `BROWSER_RUNNER_PRODUCTION_ORIGIN` (exact runner HTTPS origin)
+## Runtime distribution and caching
 
-Runner project variables in Preview and Production:
+Build from only `workflow/evidence/runtime-feasibility/assets.json` and the fixed first-party bridge file list. Write outputs to `public/runtime/` using versioned paths. Runtime assets receive `Cache-Control: public, max-age=31536000, immutable`; the bootstrap/manifest receive revalidation or no-store headers. Parent-side fetches use relative same-origin URLs, the normal same-deployment browser session where needed, and explicit integrity checks. The opaque iframe receives only public runtime bytes through its nonce-checked message bridge. User source/results never enter an HTTP request or Vercel Function.
 
-- `BROWSER_APP_VERCEL_PROJECT_SLUG`
-- `BROWSER_VERCEL_SCOPE_SLUG`
-- `BROWSER_APP_PRODUCTION_ORIGIN` (exact app HTTPS origin)
-- `BROWSER_RUNTIME_DISTRIBUTION_APPROVED=true` only after independent review of exact asset provenance and full notices
-
-These are identifiers/origins, not secrets. Do not place an auth bypass token or application key in either browser-facing project.
-
-## Runtime and distribution gate
-
-The static build downloads only entries in `workflow/evidence/runtime-feasibility/assets.json`, allows only the pinned upstream hosts, checks both recorded size and SHA-256, and writes assets under paths containing the complete digest. It copies only the fixed runtime bridge files and both notice files. Vercel caches digest paths for one year as immutable; the bridge HTML is not cached. Runtime and user code execute in the existing browser sandbox/worker. All browser asset fetches omit credentials and the worker network policy remains denied.
-
-The checked-in runtime notice files intentionally say `REVIEW REQUIRED`, and the build rejects them. Pyodide's bundled CPython/stdlib obligations are not assembled, and the TeaVM playground binaries do not have a reproducible source release mapping. The feature can be integrated and locally tested, but the hosted static build, Preview smoke and Production smoke remain blocked until the exact notice/provenance review is complete. Do not toggle the approval variable to work around that gate.
+The checked-in notices intentionally say `REVIEW REQUIRED`; the build must continue omitting runner artifacts until review is complete. Pyodide's bundled CPython/stdlib obligations are not assembled, and TeaVM playground binaries do not have a reproducible source release mapping. Production activation and claims remain pending until exact notices/provenance, independent security review and real Preview/Production smokes are complete.
 
 ## Verification after deployment clearance
 
-For each Preview, confirm the app and runner branch aliases refer to the same Git branch. On student assignment and instructor-owned submission pages, run a Python and a Java example. Inspect browser network logs for credential-free static asset fetches only; verify no submitted source/result request reaches an app route or Vercel Function. Confirm wrong-project, wrong-scope and unrelated tenant origins do not initialize the bridge. Verify no submission, grade, publication or XP mutation occurred. Keep Production smoke pending until clearance and a human security review have been recorded.
+For a Preview, confirm the app's runtime paths are served by the same deployment. Run Python and Java for a student assignment and an instructor-owned submission. Inspect browser network logs: runtime requests are same-origin static GETs, no request body contains source, the opaque runner/worker makes no network request, and no submission/grade/publication/XP state changes. Check forged/wrong-window messages, wrong nonce/run IDs, failed integrity, stop/deadline and rerun behavior. Production smoke remains pending until distribution review and human security review are recorded.

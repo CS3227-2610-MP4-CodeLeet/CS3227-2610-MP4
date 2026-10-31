@@ -6,4 +6,4 @@ export function buildStaticRunner(options?: {
   environment?: Record<string, string | undefined>;
   fetchImpl?: typeof fetch;
   assetManifest?: AssetManifest;
-}): Promise<string>;
+}): Promise<string | null>;
