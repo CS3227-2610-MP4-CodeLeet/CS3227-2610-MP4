@@ -7,6 +7,8 @@ The application currently has no instance-level administrator, so instructor pri
 - Add an admin role that has all existing instructor capabilities plus access to an admin-only panel for changing user roles.
 - Let admins change their own role only after a warning dialog and explicit confirmation; reject any role change that would leave no admin.
 - Authorize role changes on the server/database, preserve trusted provisioning for the first admin, and keep direct client role writes unavailable.
+- Revoke privileged instructor operations immediately when an instructor is demoted, including direct grade RPC calls.
+- Prevent duplicate directory pages when multiple pagination requests are triggered before the first request completes.
 
 ## Capabilities
 

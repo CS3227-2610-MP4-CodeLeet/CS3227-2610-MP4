@@ -24,3 +24,12 @@
 - [x] 4.2 Run focused and full applicable unit/database checks, lint, typecheck, OpenSpec validation, and whitespace review.
 - [x] 4.3 Review every app and database role check for missed instructor/admin or student-only boundaries; record actual findings and limits.
 - [x] 4.4 Update the dated session log and issue #33 with the final branch, commits, verification, and PR; keep teammate review pending until it occurs.
+
+## 5. PR #34 review remediation
+
+- [x] 5.1 Add pgTAP regressions proving a demoted instructor cannot call `save_grade` and an admin can still grade an owned submission.
+- [x] 5.2 Add a regression test proving concurrent page-load calls share one in-flight request and release the guard afterward.
+- [x] 5.3 Add a forward migration requiring a current instructor or admin role inside `save_grade`.
+- [x] 5.4 Guard directory pagination with a synchronous in-flight lock and disable the control while loading.
+- [x] 5.5 Run focused database/UI checks, typecheck, lint, strict OpenSpec validation, and diff review.
+- [ ] 5.6 Record PR feedback and verification in the dated log, push the fixes, reply to the review threads, and resolve addressed comments.

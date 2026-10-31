@@ -32,6 +32,14 @@ The directory function reads `auth.users` because the existing profile table doe
 
 Acquire one transaction-scoped advisory lock for each role mutation, then verify the caller remains an admin and count current admins before demoting an admin account. The global lock prevents two concurrent demotions from both observing another admin and removing the final two accounts. The server-side check is authoritative; UI state is not used for security.
 
+### Re-check current roles inside privileged instructor RPCs
+
+Role changes take effect at the database boundary as soon as the protected `user_roles` row changes. Every security-definer instructor operation must verify the caller's current instructor-capable role in addition to assignment ownership. In particular, `save_grade` must permit only current `instructor` or `admin` accounts; prior ownership alone is insufficient after demotion.
+
+### Serialize directory-page requests in the client
+
+Guard each `loadMore` operation with a synchronous in-flight ref before its first `await`, and expose loading state to disable the button. This prevents repeated events from sharing a stale cursor while keeping a failed page retryable after the request settles.
+
 ### Confirm self-role changes before sending them
 
 Use the browser's native confirmation dialog with a role-specific warning when the selected user is the current admin. Cancel sends no request. After a successful self-change, navigate to the student or instructor workspace based on the new role and refresh the verified session view. The RPC independently blocks demotion of the final admin.

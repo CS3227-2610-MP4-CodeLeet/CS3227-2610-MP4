@@ -33,6 +33,10 @@ The system SHALL allow only a verified admin to change a registered user's role 
 - **WHEN** an admin submits a valid role change for a registered user
 - **THEN** the stored role changes to the requested role and subsequent authorization uses the new role
 
+#### Scenario: Demoted instructor cannot use privileged grading RPCs
+- **WHEN** an instructor who owns an assignment is demoted to student and calls the grade-saving database function
+- **THEN** the function denies the request and leaves the grade unchanged
+
 #### Scenario: Non-admin submits a role change
 - **WHEN** a student or instructor calls the application endpoint or database function to change a role
 - **THEN** the request is denied and the stored role is unchanged
