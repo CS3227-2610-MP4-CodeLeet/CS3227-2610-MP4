@@ -32,4 +32,4 @@
 - [x] 5.3 Add a forward migration requiring a current instructor or admin role inside `save_grade`.
 - [x] 5.4 Guard directory pagination with a synchronous in-flight lock and disable the control while loading.
 - [x] 5.5 Run focused database/UI checks, typecheck, lint, strict OpenSpec validation, and diff review.
-- [ ] 5.6 Record PR feedback and verification in the dated log, push the fixes, reply to the review threads, and resolve addressed comments.
+- [x] 5.6 Record PR feedback and verification in the dated log, push the fixes, reply to the review threads, and resolve addressed comments.
