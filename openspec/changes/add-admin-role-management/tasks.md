@@ -39,4 +39,4 @@
 - [x] 6.1 Add a regression proving concurrent role changes for different accounts remain independently pending and duplicate requests for one account are ignored.
 - [x] 6.2 Track pending role changes per account and disable only the corresponding row while preventing duplicate same-account requests.
 - [x] 6.3 Run focused UI and full applicable verification, strict OpenSpec validation, lint, typecheck, and diff review.
-- [ ] 6.4 Record the new finding and evidence, push the fix, reply to the inline thread, and resolve it.
+- [x] 6.4 Record the new finding and evidence, push the fix, reply to the inline thread, and resolve it.
