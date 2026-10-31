@@ -5,7 +5,7 @@
 - AI tools/models, where known: Codex, model version not recorded
 - GitHub issue: [#31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31)
 - OpenSpec change: `build-programming-platform`, issue 31 section and task group 13
-- Branch and commits: `feat/31-vercel-browser-runner`, based on `develop`; no commits yet
+- Branch and commits: `feat/31-vercel-browser-runner`, based on `develop`; `6e9adeb` (`feat(runtime): enable hosted browser runner on Vercel`)
 - Pull request: pending
 - Human verification: pending
 - Verifier/date:
