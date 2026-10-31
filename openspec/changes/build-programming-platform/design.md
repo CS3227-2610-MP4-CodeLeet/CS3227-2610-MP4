@@ -277,4 +277,6 @@ The iframe uses `sandbox="allow-scripts"` without `allow-same-origin`, which giv
 
 Same-project preview smoke on 2026-10-31 exposed inherited sandbox CSP failures: the nested supervisor had a different nonce, Pyodide WebAssembly compilation was blocked, and TeaVM's Java path required JavaScript string evaluation. Pass the outer per-run nonce to the nested frame and permit `'unsafe-eval'` only in the opaque sandbox document's CSP; keep the authenticated app CSP unchanged, with sandbox network access denied.
 
+On 2026-10-31 the requester reported successfully running Python and Java in the updated Vercel Preview. This is user-reported hosted smoke evidence; the report did not specify browser or role. Production and role-specific hosted checks remain separate.
+
 On 2026-10-31 the user confirmed the completed distribution review covers the existing asset inventory and requested that reviewed runtime files always be included in deployments. A checked-in approval record binds that review to the exact manifest entries and generated notices; every build stages those assets and rejects changed bytes. There is no Vercel distribution flag to configure. The existing Chromium-only prototype results do not establish deployed or cross-browser security. Do not claim the live Vercel capability until actual Preview and Production smokes pass.
