@@ -5,7 +5,7 @@
 - AI tools/models, where known: Codex, model version not recorded
 - GitHub issue: [#31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31)
 - OpenSpec change: `build-programming-platform`, issue 31 section and task group 13
-- Branch and commits: `feat/31-vercel-browser-runner`, based on `develop`; `6e9adeb` (`feat(runtime): enable hosted browser runner on Vercel`), `a764b06` (log commit evidence), `ed89e6e` (PR link), `bea8034` (handoff log), plus the final Vercel Preview status update.
+- Branch and commits: `feat/31-vercel-browser-runner`, based on `develop`; `6e9adeb` (`feat(runtime): enable hosted browser runner on Vercel`), `a764b06` (log commit evidence), `ed89e6e` (PR link), `bea8034` (handoff log), final Vercel Preview status update, `4581d1b` (`feat(runtime): bundle browser assets in app deployment`), and this verification/log follow-up.
 - Pull request: [#32](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/32), draft to `develop`
 - Human verification: pending
 - Verifier/date:
@@ -17,13 +17,17 @@
 3. The user clarified the requirement to run as both students and instructors on Vercel Preview and Production and confirmed TeaVM. Decision: keep execution and compilation in the browser, with a second static Vercel project on a separate credential-free origin to preserve the app/runner policy boundary. The app pairs branch previews and takes one explicit production runner origin.
 4. Published commits `6e9adeb` and `a764b06`, pushed `feat/31-vercel-browser-runner`, and opened draft PR #32 to `develop`. The PR records the passing local checks and the remaining license/provenance and hosted-smoke gates.
 5. GitHub reported the Vercel app Preview build as successful for the pushed branch. An interactive browser host was unavailable, and the separate static runner project has not been deployed, so no user-role/language smoke was claimed.
+6. The user asked to ignore `next-env.d.ts` and simplify Preview/Production to one Vercel project. Added the ignore rule and revised Issue #31's design to serve versioned `/runtime/` files in the app deployment. This supersedes interaction 3's separate-project topology.
+7. Same-project security decision: the trusted app client fetches only fixed relative runtime paths with same-origin credentials as needed for protected Preview access, verifies sizes/hashes, and transfers runtime bytes into an opaque `srcdoc` sandbox. The hosted frame uses `sandbox="allow-scripts"` only, validates `event.source`, `event.origin === "null"`, nonce and run IDs, and receives no secrets. Student source is sent only through the in-browser message bridge. Local development keeps the loopback runner.
+8. Updated the builder, Next static headers, environment selector, client bridge, asset loader, OpenSpec, plans and notices. The app build omits runtime files while distribution approval is pending and fails closed if approval is enabled with incomplete notices or changed assets.
+9. Final local verification passed, and committed the same-project implementation as `4581d1b`. The runtime asset distribution and post-change hosted smoke gates remain pending.
 
 ## Work and verification
 
 - Linked Issue #31 and added the Vercel deployment contract, task group 13 and implementation plan to the active OpenSpec change.
-- Added local/Preview/Production runner-origin resolution, strict generated app-origin policy, configurable iframe targeting, student assignment wiring and the shared runner on the authenticated instructor submission-review page.
-- Added a deterministic Vercel static build project. It stages a fixed bridge tree, fetches only approved manifest hosts, verifies exact byte sizes and SHA-256, writes digest-versioned paths and includes license-notice files. Its build fails closed while notices/provenance are unreviewed.
-- Added a Vercel setup guide with project settings, branch pairing, nonsecret environment values, public static asset/protection requirements and post-clearance smoke procedure.
+- Added same-project Preview/Production runtime selection, strict opaque-frame bridge checks, same-origin manifest/asset loading, parent-side byte/hash verification, and runtime transfer into the sandbox. Existing student and owner-authorized instructor wiring remains shared.
+- Reworked the static build to stage a fixed bridge tree and approved assets into `public/runtime/`, version all paths by bridge/asset/notice hashes, fail on mismatched bytes/notices, and remove stale output when distribution approval is pending. Removed the second-project Vercel configuration.
+- Updated the Vercel setup guide for one app project and protected Preview same-origin requests. Added Next cache headers for versioned runtime files and `next-env.d.ts` to `.gitignore`.
 - Checks actually run in the feature worktree:
   - `pnpm run test:unit`: 139 tests passed across 18 files.
   - `pnpm run lint`: passed.
@@ -35,6 +39,15 @@
   - GitHub combined status: the existing app's Vercel Preview build passed; this is deployment/build evidence only, not a browser smoke or a static-runner deployment.
   - Focused static artifact tests use controlled fake asset bytes to verify fixed output, emitted host policy, SHA mismatch rejection and the distribution approval gate.
   - `node workflow/scripts/build-static-runtime.mjs`: stopped before download as designed because exact distribution review is pending.
-- Environment limitation: local Node.js was v24.16.0; the repository pins v24.22.1. The existing app's [Vercel Preview build succeeded](https://cs3227-mp4-git-feat-31-verc-678108-john-wongs-projects-9a7f897d.vercel.app), but the separate runner project is not configured/deployed and no student/instructor browser smoke or Production verification was performed. The browser access host was unavailable. The Java playground assets are fingerprinted but do not yet map to a reproducible source release; complete upstream notices and independent license/security review remain open. Runner Preview and Production builds must not bypass this gate.
-- No changes were made to the original checkout's unrelated `next-env.ts` edit; all feature changes remain in the isolated worktree. No secrets or runtime binaries were added.
-- Next steps: complete and independently review exact runtime notices/provenance; configure the static Vercel project and app variables; run the Preview role/language/network/credential smoke; keep Production smoke gated until clearance; then update Issue #31/OpenSpec/log and PR with real evidence.
+- Same-project follow-up checks:
+  - Focused same-project tests: 15 passed across 4 files, covering Python/TeaVM asset loading, same-origin credentials, hash/path rejection, opaque-frame source/nonce checks and builder gates.
+  - Full unit suite: 142 passed across 20 files.
+  - `pnpm typecheck` and `pnpm lint`: passed after adding the same-project loader and frame bridge.
+  - `pnpm build`: passed through the new runtime staging command; with distribution approval unset, it reported runtime files omitted and completed the Next.js 16.4.3 production build.
+  - `node --check` passed for `src/runtime-lab/lab.mjs` and `workflow/scripts/build-static-runtime.mjs`.
+  - `pnpm format:check`: passed.
+  - `pnpm spec:validate`: all six OpenSpec items passed strict validation.
+  - `git diff --check`: passed.
+- Environment limitation: local Node.js was v24.16.0; the repository pins v24.22.1. The prior [Vercel Preview build](https://cs3227-mp4-git-feat-31-verc-678108-john-wongs-projects-9a7f897d.vercel.app) predates the same-project changes and is not evidence for this head. No post-change hosted Preview/Production smoke was performed. The Java playground assets still lack reproducible source-release mapping; complete upstream notices and independent license/security review remain open. Hosted runtime assets must stay omitted until that gate passes.
+- `next-env.d.ts` is now ignored, but remains tracked in Git; the request was to add the ignore rule only. No secrets or runtime binaries were added.
+- Next steps: update the existing draft PR #32 with the same-project architecture and evidence, then obtain a new Preview deployment. Run student/instructor Python/Java smoke only after actual runtime assets are approved and available; keep Production smoke gated until independent review and clearance.
