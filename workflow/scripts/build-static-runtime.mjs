@@ -66,6 +66,13 @@ function hash(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+function hashAssetInventory(manifest) {
+  const assets = [...manifest.assets].sort((left, right) =>
+    `${left.language}/${left.name}`.localeCompare(`${right.language}/${right.name}`),
+  );
+  return hash(Buffer.from(JSON.stringify(assets)));
+}
+
 function createVersion(assets, bridge, approvedNotices) {
   const identity = JSON.stringify({
     assets: assets.map(({ language, name, sha256 }) => ({ language, name, sha256 }))
@@ -76,8 +83,22 @@ function createVersion(assets, bridge, approvedNotices) {
   return hash(identity).slice(0, 20);
 }
 
-async function loadApprovedNotices(root) {
+async function loadApprovedNotices(root, manifest) {
   const approvedNotices = {};
+  const approvalPath = resolve(root, 'workflow/runtime-runner/distribution-approval.json');
+  const approval = JSON.parse(await readFile(approvalPath, 'utf8'));
+  if (
+    approval.status !== 'approved' ||
+    typeof approval.reviewed_at !== 'string' ||
+    typeof approval.reviewer !== 'string' ||
+    approval.assets_sha256 !== hashAssetInventory(manifest)
+  )
+    throw new Error('Runtime distribution approval does not match the current asset inventory.');
+  approvedNotices['DISTRIBUTION-APPROVAL.json'] = {
+    contents: `${JSON.stringify(approval, null, 2)}\n`,
+    bytes: Buffer.byteLength(JSON.stringify(approval, null, 2) + '\n'),
+    sha256: hash(Buffer.from(JSON.stringify(approval, null, 2) + '\n')),
+  };
   for (const name of notices) {
     const source = resolve(root, 'workflow/runtime-runner/notices', name);
     const contents = await readFile(source, 'utf8');
@@ -158,7 +179,7 @@ export async function buildStaticRunner({
   }
   const manifest = await loadManifest(absoluteRoot, assetManifest);
   const bridgeSources = await readBridgeSources(absoluteRoot);
-  const approvedNotices = await loadApprovedNotices(absoluteRoot);
+  const approvedNotices = await loadApprovedNotices(absoluteRoot, manifest);
   const version = createVersion(manifest.assets, bridgeSources, approvedNotices);
   const staging = `${output}.staging-${process.pid}`;
   await rm(staging, { recursive: true, force: true });

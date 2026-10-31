@@ -17,6 +17,17 @@ const runnerProjectPath = join('workflow', 'runtime-runner');
 const runnerOutputPath = (root: string) => join(root, 'public', 'runtime');
 const manifestFile = 'manifest.json';
 
+function hashAssetInventory(manifest: {
+  assets: Array<Record<string, unknown>>;
+}) {
+  const assets = [...manifest.assets].sort((left, right) =>
+    `${left.language}/${left.name}`.localeCompare(
+      `${right.language}/${right.name}`,
+    ),
+  );
+  return createHash('sha256').update(JSON.stringify(assets)).digest('hex');
+}
+
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories
@@ -57,6 +68,20 @@ async function fixture() {
   await writeFile(
     join(root, 'workflow', 'assets.json'),
     JSON.stringify(manifest),
+  );
+  const approvalPath = join(
+    root,
+    runnerProjectPath,
+    'distribution-approval.json',
+  );
+  await writeFile(
+    approvalPath,
+    JSON.stringify({
+      status: 'approved',
+      reviewed_at: '2026-10-31',
+      reviewer: 'user-confirmed reviewer',
+      assets_sha256: hashAssetInventory(manifest),
+    }),
   );
   return { root, bytes, manifest };
 }
@@ -100,6 +125,17 @@ it('emits a fixed same-project runtime tree with verified immutable asset paths'
       'utf8',
     ),
   ).toContain('approved notice');
+  expect(
+    await readFile(
+      join(
+        output!,
+        builtManifest.version,
+        'notices',
+        'DISTRIBUTION-APPROVAL.json',
+      ),
+      'utf8',
+    ),
+  ).toContain('"status": "approved"');
   expect(builtManifest.notices['PYODIDE-NOTICE.txt'].sha256).toMatch(
     /^[a-f0-9]{64}$/,
   );
@@ -116,6 +152,26 @@ it('rejects a runtime download that differs from the reviewed SHA-256', async ()
       assetManifest: manifest,
     }),
   ).rejects.toThrow(/SHA-256/);
+});
+
+it('rejects an asset inventory changed after human distribution review', async () => {
+  const { root, manifest } = await fixture();
+  const changedManifest = {
+    assets: manifest.assets.map((asset) => ({
+      ...asset,
+      url: `${asset.url}?changed`,
+    })),
+  };
+
+  await expect(
+    buildStaticRunner({
+      repositoryRoot: root,
+      outputDirectory: runnerOutputPath(root),
+      environment,
+      fetchImpl: async () => new Response('must not fetch'),
+      assetManifest: changedManifest,
+    }),
+  ).rejects.toThrow(/approval does not match/i);
 });
 
 it('omits stale runtime files while distribution approval is pending', async () => {
