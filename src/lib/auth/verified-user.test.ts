@@ -46,6 +46,23 @@ describe('verified application identity', () => {
     expect(mocks.getUser).toHaveBeenCalledOnce();
   });
 
+  it('resolves admin as a verified application role', async () => {
+    mocks.getUser.mockResolvedValue({
+      data: { user: { id: 'trusted-admin-id' } },
+      error: null,
+    });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { role: 'admin' },
+      error: null,
+    });
+    const eq = vi.fn(() => ({ maybeSingle }));
+    mocks.from.mockReturnValue({ select: vi.fn(() => ({ eq })) });
+
+    const context = await getVerifiedUserRole();
+
+    expect(context.role).toBe('admin');
+  });
+
   it('does not resolve a role when the auth server cannot verify a user', async () => {
     mocks.getUser.mockResolvedValue({
       data: { user: null },
