@@ -40,6 +40,10 @@ Role changes take effect at the database boundary as soon as the protected `user
 
 Guard each `loadMore` operation with a synchronous in-flight ref before its first `await`, and expose loading state to disable the button. This prevents repeated events from sharing a stale cursor while keeping a failed page retryable after the request settles.
 
+### Track role mutations independently per account
+
+Use a synchronous set of pending user IDs to reject duplicate updates for the same row before the first `await`, and mirror that set into React state for row-level disabled controls. Separate accounts may update concurrently; completing one request removes only its own ID and cannot clear another row's busy state.
+
 ### Confirm self-role changes before sending them
 
 Use the browser's native confirmation dialog with a role-specific warning when the selected user is the current admin. Cancel sends no request. After a successful self-change, navigate to the student or instructor workspace based on the new role and refresh the verified session view. The RPC independently blocks demotion of the final admin.

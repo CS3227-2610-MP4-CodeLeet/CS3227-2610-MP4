@@ -9,6 +9,7 @@ The application currently has no instance-level administrator, so instructor pri
 - Authorize role changes on the server/database, preserve trusted provisioning for the first admin, and keep direct client role writes unavailable.
 - Revoke privileged instructor operations immediately when an instructor is demoted, including direct grade RPC calls.
 - Prevent duplicate directory pages when multiple pagination requests are triggered before the first request completes.
+- Track overlapping role updates independently per account and reject duplicate in-flight updates for the same account.
 
 ## Capabilities
 

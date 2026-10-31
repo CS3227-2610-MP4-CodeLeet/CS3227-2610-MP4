@@ -37,6 +37,17 @@ The system SHALL allow only a verified admin to change a registered user's role 
 - **WHEN** an instructor who owns an assignment is demoted to student and calls the grade-saving database function
 - **THEN** the function denies the request and leaves the grade unchanged
 
+### Requirement: Concurrent role changes are tracked per account
+The admin panel SHALL prevent duplicate in-flight role changes to the same account and SHALL track pending changes independently for different accounts.
+
+#### Scenario: Two different accounts are updated concurrently
+- **WHEN** role changes for two accounts are pending at the same time and either request completes
+- **THEN** only the completed account is removed from the pending state and the other account remains disabled until its own request completes
+
+#### Scenario: Duplicate update is triggered for a pending account
+- **WHEN** a role update for an account is pending and another role update for that same account is triggered
+- **THEN** the duplicate request is ignored until the first request settles
+
 #### Scenario: Non-admin submits a role change
 - **WHEN** a student or instructor calls the application endpoint or database function to change a role
 - **THEN** the request is denied and the stored role is unchanged

@@ -33,3 +33,10 @@
 - [x] 5.4 Guard directory pagination with a synchronous in-flight lock and disable the control while loading.
 - [x] 5.5 Run focused database/UI checks, typecheck, lint, strict OpenSpec validation, and diff review.
 - [x] 5.6 Record PR feedback and verification in the dated log, push the fixes, reply to the review threads, and resolve addressed comments.
+
+## 6. PR #34 follow-up review
+
+- [x] 6.1 Add a regression proving concurrent role changes for different accounts remain independently pending and duplicate requests for one account are ignored.
+- [x] 6.2 Track pending role changes per account and disable only the corresponding row while preventing duplicate same-account requests.
+- [x] 6.3 Run focused UI and full applicable verification, strict OpenSpec validation, lint, typecheck, and diff review.
+- [ ] 6.4 Record the new finding and evidence, push the fix, reply to the inline thread, and resolve it.
