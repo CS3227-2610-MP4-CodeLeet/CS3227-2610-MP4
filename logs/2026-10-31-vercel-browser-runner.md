@@ -5,8 +5,8 @@
 - AI tools/models, where known: Codex, model version not recorded
 - GitHub issue: [#31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31)
 - OpenSpec change: `build-programming-platform`, issue 31 section and task group 13
-- Branch and commits: `feat/31-vercel-browser-runner`, based on `develop`; `6e9adeb` (`feat(runtime): enable hosted browser runner on Vercel`)
-- Pull request: pending
+- Branch and commits: `feat/31-vercel-browser-runner`, based on `develop`; `6e9adeb` (`feat(runtime): enable hosted browser runner on Vercel`), `a764b06` (log commit evidence)
+- Pull request: [#32](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/32), draft to `develop`
 - Human verification: pending
 - Verifier/date:
 
@@ -15,6 +15,7 @@
 1. The user reported that the Run code action requested a local port-3130 runner. Inspection found that the client hardcoded `http://127.0.0.1:3130` and the normal hosted student page disabled execution.
 2. The user asked to simplify the runtime setup with Pyodide and a Java option rather than separate manual fetching/runner startup. Research and the feasibility notes identified Pyodide and TeaVM-javac as the retained browser candidates; CheerpJ was not selected.
 3. The user clarified the requirement to run as both students and instructors on Vercel Preview and Production and confirmed TeaVM. Decision: keep execution and compilation in the browser, with a second static Vercel project on a separate credential-free origin to preserve the app/runner policy boundary. The app pairs branch previews and takes one explicit production runner origin.
+4. Published commits `6e9adeb` and `a764b06`, pushed `feat/31-vercel-browser-runner`, and opened draft PR #32 to `develop`. The PR records the passing local checks and the remaining license/provenance and hosted-smoke gates.
 
 ## Work and verification
 

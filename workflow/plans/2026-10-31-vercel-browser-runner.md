@@ -4,7 +4,7 @@
 
 **Goal:** Let authenticated students run their assignment source and instructors run an authorized submission in Vercel Preview and Production using browser-only Pyodide and TeaVM.
 
-**Tracking:** [Issue #31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31); active OpenSpec change `build-programming-platform`; branch `feat/31-vercel-browser-runner`; [dated summary](../../logs/2026-10-31-vercel-browser-runner.md); PR pending.
+**Tracking:** [Issue #31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31); active OpenSpec change `build-programming-platform`; branch `feat/31-vercel-browser-runner`; [dated summary](../../logs/2026-10-31-vercel-browser-runner.md); draft [PR #32](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/32).
 
 **Architecture:** Add a second Vercel project from this repository that builds and serves only versioned static runner files and verified runtime assets. The app passes its matching environment's runner origin to the existing browser bridge; the static bridge accepts only app project deployment origins and retains the opaque sandbox/worker boundary. Add the existing runner UI to the instructor's owner-authorized submission review page. Keep runtime code and submitted source out of Next.js server execution and Vercel Functions.
 
