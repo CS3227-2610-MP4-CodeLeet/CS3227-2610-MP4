@@ -55,61 +55,86 @@ export async function runSinglePageRequest(
   }
 }
 
+export async function runUserRoleChange(
+  pendingUserIds: Set<string>,
+  userId: string,
+  request: () => Promise<void>,
+  onPendingChange: (pending: ReadonlySet<string>) => void,
+) {
+  if (pendingUserIds.has(userId)) return false;
+  pendingUserIds.add(userId);
+  try {
+    onPendingChange(new Set(pendingUserIds));
+    await request();
+    return true;
+  } finally {
+    pendingUserIds.delete(userId);
+    onPendingChange(new Set(pendingUserIds));
+  }
+}
+
 function useRoleChanges(
   currentUserId: string,
   setUsers: UserListSetter,
   setError: (message: string | null) => void,
 ) {
   const router = useRouter();
-  const [busyUserId, setBusyUserId] = useState<string | null>(null);
+  const pendingUserIds = useRef(new Set<string>());
+  const [busyUserIds, setBusyUserIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
 
   async function changeRole(user: AdminUser, role: AppRole) {
-    if (role === user.role) return;
+    if (role === user.role || pendingUserIds.current.has(user.user_id)) return;
     setError(null);
-    setBusyUserId(user.user_id);
-    try {
-      const confirmed = await confirmRoleChange({
-        targetUserId: user.user_id,
-        currentUserId,
-        role,
-        confirm: () =>
-          window.confirm(
-            'Warning: changing your own role takes effect immediately and changes your access to the admin panel. The system will block this change if it would leave no admin. Continue?',
-          ),
-        save: async () => {
-          const response = await fetch(
-            `/api/admin/users/${encodeURIComponent(user.user_id)}/role`,
-            {
-              method: 'PATCH',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({ role }),
+    await runUserRoleChange(
+      pendingUserIds.current,
+      user.user_id,
+      async () => {
+        try {
+          const confirmed = await confirmRoleChange({
+            targetUserId: user.user_id,
+            currentUserId,
+            role,
+            confirm: () =>
+              window.confirm(
+                'Warning: changing your own role takes effect immediately and changes your access to the admin panel. The system will block this change if it would leave no admin. Continue?',
+              ),
+            save: async () => {
+              const response = await fetch(
+                `/api/admin/users/${encodeURIComponent(user.user_id)}/role`,
+                {
+                  method: 'PATCH',
+                  headers: { 'content-type': 'application/json' },
+                  body: JSON.stringify({ role }),
+                },
+              );
+              if (!response.ok) await throwRoleChangeError(response);
             },
+            navigate: (destination) => router.replace(destination),
+          });
+          if (!confirmed) return;
+          if (user.user_id === currentUserId) router.refresh();
+          else {
+            setUsers((current) =>
+              current.map((item) =>
+                item.user_id === user.user_id ? { ...item, role } : item,
+              ),
+            );
+          }
+        } catch (changeError) {
+          setError(
+            changeError instanceof Error
+              ? changeError.message
+              : 'The role could not be changed.',
           );
-          if (!response.ok) await throwRoleChangeError(response);
-        },
-        navigate: (destination) => router.replace(destination),
-      });
-      if (!confirmed) return;
-      if (user.user_id === currentUserId) router.refresh();
-      else {
-        setUsers((current) =>
-          current.map((item) =>
-            item.user_id === user.user_id ? { ...item, role } : item,
-          ),
-        );
-      }
-    } catch (changeError) {
-      setError(
-        changeError instanceof Error
-          ? changeError.message
-          : 'The role could not be changed.',
-      );
-    } finally {
-      setBusyUserId(null);
-    }
+        }
+      },
+      setBusyUserIds,
+    );
   }
 
-  return { busyUserId, changeRole };
+  return { busyUserIds, changeRole };
 }
 
 async function throwRoleChangeError(response: Response): Promise<never> {
@@ -166,11 +191,11 @@ function useDirectoryPages(
 
 function UserRows({
   users,
-  busyUserId,
+  busyUserIds,
   changeRole,
 }: {
   users: AdminUser[];
-  busyUserId: string | null;
+  busyUserIds: ReadonlySet<string>;
   changeRole: (user: AdminUser, role: AppRole) => Promise<void>;
 }) {
   return (
@@ -195,7 +220,7 @@ function UserRows({
                   aria-label={`Role for ${user.email ?? user.user_id}`}
                   className="rounded-md border bg-background px-2 py-1"
                   value={user.role}
-                  disabled={busyUserId === user.user_id}
+                  disabled={busyUserIds.has(user.user_id)}
                   onChange={(event) =>
                     void changeRole(user, event.currentTarget.value as AppRole)
                   }
@@ -229,7 +254,7 @@ export function UserDirectory({
 }: Props) {
   const [error, setError] = useState<string | null>(null);
   const directory = useDirectoryPages(initialUsers, initialNextAfter, setError);
-  const { busyUserId, changeRole } = useRoleChanges(
+  const { busyUserIds, changeRole } = useRoleChanges(
     currentUserId,
     directory.setUsers,
     setError,
@@ -247,7 +272,7 @@ export function UserDirectory({
       )}
       <UserRows
         users={directory.users}
-        busyUserId={busyUserId}
+        busyUserIds={busyUserIds}
         changeRole={changeRole}
       />
       {directory.nextAfter && (
