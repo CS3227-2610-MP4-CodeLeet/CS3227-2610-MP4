@@ -5,8 +5,8 @@
 - AI tools/models, where known: Codex; exact model not exposed
 - GitHub issue: [#35](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/35)
 - OpenSpec change: `openspec/changes/standardize-issue-pr-conventions/`
-- Branch and commits: `docs/issue-pr-conventions` from `develop`; commit pending
-- Pull request: pending
+- Branch and commits: `docs/issue-pr-conventions` from `develop`; `c7af0df` (`docs: standardize issue and pull request conventions`)
+- Pull request: [#36, draft, targeting `develop`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/36)
 - Human verification: pending
 - Verifier/date: pending
 
@@ -19,6 +19,7 @@
 5. Created issue #35, branch `docs/issue-pr-conventions` from freshly fetched `origin/develop`, and OpenSpec change `standardize-issue-pr-conventions`. The change uses `skip_specs: true` because this documentation/template update changes no product requirements.
 6. Added issue and PR title guidance and examples to `CONTRIBUTING.md`; added `Closes #<issue-number>` with replacement guidance to `.github/pull_request_template.md`.
 7. Initial restricted-shell calls could not resolve `pnpm`; retried with elevated terminal permission per repository instructions. An initial OpenSpec validation call used an unsupported flag; checked CLI help and reran with the correct syntax.
+8. Committed the verified change as `c7af0df`, pushed `docs/issue-pr-conventions`, and opened draft PR #36 to `develop` with `Closes #35`. Updated issue #35 with the OpenSpec, branch, log and PR links and clarified that issue #33 and PR #34 already had Conventional Commit titles.
 
 ## Work and verification
 
@@ -30,4 +31,4 @@
   - `git diff --check` — passed.
 - Failures, retries, unresolved issues: initial restricted shell could not resolve pnpm; elevated retry worked. First strict validation used unsupported `--change`; corrected after checking `openspec validate --help`.
 - Resource measurements and unavailable fields: exact model identifier not exposed.
-- Next steps: update issue #35 with final branch/log/PR links, commit and push the focused change, and open a draft PR to `develop` linking issue #35.
+- Next steps: human review and merge of draft PR #36.
