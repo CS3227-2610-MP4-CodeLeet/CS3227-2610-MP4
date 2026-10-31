@@ -23,4 +23,4 @@
 - [x] 4.1 Update `docs/UserGuide.md` with verified role-management behavior and initial-admin provisioning.
 - [x] 4.2 Run focused and full applicable unit/database checks, lint, typecheck, OpenSpec validation, and whitespace review.
 - [x] 4.3 Review every app and database role check for missed instructor/admin or student-only boundaries; record actual findings and limits.
-- [ ] 4.4 Update the dated session log and issue #33 with the final branch, commits, verification, and PR; keep teammate review pending until it occurs.
+- [x] 4.4 Update the dated session log and issue #33 with the final branch, commits, verification, and PR; keep teammate review pending until it occurs.

@@ -117,7 +117,7 @@
 - [x] **Step 1: Update the user guide** with verified admin access, role changes, confirmation, and initial-admin provisioning behavior.
 - [x] **Step 2: Run the focused database, auth, API, and UI suites**, then `pnpm test:unit`, `pnpm lint`, `pnpm typecheck`, and `pnpm spec:validate`.
 - [x] **Step 3: Run `git diff --check` and review every role comparison** in `src/` and `supabase/` for missed instructor/admin or student-only boundaries.
-- [ ] **Step 4: Record actual commands, results, limitations, commits, and pending human verification** in the session log and link it from issue #33.
-- [ ] **Step 5: Push the feature branch and open/update a PR to `develop`** linking issue #33, the OpenSpec change, and session summary; leave merge, deployment, and release separate.
+- [x] **Step 4: Record actual commands, results, limitations, commits, and pending human verification** in the session log and link it from issue #33.
+- [x] **Step 5: Push the feature branch and open/update a PR to `develop`** linking issue #33, the OpenSpec change, and session summary; leave merge, deployment, and release separate.
 
-Execution note: the application and local Supabase stack started, but the browser-control host reported unavailable during `cua.getState()`. No authenticated browser walkthrough was claimed; API, UI helper, full unit, and database coverage provide the recorded evidence instead.
+Execution note: the application and local Supabase stack started, but the browser-control host reported unavailable during `cua.getState()`. No authenticated browser walkthrough was claimed; API, UI helper, full unit, and database coverage provide the recorded evidence instead. PR #34 is a draft; GitHub's Vercel integration automatically started a preview build whose status was not checked.
