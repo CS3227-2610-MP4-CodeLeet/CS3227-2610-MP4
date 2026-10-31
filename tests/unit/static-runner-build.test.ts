@@ -86,24 +86,21 @@ async function fixture() {
   return { root, bytes, manifest };
 }
 
-const environment = { BROWSER_RUNTIME_DISTRIBUTION_APPROVED: 'true' };
-
 it('emits a fixed same-project runtime tree with verified immutable asset paths', async () => {
   const { root, bytes, manifest } = await fixture();
   const fetchImpl = vi.fn(async () => new Response(bytes));
   const output = await buildStaticRunner({
     repositoryRoot: root,
     outputDirectory: runnerOutputPath(root),
-    environment,
     fetchImpl,
     assetManifest: manifest,
   });
 
   expect(output).toBe(runnerOutputPath(root));
   const builtManifest = JSON.parse(
-    await readFile(join(output!, manifestFile), 'utf8'),
+    await readFile(join(output, manifestFile), 'utf8'),
   );
-  expect((await readdir(output!)).sort()).toEqual(
+  expect((await readdir(output)).sort()).toEqual(
     [builtManifest.version, 'manifest.json'].sort(),
   );
   expect(builtManifest.version).toMatch(/^[a-f0-9]{20}$/);
@@ -115,20 +112,20 @@ it('emits a fixed same-project runtime tree with verified immutable asset paths'
   expect(builtManifest.bridge.lab.sha256).toMatch(/^[a-f0-9]{64}$/);
   expect(
     await readFile(
-      join(output!, builtManifest.assets[0].path.replace('/runtime/', '')),
+      join(output, builtManifest.assets[0].path.replace('/runtime/', '')),
     ),
   ).toEqual(bytes);
   expect(fetchImpl).toHaveBeenCalledOnce();
   expect(
     await readFile(
-      join(output!, builtManifest.version, 'notices', 'PYODIDE-NOTICE.txt'),
+      join(output, builtManifest.version, 'notices', 'PYODIDE-NOTICE.txt'),
       'utf8',
     ),
   ).toContain('approved notice');
   expect(
     await readFile(
       join(
-        output!,
+        output,
         builtManifest.version,
         'notices',
         'DISTRIBUTION-APPROVAL.json',
@@ -147,7 +144,6 @@ it('rejects a runtime download that differs from the reviewed SHA-256', async ()
     buildStaticRunner({
       repositoryRoot: root,
       outputDirectory: runnerOutputPath(root),
-      environment,
       fetchImpl: async () => new Response('changed bytes'),
       assetManifest: manifest,
     }),
@@ -167,34 +163,32 @@ it('rejects an asset inventory changed after human distribution review', async (
     buildStaticRunner({
       repositoryRoot: root,
       outputDirectory: runnerOutputPath(root),
-      environment,
       fetchImpl: async () => new Response('must not fetch'),
       assetManifest: changedManifest,
     }),
   ).rejects.toThrow(/approval does not match/i);
 });
 
-it('omits stale runtime files while distribution approval is pending', async () => {
-  const { root, manifest } = await fixture();
+it('includes runtime assets without a distribution environment switch', async () => {
+  const { root, manifest, bytes } = await fixture();
   const output = runnerOutputPath(root);
-  await mkdir(output, { recursive: true });
-  await writeFile(join(output, 'stale-runtime.js'), 'old output');
-  const fetchImpl = vi.fn(async () => new Response('must not fetch'));
+  const fetchImpl = vi.fn(async () => new Response(bytes));
 
   await expect(
     buildStaticRunner({
       repositoryRoot: root,
       outputDirectory: output,
-      environment: { BROWSER_RUNTIME_DISTRIBUTION_APPROVED: 'false' },
       fetchImpl,
       assetManifest: manifest,
     }),
-  ).resolves.toBeNull();
-  await expect(readdir(output)).rejects.toMatchObject({ code: 'ENOENT' });
-  expect(fetchImpl).not.toHaveBeenCalled();
+  ).resolves.toBe(output);
+  expect(
+    JSON.parse(await readFile(join(output, manifestFile), 'utf8')).assets,
+  ).toHaveLength(1);
+  expect(fetchImpl).toHaveBeenCalledOnce();
 });
 
-it('fails an approved build when any required notice is still under review', async () => {
+it('fails the build when any required notice is still under review', async () => {
   const { root, manifest } = await fixture();
   await writeFile(
     join(root, runnerProjectPath, 'notices', 'TEAVM-OPENJDK-NOTICE.txt'),
@@ -205,7 +199,6 @@ it('fails an approved build when any required notice is still under review', asy
     buildStaticRunner({
       repositoryRoot: root,
       outputDirectory: runnerOutputPath(root),
-      environment,
       fetchImpl: async () => new Response('unused until notices pass'),
       assetManifest: manifest,
     }),

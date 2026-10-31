@@ -168,15 +168,10 @@ async function replaceOutput(staging, output) {
 export async function buildStaticRunner({
   repositoryRoot: root = repositoryRoot,
   outputDirectory = resolve(root, 'public/runtime'),
-  environment = process.env,
   fetchImpl = fetch,
   assetManifest,
 } = {}) {
   const { absoluteRoot, output } = resolveBuildPaths(root, outputDirectory);
-  if (environment.BROWSER_RUNTIME_DISTRIBUTION_APPROVED !== 'true') {
-    await rm(output, { recursive: true, force: true });
-    return null;
-  }
   const manifest = await loadManifest(absoluteRoot, assetManifest);
   const bridgeSources = await readBridgeSources(absoluteRoot);
   const approvedNotices = await loadApprovedNotices(absoluteRoot, manifest);
@@ -202,7 +197,7 @@ export async function buildStaticRunner({
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   buildStaticRunner().then(
-    (output) => console.log(output ? `Built same-project browser runtime at ${output}` : 'Browser runtime distribution is not approved; runtime files omitted.'),
+    (output) => console.log(`Built same-project browser runtime at ${output}`),
     (error) => {
       console.error(error instanceof Error ? error.message : 'Browser runtime build failed.');
       process.exitCode = 1;

@@ -49,7 +49,7 @@ This is a Chromium-only local prototype, not proof of a production sandbox. Actu
 
 ## Distribution/license review
 
-Pyodide metadata/source identifies MPL-2.0; its Python/stdlib distribution contains additional upstream components. TeaVM-javac identifies Apache-2.0 and OpenJDK GPLv2 with the Classpath exception. These are recorded primary-source license identities, not a completed redistribution approval. Review exact bundled notices/source obligations before packaging/hosting assets; no vendor binaries or JARs are committed. The mutable Java playground distribution has pinned observed hashes but no verified match to a reproducible source commit/release. Do not update those hashes automatically to bypass a mismatch.
+Pyodide metadata/source identifies MPL-2.0; its Python/stdlib distribution contains additional upstream components. TeaVM-javac identifies Apache-2.0 and OpenJDK GPLv2 with the Classpath exception. On 2026-10-31, the user confirmed their completed distribution review approves the exact existing asset inventory; that approval is recorded and bound to its manifest fingerprint in `workflow/runtime-runner/distribution-approval.json`. Every Vercel build now packages that reviewed inventory and fails on a missing notice, failed download or size/hash mismatch. No vendor binaries or JARs are committed. The mutable Java playground distribution still has no verified match to a reproducible source commit/release; do not update its pinned hashes automatically to bypass a mismatch.
 
 ## Reproduce
 

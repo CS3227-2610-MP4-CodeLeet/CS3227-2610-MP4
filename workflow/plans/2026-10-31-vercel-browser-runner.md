@@ -47,7 +47,7 @@
 
 **Files:** OpenSpec browser execution spec/design/tasks; `workflow/plans/2026-10-31-vercel-runner-setup.md`; tests for origin resolver.
 
-- [ ] Define `/runtime/` static output, same-project Preview/Production behavior and the pending/approved distribution gate.
+- [x] Define `/runtime/` static output and same-project Preview/Production behavior; every build includes the reviewed inventory and fails on approval/hash/notice mismatch. No runtime distribution environment flag is needed.
 - [ ] Define same-origin fetch behavior under Vercel Preview protection and the opaque `srcdoc` message contract; avoid a runner origin entirely.
 - [ ] Write failing tests for unapproved/approved hosted mode, local origin, same-origin asset selection and rejection of nonmatching message sources/nonces.
 - [ ] Run those tests to confirm the expected failures before implementation.
@@ -57,8 +57,8 @@
 **Files:** new static runner build script/config, `workflow/evidence/runtime-feasibility/assets.json`, runtime notice files, `.gitignore`, tests.
 
 - [ ] Add a failing test asserting that the build output contains only bridge/runtime static files and preserves the recorded asset hashes/notices.
-- [ ] Stage only into `public/runtime/`; when distribution approval is pending, clear/omit generated runtime bytes without failing the normal app deployment.
-- [ ] When approval is enabled, fetch reviewed runtime files only when hashes match the committed manifest; missing, changed or incomplete notices fail the app build.
+- [x] Stage only into `public/runtime/`; every build fetches the reviewed runtime inventory and fails on missing or mismatched approval/notices.
+- [x] Fetch reviewed runtime files only when hashes match the committed manifest; missing downloads, changed bytes or incomplete notices fail the app build.
 - [ ] Version output URLs for immutable caching and retain all required Pyodide, TeaVM and OpenJDK license notices/source references.
 - [ ] Run the build-script tests and inspect the resulting output tree/hashes.
 
@@ -67,7 +67,7 @@
 **Files:** `runner-environment.ts`, shared runner components/client, student assignment page, Next config/security config, tests.
 
 - [ ] Add failing tests for disabled/malformed/mismatched configuration and for the Preview/Production resolved origin.
-- [ ] Resolve localhost to the current local lab in development and use hosted same-project mode only when the distribution approval gate is on.
+- [x] Resolve localhost to the current local lab in development and use hosted same-project mode when the deployment includes its runtime manifest.
 - [ ] Validate child `event.origin === "null"`, exact `event.source`, nonce, protocol, request ID and bounded result payload; use `*` only for the specific opaque child frame.
 - [ ] Fetch static bytes from relative same-origin paths in the trusted parent, verify size/hash, and transfer bytes to the sandbox only after explicit Run; never send source in an HTTP request.
 - [ ] Keep app CSP unchanged, remove `allow-same-origin` from the hosted iframe, and preserve the isolated worker/network-deny policy.
@@ -87,7 +87,7 @@
 
 **Files:** Vercel setup guide, runtime evidence, dated session log, OpenSpec tasks, PR.
 
-- [ ] Record the app project's existing root/build settings and the single nonsecret distribution approval flag; no runner project/origin pairing is configured.
+- [ ] Record the app project's existing root/build settings; no runtime distribution flag or runner project/origin pairing is configured.
 - [ ] Run lint/type/unit/build and browser security regressions, including opaque-origin source/nonce checks, same-origin protected Preview asset fetch, network-deny, stop/deadline and rerun cases.
 - [ ] Run an actual Vercel Preview smoke for both roles/languages and verify runtime requests are same-deployment static asset GETs with no source in request bodies.
 - [ ] Run an actual Production smoke only after asset license/provenance and independent security gates are closed; otherwise record it as pending and keep the production gate disabled.

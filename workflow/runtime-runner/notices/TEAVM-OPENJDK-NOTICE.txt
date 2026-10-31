@@ -29,6 +29,6 @@ Distribution review
 -------------------
 On 2026-10-31, the user confirmed that their completed distribution
 review approves the exact existing runtime asset inventory identified by
-workflow/runtime-runner/distribution-approval.json. The production build
+workflow/runtime-runner/distribution-approval.json. Every app build
 requires this approval record and verifies every downloaded file against the
 manifest's byte count and SHA-256 before packaging.

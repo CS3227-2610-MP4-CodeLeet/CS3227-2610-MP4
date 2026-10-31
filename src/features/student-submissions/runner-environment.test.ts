@@ -13,27 +13,13 @@ it('uses the loopback runner only during local development', () => {
 });
 
 it.each(['preview', 'production'])(
-  'selects same-project static assets for approved %s deployments',
+  'selects same-project static assets for every %s deployment',
   (vercelEnvironment) => {
     expect(
       resolveBrowserRunnerOrigin({
         NODE_ENV: 'production',
         VERCEL_ENV: vercelEnvironment,
-        BROWSER_RUNTIME_DISTRIBUTION_APPROVED: 'true',
       }),
     ).toBe(sameProjectRunner);
-  },
-);
-
-it.each(['preview', 'production'])(
-  'keeps hosted execution unavailable for unapproved %s deployments',
-  (vercelEnvironment) => {
-    expect(
-      resolveBrowserRunnerOrigin({
-        NODE_ENV: 'production',
-        VERCEL_ENV: vercelEnvironment,
-        BROWSER_RUNTIME_DISTRIBUTION_APPROVED: 'false',
-      }),
-    ).toBe(null);
   },
 );

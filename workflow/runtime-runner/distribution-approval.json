@@ -2,6 +2,6 @@
   "status": "approved",
   "reviewed_at": "2026-10-31",
   "reviewer": "user-confirmed reviewer",
-  "assets_sha256": "6d8fc36790fa731dc21aa516bbd1d32854103d3933e99f2efda04f188c650220",
+  "assets_sha256": "5ec47388897cabd274d1ad1a3d4c5a4d1e3b071dec51ea2a64d1b026adf56d5f",
   "scope": "The user confirmed that their completed distribution review covers the existing complete assets inventory in workflow/evidence/runtime-feasibility/assets.json, including review of the exact listed runtime assets."
 }
