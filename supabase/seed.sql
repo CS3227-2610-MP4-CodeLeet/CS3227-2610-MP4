@@ -14,6 +14,11 @@ with seed_accounts as (
     format('instructor%s@codeleet.test', account_number),
     format('Instructor %s', account_number)
   from generate_series(1, 3) as instructor_accounts(account_number)
+  union all
+  select
+    '91000000-0000-4000-8000-000000000016'::uuid,
+    'admin@codeleet.test',
+    'Admin'
 )
 insert into auth.users (
   id,
@@ -78,6 +83,8 @@ with seed_accounts as (
     format('91000000-0000-4000-8000-%s', lpad((account_number + 12)::text, 12, '0'))::uuid,
     format('instructor%s@codeleet.test', account_number)
   from generate_series(1, 3) as instructor_accounts(account_number)
+  union all
+  select '91000000-0000-4000-8000-000000000016'::uuid, 'admin@codeleet.test'
 )
 insert into auth.identities (
   provider_id,
@@ -104,6 +111,10 @@ where user_id in (
   select format('91000000-0000-4000-8000-%s', lpad((account_number + 12)::text, 12, '0'))::uuid
   from generate_series(1, 3) as instructor_accounts(account_number)
 );
+
+update public.user_roles
+set role = 'admin'
+where user_id = '91000000-0000-4000-8000-000000000016';
 
 insert into public.assignments (
   id,
