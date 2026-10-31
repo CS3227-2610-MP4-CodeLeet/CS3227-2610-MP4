@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminUser, AppRole } from './contracts';
 
@@ -39,6 +39,20 @@ export async function confirmRoleChange({
 
 export function destinationForRole(role: AppRole) {
   return role === 'student' ? '/student/assignments' : '/instructor';
+}
+
+export async function runSinglePageRequest(
+  inFlight: { current: boolean },
+  request: () => Promise<void>,
+) {
+  if (inFlight.current) return false;
+  inFlight.current = true;
+  try {
+    await request();
+    return true;
+  } finally {
+    inFlight.current = false;
+  }
 }
 
 function useRoleChanges(
@@ -114,33 +128,40 @@ function useDirectoryPages(
 ) {
   const [users, setUsers] = useState(initialUsers);
   const [nextAfter, setNextAfter] = useState(initialNextAfter);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const pageRequestInFlight = useRef(false);
 
   async function loadMore() {
     if (!nextAfter) return;
     setError(null);
-    try {
-      const response = await fetch(
-        `/api/admin/users?after=${encodeURIComponent(nextAfter)}`,
-        { cache: 'no-store' },
-      );
-      if (!response.ok)
-        throw new Error('The user directory could not be loaded.');
-      const page = (await response.json()) as {
-        users: AdminUser[];
-        nextAfter: string | null;
-      };
-      setUsers((current) => [...current, ...page.users]);
-      setNextAfter(page.nextAfter);
-    } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : 'The user directory could not be loaded.',
-      );
-    }
+    await runSinglePageRequest(pageRequestInFlight, async () => {
+      setIsLoadingMore(true);
+      try {
+        const response = await fetch(
+          `/api/admin/users?after=${encodeURIComponent(nextAfter)}`,
+          { cache: 'no-store' },
+        );
+        if (!response.ok)
+          throw new Error('The user directory could not be loaded.');
+        const page = (await response.json()) as {
+          users: AdminUser[];
+          nextAfter: string | null;
+        };
+        setUsers((current) => [...current, ...page.users]);
+        setNextAfter(page.nextAfter);
+      } catch (loadError) {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : 'The user directory could not be loaded.',
+        );
+      } finally {
+        setIsLoadingMore(false);
+      }
+    });
   }
 
-  return { users, setUsers, nextAfter, loadMore };
+  return { users, setUsers, nextAfter, isLoadingMore, loadMore };
 }
 
 function UserRows({
@@ -233,9 +254,10 @@ export function UserDirectory({
         <button
           className="rounded-md border px-4 py-2 text-sm"
           type="button"
+          disabled={directory.isLoadingMore}
           onClick={() => void directory.loadMore()}
         >
-          Load more users
+          {directory.isLoadingMore ? 'Loading users…' : 'Load more users'}
         </button>
       )}
     </section>

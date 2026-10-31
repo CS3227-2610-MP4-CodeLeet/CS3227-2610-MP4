@@ -6,6 +6,7 @@ vi.mock('next/navigation', () => ({
 import {
   confirmRoleChange,
   destinationForRole,
+  runSinglePageRequest,
   UserDirectory,
 } from './user-directory';
 
@@ -67,5 +68,25 @@ describe('admin user directory', () => {
     expect(save).toHaveBeenCalledOnce();
     expect(navigate).toHaveBeenCalledWith('/instructor');
     expect(destinationForRole('student')).toBe('/student/assignments');
+  });
+
+  it('ignores duplicate page loads while one request is pending and releases the guard', async () => {
+    let finishRequest!: () => void;
+    const request = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finishRequest = resolve;
+        }),
+    );
+    const inFlight = { current: false };
+
+    const firstLoad = runSinglePageRequest(inFlight, request);
+    const duplicateLoad = runSinglePageRequest(inFlight, request);
+
+    await expect(duplicateLoad).resolves.toBe(false);
+    expect(request).toHaveBeenCalledOnce();
+    finishRequest();
+    await expect(firstLoad).resolves.toBe(true);
+    expect(inFlight.current).toBe(false);
   });
 });
