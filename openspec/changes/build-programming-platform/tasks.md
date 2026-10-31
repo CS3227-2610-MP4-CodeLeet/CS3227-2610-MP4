@@ -20,6 +20,7 @@
 - [x] 2.11 Pin Node.js to the latest Node 24 LTS patch available on 28 October 2026 (`24.22.1`) in `.node-version`; make CI and documentation use that pin and retain the Node 24 engine range.
 - [x] 2.12 Update repository and contributor workflow to require a matching GitHub issue, OpenSpec artifacts, relevant Superpowers skills, focused Conventional Commits, a reviewed/sanitized `logs/` summary, and a linked PR after verification. Reuse existing foundation issue #11 and PR #12.
 - [x] 2.13 Verify no Corepack invocations remain, run applicable formatting/lint/type/unit checks and strict OpenSpec validation, create per-change summaries for the ESLint and current tooling/workflow updates, then push and update linked issue #11 / PR #12. Record installed Node v24.16.0 and the difference from `.node-version` 24.22.1.
+- [x] 2.14 Add local-only Supabase seed data and a `pnpm db:seed` command for synthetic student/instructor accounts, assignments, rubrics, submissions and grades; document schema-change upkeep and verify fresh setup/reset counts without touching hosted data.
 
 ## 3. Assignments and execution
 
@@ -108,3 +109,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 11.1 Remove student preview configuration flags; make real data default and local runner enabled in development, with samples restricted to an explicit UI-test harness setting and production still denied.
 - [x] 11.2 Preserve local credentials/configuration values, retain the separate example-case opt-in and update setup guides/specs.
 - [x] 11.3 Verify real local Python/Java/history, fixture tests and production boundaries, record evidence and publish a linked PR with prerequisite #24 identified.
+
+## 12. Issue #27 local development seed data
+
+- [x] 12.1 Configure deterministic synthetic Auth users with GoTrue-compatible instance/token fields, roles, assignments, rubrics, submissions and representative grades meeting issue #27's minimum counts; keep automatic Supabase CLI seeding disabled to prevent hosted linked resets from loading local fixtures.
+- [x] 12.2 Add explicit local-only `pnpm db:seed` with a warning before destructive reset, document its behavior and seeded-account password-recovery path, and instruct contributors to maintain seeds when schema requirements change.
+- [x] 12.3 Verify clean local reset leaves fixtures unloaded, explicitly seed local data and inspect counts, run applicable static/spec checks, and record actual results and limitations in the dated session summary.

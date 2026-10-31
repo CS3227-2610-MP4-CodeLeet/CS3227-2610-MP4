@@ -18,6 +18,7 @@ Read `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, and the relevant Op
 - Keep this file short; retrieve only the task's relevant specs and evidence.
 - Use specialist delegation when explicitly requested by the user or task. The role catalog describes the planned process and is not blanket authorization to spawn agents on every task.
 - Record actual checks and limitations. Never invent measurements, agent runs, reviews, deployments, or completed features.
+- If Node.js, pnpm, Supabase CLI, OpenSpec, or another required terminal command is unavailable in the restricted shell, retry with elevated terminal permission before reporting it unavailable. Prefer the pinned project CLI via `pnpm exec supabase` and the repository's OpenSpec command.
 - Update `docs/UserGuide.md` only with verified current behavior. Keep plans in workflow/OpenSpec documents.
 - Do not commit secrets, credentials, real student data, raw sensitive prompts, or generated runtime distributions without license review.
 
