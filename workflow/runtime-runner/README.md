@@ -8,4 +8,4 @@ The build omits runtime files while `BROWSER_RUNTIME_DISTRIBUTION_APPROVED` is u
 
 Hosted app code fetches the fixed runtime assets through relative same-origin URLs, validates their lengths and hashes, and transfers public bytes into an opaque `srcdoc` sandbox with `sandbox="allow-scripts"`. The sandbox cannot read app storage/cookies or DOM. The worker has no network access. Source and results never go to a server.
 
-See [Issue #31 deployment setup](../../plans/2026-10-31-vercel-runner-setup.md) and [runtime feasibility evidence](../../evidence/runtime-feasibility/README.md) for current provenance, licensing, security and hosted verification gates.
+See [Issue #31 deployment setup](../plans/2026-10-31-vercel-runner-setup.md) and [runtime feasibility evidence](../evidence/runtime-feasibility/README.md) for current provenance, licensing, security and hosted verification gates.

@@ -7,14 +7,12 @@ const encoder = new TextEncoder();
 export function isTrustedMessage(
   event: MessageEvent,
   frame: HTMLIFrameElement,
-  nonce: string,
-  origin: string,
-  hosted: boolean,
+  expected: { nonce: string; origin: string; hosted: boolean },
 ) {
   return (
     event.source === frame.contentWindow &&
-    event.origin === (hosted ? 'null' : origin) &&
-    event.data?.nonce === nonce
+    event.origin === (expected.hosted ? 'null' : expected.origin) &&
+    event.data?.nonce === expected.nonce
   );
 }
 
@@ -144,7 +142,11 @@ export class BrowserRunnerClient {
 
   private receive = (event: MessageEvent) => {
     if (
-      !isTrustedMessage(event, this.frame, this.nonce, this.origin, this.hosted)
+      !isTrustedMessage(event, this.frame, {
+        nonce: this.nonce,
+        origin: this.origin,
+        hosted: this.hosted,
+      })
     )
       return;
     const data = event.data;

@@ -3,6 +3,7 @@ import { createSandboxDocument, isTrustedMessage } from './browser-client';
 
 const parentOrigin = 'https://codeleet.example.edu';
 const nonce = 'ab'.repeat(16);
+const hostedContext = { nonce, origin: parentOrigin, hosted: true };
 
 it('trusts hosted messages only from the expected opaque iframe and nonce', () => {
   const childWindow = {} as Window;
@@ -14,39 +15,27 @@ it('trusts hosted messages only from the expected opaque iframe and nonce', () =
   ) => ({ source, origin, data: { nonce: token } }) as MessageEvent;
 
   expect(
-    isTrustedMessage(
-      message(childWindow, 'null', nonce),
-      frame,
-      nonce,
-      parentOrigin,
-      true,
-    ),
+    isTrustedMessage(message(childWindow, 'null', nonce), frame, hostedContext),
   ).toBe(true);
   expect(
     isTrustedMessage(
       message({} as Window, 'null', nonce),
       frame,
-      nonce,
-      parentOrigin,
-      true,
+      hostedContext,
     ),
   ).toBe(false);
   expect(
     isTrustedMessage(
       message(childWindow, parentOrigin, nonce),
       frame,
-      nonce,
-      parentOrigin,
-      true,
+      hostedContext,
     ),
   ).toBe(false);
   expect(
     isTrustedMessage(
       message(childWindow, 'null', 'wrong'),
       frame,
-      nonce,
-      parentOrigin,
-      true,
+      hostedContext,
     ),
   ).toBe(false);
 });

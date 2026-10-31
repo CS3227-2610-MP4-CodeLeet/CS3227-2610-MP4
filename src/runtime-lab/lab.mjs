@@ -91,19 +91,10 @@ export async function run(
 }
 
 function prepareSuppliedRuntime(language, supplied) {
-  if (
-    !supplied ||
-    !supplied.assets ||
-    typeof supplied.scripts?.supervisor !== 'string' ||
-    typeof supplied.scripts?.worker !== 'string' ||
-    !Number.isSafeInteger(supplied.bytes) ||
-    supplied.bytes <= 0
-  )
+  if (!hasRequiredRuntime(supplied) || !hasLanguageSupport(language, supplied))
     throw new Error('Browser runtime files are incomplete.');
   const assets = { ...supplied.assets };
   if (language === 'java') {
-    if (typeof supplied.scripts['java-support'] !== 'string')
-      throw new Error('Browser runtime files are incomplete.');
     assets['java-support.mjs'] = encoder.encode(
       supplied.scripts['java-support'],
     ).buffer;
@@ -114,6 +105,23 @@ function prepareSuppliedRuntime(language, supplied) {
     worker: supplied.scripts.worker,
     bytes: supplied.bytes,
   };
+}
+
+function hasRequiredRuntime(supplied) {
+  return (
+    Boolean(supplied?.assets) &&
+    typeof supplied.scripts?.supervisor === 'string' &&
+    typeof supplied.scripts?.worker === 'string' &&
+    Number.isSafeInteger(supplied.bytes) &&
+    supplied.bytes > 0
+  );
+}
+
+function hasLanguageSupport(language, supplied) {
+  return (
+    language !== 'java' ||
+    typeof supplied.scripts?.['java-support'] === 'string'
+  );
 }
 
 function validateRunInput(language, source, stdin) {

@@ -35,6 +35,7 @@ const requiredRuntimeFiles: Record<BrowserRuntimeLanguage, string[]> = {
   ],
 };
 const maximumRuntimeBytes = 128 * 1024 * 1024;
+const invalidManifestMessage = 'Browser runtime manifest is invalid.';
 
 function isRuntimeFile(value: unknown): value is RuntimeFile {
   if (!value || typeof value !== 'object') return false;
@@ -61,16 +62,18 @@ function isManifest(value: unknown): value is RuntimeManifest {
   );
 }
 
-function validateManifest(
-  manifest: RuntimeManifest,
-  language: BrowserRuntimeLanguage,
-) {
-  const prefix = `/runtime/${manifest.version}/`;
+function validateBridgeFiles(manifest: RuntimeManifest, prefix: string) {
   for (const [key, fileName] of Object.entries(bridgeFiles)) {
     const file = manifest.bridge[key];
     if (!isRuntimeFile(file) || file.path !== `${prefix}bridge/${fileName}`)
-      throw new Error('Browser runtime manifest is invalid.');
+      throw new Error(invalidManifestMessage);
   }
+}
+
+function selectRuntimeAssets(
+  manifest: RuntimeManifest,
+  language: BrowserRuntimeLanguage,
+) {
   const selected = manifest.assets.filter(
     (asset) => asset?.language === language,
   );
@@ -80,25 +83,54 @@ function validateManifest(
     names.length !== expectedNames.length ||
     names.some((name, index) => name !== expectedNames[index])
   )
-    throw new Error('Browser runtime manifest is invalid.');
+    throw new Error(invalidManifestMessage);
+  return selected;
+}
+
+function validateRuntimeAssetPaths(
+  selected: RuntimeManifest['assets'],
+  language: BrowserRuntimeLanguage,
+  prefix: string,
+) {
   for (const asset of selected) {
     if (
       !isRuntimeFile(asset) ||
       !/^[a-zA-Z0-9._-]+$/.test(asset.name) ||
       asset.path !== `${prefix}assets/${language}/${asset.sha256}/${asset.name}`
     )
-      throw new Error('Browser runtime manifest is invalid.');
+      throw new Error(invalidManifestMessage);
   }
-  const scriptKeys =
-    language === 'java'
-      ? Object.keys(bridgeFiles)
-      : ['lab', 'supervisor', 'worker'];
+}
+
+function runtimeScriptKeys(language: BrowserRuntimeLanguage) {
+  return language === 'java'
+    ? Object.keys(bridgeFiles)
+    : ['lab', 'supervisor', 'worker'];
+}
+
+function validateRuntimeSize(
+  manifest: RuntimeManifest,
+  selected: RuntimeManifest['assets'],
+  scriptKeys: string[],
+) {
   const totalBytes = [
     ...selected.map((asset) => asset.bytes),
     ...scriptKeys.map((key) => manifest.bridge[key].bytes),
   ].reduce((sum, bytes) => sum + bytes, 0);
   if (!Number.isSafeInteger(totalBytes) || totalBytes > maximumRuntimeBytes)
     throw new Error('Browser runtime manifest exceeds the supported size.');
+}
+
+function validateManifest(
+  manifest: RuntimeManifest,
+  language: BrowserRuntimeLanguage,
+) {
+  const prefix = `/runtime/${manifest.version}/`;
+  validateBridgeFiles(manifest, prefix);
+  const selected = selectRuntimeAssets(manifest, language);
+  validateRuntimeAssetPaths(selected, language, prefix);
+  const scriptKeys = runtimeScriptKeys(language);
+  validateRuntimeSize(manifest, selected, scriptKeys);
   return { selected, scriptKeys };
 }
 

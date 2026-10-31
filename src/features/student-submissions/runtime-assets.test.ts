@@ -10,6 +10,7 @@ const sourceFiles = {
 };
 const runtimeBytes = new TextEncoder().encode('pyodide wasm bytes')
   .buffer as ArrayBuffer;
+const manifestPath = '/runtime/manifest.json';
 
 function fileRecord(path: string, value: string | ArrayBuffer) {
   const bytes =
@@ -57,14 +58,16 @@ function fixture(language: 'python' | 'java' = 'python') {
   });
   const manifest = { version, bridge, assets };
   const files = new Map<string, string | ArrayBuffer>([
-    ['/runtime/manifest.json', JSON.stringify(manifest)],
+    [manifestPath, JSON.stringify(manifest)],
     ...Object.entries(sourceFiles).map(
       ([name, source]) => [bridge[name].path, source] as const,
     ),
     ...assets.map((asset) => [asset.path, runtimeBytes] as const),
   ]);
+  const requestOptions: RequestInit[] = [];
   const fetchImpl = vi.fn(
-    async (input: RequestInfo | URL, _options?: RequestInit) => {
+    async (input: RequestInfo | URL, options?: RequestInit) => {
+      if (options) requestOptions.push(options);
       const path = String(input);
       const content = files.get(path);
       return content === undefined
@@ -72,11 +75,11 @@ function fixture(language: 'python' | 'java' = 'python') {
         : new Response(content);
     },
   );
-  return { fetchImpl, manifest };
+  return { fetchImpl, manifest, requestOptions };
 }
 
 it('loads only same-origin runtime bytes and verifies every SHA-256 before transfer', async () => {
-  const { fetchImpl } = fixture();
+  const { fetchImpl, requestOptions } = fixture();
 
   const runtime = await loadBrowserRuntime('python', fetchImpl);
 
@@ -84,10 +87,12 @@ it('loads only same-origin runtime bytes and verifies every SHA-256 before trans
   expect(runtime.assets['pyodide.asm.wasm']).toEqual(runtimeBytes);
   expect(runtime.bytes).toBe(runtimeBytes.byteLength * 5);
   expect(fetchImpl.mock.calls.map(([path]) => String(path))).toContain(
-    '/runtime/manifest.json',
+    manifestPath,
   );
-  for (const [, options] of fetchImpl.mock.calls)
-    expect(options).toMatchObject({ credentials: 'same-origin' });
+  expect(requestOptions.length).toBeGreaterThan(0);
+  expect(
+    requestOptions.every((options) => options.credentials === 'same-origin'),
+  ).toBe(true);
   expect(
     fetchImpl.mock.calls.every(([path]) =>
       String(path).startsWith('/runtime/'),
@@ -131,7 +136,7 @@ it('rejects a manifest path outside the fixed same-deployment runtime tree', asy
   const { fetchImpl, manifest } = fixture();
   manifest.assets[0].path = 'https://attacker.example/runtime.wasm';
   fetchImpl.mockImplementation(async (input: RequestInfo | URL) =>
-    String(input) === '/runtime/manifest.json'
+    String(input) === manifestPath
       ? new Response(JSON.stringify(manifest))
       : new Response('unexpected fetch'),
   );
