@@ -23,6 +23,7 @@
 9. Final local verification passed, and committed the same-project implementation as `4581d1b`. The runtime asset distribution and post-change hosted smoke gates remain pending.
 10. Pushed implementation and log commits to the issue branch, updated draft PR #32 to reflect the same-project approach and current checks, and observed a successful Vercel status for commit `7ecd5d6`. This is build status only; no browser execution smoke was run.
 11. The user asked what the runtime distribution gate means and asked for failing PR checks to be fixed. GitHub logs showed scaffold README paths incorrectly climbing above `workflow/`, and Application checks failing at ESLint for parameter count, duplicated literals, unused test options and complexity. Corrected the paths, refactored validation into focused helpers, and kept the fetch-credentials assertion explicit. Committed as `cd36130`.
+12. GitHub reran Scaffold checks and Application checks after the fix; both passed for commit `ef4cee9`. The Application workflow's database and application jobs passed, and Vercel reported success. This remains build/CI evidence; Playwright skipped runtime smoke cases and no hosted Python/Java execution was performed.
 
 ## Work and verification
 
@@ -54,5 +55,5 @@
 - `next-env.d.ts` is now ignored, but remains tracked in Git; the request was to add the ignore rule only. No secrets or runtime binaries were added.
 - GitHub reports the Vercel status as successful for pushed commit `7ecd5d6`; this does not establish a Python/Java browser smoke, and no post-change role/language smoke was performed.
 - CI repair verification: `pnpm check:scaffold`, `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` (142 passed), `pnpm build`, and `pnpm site:build` passed. `pnpm test:e2e` passed 27 tests and skipped 12 credentialed/runtime-gated cases; real hosted Python/Java execution was not tested.
-- GitHub's original Application workflow database job passed; its application job stopped at lint. The original Scaffold workflow failed only on the two runtime README links. The corrected changes are committed but the GitHub workflows have not yet rerun on the new head.
-- Next steps: push `cd36130` and its log follow-up, verify the PR workflows rerun, and keep actual runtime distribution plus hosted role/language smoke gated on provenance and license/security review.
+- GitHub's original Application workflow database job passed; its application job stopped at lint. The original Scaffold workflow failed only on the two runtime README links. Both workflows subsequently passed after the repairs on commit `ef4cee9`.
+- Keep actual runtime distribution and hosted role/language smoke gated on provenance and license/security review.
