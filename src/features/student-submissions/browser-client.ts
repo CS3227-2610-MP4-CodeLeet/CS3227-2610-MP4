@@ -39,7 +39,7 @@ function parseBrowserRun(value: unknown): BrowserRun | null {
 }
 
 export function createSandboxDocument(nonce: string, parentOrigin: string) {
-  const policy = `default-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; script-src 'nonce-${nonce}' blob:; worker-src blob:`;
+  const policy = `default-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; script-src 'nonce-${nonce}' blob: 'unsafe-eval'; worker-src blob:`;
   const bootstrap = `
 const parentOrigin = ${JSON.stringify(parentOrigin)};
 const nonce = ${JSON.stringify(nonce)};
@@ -61,6 +61,7 @@ addEventListener('message', async (event) => {
   if (data.type === 'initialize' && !runtimeModule) {
     if (!data.runtime || typeof data.runtime.scripts?.lab !== 'string') return;
     runtime = data.runtime;
+      runtime.cspNonce = nonce;
     try {
       const url = URL.createObjectURL(new Blob([runtime.scripts.lab], { type: 'text/javascript' }));
       runtimeModule = await import(url);

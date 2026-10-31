@@ -104,6 +104,7 @@ function prepareSuppliedRuntime(language, supplied) {
     supervisor: supplied.scripts.supervisor,
     worker: supplied.scripts.worker,
     bytes: supplied.bytes,
+    cspNonce: supplied.cspNonce,
   };
 }
 
@@ -184,7 +185,8 @@ function createFrameContext(options, resolve, reject) {
   frame.sandbox = 'allow-scripts';
   frame.referrerPolicy = 'no-referrer';
   frame.hidden = true;
-  const nonce = crypto.randomUUID().replaceAll('-', '');
+  const nonce =
+    options.runtime.cspNonce ?? crypto.randomUUID().replaceAll('-', '');
   const policy = `default-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; script-src 'nonce-${nonce}' blob: 'unsafe-eval'; worker-src blob:`;
   frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="${policy}"><script nonce="${nonce}">${options.runtime.supervisor.replaceAll('</script', '<\\/script')}</script>`;
   const context = {

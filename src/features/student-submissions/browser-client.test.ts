@@ -40,14 +40,14 @@ it('trusts hosted messages only from the expected opaque iframe and nonce', () =
   ).toBe(false);
 });
 
-it('creates an opaque sandbox document with network denied and a nonce-only bootstrap', () => {
+it('creates an opaque sandbox document with network denied and CSP-bound scripts', () => {
   const html = createSandboxDocument(nonce, parentOrigin);
 
   expect(html).toContain("default-src 'none'");
-  expect(html).toContain(`script-src 'nonce-${nonce}' blob:`);
+  expect(html).toContain(`script-src 'nonce-${nonce}' blob: 'unsafe-eval'`);
+  expect(html).toContain('runtime.cspNonce = nonce');
   expect(html).toContain("connect-src 'none'");
   expect(html).toContain('event.origin !== parentOrigin');
   expect(html).toContain('data?.nonce !== nonce');
-  expect(html).not.toContain('unsafe-eval');
   expect(html).not.toContain('allow-same-origin');
 });

@@ -4,6 +4,7 @@ export type BrowserRuntimePayload = {
   scripts: Record<string, string>;
   assets: Record<string, ArrayBuffer>;
   bytes: number;
+  cspNonce?: string;
 };
 
 type RuntimeFile = { path: string; bytes: number; sha256: string };
