@@ -53,7 +53,7 @@ function SignInForm() {
     setMessage('');
     if (!supabaseReady) {
       setBusy(false);
-      setMessage('Authentication is not configured for this environment.');
+      setMessage('Account access is unavailable. Please try again later.');
       return;
     }
     const form = new FormData(event.currentTarget);
@@ -148,7 +148,7 @@ function SignUpForm() {
 
 function getSignupError(form: FormData) {
   if (!supabaseReady)
-    return 'Authentication is not configured for this environment.';
+    return 'Account access is unavailable. Please try again later.';
   return form.get('password') !== form.get('confirmPassword')
     ? 'Passwords do not match.'
     : '';
@@ -196,7 +196,7 @@ export function AuthCard({
       </button>
       {!supabaseReady && (
         <p className="text-sm text-muted-foreground">
-          Set the Supabase URL and publishable key to enable sign-in.
+          Account access is unavailable. Please try again later.
         </p>
       )}
     </form>
