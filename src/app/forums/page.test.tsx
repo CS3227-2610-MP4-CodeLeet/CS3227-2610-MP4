@@ -11,6 +11,17 @@ beforeEach(() => {
   mocks.load.mockResolvedValue({ rows: [], hasNext: false });
 });
 describe('forum empty and text states', () => {
+  it('shows search recovery and retains the normalized query in paging', async () => {
+    const html = renderToStaticMarkup(
+      await ForumsPage({
+        searchParams: Promise.resolve({ q: '  loops  ', page: '2' }),
+      }),
+    );
+    expect(mocks.load).toHaveBeenCalledWith({}, 2, 'loops');
+    expect(html).toContain('No discussions match your search.');
+    expect(html).toContain('Clear search');
+    expect(html).toContain('/forums?q=loops&amp;page=1');
+  });
   it('offers a first-discussion action when the forum is empty', async () => {
     const html = renderToStaticMarkup(
       await ForumsPage({ searchParams: Promise.resolve({}) }),

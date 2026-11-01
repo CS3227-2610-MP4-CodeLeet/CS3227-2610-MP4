@@ -162,6 +162,8 @@ Students can open **Menu → Profile settings** from the workspace. Instructors 
 If saving fails, your typed username stays available for retry. Your saved username persists after reloading. Profile settings support light/dark mode and mobile layouts. Use **Back to assignments** or **Back to instructor workspace** to return. No uploads or email/password/role editing are available here.
 ## Forums
 
+Enter text in **Search discussions** and select **Search** to find matching thread titles or opening posts. Search ignores capitalization and treats punctuation as ordinary text. Replies are not included. **Next** and **Previous** keep the search; **Clear search** returns to all discussions. Applying a search starts on the first page, and your search stays in the address when you refresh or use Back. Searching requires a signed-in account with forum access.
+
 Sign in, then choose **Forums** in the student sidebar/Menu or instructor header. Both roles share the same discussions. Choose **New discussion**, enter a title and message, then **Create discussion**. Open a discussion and use **Your reply** → **Post reply** to join in. Each post shows the author’s username/role at posting time and its Singapore timestamp.
 
 Discussions and replies appear newest first, with **Next**/**Previous** after 25 entries. Titles allow up to 160 characters and messages up to 8,000; blank posts are rejected. Posts are plain text, including pasted code and markup. Posting failures retain your draft so you can retry. If you post quickly, wait a minute and try again. Reading/posting requires a signed-in student or instructor account.

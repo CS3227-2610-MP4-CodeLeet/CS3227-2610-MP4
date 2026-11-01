@@ -1,15 +1,20 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { FORUM_PAGE_SIZE, forumPost, forumThread } from './contracts';
+import { forumSearchExpression } from './search';
 
 const postFields = 'id,body,author_name,author_role,created_at';
 const threadFields = `${postFields},title`;
 
-export async function loadThreads(client: SupabaseClient, page: number) {
+export async function loadThreads(
+  client: SupabaseClient,
+  page: number,
+  query = '',
+) {
   const offset = (page - 1) * FORUM_PAGE_SIZE;
-  const { data, error } = await client
-    .from('forum_threads')
-    .select(threadFields)
+  let request = client.from('forum_threads').select(threadFields);
+  if (query) request = request.or(forumSearchExpression(query));
+  const { data, error } = await request
     .order('created_at', { ascending: false })
     .order('id', { ascending: false })
     .range(offset, offset + FORUM_PAGE_SIZE);

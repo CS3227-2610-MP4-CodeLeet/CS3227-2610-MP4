@@ -4,6 +4,8 @@ import { requireForumMember } from '@/features/forums/access.server';
 import { forumPage } from '@/features/forums/contracts';
 import { loadThreads } from '@/features/forums/data.server';
 import { ForumPager, PostAuthor } from '@/features/forums/components';
+import { parseForumSearch } from '@/features/forums/search';
+import { ForumSearchControls } from '@/features/forums/search-controls';
 
 export default async function ForumsPage({
   searchParams,
@@ -11,9 +13,11 @@ export default async function ForumsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { supabase } = await requireForumMember();
-  const page = forumPage((await searchParams).page);
-  if (page === null) notFound();
-  const threads = await loadThreads(supabase, page);
+  const params = await searchParams;
+  const page = forumPage(params.page);
+  const query = parseForumSearch(params.q);
+  if (page === null || query === null) notFound();
+  const threads = await loadThreads(supabase, page, query);
   return (
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -30,15 +34,18 @@ export default async function ForumsPage({
           New discussion
         </Link>
       </div>
+      <ForumSearchControls query={query} />
       <section
         aria-label="Discussions"
         className="divide-y overflow-hidden rounded-xl border bg-background"
       >
         {!threads.rows.length && (
           <p className="px-5 py-10 text-sm text-muted-foreground">
-            {page === 1
-              ? 'No discussions yet. Start the first one.'
-              : 'No discussions on this page.'}
+            {query
+              ? 'No discussions match your search.'
+              : page === 1
+                ? 'No discussions yet. Start the first one.'
+                : 'No discussions on this page.'}
           </p>
         )}
         {threads.rows.map((thread) => (
@@ -58,7 +65,12 @@ export default async function ForumsPage({
           </article>
         ))}
       </section>
-      <ForumPager page={page} hasNext={threads.hasNext} path="/forums" />
+      <ForumPager
+        page={page}
+        hasNext={threads.hasNext}
+        path="/forums"
+        query={query}
+      />
     </>
   );
 }

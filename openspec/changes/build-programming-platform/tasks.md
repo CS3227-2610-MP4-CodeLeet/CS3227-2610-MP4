@@ -5,6 +5,13 @@
 - [x] 21.3 Verify both languages, draft/peer/hidden/role boundaries, deterministic pagination/filter URLs, feedback safety and mobile/theme; run applicable regressions.
 - [x] 21.4 Update verified guides/spec/log evidence, commit/push and publish linked labelled PR #53 to develop. Verified 312 unit tests, 124 database assertions, 57 full-suite browser passes/seven skips, direct Next build/types/lint/format/spec/scaffold checks; independent review and hosted verification remain pending.
 
+## 22. Issue #54 forum search
+
+- [x] 22.1 Add bounded search parsing, literal regex/PostgREST escaping and stable URL/pager helpers with failing-first regressions.
+- [x] 22.2 Integrate title/opening-body search before existing forum paging, Search/Clear controls and no-match copy without changing access/posting/replies.
+- [x] 22.3 Verify both member roles, literal/injection-shaped input, filtering before paging/ties, navigation, safe text and mobile/theme; run applicable regressions/checks.
+- [x] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR #55 to develop. Combined verification: 324 unit tests, 124 database assertions, 59 browser passes/seven skips, build/types/lint/format/spec/scaffold checks passed. Independent review and hosted verification remain pending.
+
 ## 1. Contracts and feasibility
 
 - [ ] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task.
@@ -133,6 +140,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [ ] 13.6 Configure and smoke the single Vercel app Preview deployment; run Production smoke only after provenance/license and independent review gates pass. The requester reports that Python and Java now run in Preview; Production smoke and independent code review remain pending. Update verified docs and the dated issue/OpenSpec/branch/PR log. Keep human verification pending.
 - [x] 13.7 Make `pnpm dev` verify/fetch the pinned local runtime assets and start the loopback static runner with Next.js; verify startup/shutdown, both browser runtimes and no Node-side submitted-code execution. Local startup, Python/Java browser journeys, and clean shutdown were verified; no submitted code is executed in Node.
 - [x] 13.8 Resolve PR #32 review findings: require at least one path segment for immutable versioned runtime caching, stage generated runtime files outside `public/`, and clean abandoned legacy public staging directories. Header matching and builder regression tests pass.
+- [x] 13.9 Address PR #55 CI integrity-download failure (issue #31): bypass stale cached responses on bounded retries, preserve approved size/hash gates, add failure diagnostics and regression coverage. GitHub run 41311436296 at 795e46c passed runtime/application and website builds, 325 unit tests, 29 browser tests/37 prerequisite skips and database checks; CodeQL/scaffold and automatic Vercel preview build passed. No hosted runtime execution smoke or independent review claimed.
 
 ## 14. Issue #30 Forums
 
