@@ -130,4 +130,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 ## 17. Issue #42 user-facing copy cleanup
 
 - [x] 17.1 Remove the requested landing paragraph, simplify account/runner setup messages, record the UI copy preference and verify existing UI checks.
-- [ ] 17.2 Publish the verified fix with linked issue, OpenSpec and dated summary; leave human review pending.
+- [x] 17.2 Publish the verified fix with linked issue #42, OpenSpec and dated summary in PR #43; leave human review pending.
