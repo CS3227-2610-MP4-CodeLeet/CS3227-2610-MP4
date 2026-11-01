@@ -12,6 +12,11 @@ import {
   ListFilterControls,
 } from '@/features/student-lists/filter-controls';
 
+import {
+  AssignmentDueDate,
+  SubmissionStatusBadge,
+} from '@/features/assignment-deadlines/components';
+
 const linkStyle =
   'inline-flex items-center gap-2 rounded-md text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring';
 
@@ -92,7 +97,7 @@ function AssignmentTable({
               scope="col"
               className="hidden w-28 px-2 py-3 font-medium md:table-cell"
             >
-              Visibility
+              Status
             </th>
             <th
               scope="col"
@@ -131,12 +136,22 @@ function AssignmentRow({
           <span className="hidden pt-0.5 font-mono text-xs text-slate-400 dark:text-slate-400 sm:block">
             {String(index + 1).padStart(2, '0')}
           </span>
-          <Link
-            href={href}
-            className="break-words font-medium leading-6 text-cyan-800 dark:text-cyan-300 hover:underline"
-          >
-            {assignment.title}
-          </Link>
+          <div className="min-w-0 space-y-2">
+            <Link
+              href={href}
+              className="break-words font-medium leading-6 text-cyan-800 dark:text-cyan-300 hover:underline"
+            >
+              {assignment.title}
+            </Link>
+            <p className="text-xs text-muted-foreground">
+              <AssignmentDueDate dueAt={assignment.due_at} />
+            </p>
+            <div className="md:hidden">
+              <SubmissionStatusBadge
+                status={assignment.submission_status ?? 'Not submitted'}
+              />
+            </div>
+          </div>
         </div>
       </td>
       <td className="px-2 py-5 text-xs text-slate-600 dark:text-slate-300">
@@ -146,7 +161,9 @@ function AssignmentRow({
         </span>
       </td>
       <td className="hidden px-2 py-5 text-xs text-slate-500 dark:text-slate-400 md:table-cell">
-        Published
+        <SubmissionStatusBadge
+          status={assignment.submission_status ?? 'Not submitted'}
+        />
       </td>
       <td className="px-3 py-5 text-right sm:px-6">
         <Link
@@ -191,6 +208,17 @@ export function AssignmentInstructions({
           <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
             {assignment.title}
           </h1>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            <AssignmentDueDate dueAt={assignment.due_at} />
+            {assignment.submission_status && (
+              <SubmissionStatusBadge status={assignment.submission_status} />
+            )}
+          </div>
+          {assignment.submission_status === 'Overdue' && (
+            <p className="text-sm text-muted-foreground">
+              You can still submit.
+            </p>
+          )}
         </header>
         <div className="px-5 py-4 sm:px-6">
           <h2

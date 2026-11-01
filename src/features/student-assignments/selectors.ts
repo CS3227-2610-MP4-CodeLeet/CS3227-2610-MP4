@@ -9,6 +9,7 @@ function summary(record: AssignmentRecord): AssignmentSummary {
     id: record.id,
     title: record.title,
     language: record.language,
+    ...(record.due_at === undefined ? {} : { due_at: record.due_at }),
     publication_status: 'published',
   };
 }

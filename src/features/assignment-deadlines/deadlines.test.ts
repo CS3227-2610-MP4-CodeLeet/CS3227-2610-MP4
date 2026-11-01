@@ -10,6 +10,7 @@ import {
   submissionInputSchema,
 } from '@/features/codementor/contracts';
 
+const utcDue = '2026-11-13T06:00:00Z';
 const assignmentInput = {
   title: 'Deadline exercise',
   instructions: 'Print a value.',
@@ -60,8 +61,8 @@ it.each([
 it('distinguishes omitted deadline updates from an explicit clear', () => {
   expect(deadlineRpcArguments(undefined)).toEqual({});
   expect(deadlineRpcArguments(null)).toEqual({ p_due_at: null });
-  expect(deadlineRpcArguments('2026-11-13T06:00:00Z')).toEqual({
-    p_due_at: '2026-11-13T06:00:00Z',
+  expect(deadlineRpcArguments(utcDue)).toEqual({
+    p_due_at: utcDue,
   });
 });
 
@@ -84,7 +85,7 @@ it.each([
 });
 
 it('distinguishes missing, overdue and latest saved status with exact-boundary semantics', () => {
-  const due = '2026-11-13T06:00:00Z';
+  const due = utcDue;
   const now = Date.parse(due);
   expect(submissionStatus(null, null, now)).toBe('Not submitted');
   expect(submissionStatus(due, null, now)).toBe('Not submitted');

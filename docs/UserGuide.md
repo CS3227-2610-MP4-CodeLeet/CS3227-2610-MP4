@@ -39,6 +39,19 @@ Leaving through an app link or **Sign out** asks for confirmation when code is u
 
 To practise on a real Python or Java assignment locally, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The local runner remains disabled in production. Hosted execution remains unavailable.
 
+### Assignment deadlines
+
+Instructors can set **Due date and time (SGT, optional)** when creating or editing an assignment. Leave it blank to remove the deadline. All due dates use Singapore time (SGT).
+
+Your assignment list and workspace show the due date and your latest saved submission status:
+
+- **Not submitted:** you have not saved a revision.
+- **Overdue:** the due date has passed and you have not saved a revision. You can still submit.
+- **Submitted:** your latest revision was saved on time or without a deadline.
+- **Submitted late:** your latest revision was saved after its deadline.
+
+Late submissions are accepted without an automatic grade penalty. Saved revisions show **Late**, **On time**, or **Submitted** when no deadline applied. Their original deadline and timing remain unchanged if an instructor later edits the due date. Status updates when you open/refresh the page or save a revision. Instructors can see timing while reviewing submissions.
+
 ### My submissions
 
 Sign in as a student and select **My submissions** from the sidebar or Menu, or open `/student/submissions`. This lists only your saved revisions across assignments, with the assignment title, Python/Java language, revision number and submission time in Singapore time (SGT). Revisions are newest first, with **Next** and **Previous** for pages of up to 25 entries. On narrow screens, scroll within the table to see all columns.

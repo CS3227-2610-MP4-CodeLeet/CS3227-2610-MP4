@@ -1,4 +1,4 @@
-import { assignmentLanguageSchema } from '@/features/codementor/contracts';
+import { loadPublishedAssignments } from '@/features/assignment-deadlines/assignments.server';
 import { AssignmentList } from '@/features/student-assignments/components';
 import {
   listPreviewAssignments,
@@ -6,12 +6,10 @@ import {
 } from '@/features/student-assignments/preview.server';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { requireRole } from '@/lib/auth/verified-user';
-import type { AssignmentSummary } from '@/features/student-assignments/types';
 import { notFound } from 'next/navigation';
 import {
   matchesListFilters,
   parseListFilters,
-  titleSearchPattern,
   type ListSearchParams,
 } from '@/features/student-lists/filters';
 
@@ -47,23 +45,14 @@ export default async function AssignmentListPage({
       />
     );
   }
-  const { supabase } = await requireRole('student');
-  let query = supabase
-    .from('assignments')
-    .select('id,title,language,publication_status')
-    .eq('publication_status', 'published');
-  if (filters.language) query = query.eq('language', filters.language);
-  if (filters.q)
-    query = query.filter('title', 'imatch', titleSearchPattern(filters.q));
-  const { data, error } = await query
-    .order('created_at', { ascending: false })
-    .order('id', { ascending: false });
-  if (error) throw new Error('Published assignments could not be loaded');
-  const assignments = (data ?? []).map((item) => ({
-    ...item,
-    language: assignmentLanguageSchema.parse(item.language),
-    publication_status: 'published' as const,
-  })) as AssignmentSummary[];
+  const { supabase, user } = await requireRole('student');
+  const assignments = await loadPublishedAssignments(
+    supabase,
+    user.id,
+    filters,
+  );
+  if (!assignments)
+    throw new Error('Published assignments could not be loaded');
   return (
     <div>
       <AssignmentList assignments={assignments} filters={filters} />

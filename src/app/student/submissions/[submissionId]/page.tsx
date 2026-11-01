@@ -6,6 +6,10 @@ import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { assignmentTitle } from '@/features/student-submissions/history';
 import { languageLabels } from '@/features/student-assignments/types';
 import { revisionEditorPath } from '@/features/student-submissions/revision-selection';
+import {
+  CapturedDeadline,
+  SubmissionTiming,
+} from '@/features/assignment-deadlines/components';
 
 export default async function SubmissionPage({
   params,
@@ -17,7 +21,7 @@ export default async function SubmissionPage({
   const { data: submission, error } = await supabase
     .from('submissions')
     .select(
-      'id,assignment_id,source,language,revision,created_at,assignments(title,publication_status,language)',
+      'id,assignment_id,source,language,revision,created_at,is_late,due_at_submission,assignments(title,publication_status,language)',
     )
     .eq('id', submissionId)
     .eq('student_id', user.id)
@@ -42,6 +46,11 @@ export default async function SubmissionPage({
           Revision {submission.revision}
         </h1>
         <p className="text-sm text-muted-foreground">{languageLabel} source</p>
+        <SubmissionTiming
+          isLate={submission.is_late}
+          dueAt={submission.due_at_submission}
+        />
+        <CapturedDeadline dueAt={submission.due_at_submission} />
       </div>
       <ContinueEditing submission={submission} />
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
