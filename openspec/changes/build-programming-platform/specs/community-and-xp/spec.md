@@ -1,5 +1,16 @@
 ## ADDED Requirements
 
+### Requirement: Search discussion titles and opening posts
+Authorized forum members SHALL be able to search thread titles or opening-post bodies using case-insensitive literal text before existing stable 25-row pagination. Search SHALL NOT include replies, author identity or unrelated/private data. Input SHALL be trimmed, bounded to 160 characters and reject duplicate/control-character parameters; blank input SHALL browse all discussions. Terms SHALL be safely escaped for both pattern matching and query grammar.
+
+#### Scenario: Find older matching discussions
+- **WHEN** a member applies a title/body query and uses Next/Previous or browser navigation
+- **THEN** matching discussions use created_at/ID descending order with q retained in URLs; applying/clearing returns to page one, and an empty result offers clear search
+
+#### Scenario: Literal untrusted search input
+- **WHEN** a member enters punctuation, quotes, slashes, wildcard symbols or query-injection-shaped text
+- **THEN** it matches only literal text, never adds predicates or renders executable markup, and existing verified-member/RLS/projection boundaries remain enforced
+
 ### Requirement: Text discussions
 The system SHALL allow authorized users to create scoped threads/replies with text-only content, length/request limits and safe rendering.
 

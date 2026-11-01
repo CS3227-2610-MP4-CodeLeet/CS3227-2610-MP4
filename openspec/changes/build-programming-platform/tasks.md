@@ -1,5 +1,14 @@
 ## 1. Contracts and feasibility
 
+## 22. Issue #54 forum search
+
+- [x] 22.1 Add bounded search parsing, literal regex/PostgREST escaping and stable URL/pager helpers with failing-first regressions.
+- [x] 22.2 Integrate title/opening-body search before existing forum paging, Search/Clear controls and no-match copy without changing access/posting/replies.
+- [ ] 22.3 Verify both member roles, literal/injection-shaped input, filtering before paging/ties, navigation, safe text and mobile/theme; run applicable regressions/checks.
+- [ ] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR to develop; keep independent review/deployment pending.
+
+## 1. Contracts and feasibility (continued)
+
 - [ ] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task.
 - [x] 1.2 Evaluate browser Python/Java candidates including Java source compilation, licensing and cold/warm behavior. See runtime-feasibility evidence: Python candidate retained; Java buffered input resolved in the local lab with first-party compatibility classes; provenance/distribution and production integration remain open, so no production Java runtime selected.
 - [ ] 1.3 Prove credential/network isolation, cancellation, output limits and supported browsers before package selection.

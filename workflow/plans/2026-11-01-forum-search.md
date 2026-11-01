@@ -1,0 +1,20 @@
+# Forum search implementation plan
+
+Issue [#54](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/54); branch `feat/forum-search` from develop `ec7bcde`. Active OpenSpec: build-programming-platform, community-and-xp, task group 22. Primary agent implements inline; no delegation requested. Independent My grades PR #53 remains excluded.
+
+## Design and approaches
+
+Implement the user's requested thread title/content search on the existing forum list. Agent-selected scope: literal case-insensitive substring search over titles and opening posts, not reply text. Reuse the existing RLS-protected projected thread query and newest-created_at/ID ordering; searching downloaded pages would miss older matches, while full-text indexing/RPC would introduce schema and stemming behavior not needed for this scope. Apply a bounded OR filter before existing 25-row paging. Escape regex metacharacters and separately quote/escape PostgREST values; never interpolate raw terms into grammar. Search is not an authorization boundary; existing member verification and RLS remain enforced.
+
+Use a GET Next Form with q in the URL, explicit Search and Clear search controls, 160-character trimmed bound, no control characters/duplicate parameters and a helpful no-match state. Empty queries browse all discussions. Applying/clearing returns to page one; pager preserves q. Keep reply paging unaffected and text safe through React escaping. Existing posting/replies, quotas and data projections stay unchanged. No schema, dependency, AI, environment, XP or grade changes.
+
+## Review focus
+
+Quotes/backslashes/commas/parentheses and injection-shaped terms must stay literal; wildcard characters must not match everything. Filtering must precede pagination, with stable ties and no private columns added. Validate roles/fixture boundaries, Back/refresh and pagination query retention, blank/invalid queries and mobile/theme. Preserve environment values and the pre-existing generated next-env edit. Use scoped synthetic fixtures, no database reset. Author review only; independent teammate/log verification pending.
+
+## Tasks
+
+- [x] Write failing query parsing, real SDK filter/projection/order and pager/empty-state regressions; implement escaped search and URL helpers.
+- [x] Integrate list loading, search controls, empty copy and query-preserving pagination; preserve existing reply and post behavior.
+- [ ] Verify title/body matches, literal punctuation/injection, paging/ties, browser history, access denial, safe rendering and mobile/theme with synthetic browser tests; run applicable unit/build/static/database and forum regressions.
+- [ ] Update verified guides/spec/log evidence, commit verified milestones, push and create a labelled PR to develop. Do not merge/deploy.
