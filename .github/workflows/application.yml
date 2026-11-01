@@ -86,7 +86,7 @@ jobs:
 
   coverage-report:
     needs: application
-    if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.application.outputs.coverage_artifact == 'true' }}
+    if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && needs.application.outputs.coverage_artifact == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -107,4 +107,6 @@ jobs:
           json-summary-path: coverage/coverage-summary.json
           json-final-path: coverage/coverage-final.json
           vite-config-path: coverage/vitest.config.ts
-          file-coverage-mode: none
+          file-coverage-mode: changes
+          file-coverage-expanded: true
+          file-coverage-root-path: /__w/CS3227-2610-MP4/CS3227-2610-MP4

@@ -7,8 +7,8 @@
 ## 2. Pull request coverage comment
 
 - [x] 2.1 Upload coverage reports from the application job even when tests fail, and expose whether a summary artifact exists.
-- [x] 2.2 Add a same-repository PR reporting job using `davelosert/vitest-coverage-report-action@v2`, with write permission limited to that job and no PR checkout.
-- [x] 2.3 Validate success, failed-test, missing-artifact, and fork-PR workflow conditions; confirm the workflow YAML and existing checks.
+- [x] 2.2 Add a same-repository, non-Dependabot PR reporting job using `davelosert/vitest-coverage-report-action@v2`, with write permission limited to that job and no PR checkout.
+- [x] 2.3 Validate success, failed-test, missing-artifact, fork-PR, and Dependabot-PR workflow conditions; confirm the workflow YAML and existing checks.
 
 ## 3. Dependabot version updates
 

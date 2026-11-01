@@ -8,7 +8,7 @@ The existing Vitest suite has no measured coverage floor, PR coverage comment, o
 - Add behavior-focused tests for uncovered paths until the thresholds pass.
 - Report coverage on eligible pull requests through a separate least-privilege GitHub Actions job using `davelosert/vitest-coverage-report-action@v2`.
 - Configure weekly Dependabot version updates for the pnpm workspace and GitHub Actions.
-- Document the limits for fork PR comments and pnpm 12 dependency-graph-based security alerts.
+- Document the limits for fork and Dependabot PR comments and pnpm 12 dependency-graph-based security alerts.
 
 ## Capabilities
 
