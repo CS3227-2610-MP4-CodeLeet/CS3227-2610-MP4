@@ -16,7 +16,7 @@
 - Do not check out or execute PR code in the reporter job. The reporter reads the uploaded Vitest config as text to display the tested thresholds.
 - Keep coverage artifacts limited to Vitest JSON output and the Vitest config; do not upload secrets or runtime distributions.
 - Fork and Dependabot PRs skip the reporter job because their tokens cannot write comments.
-- Aggregate comment behavior was verified on PR run #150; the updated changed-file mode is pending its hosted recheck.
+- Aggregate and changed-file-mode behavior were verified on PR run #151. The action reported no covered application files changed for this PR.
 
 ## Review Focus
 

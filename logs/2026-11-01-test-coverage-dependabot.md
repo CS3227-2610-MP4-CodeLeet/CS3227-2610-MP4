@@ -27,6 +27,9 @@
 
 12. PR workflow run #149 passed the application job (format, lint, typecheck, unit coverage, artifact upload, build, site build, browser tests), database job, and coverage-report job. The reporter posted the aggregate table on PR #61 with the four measured coverage values and threshold targets.
 
+13. The review of `c9e4f4a` found two actionable workflow issues: changed-file reporting was disabled, and Dependabot PRs would enter a comment-writing job with a read-only token. Updated the reporter to use changed-file mode with the CI coverage root and excluded `dependabot[bot]`; the follow-up code review on `c250c3a` completed with no findings.
+14. PR workflow run #151 passed application, database, and coverage-report jobs for `c250c3a`. The reporter updated comment [#6560699966](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/61#issuecomment-6560699966): lines 83.71% (1707/2039), statements 82.03% (1845/2249), functions 83.97% (461/549), and branches 76.79% (1317/1715), all above their 80/80/80/70 thresholds. Changed-file mode ran, but found no covered application files changed in this PR. The separate security review was still running at the last check; teammate verification remains pending.
+
 ## Work and verification
 
 - Main changes: `package.json`, `pnpm-lock.yaml`, `vitest.config.ts`, `.github/workflows/application.yml`, `.github/dependabot.yml`; behavior tests under `src/`; OpenSpec, design/plans, and this log.
