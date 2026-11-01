@@ -11,7 +11,8 @@ export default async function Home() {
   ) {
     const { user, role } = await getVerifiedUserRole();
     if (user && role === 'student') redirect('/student/assignments');
-    if (user && role === 'instructor') redirect('/instructor');
+    if (user && (role === 'instructor' || role === 'admin'))
+      redirect('/instructor');
   }
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-6 px-6 py-16">

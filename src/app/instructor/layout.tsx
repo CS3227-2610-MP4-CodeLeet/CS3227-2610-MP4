@@ -11,7 +11,7 @@ export default async function InstructorLayout({
 }: {
   children: ReactNode;
 }) {
-  await requireRole('instructor');
+  const { role } = await requireRole('instructor');
   return (
     <div>
       <header className="flex items-center justify-between border-b px-6 py-4">
@@ -22,11 +22,22 @@ export default async function InstructorLayout({
           <Link className="text-sm underline" href="/ai/usage">
             AI usage
           </Link>
+          <Link className="text-sm underline" href="/forums">
+            Forums
+          </Link>
           <Link className="text-sm underline" href="/instructor/ai-context">
             Context comparison
           </Link>
+          {role === 'admin' && (
+            <Link className="text-sm underline" href="/admin">
+              Admin panel
+            </Link>
+          )}
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/profile" className="rounded-md border px-3 py-2 text-sm">
+            Profile
+          </Link>
           <SignOutButton />
           <AccountThemeButton />
         </div>

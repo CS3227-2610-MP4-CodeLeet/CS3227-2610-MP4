@@ -14,6 +14,11 @@ with seed_accounts as (
     format('instructor%s@codeleet.test', account_number),
     format('Instructor %s', account_number)
   from generate_series(1, 3) as instructor_accounts(account_number)
+  union all
+  select
+    '91000000-0000-4000-8000-000000000016'::uuid,
+    'admin@codeleet.test',
+    'Admin'
 )
 insert into auth.users (
   id,
@@ -78,6 +83,8 @@ with seed_accounts as (
     format('91000000-0000-4000-8000-%s', lpad((account_number + 12)::text, 12, '0'))::uuid,
     format('instructor%s@codeleet.test', account_number)
   from generate_series(1, 3) as instructor_accounts(account_number)
+  union all
+  select '91000000-0000-4000-8000-000000000016'::uuid, 'admin@codeleet.test'
 )
 insert into auth.identities (
   provider_id,
@@ -104,6 +111,10 @@ where user_id in (
   select format('91000000-0000-4000-8000-%s', lpad((account_number + 12)::text, 12, '0'))::uuid
   from generate_series(1, 3) as instructor_accounts(account_number)
 );
+
+update public.user_roles
+set role = 'admin'
+where user_id = '91000000-0000-4000-8000-000000000016';
 
 insert into public.assignments (
   id,
@@ -194,5 +205,26 @@ join public.submissions s
   )::uuid
 join public.assignments a on a.id = s.assignment_id
 on conflict (submission_id) do nothing;
+-- Optional local forum examples; this remains an explicit local-only seed.
+insert into public.forum_threads(id,author_id,author_name,author_role,title,body,request_id)
+select format('97000000-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid,
+  p.id,p.display_name,r.role,
+  case n when 1 then 'Welcome to the forum' when 2 then 'Python questions' else 'Java questions' end,
+  'Synthetic local discussion. Ask a question or share an approach.',
+  format('97000000-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid
+from generate_series(1,3) n
+join public.profiles p on p.id=format('91000000-0000-4000-8000-%s',lpad((case when n=1 then 13 else n-1 end)::text,12,'0'))::uuid
+join public.user_roles r on r.user_id=p.id
+on conflict(id) do nothing;
+
+insert into public.forum_replies(id,thread_id,author_id,author_name,author_role,body,request_id)
+select format('97000001-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid,
+  '97000000-0000-4000-8000-000000000001'::uuid,p.id,p.display_name,r.role,
+  'Synthetic local reply. Keep discussions helpful and share code as plain text.',
+  format('97000001-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid
+from generate_series(1,2) n
+join public.profiles p on p.id=format('91000000-0000-4000-8000-%s',lpad((case when n=1 then 3 else 14 end)::text,12,'0'))::uuid
+join public.user_roles r on r.user_id=p.id
+on conflict(id) do nothing;
 end
 $seed$;

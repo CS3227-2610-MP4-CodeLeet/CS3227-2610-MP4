@@ -5,6 +5,7 @@ import {
   ReviewServiceError,
 } from '@/features/codementor/review-service';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { hasInstructorAccess } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 
 const response = (body: unknown, status = 200) =>
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
       },
       401,
     );
-  if (role !== 'instructor')
+  if (!hasInstructorAccess(role))
     return response(
       {
         error: {
