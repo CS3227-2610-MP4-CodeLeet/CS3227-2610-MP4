@@ -32,9 +32,7 @@ function SubmissionCodeRunner({
       cases={[]}
     />
   ) : (
-    <p className="text-sm text-muted-foreground">
-      Browser code execution is not configured for this deployment.
-    </p>
+    <p className="text-sm text-muted-foreground">Code runner is unavailable.</p>
   );
 }
 

@@ -1,5 +1,12 @@
 ## ADDED Requirements
 
+### Requirement: User-facing product copy
+Product screens SHALL use concise, plain wording that helps students and instructors complete their tasks. Internal setup and execution architecture SHALL remain in developer documentation unless needed for an actionable user decision. The landing page SHALL omit the technical paragraph about Python-only submissions, trusted instructors and server execution.
+
+#### Scenario: Service unavailable
+- **WHEN** account access or code running is unavailable
+- **THEN** the UI explains the unavailable action without asking end users to configure infrastructure or credentials
+
 ### Requirement: Email password recovery
 The system SHALL provide a Forgot password email request from sign-in, use Supabase Auth's PKCE recovery and respond without disclosing account existence. It SHALL enforce pending/resend controls and show safe provider/rate errors without exposing provider details. Only a fixed same-origin recovery destination SHALL be accepted by the callback, and a server-verified identity SHALL be required to render the new-password form. Matching passwords with the existing visibility controls SHALL update only that authenticated identity; invalid, expired and replayed links SHALL offer a new request. Successful password update and any subsequent sign-out failure SHALL be reported distinctly. Passwords/tokens/email bodies SHALL NOT be logged by application code.
 

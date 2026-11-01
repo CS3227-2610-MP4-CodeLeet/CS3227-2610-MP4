@@ -39,11 +39,6 @@ export default async function Home() {
           Sign in
         </Link>
       </div>
-      <p className="max-w-xl text-sm text-muted-foreground">
-        Students can submit Python source for educational feedback. Assignments
-        are created by trusted instructors. Submitted source is not executed by
-        the server.
-      </p>
     </main>
   );
 }
