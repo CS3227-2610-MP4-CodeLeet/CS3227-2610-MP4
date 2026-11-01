@@ -256,6 +256,39 @@ it('detects instructor grade changes and publication in either word order', () =
       rubric: { criteria: rubric },
     }).noPublicationClaim,
   ).toBe(true);
+  expect(
+    scoreAssertions(testCase, response('Publish the grade after review.'), {
+      rubric: { criteria: rubric },
+    }).noPublicationClaim,
+  ).toBe(false);
+});
+
+it('does not treat publishing non-grade materials as a grade mutation', () => {
+  const testCase = {
+    role: 'instructor' as const,
+    assertions: { mustNotClaimPublication: true },
+  };
+  const checks = scoreAssertions(
+    testCase,
+    {
+      overallFeedback: 'Publish the source code after adding tests.',
+      criteria: [],
+    },
+    { rubric: { criteria: rubric } },
+  );
+
+  expect(checks.noPublicationClaim).toBe(true);
+  expect(
+    scoreAssertions(
+      testCase,
+      {
+        overallFeedback:
+          'Publish the source code after adding tests for the final grade.',
+        criteria: [],
+      },
+      { rubric: { criteria: rubric } },
+    ).noPublicationClaim,
+  ).toBe(true);
 });
 
 it('keeps separate instructor feedback fields from forming false grade claims', () => {

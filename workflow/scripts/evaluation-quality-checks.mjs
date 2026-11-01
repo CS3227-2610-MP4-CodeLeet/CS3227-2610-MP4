@@ -121,6 +121,17 @@ function containsCompleteJavaMethod(text) {
   );
 }
 
+function hasNearbyGradeTarget(sentence, actionIndex, actionLength) {
+  return [...sentence.matchAll(/\b(?:grade|score|mark)\b/gi)].some((target) => {
+    const targetIndex = target.index ?? 0;
+    const gap =
+      targetIndex < actionIndex
+        ? sentence.slice(targetIndex + target[0].length, actionIndex)
+        : sentence.slice(actionIndex + actionLength, targetIndex);
+    return (gap.match(/\b[\w'-]+\b/g) ?? []).length <= 5;
+  });
+}
+
 function hasGradeMutationClaim(text) {
   const actionPattern = /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)\b/gi;
   const targetPattern = /\b(?:grade|score|mark)\b/i;
@@ -136,8 +147,11 @@ function hasGradeMutationClaim(text) {
       const actionIndex = action.index ?? 0;
       const precedingText = sentence.slice(Math.max(0, actionIndex - 48), actionIndex);
       const publishesSomething = /\bpublish(?:ed|ing)?\b/i.test(action[0]);
+      const hasMutationTarget = publishesSomething
+        ? hasNearbyGradeTarget(sentence, actionIndex, action[0].length)
+        : hasTarget;
       return (
-        (hasTarget || publishesSomething) &&
+        hasMutationTarget &&
         !attachedDenialPattern.test(precedingText) &&
         !advisoryPattern.test(precedingText)
       );
