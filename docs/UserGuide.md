@@ -1,6 +1,6 @@
 # User Guide
 
-Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
+Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. Admin role management has focused unit and database coverage; its authenticated browser journey has not yet been run. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
 
 ## Local CodeLeet app
 
@@ -16,8 +16,14 @@ The moon/sun control applies to the landing page, sign-in, account creation and 
 2. Start the local Supabase stack with `pnpm db:start`, then apply new migrations with `pnpm exec supabase migration up --local`. Use `pnpm db:reset` only for a disposable database: it deletes existing local data.
 3. Copy `.env.example` to the ignored `.env.local`, then set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the local Supabase status output. Keep all other local service keys private.
 4. Run `pnpm dev` and open the address printed by Next.js.
-5. Create a student account at **Create student account**, entering your **Username**, email and matching passwords. Local email confirmation is disabled by default. Public registration does not offer an instructor role.
-6. To exercise instructor screens, first create an account and use a trusted local Supabase admin session to set that account's `user_roles.role` to `instructor`; see [local database setup](../supabase/README.md). Never expose this operation through the app.
+5. Create a student account at **Create student account**, entering your **Username**, email and matching passwords. Local email confirmation is disabled by default. Public registration always creates a student account.
+6. To exercise instructor screens, first create an account and use a trusted local Supabase admin session to set that account's `user_roles.role` to `instructor`; see [local database setup](../supabase/README.md). Never expose first-admin provisioning through the app.
+
+### Admin role management
+
+An admin also has instructor access. After signing in, admins can use **Admin panel** in the instructor header to view registered users' email, display name, user ID and role, then change a role to **Student**, **Instructor** or **Admin**. Role changes take effect immediately and are applied by a protected server/database operation. Public registration cannot create instructor or admin accounts. See [local database setup](../supabase/README.md) for the trusted first-admin procedure; the local seed includes `admin@codeleet.test`.
+
+Changing your own admin role shows a warning and asks for confirmation before sending the change. The change is blocked if it would leave the system without an admin. A confirmed self-change to student returns to student assignments; a change to instructor returns to the instructor workspace. This feature has focused unit and database checks; the authenticated admin browser journey is still pending.
 
 Students can browse published Python and Java assignments, submit revisions (up to 8,000 characters), view their own history, request learning feedback, and see grades only after publication. Instructors can create/edit/publish assignments with 1–20 private rubric criteria, review owned submissions, request AI rubric suggestions, edit grade drafts, and explicitly publish grades. Both roles can inspect their own AI usage. Instructors can compare focused and broader authorized contexts; each uncached comparison may use two daily AI request slots.
 
@@ -134,3 +140,16 @@ Complete the following for each verified feature before release. Do not present 
 Document account access/profiles, assignment creation, Python and Java practice runs, code submission, student AI feedback, instructor AI evaluation and grade publication, forum threads/replies, XP, and leaderboard behavior only once implemented.
 
 Explain that practice runs happen on the user's device and do not prove official correctness. Explain when code is sent to the server for submission or SoCLaaS feedback, how AI output should be checked, and the published limits/cancellation behavior verified for the selected runtimes.
+
+## Profile settings
+
+Students can open **Menu → Profile settings** from the workspace. Instructors can choose **Profile** in their account controls. The same page shows your username, email and role. Edit **Username** and choose **Save changes**; a confirmation appears after the update is saved. The username is trimmed and allows 1–80 characters. Sign-in still uses your email. Email and role are read-only on this page.
+
+If saving fails, your typed username stays available for retry. Your saved username persists after reloading. Profile settings support light/dark mode and mobile layouts. Use **Back to assignments** or **Back to instructor workspace** to return. No uploads or email/password/role editing are available here.
+## Forums
+
+Sign in, then choose **Forums** in the student sidebar/Menu or instructor header. Both roles share the same discussions. Choose **New discussion**, enter a title and message, then **Create discussion**. Open a discussion and use **Your reply** → **Post reply** to join in. Each post shows the author’s username/role at posting time and its Singapore timestamp.
+
+Discussions and replies appear newest first, with **Next**/**Previous** after 25 entries. Titles allow up to 160 characters and messages up to 8,000; blank posts are rejected. Posts are plain text, including pasted code and markup. Posting failures retain your draft so you can retry. If you post quickly, wait a minute and try again. Reading/posting requires a signed-in student or instructor account.
+
+This version supports creating discussions and replies; editing/deleting posts and attachments are not available. Forum activity does not award XP or change grades. Verified locally with synthetic accounts; hosted availability depends on deployment and applying the forum migration.

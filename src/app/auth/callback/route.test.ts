@@ -35,6 +35,13 @@ describe('recovery callback boundary', () => {
     );
     expect(response.headers.get('location')).toBe(`${base}/instructor`);
   });
+  it('routes admins to the instructor workspace after sign-in', async () => {
+    mocks.role.mockResolvedValue({ data: { role: 'admin' }, error: null });
+    const response = await GET(
+      new NextRequest(`${base}/auth/callback?code=synthetic`),
+    );
+    expect(response.headers.get('location')).toBe(`${base}/instructor`);
+  });
   it('preserves the normal callback without a code', async () => {
     const response = await GET(new NextRequest(`${base}/auth/callback`));
     expect(response.headers.get('location')).toBe(`${base}/sign-in`);

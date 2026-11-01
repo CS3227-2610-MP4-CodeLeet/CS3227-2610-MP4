@@ -1,3 +1,9 @@
+## Linked issue
+
+Closes #<issue-number>
+
+<!-- Replace <issue-number> with the GitHub issue number. -->
+
 ## Problem and resulting behavior
 
 <!-- Link the OpenSpec change/scenarios and describe the final change. -->

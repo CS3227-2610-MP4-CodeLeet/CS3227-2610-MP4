@@ -1,6 +1,7 @@
 import { type NextRequest } from 'next/server';
 import { assignmentInputSchema } from '@/features/codementor/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { hasInstructorAccess } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson } from '@/lib/http/responses';
 
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       { error: { code: 'unauthorized', message: 'Sign in required.' } },
       401,
     );
-  if (role !== 'instructor')
+  if (!hasInstructorAccess(role))
     return privateJson(
       { error: { code: 'forbidden', message: 'Instructor access required.' } },
       403,
