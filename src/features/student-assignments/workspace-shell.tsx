@@ -89,6 +89,14 @@ function WorkspaceMenu({ pathname }: { pathname: string }) {
       </summary>
       <div className="absolute top-full right-0 z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-lg border bg-white dark:bg-slate-900 p-3 shadow-lg">
         <WorkspaceNavigation />
+        {useContext(AuthenticatedWorkspace) && (
+          <Link
+            href="/profile"
+            className="mt-3 block rounded-md border-t px-3 py-3 text-sm hover:bg-muted"
+          >
+            Profile settings
+          </Link>
+        )}
       </div>
     </details>
   );

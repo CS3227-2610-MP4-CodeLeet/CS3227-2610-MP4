@@ -170,6 +170,17 @@ Plan separate development and production Supabase projects/credentials, correspo
 - Codex assisted with source review, scope synthesis, and generation of this scaffold. Team members must review these files and update this declaration with actual later use before submission.
 - Runtime/library acknowledgements and licenses: pending selection. Record them before distributing any runtime assets.
 
+## Private profile settings
+
+[Issue #38](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/38) adds the independent `/profile` page and `PATCH /api/profile`. The server loader verifies identity and trusted role, scopes the profile read to the verified user ID and selects only display_name. Verified Auth supplies the readonly email; protected user_roles supplies the readonly role. Username maps to the existing display_name field, without changing uniqueness or email-based sign-in. No schema migration, public profile read grant or privileged application key is required.
+
+PATCH checks same Origin, caps strict JSON at 1,024 bytes, accepts only a trimmed username of 1–80 characters, and derives the update target from the session. It updates only display_name and returns only the saved name using private/no-store JSON. RLS and existing column grants remain the database ownership/field boundary. Missing profiles are unavailable rather than upserted. Backend errors are sanitized and client input is retained. No email, role, owner, account metadata, AI or grade changes occur. Concurrent saves use the existing last-write behavior; no new profile version field is introduced.
+
+`src/features/profile/` separates contracts, private loading, form state and presentation. Page-level loading/error boundaries fail safely. Student account Menu and instructor account controls link to the page, avoiding dependence on open Forums PR #37. The update changes only the own-profile field; it does not rewrite snapshots or other stored records.
+
+Unit/API tests verify validation, owner/projection scoping, unprovisioned/signed-out denial, CSRF, protected fields and safe service failures. `supabase/tests/database/profile_settings.test.sql` adds eleven rollback-only existing-policy assertions, including instructor edits and peer protection. `tests/e2e/profile-settings.spec.ts` uses temporary local synthetic accounts to verify both roles, persistence, readonly fields, failed-save recovery and mobile/theme behavior. It skips without explicit local test credentials. See [plan](../workflow/plans/2026-11-01-profile-settings.md) and [summary](../logs/2026-11-01-profile-settings.md) for actual outcomes and limits.
+
+This update follows the [official Supabase update](https://supabase.com/docs/reference/javascript/update) and [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security) guidance; application code is fresh MP4 work. Existing local seed/reset behavior is unchanged and no reset is needed for Profile settings.
 ## Forum design and verification
 
 [Issue #30](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/30) implements one shared course forum. Routes `/forums`, `/forums/new`, `/forums/[threadId]` verify both identity and trusted role in layout/pages. `src/features/forums/` separates contracts, access, projected server reads, posting API logic, presentation and client form state. Student sidebar/mobile Menu and instructor navigation link to the same routes. Both layouts reuse existing theme/sign-out controls.
