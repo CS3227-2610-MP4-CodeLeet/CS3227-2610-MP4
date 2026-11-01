@@ -17,6 +17,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
+    "ai:model-eval": "node workflow/scripts/evaluate-soclaas-models.mjs",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "node workflow/scripts/warn-local-db-reset.mjs && supabase db reset --local --no-seed && supabase db query --local --file supabase/seed.sql",
