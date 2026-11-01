@@ -1,4 +1,9 @@
-## 1. Contracts and feasibility
+## 21. Issue #52 My grades
+
+- [x] 21.1 Implement projected published-grade DTO/query with explicit ownership, bounded filters/pagination, safe failures and unit/privacy tests.
+- [x] 21.2 Add student My grades routes/navigation, score/feedback/revision links, states and shared filter/pagination presentation.
+- [x] 21.3 Verify both languages, draft/peer/hidden/role boundaries, deterministic pagination/filter URLs, feedback safety and mobile/theme; run applicable regressions.
+- [x] 21.4 Update verified guides/spec/log evidence, commit/push and publish linked labelled PR #53 to develop. Verified 312 unit tests, 124 database assertions, 57 full-suite browser passes/seven skips, direct Next build/types/lint/format/spec/scaffold checks; independent review and hosted verification remain pending.
 
 ## 22. Issue #54 forum search
 
@@ -7,7 +12,7 @@
 - [ ] 22.3 Verify both member roles, literal/injection-shaped input, filtering before paging/ties, navigation, safe text and mobile/theme; run applicable regressions/checks.
 - [ ] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR to develop; keep independent review/deployment pending.
 
-## 1. Contracts and feasibility (continued)
+## 1. Contracts and feasibility
 
 - [ ] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task.
 - [x] 1.2 Evaluate browser Python/Java candidates including Java source compilation, licensing and cold/warm behavior. See runtime-feasibility evidence: Python candidate retained; Java buffered input resolved in the local lab with first-party compatibility classes; provenance/distribution and production integration remain open, so no production Java runtime selected.

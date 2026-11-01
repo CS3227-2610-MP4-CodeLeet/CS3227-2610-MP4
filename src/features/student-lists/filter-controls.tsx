@@ -69,7 +69,7 @@ export function FilteredListEmpty({
   kind,
   page = 1,
 }: {
-  kind: 'assignments' | 'submissions';
+  kind: 'assignments' | 'submissions' | 'grades';
   page?: number;
 }) {
   return (

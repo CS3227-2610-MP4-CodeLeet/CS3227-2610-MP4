@@ -7,6 +7,7 @@ export async function verifyAssignmentLayout(page: Page) {
   await expect(navigation.getByRole('link')).toHaveText([
     'Assignments',
     'My submissions',
+    'My grades',
     'Forums',
   ]);
   if (process.env.RUN_AUTHENTICATED_RUNTIME_TESTS !== '1') return;

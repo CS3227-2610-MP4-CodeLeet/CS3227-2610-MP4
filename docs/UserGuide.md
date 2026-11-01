@@ -51,6 +51,12 @@ On **Assignments** and **My submissions**, enter part of an assignment title, ch
 
 An empty account shows **No submissions yet** and a **Browse assignments** link. A failed history request offers **Try again**; it does not replace your records with samples. The page requires a student sign-in even when sample assignment preview is enabled. Other students' submissions, private rubrics and unpublished grades remain hidden.
 
+### My grades
+
+Choose **My grades** in the sidebar or **Menu** to see your published grades, newest first. Each entry shows the assignment, Python/Java language, revision, score and publication time in SGT. Expand **Instructor feedback** to read the comments, or choose **View revision** to open the saved code and published grade. Scores are shown as awarded, without an assumed percentage or maximum.
+
+Search by assignment title and/or choose a language, then select **Apply filters**. **Next** and **Previous** keep your filters; **Clear filters** returns to the latest grades. Only published grades appear. An empty account shows **No published grades yet**. If an assignment is no longer available, its own published grades remain listed as **Assignment unavailable**, but its hidden title cannot be searched.
+
 ### Example tests in real assignments (local development)
 
 With the local runtime prepared/running, set `STUDENT_TEST_CASE_FIXTURES_ENABLED=true` in ignored `.env.local`, then restart the development server. Open a published Python or Java assignment and select **Use example test cases** below the editor. These are standalone examples for a program that reads two integers and prints their sum; they are **not your instructor's assignment tests**.
