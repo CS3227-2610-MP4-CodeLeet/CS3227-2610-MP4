@@ -131,7 +131,7 @@ async function studentSubmitsAndRequestsFeedback(
   await page.getByRole('button', { name: 'Submit revision' }).click();
   await verifySavedSource(page);
   await mockStudentFeedback(page);
-  await page.getByRole('link', { name: revisionLinkName }).click();
+  await page.getByRole('link', { name: revisionLinkName, exact: true }).click();
   await page.getByRole('button', { name: 'Request review' }).click();
   await expect(
     page.getByText('Try a few positive and negative values.'),
@@ -182,7 +182,7 @@ async function verifySignedInWorkspace(page: Page) {
 
 async function verifySavedSource(page: Page) {
   await expect(
-    page.getByRole('link', { name: revisionLinkName }),
+    page.getByRole('link', { name: revisionLinkName, exact: true }),
   ).toBeVisible();
   await expect(page.getByLabel(sourceLabel)).toHaveValue(firstRevisionSource);
   await expect(page.getByTestId('source-line-numbers')).toHaveText('1\n2');
@@ -215,12 +215,14 @@ async function submitAndVerifySecondRevision(page: Page) {
   await page.getByLabel(sourceLabel).fill(secondRevisionSource);
   await page.getByRole('button', { name: 'Submit revision' }).click();
   await expect(
-    page.getByRole('link', { name: secondRevisionLinkName }),
+    page.getByRole('link', { name: secondRevisionLinkName, exact: true }),
   ).toBeVisible();
-  await page.getByRole('link', { name: revisionLinkName }).click();
+  await page.getByRole('link', { name: revisionLinkName, exact: true }).click();
   await expect(page.locator('pre code')).toHaveText(firstRevisionSource);
   await page.getByRole('link', { name: 'Back to assignment' }).click();
-  await page.getByRole('link', { name: secondRevisionLinkName }).click();
+  await page
+    .getByRole('link', { name: secondRevisionLinkName, exact: true })
+    .click();
   await expect(page.locator('pre code')).toHaveText(secondRevisionSource);
 }
 
@@ -288,7 +290,7 @@ async function studentSeesPublishedGrade(
   await signIn(page, email);
   await expect(page).toHaveURL(/\/student\/assignments$/);
   await page.goto(`/student/assignments/${assignmentId}`);
-  await page.getByRole('link', { name: 'Revision 2' }).click();
+  await page.getByRole('link', { name: 'Revision 2', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Published grade: 12' }),
   ).toBeVisible();

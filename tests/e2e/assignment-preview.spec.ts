@@ -18,6 +18,16 @@ const submitCodeName = 'Submit code';
 const checkCodeName = 'Check code';
 const invalidAttribute = 'aria-invalid';
 
+test('sample workspace refuses saved revision selections', async ({ page }) => {
+  await page.goto(`/student/assignments/${pythonId}?fromRevision=${javaId}`);
+  await expect(
+    page.getByRole('heading', { name: 'Assignment unavailable', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel(pythonEditorLabel, { exact: true })).toHaveCount(
+    0,
+  );
+});
+
 for (const [label, assignmentId, source, expected] of [
   [pythonEditorLabel, pythonId, 'if True:', 'if True:\n    '],
   [javaEditorLabel, javaId, 'class Main {', 'class Main {\n    '],

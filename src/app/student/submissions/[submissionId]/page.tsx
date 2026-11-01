@@ -5,6 +5,7 @@ import { ReviewButton } from '@/features/codementor/review-button';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { assignmentTitle } from '@/features/student-submissions/history';
 import { languageLabels } from '@/features/student-assignments/types';
+import { revisionEditorPath } from '@/features/student-submissions/revision-selection';
 
 export default async function SubmissionPage({
   params,
@@ -16,7 +17,7 @@ export default async function SubmissionPage({
   const { data: submission, error } = await supabase
     .from('submissions')
     .select(
-      'id,assignment_id,source,language,revision,created_at,assignments(title)',
+      'id,assignment_id,source,language,revision,created_at,assignments(title,publication_status,language)',
     )
     .eq('id', submissionId)
     .eq('student_id', user.id)
@@ -42,6 +43,7 @@ export default async function SubmissionPage({
         </h1>
         <p className="text-sm text-muted-foreground">{languageLabel} source</p>
       </div>
+      <ContinueEditing submission={submission} />
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>
       </pre>
@@ -68,6 +70,37 @@ export default async function SubmissionPage({
         </p>
       )}
     </section>
+  );
+}
+
+function ContinueEditing({
+  submission,
+}: {
+  submission: {
+    id: string;
+    assignment_id: string;
+    language: string;
+    assignments:
+      | { publication_status: string; language: string }[]
+      | { publication_status: string; language: string }
+      | null;
+  };
+}) {
+  const assignment = Array.isArray(submission.assignments)
+    ? submission.assignments[0]
+    : submission.assignments;
+  if (
+    assignment?.publication_status !== 'published' ||
+    assignment.language !== submission.language
+  )
+    return null;
+  return (
+    <Link
+      href={revisionEditorPath(submission.assignment_id, submission.id)}
+      className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+    >
+      Continue editing
+    </Link>
   );
 }
 

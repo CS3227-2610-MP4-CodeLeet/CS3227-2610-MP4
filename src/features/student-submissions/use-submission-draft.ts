@@ -1,11 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { installUnsavedCodeGuard } from './unsaved-code-guard';
 
-export function useSubmissionDraft() {
-  const [source, setSource] = useState('');
-  const [savedSource, setSavedSource] = useState('');
+const subscribeReady = () => () => undefined;
+const clientReady = () => true;
+const serverReady = () => false;
+
+export function useSubmissionDraft(initialSource = '') {
+  const ready = useSyncExternalStore(subscribeReady, clientReady, serverReady);
+  const [source, setSource] = useState(initialSource);
+  const [savedSource, setSavedSource] = useState(initialSource);
   const attempt = useRef<{ source: string; requestId: string } | null>(null);
   const dirty = source !== savedSource;
 
@@ -25,5 +30,5 @@ export function useSubmissionDraft() {
     attempt.current = null;
   }
 
-  return { source, setSource, dirty, submissionAttempt, acknowledge };
+  return { source, setSource, dirty, ready, submissionAttempt, acknowledge };
 }
