@@ -5,7 +5,7 @@
 - AI tools/models, where known: Codex (model details unavailable); SoCLaaS trial candidates: `llama3.1:8b`, `qwen3.5:9b`, `qwen3-coder-next`.
 - GitHub issue: [#48](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/48)
 - OpenSpec change: `openspec/changes/evaluate-soclaas-models` (active for review; main capability spec synchronized).
-- Branch and commits: `eval/48-soclaas-model-comparison`, based on `develop` at `a80d2055d95784bee4e48ce3c33debce747a9804`; no commits yet.
+- Branch and commits: `eval/48-soclaas-model-comparison`, based on `develop` at `a80d2055d95784bee4e48ce3c33debce747a9804`; `65b9e7f` (`fix(ai): request validated instructor score fields`), `6e091db` (`feat(ai): add bounded SoCLaaS model evaluation`), and this log closeout commit.
 - Pull request: pending.
 - Human verification: pending.
 - Verifier/date: pending.
@@ -31,8 +31,10 @@
 - `pnpm format:check`: pass.
 - `pnpm db:test`: pass, 124 assertions across 6 SQL test files. Initial run exposed a local database missing out-of-order migration `20261031024317_forums.sql`; applied that pending migration with `pnpm exec supabase migration up --include-all --local` (no reset), then reran successfully.
 - `pnpm spec:validate`: pass, 9 items.
-- `pnpm exec openspec validate --specs`: pending final run after sync.
-- `git diff --check`: pass before the final spec/log edits; rerun during closeout.
+- `pnpm exec openspec validate --specs`: pass, 6 main specs.
+- `pnpm spec:validate`: pass, 10 changes/specs after syncing the new main capability.
+- `pnpm format:check`: pass after final docs and spec edits.
+- `git diff --check`: pass on the staged implementation and report; run again after this log closeout edit.
 - `pnpm build`: failed three times at `EPERM` renaming `.runtime.staging-<pid>` to `public/runtime` in the existing static browser-runtime build script. After the latest failure, both paths were absent and there were no tracked `public/` changes. An isolated Node `fs.rename` probe into `public/` passed; the specific build rename failure remains unexplained and unresolved. No AI build error was reached.
 - A small synthetic SoCLaaS prompt-contract pilot and the corrected model comparison made 24 completion requests total across two bounded runs; the model report captures both run summaries and the corrected trial JSON. The configured catalog lookup was a separate request.
 
@@ -41,4 +43,4 @@
 - The official SoCLaaS documentation links could not be read due to the environment's DocHub access restriction. The model catalog provided IDs/context sizes only; pricing and provider limits remain unverified. The local harness caps do not assert provider quotas.
 - Product code was not independently reviewed. Hosted app, Vercel deployment, production SoCLaaS behavior, broad prompt-injection resistance, and real-world grading quality were not tested.
 - Build limitation: existing static-runtime build stops at Windows `EPERM` directory replacement, so production build completion is unverified.
-- Human verification and PR are pending; branch has no commits or pushed changes yet.
+- Human verification and PR are pending. The commits are local; push and PR creation remain to complete the repository closeout.
