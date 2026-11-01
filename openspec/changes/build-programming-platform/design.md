@@ -1,3 +1,7 @@
+## Issue #46: Java compatibility diagnostics
+
+Keep raw browser results and submitted source unchanged. A shared result-presentation helper recognizes anchored TeaVM unsupported-target and missing-annotation diagnostics only for compile-error status and shows a concise unsupported-feature message in custom/practice outputs. Preserve ordinary compiler/location text and literal stderr for successful/runtime-failing programs. The pinned diagnostic API exposes no placeholder arguments, so no source heuristic or unresolved class name can justify a Thread-specific explanation. Runtime worker, binary/provenance inventory, output limits, grade/XP behavior and execution isolation stay unchanged. Document confirmed Thread.start (including join examples) and Thread.sleep limitations separately from sequential Runnable/Thread.run support. See [plan](../../../workflow/plans/2026-11-01-java-runner-diagnostics.md) and [summary](../../../logs/2026-11-01-java-runner-diagnostics.md).
+
 ## Issue #44: student list search and filters
 
 Share bounded URL parsing and concise filter controls between Assignments and My submissions. Use Next.js Form string actions for GET/client navigation, with title/language keyed inputs and an explicit Apply filters button. Clear links target the unfiltered list; applying/clearing resets page one. Next/Previous retain URL-encoded applied filters. Native GET forms were initially evaluated but browser history restored edited controls inconsistent with the applied URL, so the implementation uses the framework's navigation-aware form.

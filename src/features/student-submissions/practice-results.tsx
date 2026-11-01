@@ -1,5 +1,6 @@
 import { CheckCircle2, ChevronDown, Circle, CircleAlert } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { runnerErrorMessage } from './runner-error-message';
 import {
   verdictLabels,
   type BrowserRun,
@@ -73,7 +74,11 @@ function CompletedRun({ result }: { result: BrowserRun }) {
         {result.stdout || '(empty)'}
       </pre>
       {result.stderr && (
-        <OutputBlock label="Standard error" text={result.stderr} error />
+        <OutputBlock
+          label="Standard error"
+          text={runnerErrorMessage(result)}
+          error
+        />
       )}
     </div>
   );
@@ -205,7 +210,11 @@ function CaseOutputs({
         )}
       </div>
       {result?.stderr && (
-        <OutputBlock label="Standard error" text={result.stderr} error />
+        <OutputBlock
+          label="Standard error"
+          text={runnerErrorMessage(result)}
+          error
+        />
       )}
       {result && (
         <p className="text-xs text-slate-500 dark:text-slate-400">

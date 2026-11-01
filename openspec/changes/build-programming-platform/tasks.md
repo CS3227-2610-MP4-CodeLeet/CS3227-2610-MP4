@@ -158,3 +158,8 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 18.2 Apply history filters before stable pagination while preserving verified identity, metadata-only reads, hidden-assignment boundaries and filtered page links.
 - [x] 18.3 Verify combined filters, punctuation, hidden/peer privacy, pagination/reset and mobile/history regressions; update guides/logs and publish PR #45 to develop, linked to issue #44. Verification: 157 unit tests, 59 pgTAP assertions, 14 production browser passes with one email skip and 22 fixture UI passes on full rerun; build/types/lint/format/spec/scaffold checks pass. Independent review remains pending.
 
+## 19. Issue #46 Java compatibility diagnostics
+
+- [x] 19.1 Add shared, status-gated presentation for recognized unsupported Java compiler diagnostics; preserve raw results, ordinary errors and source without heuristic Thread attribution.
+- [x] 19.2 Verify the real browser example, Runnable/direct-run success, syntax and diagnostic-like output, both result views and existing regressions; document confirmed limits.
+- [x] 19.3 Finalize verified guides/spec/log evidence, commit/push and publish PR #47 to develop, linked to issue #46. Verification: 153 unit tests, six real browser runtime tests, build/types/lint/format/spec/scaffold checks pass; independent review remains pending.

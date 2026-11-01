@@ -13,6 +13,111 @@ const negativeCaseId = 'practice-case-negative';
 const customResultId = 'custom-run-result';
 const runCodeName = 'Run code';
 const submitCodeName = 'Submit code';
+const compileErrorLabel = 'Compile error';
+const mixedCaseId = 'practice-case-mixed';
+const compatibilityExplanation =
+  'This program uses a feature that the code runner does not support.';
+const threadExample = `public class Main {
+  static class MyTask implements Runnable {
+    public void run() { System.out.println("Hello from the background thread: " + Thread.currentThread().getName()); }
+  }
+  public static void main(String[] args) {
+    System.out.println("Hello from the main thread: " + Thread.currentThread().getName());
+    MyTask task = new MyTask();
+    Thread thread = new Thread(task);
+    thread.start();
+  }
+}`;
+
+test('Java unsupported features show a helpful error in custom and practice results without rewriting source', async ({
+  page,
+}) => {
+  const transfers: string[] = [];
+  page.on('request', (request) => {
+    if (
+      request.postData()?.includes('class Main') ||
+      request.url().includes('class%20Main')
+    )
+      transfers.push(request.url());
+  });
+  await page.goto(`/student/assignments/${javaId}`);
+  await runJavaSource(page, threadExample, compileErrorLabel);
+  await expect(page.getByTestId(customResultId)).toContainText(
+    compatibilityExplanation,
+  );
+  await expect(page.getByTestId(customResultId)).not.toContainText('{{c0}}');
+  await page
+    .getByRole('button', { name: runPublishedTestsName, exact: true })
+    .click();
+  await expect(page.getByTestId(mixedCaseId)).toContainText(
+    compatibilityExplanation,
+    { timeout: 30_000 },
+  );
+  await expect(page.getByLabel(javaEditorLabel, { exact: true })).toHaveValue(
+    threadExample,
+  );
+  expect(transfers).toEqual([]);
+  await page.screenshot({
+    path: 'test-results/java-unsupported-feature.png',
+    fullPage: true,
+  });
+});
+
+test('Java direct Runnable, syntax errors and literal program stderr stay accurate', async ({
+  page,
+}) => {
+  await page.goto(`/student/assignments/${javaId}`);
+  await runJavaSource(
+    page,
+    threadExample.replace('thread.start();', 'thread.run();'),
+    'Completed',
+  );
+  await expect(
+    page.getByTestId(customResultId).locator('pre').first(),
+  ).toHaveText(
+    'Hello from the main thread: main\nHello from the background thread: main\n',
+  );
+  await runJavaSource(
+    page,
+    'public class Main { public static void main(String[] a) { System.out.println(1) } }',
+    compileErrorLabel,
+  );
+  await expect(page.getByTestId(customResultId)).toContainText('expected');
+  await expect(page.getByTestId(customResultId)).not.toContainText(
+    compatibilityExplanation,
+  );
+  await runJavaSource(
+    page,
+    'public class Main { public static void main(String[] a) { System.err.println("teavm: Class {{c0}} is not supported on current target"); } }',
+    'Completed',
+  );
+  await expect(page.getByTestId(customResultId)).toContainText('{{c0}}');
+  await expect(page.getByTestId(customResultId)).not.toContainText(
+    compatibilityExplanation,
+  );
+  await runJavaSource(
+    page,
+    'public class Main { public static void main(String[] a) throws Exception { Thread.sleep(5); } }',
+    compileErrorLabel,
+  );
+  await expect(page.getByTestId(customResultId)).toContainText(
+    compatibilityExplanation,
+  );
+});
+
+async function runJavaSource(page: Page, source: string, outcome: string) {
+  await page.getByLabel(javaEditorLabel, { exact: true }).fill(source);
+  await page.getByRole('button', { name: runCodeName, exact: true }).click();
+  await expect(page.getByTestId(customResultId)).toContainText(outcome, {
+    timeout: 30_000,
+  });
+  await expect(
+    page.getByRole('button', { name: runCodeName, exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByLabel(javaEditorLabel, { exact: true })).toHaveValue(
+    source,
+  );
+}
 const python =
   'numbers = list(map(int, input().split()))\nlargest = numbers[0]\nfor number in numbers:\n    if number > largest:\n        largest = number\nprint(largest)';
 const java =
@@ -117,9 +222,7 @@ test('Java uses real source and Scanner for custom input and all published tests
   await expect(page.getByTestId('practice-case-uppercase')).toContainText(
     passedText,
   );
-  await expect(page.getByTestId('practice-case-mixed')).toContainText(
-    passedText,
-  );
+  await expect(page.getByTestId(mixedCaseId)).toContainText(passedText);
 });
 
 test('compiler/runtime errors, timeout, navigation cancellation and fresh rerun remain usable', async ({
@@ -138,10 +241,9 @@ async function assertCompilerFailure(page: Page) {
   await page
     .getByRole('button', { name: runPublishedTestsName, exact: true })
     .click();
-  await expect(page.getByTestId('practice-case-mixed')).toContainText(
-    'Compile error',
-    { timeout: 30000 },
-  );
+  await expect(page.getByTestId(mixedCaseId)).toContainText('Compile error', {
+    timeout: 30000,
+  });
   await expect(page.getByTestId('practice-case-uppercase')).toContainText(
     'Not run',
   );
