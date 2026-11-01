@@ -75,3 +75,15 @@ Every protected student operation SHALL use a request-scoped cookie-based Supaba
 #### Scenario: Own profile update
 - **WHEN** a user saves a valid display name for their own profile
 - **THEN** that name changes without modifying roles or another user's data
+
+#### Scenario: Private profile settings
+- **WHEN** a signed-in student or instructor opens Profile settings
+- **THEN** they see their own username, verified email and trusted role, and can save only a trimmed username of 1–80 characters
+
+#### Scenario: Protected profile fields
+- **WHEN** a caller submits another identity, email or role, oversized JSON or a foreign-origin update
+- **THEN** the strict bounded API rejects the request without altering any account or granting access
+
+#### Scenario: Profile save failure
+- **WHEN** a profile update fails
+- **THEN** the draft remains available for retry and the UI does not claim success; a confirmed update persists across reload and renders as safe text

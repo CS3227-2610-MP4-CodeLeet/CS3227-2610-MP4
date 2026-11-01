@@ -1,5 +1,5 @@
 begin;
-select plan(24);
+select plan(26);
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -72,6 +72,14 @@ select is((select count(*)::integer from public.assignments where id in ('300000
 select is((select count(*)::integer from public.assignments where id = '30000000-0000-4000-8000-000000000003'), 0, 'instructor cannot see another owner assignment');
 select is((select count(*)::integer from public.submissions where id in ('50000000-0000-4000-8000-000000000001', '50000000-0000-4000-8000-000000000002')), 2, 'instructor sees submissions for owned assignments');
 select is((select count(*)::integer from public.assignment_rubrics where assignment_id = '30000000-0000-4000-8000-000000000003'), 0, 'instructor cannot see another owner rubric');
+
+reset role;
+update public.user_roles set role = 'student' where user_id = '20000000-0000-4000-8000-000000000001';
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+select throws_ok($$select public.save_grade('50000000-0000-4000-8000-000000000001', '{"40000000-0000-4000-8000-000000000001":8}', 'Demoted', 8, false, 2)$$, '42501', 'instructor_required', 'demoted instructor cannot call the grade RPC directly');
+reset role;
+select is((select version from public.grades where submission_id = '50000000-0000-4000-8000-000000000001'), 2, 'denied grade RPC leaves the grade unchanged');
 
 select * from finish();
 rollback;

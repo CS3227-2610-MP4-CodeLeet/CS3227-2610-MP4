@@ -41,7 +41,7 @@
 
 ## 5. Community and XP
 
-- [ ] 5.1 Implement text threads/replies with authorization and input/request limits.
+- [x] 5.1 Implement text threads/replies with authorization and input/request limits.
 - [ ] 5.2 Implement deterministic leaderboard and synthetic local student/award seeds.
 - [ ] 5.3 Verify duplicate/concurrent publication and corrections cannot inflate XP.
 
@@ -132,3 +132,15 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 16.1 Track the exact submitted source snapshot and show unsaved state; keep failed saves and newer in-flight edits dirty with source-bound idempotent retries.
 - [x] 16.2 Warn before ordinary app links, sign-out and reload/close while dirty; support cancelable browser history traversal without modifying history and clean up listeners after save/unmount.
 - [x] 16.3 Verify Python/Java save/failure/navigation journeys and regressions, document browser limitations, and publish linked issue/spec/log/PR evidence. PR #41: 143 unit tests, 18 production Chromium passes with one local-email skip, two expanded new-tab checks, lint/format/build/types/spec/scaffold checks pass; independent review and deployment remain pending.
+## 15. Issue #38 Profile settings
+
+- [x] 15.1 Implement own-profile loading and strict same-origin session-derived username updates with readonly email/role and privacy/validation tests.
+- [x] 15.2 Add shared account settings UI and role navigation; verify persisted edits, errors, mobile/theme and existing workspace behavior.
+- [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
+- [x] 15.4 Resolve PR #39 mobile-menu CI race by awaiting committed assignment navigation; reproduce the failure and verify repeated mobile checks plus the browser suite before updating the PR.
+## 14. Issue #30 Forums
+
+- [x] 14.1 Add authenticated thread/reply schema, RLS and trusted idempotent posting RPC with atomic quotas and security tests.
+- [x] 14.2 Build bounded same-origin posting API, server loaders, shared-role forum pages/forms and navigation.
+- [x] 14.3 Verify both roles, safe text, paging, retries/concurrency, access/privacy and responsive/theme behavior; run regression checks.
+- [x] 14.4 Update current guides, plans/logs/spec evidence and publish linked PR to develop; leave human review pending.

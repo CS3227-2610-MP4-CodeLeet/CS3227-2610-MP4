@@ -5,6 +5,7 @@ import {
   ReviewServiceError,
 } from '@/features/codementor/review-service';
 import { getVerifiedUserRole, type AppRole } from '@/lib/auth/verified-user';
+import { canAccessRole } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 
 function response(body: unknown, status: number) {
@@ -52,7 +53,7 @@ function failure(error: unknown, requestId: string) {
 
 export async function handleReview(
   request: NextRequest,
-  requiredRole: AppRole,
+  requiredRole: Extract<AppRole, 'student' | 'instructor'>,
 ) {
   const requestId = crypto.randomUUID();
   if (!sameOriginRequest(request))
@@ -78,7 +79,7 @@ export async function handleReview(
       },
       401,
     );
-  if (context.role !== requiredRole)
+  if (!canAccessRole(requiredRole, context.role))
     return response(
       {
         error: {

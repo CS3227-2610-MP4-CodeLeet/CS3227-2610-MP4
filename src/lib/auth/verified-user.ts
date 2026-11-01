@@ -2,8 +2,10 @@ import 'server-only';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { User } from '@supabase/supabase-js';
+import { canAccessRole, isAppRole, type AppRole } from './roles';
 
-export type AppRole = 'student' | 'instructor';
+export type { AppRole } from './roles';
+
 type VerifiedContext =
   | { supabase: null; user: null; role: null }
   | {
@@ -31,17 +33,14 @@ export async function getVerifiedUserRole(): Promise<VerifiedContext> {
     .eq('user_id', user.id)
     .maybeSingle();
   if (roleError) throw new Error('Unable to verify account role');
-  const role =
-    roleRecord?.role === 'student' || roleRecord?.role === 'instructor'
-      ? roleRecord.role
-      : null;
+  const role = isAppRole(roleRecord?.role) ? roleRecord.role : null;
   return { supabase, user, role };
 }
 
 export async function requireRole(expected: AppRole) {
   const context = await getVerifiedUserRole();
   if (!context.user) redirect('/sign-in');
-  if (context.role !== expected) redirect('/unauthorized');
+  if (!canAccessRole(expected, context.role)) redirect('/unauthorized');
   return context as typeof context & {
     supabase: NonNullable<typeof context.supabase>;
     user: NonNullable<typeof context.user>;
