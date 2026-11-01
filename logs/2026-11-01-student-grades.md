@@ -5,8 +5,8 @@
 - AI tools/models: Codex; exact model and hidden token/cache metrics unavailable
 - GitHub issue: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/52
 - OpenSpec change: build-programming-platform, assignments-and-grading, task group 21
-- Branch and commits: feat/student-grades from develop ec7bcde; implementation 37082a2; verification/PR closeout follows
-- Pull request: pending
+- Branch and commits: feat/student-grades from develop ec7bcde; implementation 37082a2, verification/documentation 883aa46; PR-link closeout follows
+- Pull request: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/53
 - Human verification: pending
 - Verifier/date: pending
 
@@ -18,6 +18,7 @@
 4. Scoped real-browser tests verified own feedback/revision links, hidden assignments, mobile dark theme, safe literal markup, zero scores, publication updates/withdrawal and role denial. Visually inspected the synthetic mobile screenshot. The pagination test exposed incorrect test assumptions: used a nonexistent Language label, then an ambiguous partial label matching the search form, then expected empty GET fields to be omitted. Corrected selectors/semantic URL checks. Finally it clicked Next before filtered navigation committed; asserted the filtered href before clicking. The isolated corrected paging journey passed, including literal punctuation, filtering before pagination, stable ties, retained filter URLs and forged peer IDs. No product timeout, forced-click or retry bypass was added. Split one overlong test helper to satisfy lint; existing nav assertions now include My grades in the actual order.
 5. Official Supabase select/range documentation and installed Next page conventions were consulted. ESLint/TypeScript, formatting, strict OpenSpec and scaffold checks passed. Running the complete merged-app browser suite next. No specialists, independent review, live AI, runtime download/execution or deployment is claimed for this list-only feature.
 6. Full browser suite completed with 57 passes, seven skips and zero failures (4.0 minutes), including all three My grades journeys, both-language submission/reopening/guard checks, existing history/filter paging, profile/forums, mocked AI and production/fixture boundaries. Skips: six opt-in runtime cases and local email recovery prerequisite. Rechecked all 312 unit tests, 124 transactional database assertions, direct Next production build/TypeScript, lint, formatting, strict OpenSpec validation (ten items), scaffold links and whitespace. No default network/runtime build, website build, new actual code execution, hosted smoke or live provider call is claimed. Author reviewed query publication/ownership/projection, nested filter-before-page behavior, hidden-title fallback, null/zero score semantics, feedback escaping and shared history regression; independent review remains pending. Stopping task-owned 3100/3101/3200 and restoring saved next-env.d.ts before closeout; pre-existing 3130, local environment and database are preserved. Push/PR handoff follows.
+7. Pushed the verified feature branch and created enhancement PR #53 to develop, linked to issue #52, active OpenSpec, plan and this summary. PR body preserves normal paragraphs/list formatting. Updated the PR-link/task evidence in a final closeout commit. GitHub CI and teammate review remain separate from local evidence; no merge, deployment or release performed.
 
 ## Work and verification
 
