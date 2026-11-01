@@ -29,6 +29,20 @@ docs: standardize branch and commit names
 
 Keep branch descriptions short, lowercase, and kebab-case, such as `feat/student-submissions`. Do not use personal agent names as branch prefixes.
 
+## Issue and pull request titles
+
+Use the Conventional Commit format `<type>[optional scope]: <imperative summary>` for issue and pull request titles. Choose a type from the supported list above and keep it aligned with the branch and commits for the change.
+
+Examples:
+
+```text
+feat(auth): add protected student sessions
+fix: preserve profile settings after refresh
+docs: standardize issue and pull request titles
+```
+
+In each pull request description, replace the template's `Closes #<issue-number>` placeholder with the matching issue number. GitHub automatically closes the issue when the pull request merges into this repository's default branch (`develop`).
+
 Current scaffold checks:
 
 ```sh

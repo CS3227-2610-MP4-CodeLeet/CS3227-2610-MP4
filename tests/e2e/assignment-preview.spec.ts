@@ -273,15 +273,21 @@ test('mobile menu supports keyboard navigation and problems precede the editor',
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto(assignmentsPath);
   await page.getByRole('link', { name: javaAssignmentAction }).click();
+  // Link clicks can finish before the route replaces the pathname-keyed menu.
+  await expect(page).toHaveURL(`/student/assignments/${javaId}`);
+  await expect(page.getByLabel(javaEditorLabel, { exact: true })).toBeVisible();
   const menu = page.getByLabel('Workspace menu', { exact: true });
   await menu.focus();
   await menu.press('Enter');
+  await expect(menu.locator('..')).toHaveAttribute('open', '');
   await page
     .getByRole('navigation', { name: 'Student navigation' })
     .getByRole('link', { name: assignmentNavName, exact: true })
     .click();
   await expect(page).toHaveURL(assignmentsPath);
   await page.getByRole('link', { name: javaAssignmentAction }).click();
+  await expect(page).toHaveURL(`/student/assignments/${javaId}`);
+  await expect(page.getByLabel(javaEditorLabel, { exact: true })).toBeVisible();
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }),
   ).not.toBeVisible();

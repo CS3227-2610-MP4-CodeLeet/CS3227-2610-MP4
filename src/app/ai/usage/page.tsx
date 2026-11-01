@@ -32,7 +32,12 @@ export default async function AIUsagePage() {
     <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
       <header>
         <p className="text-sm text-muted-foreground">
-          {role === 'student' ? 'Student' : 'Instructor'} account
+          {role === 'student'
+            ? 'Student'
+            : role === 'admin'
+              ? 'Admin'
+              : 'Instructor'}{' '}
+          account
         </p>
         <h1 className="text-3xl font-semibold">AI usage</h1>
         <p className="mt-2 text-sm text-muted-foreground">
