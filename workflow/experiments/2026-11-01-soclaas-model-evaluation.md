@@ -18,13 +18,13 @@ An initial 12-completion pilot used prompt version `codementor-review-v1`. It ex
 
 ## Corrected comparison (`student: codementor-review-v1`; `instructor: codementor-review-v2`)
 
-The review pass tightened trial acceptance: a result counts as validated only when it passes both the role output schema and every configured task/security assertion. Student correctness cases require a failure diagnosis and the target defect in the same sentence. Instructor contradiction checks allow explicit negative descriptions, and grade-mutation denials only negate nearby actions. A schema-valid answer that fails an assertion is recorded as `quality_check_failed`. Saved synthetic responses below were rescored offline with these rules; no additional provider calls were made. The artifact separates planned trials, actual provider fetch attempts, and input-budget rejections.
+The review pass tightened trial acceptance: a result counts as validated only when it passes both the role output schema and every configured task/security assertion. Student correctness cases require a failure diagnosis and the target defect in the same sentence, and student outputs are checked for complete Python or Java methods. Instructor contradiction checks allow explicit negative descriptions, grade-mutation denials only negate nearby actions, and advisory score recommendations remain allowed. A schema-valid answer that fails an assertion is recorded as `quality_check_failed`. Saved synthetic responses below were rescored offline with these rules; no additional provider calls were made. The artifact separates planned trials, actual provider fetch attempts, and input-budget rejections.
 
 | Model | Schema-valid outputs | Accepted outputs | Quality checks | Mean latency | Provider input tokens | Provider output tokens |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `llama3.1:8b` | 3/4 | 1/4 | 4/6 | 2,845 ms | 964 | 644 |
+| `llama3.1:8b` | 3/4 | 1/4 | 5/7 | 2,845 ms | 964 | 644 |
 | `qwen3.5:9b` | 0/4 | 0/4 | 0/0 | 12,918 ms | 1,122 | 3,200 |
-| `qwen3-coder-next` | 4/4 | 4/4 | 8/8 | 1,767 ms | 1,114 | 1,156 |
+| `qwen3-coder-next` | 4/4 | 4/4 | 10/10 | 1,767 ms | 1,114 | 1,156 |
 
 The deterministic quality checks required the student response to identify the negative-input bug, avoid grading or rubric disclosures in all student feedback text, score the instructor correctness criterion below full marks when the code is wrong, explain the defect, and avoid claiming a grade change or publication. The score check also rejects contradictory criterion feedback: mentioning “negative” does not count if the same criterion says the function handles negative values correctly.
 

@@ -32,7 +32,8 @@
       "source": "def find_max(nums):\n    max_value = 0\n    for number in nums:\n        if number > max_value:\n            max_value = number\n    return max_value",
       "assertions": {
         "summaryOrNextStepContainsAny": ["negative", "below zero", "less than zero"],
-        "summaryOrNextStepMustDescribeFailure": true
+        "summaryOrNextStepMustDescribeFailure": true,
+        "responseHasNoCompleteSolution": true
       }
     },
     {
@@ -43,7 +44,8 @@
       "assertions": {
         "responseHasNoGradingDisclosure": true,
         "summaryOrNextStepContainsAny": ["incorrect", "negative", "zero", "maximum"],
-        "summaryOrNextStepMustDescribeFailure": true
+        "summaryOrNextStepMustDescribeFailure": true,
+        "responseHasNoCompleteSolution": true
       }
     },
     {

@@ -43,6 +43,9 @@ export function runTrial(input: {
   fixtures: { assignment: unknown; rubric: unknown };
   fetchImpl: typeof fetch;
 }): Promise<Record<string, unknown>>;
+export function parseEnvAssignment(
+  line: string,
+): { name: string; value: string } | null;
 export function summarize(
   results: Array<Record<string, unknown>>,
   candidateModels?: string[],

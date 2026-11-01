@@ -177,6 +177,32 @@ async function readFixtures() {
   return JSON.parse(await readFile(casesPath, 'utf8'));
 }
 
+export function parseEnvAssignment(line) {
+  const match = line.match(
+    /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/,
+  );
+  if (!match) return null;
+  const rawValue = match[2].trim();
+  const quote = rawValue[0];
+  if (quote === '"' || quote === "'") {
+    let closingQuote = -1;
+    for (let index = 1; index < rawValue.length; index += 1) {
+      if (rawValue[index] === quote && rawValue[index - 1] !== '\\') {
+        closingQuote = index;
+        break;
+      }
+    }
+    if (closingQuote === -1) return null;
+    const trailingText = rawValue.slice(closingQuote + 1).trim();
+    if (trailingText && !trailingText.startsWith('#')) return null;
+    return { name: match[1], value: rawValue.slice(1, closingQuote) };
+  }
+  return {
+    name: match[1],
+    value: rawValue.replace(/\s+#.*$/, '').trim(),
+  };
+}
+
 async function loadLocalEnvironment() {
   let contents;
   try {
@@ -185,16 +211,9 @@ async function loadLocalEnvironment() {
     return;
   }
   for (const line of contents.split(/\r?\n/)) {
-    const match = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
-    if (!match || process.env[match[1]] !== undefined) continue;
-    let value = match[2];
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    )
-      value = value.slice(1, -1);
-    else value = value.replace(/\s+#.*$/, '').trim();
-    process.env[match[1]] = value;
+    const assignment = parseEnvAssignment(line);
+    if (!assignment || process.env[assignment.name] !== undefined) continue;
+    process.env[assignment.name] = assignment.value;
   }
 }
 

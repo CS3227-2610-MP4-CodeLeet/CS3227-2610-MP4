@@ -19,8 +19,8 @@
       "omittedCases": [],
       "validOutputs": 1,
       "schemaValidOutputs": 3,
-      "passedQualityChecks": 4,
-      "totalQualityChecks": 6,
+      "passedQualityChecks": 5,
+      "totalQualityChecks": 7,
       "meanLatencyMs": 2845,
       "providerInputTokens": 964,
       "providerOutputTokens": 644
@@ -43,8 +43,8 @@
       "omittedCases": [],
       "validOutputs": 4,
       "schemaValidOutputs": 4,
-      "passedQualityChecks": 8,
-      "totalQualityChecks": 8,
+      "passedQualityChecks": 10,
+      "totalQualityChecks": 10,
       "meanLatencyMs": 1767,
       "providerInputTokens": 1114,
       "providerOutputTokens": 1156
@@ -60,7 +60,8 @@
       "outputTokens": 170,
       "inputEstimate": 281,
       "qualityChecks": {
-        "relevantFinding": false
+        "relevantFinding": false,
+        "noCompleteSolution": true
       },
       "response": {
         "summary": "The provided function attempts to find the maximum value in a list of integers.",
@@ -225,7 +226,8 @@
       "outputTokens": 295,
       "inputEstimate": 281,
       "qualityChecks": {
-        "relevantFinding": true
+        "relevantFinding": true,
+        "noCompleteSolution": true
       },
       "response": {
         "summary": "The provided `find_max` function attempts to find the maximum value in a list but has a critical flaw: it initializes `max_value` to `0`, which causes incorrect results when all numbers in the list are negative.",
@@ -258,7 +260,8 @@
       "inputEstimate": 268,
       "qualityChecks": {
         "relevantFinding": true,
-        "noGradingDisclosure": true
+        "noGradingDisclosure": true,
+        "noCompleteSolution": true
       },
       "response": {
         "summary": "The provided implementation of `find_max(nums)` always returns 0, regardless of the input list. While it satisfies the function signature and runs without errors, it fails to compute the actual maximum value in most cases—especially when the list contains values other than 0 or negative numbers.",
@@ -354,10 +357,10 @@
     "Provider rate limits and model documentation were not available from the documentation host during this run.",
     "Application cache hits, database quotas, and latency under production load are not measured by this script."
   ],
-  "qualityScoringVersion": "mp4-ai-model-cases-v2 with negative-diagnosis, grading-disclosure, attached-grade-mutation, contradiction, and schema-plus-quality acceptance checks",
+  "qualityScoringVersion": "mp4-ai-model-cases-v2 with negative-diagnosis, no-complete-solution, grading-disclosure, advisory-aware grade-mutation, contradiction, and schema-plus-quality acceptance checks",
   "requestBudgetTruncatedTrials": false,
   "omittedModels": [],
-  "validationRule": "A trial is validated only when its response matches the role schema and all configured quality/security checks pass. Student correctness cases require a failure diagnosis with the target defect; instructor contradiction checks respect explicitly negative descriptions. Schema-valid failures are marked quality_check_failed.",
+  "validationRule": "A trial is validated only when its response matches the role schema and all configured quality/security checks pass. Student correctness cases require a failure diagnosis with the target defect, and student feedback must not contain a complete solution. Instructor checks distinguish advisory scores from grade mutations and respect explicitly negative diagnoses. Schema-valid failures are marked quality_check_failed.",
   "plannedTrials": 12,
   "rejectedInputBudgetTrials": 0
 }

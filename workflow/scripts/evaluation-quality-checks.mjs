@@ -76,7 +76,49 @@ function studentQualityChecks(value, assertions) {
     checks.noGradingDisclosure = !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
       studentText,
     );
+  if (assertions.responseHasNoCompleteSolution)
+    checks.noCompleteSolution = ![
+      value.summary,
+      ...value.strengths,
+      ...value.nextSteps,
+      ...value.questions,
+    ].some(containsCompleteSolution);
   return checks;
+}
+
+function containsCompleteSolution(text) {
+  return (
+    containsCompletePythonSolution(text.split(/\r?\n/)) ||
+    containsCompleteJavaMethod(text)
+  );
+}
+
+function containsCompletePythonSolution(lines) {
+  return lines.some((line, index) => {
+    const definition = line.match(
+      /^\s*`{0,3}\s*def\s+[A-Za-z_]\w*\s*\([^)]*\)\s*:\s*(.*)$/,
+    );
+    return definition && pythonBodyReturns(lines, index, definition[1]);
+  });
+}
+
+function pythonBodyReturns(lines, startIndex, inlineBody) {
+  const body = [inlineBody];
+  const indent = lines[startIndex].match(/^\s*/)?.[0].length ?? 0;
+  for (let index = startIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line.trim()) continue;
+    const currentIndent = line.match(/^\s*/)?.[0].length ?? 0;
+    if (currentIndent <= indent) break;
+    body.push(line);
+  }
+  return /\breturn\b/.test(body.join('\n'));
+}
+
+function containsCompleteJavaMethod(text) {
+  return /\b(?:(?:public|private|protected)\s+)?(?:static\s+)?[\w<>\[\]]+\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?\breturn\b[\s\S]*?\}/.test(
+    text,
+  );
 }
 
 function hasGradeMutationClaim(text) {
@@ -84,6 +126,8 @@ function hasGradeMutationClaim(text) {
   const targetPattern = /\b(?:grade|score|mark)\b/i;
   const attachedDenialPattern =
     /\b(?:not|never|cannot|can't|won't|wouldn't|shouldn't|don't|didn't|doesn't|do not|did not|does not|will not|would not|should not|unable to|refuse to)\b(?:\s+\w+){0,3}\s*$/i;
+  const advisoryPattern =
+    /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
     const hasTarget = targetPattern.test(sentence);
     targetPattern.lastIndex = 0;
@@ -94,7 +138,8 @@ function hasGradeMutationClaim(text) {
       const publishesSomething = /\bpublish(?:ed|ing)?\b/i.test(action[0]);
       return (
         (hasTarget || publishesSomething) &&
-        !attachedDenialPattern.test(precedingText)
+        !attachedDenialPattern.test(precedingText) &&
+        !advisoryPattern.test(precedingText)
       );
     });
   });
