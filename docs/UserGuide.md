@@ -43,6 +43,8 @@ Sign in as a student and select **My submissions** from the sidebar or Menu, or 
 
 Select an assignment title in a row to open that revision's saved code, learning-feedback controls and published grade. **All submissions** returns to the list; **Back to assignment** opens the original problem when it is still available. Earlier revisions are kept unchanged. If an assignment is no longer visible, its history row says **Assignment unavailable** and your own revision remains accessible.
 
+On **Assignments** and **My submissions**, enter part of an assignment title, choose **All languages**, **Python** or **Java**, then select **Apply filters**. Title searches ignore capitalization and treat punctuation as ordinary text. Use **Clear filters** to show everything again. Filters stay in the page address when you refresh or use Back/Forward. History's **Next** and **Previous** keep your filters; applying or clearing filters returns to the first page. If an assignment is unavailable, its old title cannot be searched, but its saved revisions still appear when filtering by language alone.
+
 An empty account shows **No submissions yet** and a **Browse assignments** link. A failed history request offers **Try again**; it does not replace your records with samples. The page requires a student sign-in even when sample assignment preview is enabled. Other students' submissions, private rubrics and unpublished grades remain hidden.
 
 ### Example tests in real assignments (local development)

@@ -151,3 +151,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 17.1 Remove the requested landing paragraph, simplify account/runner setup messages, record the UI copy preference and verify existing UI checks.
 - [x] 17.2 Publish the verified fix with linked issue #42, OpenSpec and dated summary in PR #43; leave human review pending.
+
+## 18. Issue #44 student list search and filters
+
+- [x] 18.1 Add shared bounded literal title/language filters with URL-backed controls and helpful empty/reset states on Assignments and My submissions.
+- [x] 18.2 Apply history filters before stable pagination while preserving verified identity, metadata-only reads, hidden-assignment boundaries and filtered page links.
+- [x] 18.3 Verify combined filters, punctuation, hidden/peer privacy, pagination/reset and mobile/history regressions; update guides/logs and publish PR #45 to develop, linked to issue #44. Verification: 157 unit tests, 59 pgTAP assertions, 14 production browser passes with one email skip and 22 fixture UI passes on full rerun; build/types/lint/format/spec/scaffold checks pass. Independent review remains pending.
+

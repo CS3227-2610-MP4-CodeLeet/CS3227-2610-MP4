@@ -1,6 +1,11 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
+  emptyListFilters,
+  titleSearchPattern,
+  type ListFilters,
+} from '@/features/student-lists/filters';
+import {
   HISTORY_PAGE_SIZE,
   parseHistoryItems,
   type HistoryPage,
@@ -10,15 +15,24 @@ export async function loadSubmissionHistory(
   client: SupabaseClient,
   studentId: string,
   page: number,
+  filters: ListFilters = emptyListFilters,
 ): Promise<HistoryPage | null> {
   try {
     const offset = (page - 1) * HISTORY_PAGE_SIZE;
-    const { data, error } = await client
+    let query = client
       .from('submissions')
       .select(
-        'id,assignment_id,language,revision,created_at,assignments(title)',
+        `id,assignment_id,language,revision,created_at,${filters.q ? 'assignments!inner(title)' : 'assignments(title)'}`,
       )
-      .eq('student_id', studentId)
+      .eq('student_id', studentId);
+    if (filters.language) query = query.eq('language', filters.language);
+    if (filters.q)
+      query = query.filter(
+        'assignments.title',
+        'imatch',
+        titleSearchPattern(filters.q),
+      );
+    const { data, error } = await query
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
       .range(offset, offset + HISTORY_PAGE_SIZE);

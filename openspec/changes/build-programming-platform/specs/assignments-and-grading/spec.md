@@ -1,5 +1,24 @@
 ## ADDED Requirements
 
+### Requirement: Student list search and language filters
+Assignments and My submissions SHALL provide a bounded case-insensitive literal title search, All languages/Python/Java filtering and Clear filters. Applied filters SHALL be encoded in the URL, combined before history pagination and retained by Next/Previous; applying or clearing SHALL return to page one. Filtered empty states SHALL help the student change or clear filters. Existing publication, verified ownership and metadata projection boundaries SHALL remain enforced.
+
+#### Scenario: Combined filters and pagination
+- **WHEN** a student applies title and language filters to assignments or their saved revisions
+- **THEN** only matching visible assignment titles/languages appear, and history pagination applies to the matching own revisions rather than the current unfiltered page
+
+#### Scenario: Hidden assignment metadata
+- **WHEN** a title search is applied to a revision whose assignment is no longer visible
+- **THEN** the hidden title does not match or leak through results, while unsearched own history remains accessible with neutral unavailable metadata
+
+#### Scenario: Literal input and invalid filters
+- **WHEN** search contains punctuation, markup or wildcard characters, or query keys repeat or use unsupported language values
+- **THEN** valid text is matched literally and rendered safely, invalid filters are rejected, and identity/query manipulation cannot expose other students' submissions
+
+#### Scenario: Empty matches and clearing
+- **WHEN** applied filters match no records or the student clears them
+- **THEN** the UI offers a helpful no-match state with Clear filters, and clearing restores page one without filters
+
 ### Requirement: Unsaved assignment code protection
 The real student assignment editor SHALL indicate when its current source differs from its last successfully submitted snapshot. Initial empty source SHALL be clean. Failed submissions SHALL preserve source and dirty state. A successful submission SHALL acknowledge only the source sent in that request, preserving newer edits as unsaved. Request identifiers SHALL be reused only for retries of the same source.
 

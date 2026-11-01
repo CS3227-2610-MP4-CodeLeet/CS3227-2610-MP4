@@ -1,3 +1,9 @@
+## Issue #44: student list search and filters
+
+Share bounded URL parsing and concise filter controls between Assignments and My submissions. Use Next.js Form string actions for GET/client navigation, with title/language keyed inputs and an explicit Apply filters button. Clear links target the unfiltered list; applying/clearing resets page one. Next/Previous retain URL-encoded applied filters. Native GET forms were initially evaluated but browser history restored edited controls inconsistent with the applied URL, so the implementation uses the framework's navigation-aware form.
+
+Search is case-insensitive literal substring, trimmed and bounded to 160 characters; regex syntax is escaped for PostgREST imatch so LIKE wildcard aliases are not interpreted. Reject duplicate query values, control characters and unsupported languages. Assignment results retain publication/RLS constraints. History retains verified student identity, safe projection and stable 25-row pagination, applying language/title constraints before range. Search uses a visible-title inner join; without title search, retain the outer join and neutral metadata for own unpublished-assignment revisions. No schema/dependency/AI/runtime changes. See [plan](../../../workflow/plans/2026-11-01-student-list-filters.md) and [summary](../../../logs/2026-11-01-student-list-filters.md).
+
 ## Issue #40: unsaved assignment code
 
 The real student SubmissionForm compares current source to its last successfully submitted snapshot, initially empty. Exact equality clears dirty state; execution does not. A pending save captures source/request ID, and success acknowledges that snapshot only, leaving newer edits dirty. Failed saves preserve draft and retry ID; changed source gets a fresh ID. Source stays in component memory without local/session storage or autosave. The assignment key isolates forms across assignments.
