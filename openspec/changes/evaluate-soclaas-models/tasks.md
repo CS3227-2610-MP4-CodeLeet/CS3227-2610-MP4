@@ -15,3 +15,9 @@
 - [x] 3.1 Run focused AI tests and the applicable full unit, lint, typecheck, build, database, and OpenSpec checks; record unavailable prerequisites and failed checks accurately.
 - [x] 3.2 Review security boundaries and document the exact PDF requirement-to-evidence mapping and model evaluation results.
 - [x] 3.3 Update the dated session log, synchronize accepted OpenSpec requirements, validate the change, and link issue #48, branch, and evidence.
+
+## 4. Review corrections and PR closeout
+
+- [x] 4.1 Correct trial acceptance, student grading-disclosure checks, grade-change/publication detection, and partial request-budget planning; add regressions for each.
+- [ ] 4.2 Diagnose the failed Application build and preserve pinned asset verification while tolerating transient download mismatches.
+- [ ] 4.3 Add issue-closing guidance where absent, update the PR to use `Closes #48`, rerun applicable checks, push fixes, reply to and resolve addressed review threads.

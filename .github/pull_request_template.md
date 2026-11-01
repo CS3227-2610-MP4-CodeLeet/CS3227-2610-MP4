@@ -2,7 +2,7 @@
 
 Closes #<issue-number>
 
-<!-- Replace <issue-number> with the GitHub issue number. -->
+<!-- Replace the placeholder with the matching GitHub issue number. GitHub closes the issue when this PR merges into develop. -->
 
 ## Problem and resulting behavior
 
