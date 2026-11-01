@@ -43,3 +43,19 @@ export function CapturedDeadline({ dueAt }: { dueAt?: string | null }) {
     </p>
   ) : null;
 }
+
+export function SubmissionTimingDetails({
+  submission,
+}: {
+  submission: { is_late?: boolean; due_at_submission?: string | null };
+}) {
+  return (
+    <div className="space-y-2">
+      <SubmissionTiming
+        isLate={submission.is_late}
+        dueAt={submission.due_at_submission}
+      />
+      <CapturedDeadline dueAt={submission.due_at_submission} />
+    </div>
+  );
+}

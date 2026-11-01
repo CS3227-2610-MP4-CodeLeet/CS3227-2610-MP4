@@ -7,10 +7,7 @@ import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
 import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
-import {
-  CapturedDeadline,
-  SubmissionTiming,
-} from '@/features/assignment-deadlines/components';
+import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
 
 type Criterion = {
   id: string;
@@ -89,7 +86,7 @@ export default async function InstructorSubmissionPage({
           {assignment.title} · revision {submission.revision}
         </p>
         <h1 className="text-3xl font-semibold">Review submission</h1>
-        <SubmissionDeadline submission={submission} />
+        <SubmissionTimingDetails submission={submission} />
         <p className="text-sm text-muted-foreground">
           {languageLabels[language]} source
         </p>
@@ -113,21 +110,5 @@ export default async function InstructorSubmissionPage({
         }
       />
     </main>
-  );
-}
-
-function SubmissionDeadline({
-  submission,
-}: {
-  submission: { is_late: boolean; due_at_submission: string | null };
-}) {
-  return (
-    <div className="space-y-2">
-      <SubmissionTiming
-        isLate={submission.is_late}
-        dueAt={submission.due_at_submission}
-      />
-      <CapturedDeadline dueAt={submission.due_at_submission} />
-    </div>
   );
 }

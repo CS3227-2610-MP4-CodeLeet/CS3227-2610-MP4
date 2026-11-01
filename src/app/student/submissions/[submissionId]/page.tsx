@@ -6,10 +6,7 @@ import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { assignmentTitle } from '@/features/student-submissions/history';
 import { languageLabels } from '@/features/student-assignments/types';
 import { revisionEditorPath } from '@/features/student-submissions/revision-selection';
-import {
-  CapturedDeadline,
-  SubmissionTiming,
-} from '@/features/assignment-deadlines/components';
+import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
 
 import { comparisonPath } from '@/features/student-submissions/comparison-selection';
 
@@ -48,11 +45,7 @@ export default async function SubmissionPage({
           Revision {submission.revision}
         </h1>
         <p className="text-sm text-muted-foreground">{languageLabel} source</p>
-        <SubmissionTiming
-          isLate={submission.is_late}
-          dueAt={submission.due_at_submission}
-        />
-        <CapturedDeadline dueAt={submission.due_at_submission} />
+        <SubmissionTimingDetails submission={submission} />
       </div>
       <div className="flex flex-wrap gap-3">
         <ContinueEditing submission={submission} />
