@@ -16,5 +16,5 @@ Node 24, existing Next/React/Supabase; no dependency, schema, AI gateway, grade 
 
 - [x] Write failing projected-query/parser and safe-render tests; implement owned published-grade loader and DTO parsing.
 - [x] Add My grades routes, workspace navigation, filters, feedback and shared pagination; preserve history behavior.
-- [ ] Verify synthetic publication/ownership/hidden-data boundaries, title/language filtering before paging, deterministic ties, empty/error/mobile/theme and revision navigation; run applicable regressions and static/build/database checks.
+- [x] Verify synthetic publication/ownership/hidden-data boundaries, title/language filtering before paging, deterministic ties, empty/error/mobile/theme and revision navigation; run applicable regressions and static/build/database checks. 312 unit tests, 124 database assertions and 57 full-suite browser checks passed; seven opt-in/prerequisite skips.
 - [ ] Update verified guides/spec/log evidence, commit verified milestones, push and create a labelled PR to develop. Do not merge or deploy.

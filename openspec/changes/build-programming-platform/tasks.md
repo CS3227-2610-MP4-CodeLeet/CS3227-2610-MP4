@@ -2,7 +2,7 @@
 
 - [x] 21.1 Implement projected published-grade DTO/query with explicit ownership, bounded filters/pagination, safe failures and unit/privacy tests.
 - [x] 21.2 Add student My grades routes/navigation, score/feedback/revision links, states and shared filter/pagination presentation.
-- [ ] 21.3 Verify both languages, draft/peer/hidden/role boundaries, deterministic pagination/filter URLs, feedback safety and mobile/theme; run applicable regressions.
+- [x] 21.3 Verify both languages, draft/peer/hidden/role boundaries, deterministic pagination/filter URLs, feedback safety and mobile/theme; run applicable regressions.
 - [ ] 21.4 Update verified guides/spec/log evidence, commit/push and publish a linked labelled PR to develop; keep review/deployment claims accurate.
 
 ## 1. Contracts and feasibility
