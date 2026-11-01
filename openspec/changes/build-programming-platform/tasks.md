@@ -127,19 +127,27 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 13.7 Make `pnpm dev` verify/fetch the pinned local runtime assets and start the loopback static runner with Next.js; verify startup/shutdown, both browser runtimes and no Node-side submitted-code execution. Local startup, Python/Java browser journeys, and clean shutdown were verified; no submitted code is executed in Node.
 - [x] 13.8 Resolve PR #32 review findings: require at least one path segment for immutable versioned runtime caching, stage generated runtime files outside `public/`, and clean abandoned legacy public staging directories. Header matching and builder regression tests pass.
 
-## 17. Issue #42 user-facing copy cleanup
-
-- [x] 17.1 Remove the requested landing paragraph, simplify account/runner setup messages, record the UI copy preference and verify existing UI checks.
-- [x] 17.2 Publish the verified fix with linked issue #42, OpenSpec and dated summary in PR #43; leave human review pending.
-## 15. Issue #38 Profile settings
-
-- [x] 15.1 Implement own-profile loading and strict same-origin session-derived username updates with readonly email/role and privacy/validation tests.
-- [x] 15.2 Add shared account settings UI and role navigation; verify persisted edits, errors, mobile/theme and existing workspace behavior.
-- [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
-- [x] 15.4 Resolve PR #39 mobile-menu CI race by awaiting committed assignment navigation; reproduce the failure and verify repeated mobile checks plus the browser suite before updating the PR.
 ## 14. Issue #30 Forums
 
 - [x] 14.1 Add authenticated thread/reply schema, RLS and trusted idempotent posting RPC with atomic quotas and security tests.
 - [x] 14.2 Build bounded same-origin posting API, server loaders, shared-role forum pages/forms and navigation.
 - [x] 14.3 Verify both roles, safe text, paging, retries/concurrency, access/privacy and responsive/theme behavior; run regression checks.
 - [x] 14.4 Update current guides, plans/logs/spec evidence and publish linked PR to develop; leave human review pending.
+
+## 15. Issue #38 Profile settings
+
+- [x] 15.1 Implement own-profile loading and strict same-origin session-derived username updates with readonly email/role and privacy/validation tests.
+- [x] 15.2 Add shared account settings UI and role navigation; verify persisted edits, errors, mobile/theme and existing workspace behavior.
+- [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
+- [x] 15.4 Resolve PR #39 mobile-menu CI race by awaiting committed assignment navigation; reproduce the failure and verify repeated mobile checks plus the browser suite before updating the PR.
+
+## 16. Issue #40 unsaved assignment code safeguard
+
+- [x] 16.1 Track the exact submitted source snapshot and show unsaved state; keep failed saves and newer in-flight edits dirty with source-bound idempotent retries.
+- [x] 16.2 Warn before ordinary app links, sign-out and reload/close while dirty; support cancelable browser history traversal without modifying history and clean up listeners after save/unmount.
+- [x] 16.3 Verify Python/Java save/failure/navigation journeys and regressions, document browser limitations, and publish linked issue/spec/log/PR evidence. PR #41: 143 unit tests, 18 production Chromium passes with one local-email skip, two expanded new-tab checks, lint/format/build/types/spec/scaffold checks pass; independent review and deployment remain pending.
+
+## 17. Issue #42 user-facing copy cleanup
+
+- [x] 17.1 Remove the requested landing paragraph, simplify account/runner setup messages, record the UI copy preference and verify existing UI checks.
+- [x] 17.2 Publish the verified fix with linked issue #42, OpenSpec and dated summary in PR #43; leave human review pending.
