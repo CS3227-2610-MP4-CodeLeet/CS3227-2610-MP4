@@ -2,7 +2,7 @@
 
 **Goal:** Explain unsupported Java features clearly without rewriting source or claiming threading is always the cause.
 
-**Issue:** [#46](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/46). **Branch:** `fix/java-runner-diagnostics`, directly from `develop` (`35daede`). **OpenSpec:** `build-programming-platform`, browser-code-execution, task group 19. **PR:** pending.
+**Issue:** [#46](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/46). **Branch:** `fix/java-runner-diagnostics`, directly from `develop` (`35daede`). **OpenSpec:** `build-programming-platform`, browser-code-execution, task group 19. **PR:** [#47](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/47).
 
 **Execution:** Codex inline; no specialist delegation. The requester approved clearer errors after the supplied Thread.start example failed in the existing browser runtime, while direct Runnable/Thread.run worked.
 
@@ -18,7 +18,7 @@ Investigation: the pinned compiler exposes only type, severity, fileName, lineNu
 - [x] Implement the shared formatter in `src/features/student-submissions/runner-error-message.ts` and use it in both result views, preserving raw result/source and current error verdict.
 - [x] Verify the supplied nested Runnable example in the real browser UI, direct Runnable success, syntax errors and fake diagnostic text printed by a successful program; retain browser-only execution and existing output limits.
 - [x] Run full unit/lint/format, build/types, relevant browser regressions and strict spec/scaffold checks; update verified guides and dated log.
-- [ ] Commit/push the focused fix and create a labelled PR to develop linking issue/spec/plan/log/checks. Leave independent teammate review and human log verification pending.
+- [x] Commit/push the focused fix and create a labelled PR to develop linking issue/spec/plan/log/checks. Leave independent teammate review and human log verification pending.
 
 ## Review focus
 
