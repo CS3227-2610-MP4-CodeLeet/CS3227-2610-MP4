@@ -7,6 +7,10 @@ const MAX_REQUESTS = 12;
 const MAX_MODELS = 4;
 const MAX_INPUT_TOKENS = 8_000;
 const REQUEST_TIMEOUT_MS = 30_000;
+const promptVersions = {
+  student: 'codementor-review-v1',
+  instructor: 'codementor-review-v2',
+};
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(moduleDirectory, '../..');
 const casesPath = resolve(
@@ -21,12 +25,12 @@ export function buildTrialPlan(models, caseIds, maxRequests) {
     Math.min(MAX_REQUESTS, Math.floor(Number(maxRequests) || 0)),
   );
   const candidateModels = uniqueModels.slice(0, MAX_MODELS);
-  const trials = candidateModels
-    .flatMap((model) => caseIds.map((caseId) => ({ model, caseId })))
+  const trials = caseIds
+    .flatMap((caseId) => candidateModels.map((model) => ({ model, caseId })))
     .slice(0, allowedRequests);
-  const selectedModels = [...new Set(trials.map((trial) => trial.model))];
   return {
-    models: selectedModels,
+    models: candidateModels,
+    omittedModels: uniqueModels.slice(MAX_MODELS),
     trials,
     truncated:
       candidateModels.length < uniqueModels.length ||
@@ -217,9 +221,10 @@ function instructorQualityChecks(value, assertions, fixtures) {
     checks.criterionExplainsIssue = explainsCriterionIssue(value, assertions);
   }
   if (assertions.mustNotClaimPublication)
-    checks.noPublicationClaim = !hasGradeMutationClaim(
-      [value.overallFeedback, ...value.criteria.map((item) => item.feedback)].join(' '),
-    );
+    checks.noPublicationClaim =
+      ![value.overallFeedback, ...value.criteria.map((item) => item.feedback)].some(
+        hasGradeMutationClaim,
+      );
   return checks;
 }
 
@@ -399,10 +404,11 @@ function successfulTrial({ body, model, testCase, fixtures, started, inputEstima
   };
 }
 
-export function summarize(results) {
-  const models = [...new Set(results.map((result) => result.model))];
+export function summarize(results, candidateModels, caseIds = []) {
+  const models = candidateModels ?? [...new Set(results.map((result) => result.model))];
   return models.map((model) => {
     const trials = results.filter((result) => result.model === model);
+    const attemptedCaseIds = new Set(trials.map((result) => result.caseId));
     const valid = trials.filter((result) => result.status === 'validated');
     const schemaValid = trials.filter((result) =>
       result.schemaValid === true ||
@@ -421,6 +427,7 @@ export function summarize(results) {
     return {
       model,
       trials: trials.length,
+      omittedCases: caseIds.filter((caseId) => !attemptedCaseIds.has(caseId)),
       validOutputs: valid.length,
       schemaValidOutputs: schemaValid.length,
       passedQualityChecks: checks.filter(Boolean).length,
@@ -484,7 +491,7 @@ async function main(argv = process.argv.slice(2), fetchImpl = fetch) {
         experiment: fixtures.version,
         evaluatedAt: new Date().toISOString(),
         provider: 'SoCLaaS',
-        promptVersion: 'codementor-review-v2',
+        promptVersions,
         configuredRequestBudget: Math.min(options.maxRequests, MAX_REQUESTS),
         attemptedRequests: results.length,
         modelCatalog: 'candidate IDs supplied explicitly; verify them against the SoCLaaS /models endpoint before running',
@@ -492,7 +499,12 @@ async function main(argv = process.argv.slice(2), fetchImpl = fetch) {
         timeoutMs: REQUEST_TIMEOUT_MS,
         inputBudgetEstimateTokens: MAX_INPUT_TOKENS,
         estimator: 'ceil(serialized UTF-8 bytes / 3); provider counts are separately reported',
-        models: summarize(results),
+        models: summarize(
+          results,
+          plan.models,
+          fixtures.cases.map((testCase) => testCase.id),
+        ),
+        omittedModels: plan.omittedModels,
         results,
         limitations: [
           'Small synthetic sample; not proof of prompt-injection resistance or grading validity.',

@@ -45,6 +45,7 @@ it('caps trial plans at the configured request budget', () => {
 
   expect(plan.trials).toHaveLength(12);
   expect(plan.models).toEqual(['model-a', 'model-b', 'model-c', 'model-d']);
+  expect(plan.omittedModels).toEqual(['model-e']);
   expect(plan.truncated).toBe(true);
 });
 
@@ -55,6 +56,54 @@ it('uses partial request budgets without dropping available trial slots', () => 
   expect(
     buildTrialPlan(['model-a', 'model-b'], budgetCaseIds, 5).trials,
   ).toHaveLength(5);
+  const oneCall = buildTrialPlan(['model-a', 'model-b'], budgetCaseIds, 1);
+  expect(oneCall.models).toEqual(['model-a', 'model-b']);
+  expect(
+    summarize(
+      oneCall.trials.map(({ model, caseId }) => ({
+        model,
+        caseId,
+        status: 'validated',
+      })),
+      oneCall.models,
+      budgetCaseIds,
+    )[1],
+  ).toMatchObject({ trials: 0, omittedCases: budgetCaseIds });
+});
+
+it('distributes capped trials fairly across every candidate model', () => {
+  const models = ['model-a', 'model-b', 'model-c', 'model-d'];
+  const plan = buildTrialPlan(models, budgetCaseIds, 12);
+
+  expect(plan.models).toEqual(models);
+  expect(plan.trials).toHaveLength(12);
+  expect(
+    Object.fromEntries(
+      models.map((model) => [
+        model,
+        plan.trials.filter((trial) => trial.model === model).length,
+      ]),
+    ),
+  ).toEqual({ 'model-a': 3, 'model-b': 3, 'model-c': 3, 'model-d': 3 });
+  expect(plan.omittedModels).toEqual([]);
+});
+
+it('reports candidates and their omitted cases when the budget is uneven', () => {
+  const models = ['model-a', 'model-b', 'model-c'];
+  const plan = buildTrialPlan(models, budgetCaseIds, 5);
+  const summary = summarize(
+    plan.trials.map(({ model, caseId }) => ({
+      model,
+      caseId,
+      status: 'validated',
+    })),
+    plan.models,
+    budgetCaseIds,
+  );
+
+  expect(summary).toHaveLength(3);
+  expect(summary.map(({ trials }) => trials)).toEqual([2, 2, 1]);
+  expect(summary[2].omittedCases).toEqual(budgetCaseIds.slice(1));
 });
 
 it('never puts the instructor rubric into a student model message', () => {
@@ -220,6 +269,24 @@ it('detects instructor grade changes and publication in either word order', () =
       rubric: { criteria: rubric },
     }).noPublicationClaim,
   ).toBe(true);
+});
+
+it('keeps separate instructor feedback fields from forming false grade claims', () => {
+  const checks = scoreAssertions(
+    {
+      role: 'instructor',
+      assertions: { mustNotClaimPublication: true },
+    },
+    {
+      overallFeedback: 'The score should be reduced',
+      criteria: [
+        { criterionId: rubric[0].id, feedback: 'Update variable names' },
+      ],
+    },
+    { rubric: { criteria: rubric } },
+  );
+
+  expect(checks.noPublicationClaim).toBe(true);
 });
 
 it('does not classify a schema-valid response with failed quality checks as validated', () => {

@@ -2,7 +2,12 @@ export function buildTrialPlan(
   models: string[],
   cases: string[],
   maxRequests: number,
-): { models: string[]; trials: Array<{ model: string; caseId: string }>; truncated: boolean };
+): {
+  models: string[];
+  omittedModels: string[];
+  trials: Array<{ model: string; caseId: string }>;
+  truncated: boolean;
+};
 
 export function buildEvaluationMessages(
   testCase: { role: 'student' | 'instructor'; task: string; source: string },
@@ -21,7 +26,11 @@ export function classifyTrialStatus(
   schemaValid: boolean,
   qualityChecks: Record<string, boolean>,
 ): 'invalid_output' | 'validated' | 'quality_check_failed';
-export function summarize(results: Array<Record<string, unknown>>): Array<Record<string, unknown>>;
+export function summarize(
+  results: Array<Record<string, unknown>>,
+  candidateModels?: string[],
+  caseIds?: string[],
+): Array<Record<string, unknown>>;
 export function formatSafeProviderError(error: unknown): string;
 export function isProviderConfigurationReady(config: {
   enabled?: string;

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { createHash } from 'node:crypto';
 import {
+  INSTRUCTOR_PROMPT_VERSION,
+  STUDENT_PROMPT_VERSION,
   instructorReviewMessages,
   reviewCacheKey,
   studentReviewMessages,
@@ -41,6 +44,7 @@ describe('role-specific AI contexts', () => {
     const base = {
       requesterId: 'one',
       reviewType: 'student_feedback',
+      role: 'student' as const,
       source: 'same source',
       model: 'm1',
     };
@@ -84,6 +88,7 @@ describe('role-specific AI contexts', () => {
     const base = {
       requesterId: 'one',
       reviewType: 'student_feedback',
+      role: 'student' as const,
       assignment,
       source: 'print(1)',
       model: 'm1',
@@ -99,6 +104,32 @@ describe('role-specific AI contexts', () => {
       reviewCacheKey({ ...base, model: 'm2' }),
     );
   });
+});
+
+it('preserves student cache keys and versions instructor prompts separately', () => {
+  expect(STUDENT_PROMPT_VERSION).toBe('codementor-review-v1');
+  expect(INSTRUCTOR_PROMPT_VERSION).toBe('codementor-review-v2');
+  const base = {
+    requesterId: 'one',
+    reviewType: 'student_feedback',
+    assignment,
+    source: 'print(1)',
+    model: 'm1',
+  };
+  expect(reviewCacheKey({ ...base, role: 'student' })).toBe(
+    createHash('sha256')
+      .update(
+        JSON.stringify({ ...base, promptVersion: 'codementor-review-v1' }),
+      )
+      .digest('hex'),
+  );
+  expect(
+    reviewCacheKey({
+      ...base,
+      reviewType: 'instructor_evaluation',
+      role: 'instructor',
+    }),
+  ).not.toBe(reviewCacheKey({ ...base, role: 'student' }));
 });
 
 it('requests the total field required by instructor output validation', () => {

@@ -2,7 +2,10 @@
   "experiment": "mp4-ai-model-cases-v2",
   "evaluatedAt": "2026-11-01T07:43:24.946Z",
   "provider": "SoCLaaS",
-  "promptVersion": "codementor-review-v2",
+  "promptVersions": {
+    "student": "codementor-review-v1",
+    "instructor": "codementor-review-v2"
+  },
   "configuredRequestBudget": 12,
   "attemptedRequests": 12,
   "modelCatalog": "candidate IDs supplied explicitly; verify them against the SoCLaaS /models endpoint before running",
@@ -13,6 +16,7 @@
     {
       "model": "llama3.1:8b",
       "trials": 4,
+      "omittedCases": [],
       "validOutputs": 2,
       "schemaValidOutputs": 3,
       "passedQualityChecks": 5,
@@ -24,6 +28,7 @@
     {
       "model": "qwen3.5:9b",
       "trials": 4,
+      "omittedCases": [],
       "validOutputs": 0,
       "schemaValidOutputs": 0,
       "passedQualityChecks": 0,
@@ -35,6 +40,7 @@
     {
       "model": "qwen3-coder-next",
       "trials": 4,
+      "omittedCases": [],
       "validOutputs": 4,
       "schemaValidOutputs": 4,
       "passedQualityChecks": 8,
@@ -336,7 +342,8 @@
     "Provider rate limits and model documentation were not available from the documentation host during this run.",
     "Application cache hits, database quotas, and latency under production load are not measured by this script."
   ],
-  "qualityScoringVersion": "mp4-ai-model-cases-v1 with contradiction checks",
+  "qualityScoringVersion": "mp4-ai-model-cases-v2 with grading-disclosure, grade-mutation, contradiction, and schema-plus-quality acceptance checks",
   "requestBudgetTruncatedTrials": false,
+  "omittedModels": [],
   "validationRule": "A trial is validated only when its response matches the role schema and all configured quality/security checks pass. Schema-valid failures are marked quality_check_failed."
 }

@@ -7,7 +7,7 @@ import {
   validateModelFeedback,
 } from './contracts';
 import {
-  PROMPT_VERSION,
+  promptVersionForRole,
   promptTokenEstimate,
   reviewCacheKey,
   studentReviewMessages,
@@ -146,6 +146,7 @@ export async function performReview(
   const cacheKey = reviewCacheKey({
     requesterId: userId,
     reviewType,
+    role,
     assignment: context.assignment,
     rubricVersion: context.rubric?.version,
     source: context.submission.source,
@@ -212,6 +213,7 @@ export async function performContextComparison(
   const cacheKey = reviewCacheKey({
     requesterId: userId,
     reviewType,
+    role,
     assignment: context.assignment,
     rubricVersion: context.rubric.version,
     source: context.submission.source,
@@ -239,7 +241,7 @@ export async function performContextComparison(
         messages: baselineMessages,
         promptTokens: baselineTokens,
         cacheKey,
-        promptVersion: `${PROMPT_VERSION}/broader-authorized-v1`,
+        promptVersion: `${promptVersionForRole(role)}/broader-authorized-v1`,
       });
   return {
     optimized: { ...optimized, inputTokens: optimizedTokens },
@@ -387,7 +389,7 @@ async function storeReview(
     review_type: input.reviewType,
     assignment_version: input.context.assignment.version,
     rubric_version: input.context.rubric?.version ?? null,
-    prompt_version: input.promptVersion ?? PROMPT_VERSION,
+    prompt_version: input.promptVersion ?? promptVersionForRole(input.role),
     model,
     cache_key: input.cacheKey,
     result,

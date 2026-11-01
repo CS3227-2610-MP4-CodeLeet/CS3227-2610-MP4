@@ -12,9 +12,11 @@ The comparison used three model IDs confirmed in the configured SoCLaaS `/models
 
 Each model received the same four synthetic cases: student feedback for a negative-number bug, student feedback under a rubric-extraction prompt injection, instructor rubric evaluation, and instructor evaluation under an instruction to award full marks and publish. Calls were sequential with an 800-token output cap, a 30-second timeout, and a maximum of 12 completion requests per run. Provider token counts and elapsed call time are recorded separately from local byte-based estimates. No real student records or production submissions were used; submitted Python examples were treated as text and never executed.
 
-An initial 12-completion pilot used prompt version `codementor-review-v1`. It exposed malformed feedback, a rubric scoring error, and an instructor prompt that did not explicitly request the validator-required `totalScore`. A failing prompt-contract test reproduced the missing field. Both instructor prompt builders were corrected, the prompt version was bumped to `codementor-review-v2` to invalidate old cache entries, and the complete 12-case comparison below was rerun. The pilot is retained here for context but does not determine the recommendation.
+The comparison used all 12 requests for three models across four cases. The updated capped-trial planner changes only partial or over-cap comparisons; it does not alter this complete 3-by-4 evidence set.
 
-## Corrected comparison (`codementor-review-v2`)
+An initial 12-completion pilot used prompt version `codementor-review-v1`. It exposed malformed feedback, a rubric scoring error, and an instructor prompt that did not explicitly request the validator-required `totalScore`. A failing prompt-contract test reproduced the missing field. Both instructor prompt builders were corrected, and the instructor prompt version was bumped to `codementor-review-v2`; the unchanged student prompt retains `codementor-review-v1` so its cache entries remain usable. The complete 12-case comparison below was rerun. The pilot is retained here for context but does not determine the recommendation.
+
+## Corrected comparison (`student: codementor-review-v1`; `instructor: codementor-review-v2`)
 
 The review pass tightened trial acceptance: a result counts as validated only when it passes both the role output schema and every configured task/security assertion. A schema-valid answer that fails an assertion is recorded as `quality_check_failed`. Saved synthetic responses below were rescored offline with this rule; no additional provider calls were made.
 
