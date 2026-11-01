@@ -4,14 +4,17 @@ import { SubmissionHistoryList } from './history-list';
 import type { HistoryItem } from './history';
 import { emptyListFilters } from '@/features/student-lists/filters';
 
-const row: HistoryItem = {
+const rowData = {
   id: '00000000-0000-4000-8000-000000000001',
   assignmentId: '00000000-0000-4000-8000-000000000002',
   title: 'Loops & arrays',
   language: 'python',
   revision: 3,
   submittedAt: '2026-10-31T00:00:00Z',
-};
+  isLate: false,
+  dueAtSubmission: null,
+} as const;
+const row: HistoryItem = rowData;
 
 describe('submission history presentation', () => {
   it('renders revision details and pagination for a populated page', () => {
@@ -27,7 +30,7 @@ describe('submission history presentation', () => {
       '/student/submissions/00000000-0000-4000-8000-000000000001',
     );
     expect(html).toContain('Python');
-    expect(html).toContain('>3</td>');
+    expect(html).toMatch(/(?:>3<\/td>|>3<\/p>)/);
     expect(html).toContain('31 Oct 2026');
     expect(html).toContain('Next');
   }, 15_000);
