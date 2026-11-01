@@ -100,3 +100,23 @@ describe('role-specific AI contexts', () => {
     );
   });
 });
+
+it('requests the total field required by instructor output validation', () => {
+  const messages = instructorReviewMessages(
+    assignment,
+    {
+      version: 1,
+      criteria: [
+        {
+          id: '40000000-0000-4000-8000-000000000001',
+          title: 'Correctness',
+          description: 'Correct output',
+          maxScore: 10,
+        },
+      ],
+    },
+    'print(1)',
+  );
+
+  expect(JSON.parse(messages.user).task).toContain('totalScore');
+});
