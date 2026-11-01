@@ -6,6 +6,7 @@ import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { assignmentTitle } from '@/features/student-submissions/history';
 import { languageLabels } from '@/features/student-assignments/types';
 import { revisionEditorPath } from '@/features/student-submissions/revision-selection';
+import { comparisonPath } from '@/features/student-submissions/comparison-selection';
 
 export default async function SubmissionPage({
   params,
@@ -43,7 +44,16 @@ export default async function SubmissionPage({
         </h1>
         <p className="text-sm text-muted-foreground">{languageLabel} source</p>
       </div>
-      <ContinueEditing submission={submission} />
+      <div className="flex flex-wrap gap-3">
+        <ContinueEditing submission={submission} />
+        <Link
+          href={comparisonPath(submission.id)}
+          prefetch={false}
+          className="inline-flex rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          Compare revisions
+        </Link>
+      </div>
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>
       </pre>

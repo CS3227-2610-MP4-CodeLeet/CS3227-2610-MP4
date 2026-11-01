@@ -1,5 +1,22 @@
 ## ADDED Requirements
 
+### Requirement: Compare owned saved revisions
+Verified students SHALL be able to select two of their own saved revision numbers for the same assignment and language and view added, removed and unchanged lines with original/new line numbers. Selection SHALL persist in GET URLs and refresh/history navigation. Default comparison SHALL use predecessor/current, or first/latest when opening revision one; a single saved revision and identical code SHALL have helpful states. Reversed/equal selections SHALL remain valid. Whitespace and final newlines SHALL be represented; line-ending styles MAY be normalized for comparison only. Comparison work SHALL be bounded and MAY show a coarser changed middle block for large inputs. Source SHALL render as safe text with keyboard/mobile/light/dark support, without modifying or executing saved revisions.
+
+The server SHALL derive identity from the verified session, validate identifiers/revision parameters, read only projected own anchor/latest metadata and at most two selected bounded sources, and enforce student/assignment/language filters alongside RLS. Missing/foreign/invalid/duplicate selections SHALL fail closed; unavailable assignment titles SHALL stay hidden. No rubric, unpublished grade, AI, grade/XP write, source query parameter or persistent source cache SHALL be introduced.
+
+#### Scenario: Compare Python or Java revisions
+- **WHEN** a student opens Compare revisions on their saved Python or Java submission and selects two revision numbers
+- **THEN** changes and both line-number sequences are shown, refresh/Back retain selections and both originals remain unchanged
+
+#### Scenario: Empty or unchanged comparison
+- **WHEN** only one own revision exists or selected source is identical
+- **THEN** the student sees a helpful single-revision or No changes state without fabricated differences
+
+#### Scenario: Private and unavailable revisions
+- **WHEN** a caller requests another student's anchor, invalid/duplicate/out-of-range revision numbers or hidden assignment metadata
+- **THEN** unauthorized source and metadata stay inaccessible, own hidden-assignment revisions retain neutral metadata, and no privileged client is used
+
 ### Requirement: Student published-grade list
 The system SHALL provide My grades to verified students, listing only their own published grades with assignment title when available, submission language/revision, score, publication time, safe plain-text feedback and a link to the graded revision. It SHALL NOT infer percentages/averages or expose source, rubrics, draft grades or peer records. Use deterministic published_at/ID descending order, 25 entries per page and bounded title/language filters applied before pagination.
 
