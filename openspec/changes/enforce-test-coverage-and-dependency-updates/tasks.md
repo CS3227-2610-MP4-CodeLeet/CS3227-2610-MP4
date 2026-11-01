@@ -18,4 +18,4 @@
 ## 4. Tracking and closeout
 
 - [x] 4.1 Maintain `logs/2026-11-01-test-coverage-dependabot.md` with chronological interactions, actual participants, changes, checks, failures, and limits.
-- [ ] 4.2 Link issue #57, this OpenSpec change, the branch, log summary, and verification in the PR targeting `develop`; keep human verification pending.
+- [x] 4.2 Link issue #57, this OpenSpec change, the branch, log summary, and verification in the PR targeting `develop`; keep human verification pending.
