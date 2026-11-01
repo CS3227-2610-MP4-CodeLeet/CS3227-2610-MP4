@@ -126,3 +126,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [ ] 13.6 Configure and smoke the single Vercel app Preview deployment; run Production smoke only after provenance/license and independent review gates pass. The requester reports that Python and Java now run in Preview; Production smoke and independent code review remain pending. Update verified docs and the dated issue/OpenSpec/branch/PR log. Keep human verification pending.
 - [x] 13.7 Make `pnpm dev` verify/fetch the pinned local runtime assets and start the loopback static runner with Next.js; verify startup/shutdown, both browser runtimes and no Node-side submitted-code execution. Local startup, Python/Java browser journeys, and clean shutdown were verified; no submitted code is executed in Node.
 - [x] 13.8 Resolve PR #32 review findings: require at least one path segment for immutable versioned runtime caching, stage generated runtime files outside `public/`, and clean abandoned legacy public staging directories. Header matching and builder regression tests pass.
+
+## 18. Issue #44 student list search and filters
+
+- [x] 18.1 Add shared bounded literal title/language filters with URL-backed controls and helpful empty/reset states on Assignments and My submissions.
+- [x] 18.2 Apply history filters before stable pagination while preserving verified identity, metadata-only reads, hidden-assignment boundaries and filtered page links.
+- [ ] 18.3 Verify combined filters, punctuation, hidden/peer privacy, pagination/reset and mobile/history regressions; update guides/logs and publish a linked PR to develop.

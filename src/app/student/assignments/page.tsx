@@ -7,13 +7,23 @@ import {
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { requireRole } from '@/lib/auth/verified-user';
 import type { AssignmentSummary } from '@/features/student-assignments/types';
+import { notFound } from 'next/navigation';
+import {
+  matchesListFilters,
+  parseListFilters,
+  titleSearchPattern,
+  type ListSearchParams,
+} from '@/features/student-lists/filters';
 
 export default async function AssignmentListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ preview?: string }>;
+  searchParams: Promise<ListSearchParams>;
 }) {
-  const { preview } = await searchParams;
+  const params = await searchParams;
+  const { preview } = params;
+  const filters = parseListFilters(params);
+  if (!filters) notFound();
   if (
     isAssignmentPreviewEnabled(
       process.env.NODE_ENV,
@@ -27,15 +37,27 @@ export default async function AssignmentListPage({
       await new Promise((resolve) => setTimeout(resolve, 3000));
     const assignments = listPreviewAssignments();
     return (
-      <AssignmentList assignments={preview === 'empty' ? [] : assignments} />
+      <AssignmentList
+        filters={filters}
+        assignments={
+          preview === 'empty'
+            ? []
+            : assignments.filter((item) => matchesListFilters(item, filters))
+        }
+      />
     );
   }
   const { supabase } = await requireRole('student');
-  const { data, error } = await supabase
+  let query = supabase
     .from('assignments')
     .select('id,title,language,publication_status')
-    .eq('publication_status', 'published')
-    .order('created_at', { ascending: false });
+    .eq('publication_status', 'published');
+  if (filters.language) query = query.eq('language', filters.language);
+  if (filters.q)
+    query = query.filter('title', 'imatch', titleSearchPattern(filters.q));
+  const { data, error } = await query
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false });
   if (error) throw new Error('Published assignments could not be loaded');
   const assignments = (data ?? []).map((item) => ({
     ...item,
@@ -44,7 +66,7 @@ export default async function AssignmentListPage({
   })) as AssignmentSummary[];
   return (
     <div>
-      <AssignmentList assignments={assignments} />
+      <AssignmentList assignments={assignments} filters={filters} />
     </div>
   );
 }

@@ -2,6 +2,16 @@ import Link from 'next/link';
 import { FileCode2 } from 'lucide-react';
 import { languageLabels } from '@/features/student-assignments/types';
 import type { HistoryItem, HistoryPage } from './history';
+import {
+  buildListUrl,
+  emptyListFilters,
+  hasListFilters,
+  type ListFilters,
+} from '@/features/student-lists/filters';
+import {
+  FilteredListEmpty,
+  ListFilterControls,
+} from '@/features/student-lists/filter-controls';
 
 const listPath = '/student/submissions';
 const linkStyle =
@@ -10,9 +20,11 @@ const linkStyle =
 export function SubmissionHistoryList({
   history,
   page,
+  filters = emptyListFilters,
 }: {
   history: HistoryPage;
   page: number;
+  filters?: ListFilters;
 }) {
   return (
     <section className="space-y-6" aria-labelledby="my-submissions-heading">
@@ -28,12 +40,19 @@ export function SubmissionHistoryList({
           feedback and published grade.
         </p>
       </header>
+      <ListFilterControls path={listPath} filters={filters} />
       {history.rows.length ? (
         <HistoryTable rows={history.rows} />
+      ) : hasListFilters(filters) ? (
+        <FilteredListEmpty kind="submissions" page={page} />
       ) : (
         <HistoryEmpty page={page} />
       )}
-      <HistoryPagination page={page} hasNext={history.hasNext} />
+      <HistoryPagination
+        page={page}
+        hasNext={history.hasNext}
+        filters={filters}
+      />
     </section>
   );
 }
@@ -124,9 +143,11 @@ function HistoryRow({ row }: { row: HistoryItem }) {
 function HistoryPagination({
   page,
   hasNext,
+  filters,
 }: {
   page: number;
   hasNext: boolean;
+  filters: ListFilters;
 }) {
   if (page === 1 && !hasNext) return null;
   return (
@@ -135,13 +156,19 @@ function HistoryPagination({
       className="flex flex-wrap items-center gap-3"
     >
       {page > 1 && (
-        <Link href={`${listPath}?page=${page - 1}`} className={linkStyle}>
+        <Link
+          href={buildListUrl(listPath, filters, page - 1)}
+          className={linkStyle}
+        >
           Previous
         </Link>
       )}
       <span className="text-sm text-muted-foreground">Page {page}</span>
       {hasNext && (
-        <Link href={`${listPath}?page=${page + 1}`} className={linkStyle}>
+        <Link
+          href={buildListUrl(listPath, filters, page + 1)}
+          className={linkStyle}
+        >
           Next
         </Link>
       )}

@@ -1,5 +1,24 @@
 ## ADDED Requirements
 
+### Requirement: Student list search and language filters
+Assignments and My submissions SHALL provide a bounded case-insensitive literal title search, All languages/Python/Java filtering and Clear filters. Applied filters SHALL be encoded in the URL, combined before history pagination and retained by Next/Previous; applying or clearing SHALL return to page one. Filtered empty states SHALL help the student change or clear filters. Existing publication, verified ownership and metadata projection boundaries SHALL remain enforced.
+
+#### Scenario: Combined filters and pagination
+- **WHEN** a student applies title and language filters to assignments or their saved revisions
+- **THEN** only matching visible assignment titles/languages appear, and history pagination applies to the matching own revisions rather than the current unfiltered page
+
+#### Scenario: Hidden assignment metadata
+- **WHEN** a title search is applied to a revision whose assignment is no longer visible
+- **THEN** the hidden title does not match or leak through results, while unsearched own history remains accessible with neutral unavailable metadata
+
+#### Scenario: Literal input and invalid filters
+- **WHEN** search contains punctuation, markup or wildcard characters, or query keys repeat or use unsupported language values
+- **THEN** valid text is matched literally and rendered safely, invalid filters are rejected, and identity/query manipulation cannot expose other students' submissions
+
+#### Scenario: Empty matches and clearing
+- **WHEN** applied filters match no records or the student clears them
+- **THEN** the UI offers a helpful no-match state with Clear filters, and clearing restores page one without filters
+
 ### Requirement: Private cross-assignment submission history
 Authenticated students SHALL have a My submissions list of their own stored revisions across assignments, with assignment title, stored language, revision, submitted time and links to existing authorized detail/feedback/published-grade views. The server SHALL derive student identity from the verified session and enforce an explicit ownership filter alongside RLS. List reads SHALL exclude source, private rubrics and grades. The list SHALL use deterministic newest-first pagination of 25 items, show loading/empty/safe retry states and retain own revisions when assignment metadata is unavailable. This real-data feature SHALL require authentication even when the synthetic assignment preview is enabled.
 

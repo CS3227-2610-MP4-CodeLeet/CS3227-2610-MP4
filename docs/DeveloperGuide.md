@@ -121,6 +121,16 @@ Domain comparator/suite tests run in the normal unit suite. Full real-runtime we
 
 ## Data and API contracts
 
+### Student list search and filters
+
+`src/features/student-lists/` shares URL filter parsing, literal title-pattern escaping, form controls and filtered empty states. The Next.js `Form` component submits `q` and `language` using GET/client navigation. Inputs are keyed by applied values so Back/Forward restores the corresponding controls; applying/clearing omits history page, resetting to one. Search is trimmed to a maximum of 160 characters, rejects control characters/duplicate values, and accepts only the existing Python/Java language values or an empty All languages value. Unknown identity query fields do not participate in authorization.
+
+Assignment queries retain published status/RLS and filter by title/language before returning metadata. History keeps verified `student_id`, stored language, metadata-only projection, stable `created_at DESC, id DESC` ordering and 25-row plus lookahead pagination. With title search it uses `assignments!inner(title)` and an embedded title filter; without search it keeps the outer title join so own unavailable-assignment history remains visible with the existing neutral label. No private source, rubric, grade or hidden title is queried for search. All filters run before pagination; encoded Next/Previous URLs retain them.
+
+Title matching uses escaped PostgreSQL `imatch`, as documented by [PostgREST's operators](https://docs.postgrest.org/en/stable/references/api/tables_views.html#operators), through the existing [Supabase filter API](https://supabase.com/docs/reference/javascript/filter). Regex metacharacters are escaped; `%`, `_` and `*` are literal user text rather than LIKE/PostgREST wildcards. No migration, new dependency or service key is needed by app code. Search currently uses database case-insensitive substring matching without a new search index; revisit indexing if course size requires it rather than downloading all revisions into the browser.
+
+Unit tests inspect actual Supabase-generated request parameters as well as parsing, page links and trusted identity forwarding. `tests/e2e/student-list-filters.spec.ts` extends scoped synthetic history fixtures to exercise more than 25 matching revisions, both languages, literal punctuation/Unicode, hidden titles, forged identity, no-match/reset, Back/reload and mobile/theme behavior. See the [plan](../workflow/plans/2026-11-01-student-list-filters.md) and [summary](../logs/2026-11-01-student-list-filters.md).
+
 The CodeLeet MVP data model uses profiles/roles, public assignment rows, separately stored private rubrics, immutable submission revisions, draft/published grades, AI review cache, quota reservations, and usage records. Forums, XP awards and broad analytics are outside this selected MVP. `openspec/changes/deliver-codementor-mvp/design.md` defines ownership, RLS, RPC boundaries, lifecycle/versioning, and quota behavior.
 
 ## Workflow artifact catalog

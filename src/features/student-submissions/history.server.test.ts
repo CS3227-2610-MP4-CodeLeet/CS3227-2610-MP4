@@ -1,6 +1,41 @@
 import { expect, it, vi } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { loadSubmissionHistory } from './history.server';
+const verifiedStudentId = 'verified-student';
+
+it('sends literal title/language filters before paging with verified ownership and visible-title joins', async () => {
+  let requested!: URL;
+  const client = createClient('http://127.0.0.1:54321', 'synthetic-test-key', {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: async (input) => {
+        requested = new URL(String(input));
+        return new Response('[]', {
+          headers: { 'content-type': 'application/json' },
+        });
+      },
+    },
+  });
+  await loadSubmissionHistory(client, verifiedStudentId, 2, {
+    q: 'A*%_[x]',
+    language: 'java',
+  });
+  expect(requested.searchParams.get('student_id')).toBe('eq.verified-student');
+  expect(requested.searchParams.get('language')).toBe('eq.java');
+  expect(requested.searchParams.get('assignments.title')).toBe(
+    'imatch.A\\*%_\\[x\\]',
+  );
+  expect(requested.searchParams.get('select')).toBe(
+    'id,assignment_id,language,revision,created_at,assignments!inner(title)',
+  );
+  expect(requested.searchParams.get('offset')).toBe('25');
+  expect(requested.searchParams.get('limit')).toBe('26');
+});
 
 function fixture(data: unknown, error: unknown = null) {
   const range = vi.fn().mockResolvedValue({ data, error });
@@ -46,6 +81,21 @@ it('fetches one lookahead but renders only 25 revisions', async () => {
   );
   expect(result?.rows).toHaveLength(25);
   expect(result?.hasNext).toBe(true);
+});
+
+it('keeps the outer title join for language-only history so hidden assignments remain accessible', async () => {
+  const { client, query } = fixture([]);
+  await loadSubmissionHistory(
+    client as unknown as SupabaseClient,
+    verifiedStudentId,
+    1,
+    { q: '', language: 'python' },
+  );
+  expect(query.eq).toHaveBeenCalledWith('student_id', verifiedStudentId);
+  expect(query.eq).toHaveBeenCalledWith('language', 'python');
+  expect(query.select).toHaveBeenCalledWith(
+    'id,assignment_id,language,revision,created_at,assignments(title)',
+  );
 });
 
 it.each([
