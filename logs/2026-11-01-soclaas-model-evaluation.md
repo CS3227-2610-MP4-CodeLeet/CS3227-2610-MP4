@@ -6,7 +6,7 @@
 - GitHub issue: [#48](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/48)
 - OpenSpec change: `openspec/changes/evaluate-soclaas-models` (active for review; main capability spec synchronized).
 - Branch and commits: `eval/48-soclaas-model-comparison`, based on `develop` at `a80d2055d95784bee4e48ce3c33debce747a9804`; `65b9e7f` (`fix(ai): request validated instructor score fields`), `6e091db` (`feat(ai): add bounded SoCLaaS model evaluation`), and this log closeout commit.
-- Pull request: pending.
+- Pull request: [#49](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/49) to `develop` (open; not merged).
 - Human verification: pending.
 - Verifier/date: pending.
 
@@ -43,4 +43,4 @@
 - The official SoCLaaS documentation links could not be read due to the environment's DocHub access restriction. The model catalog provided IDs/context sizes only; pricing and provider limits remain unverified. The local harness caps do not assert provider quotas.
 - Product code was not independently reviewed. Hosted app, Vercel deployment, production SoCLaaS behavior, broad prompt-injection resistance, and real-world grading quality were not tested.
 - Build limitation: existing static-runtime build stops at Windows `EPERM` directory replacement, so production build completion is unverified.
-- Human verification and PR are pending. The commits are local; push and PR creation remain to complete the repository closeout.
+- Branch was pushed to `origin`; PR #49 is open against `develop`. Human verification remains pending; no merge or deployment occurred.
