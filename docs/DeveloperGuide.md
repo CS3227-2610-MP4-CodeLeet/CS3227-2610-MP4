@@ -121,6 +121,14 @@ Domain comparator/suite tests run in the normal unit suite. Full real-runtime we
 
 ## Data and API contracts
 
+### Unsaved assignment source
+
+`src/features/student-submissions/use-submission-draft.ts` compares the current source with the exact last successful submitted snapshot in component memory. The initial empty editor is clean; whitespace changes count. An in-flight response acknowledges its own source snapshot and cannot mark a newer draft saved. Retry IDs are reused for the same failed source and replaced for changed source. The existing assignment-keyed form resets on assignment changes. There is no autosave or browser storage of source and no new API/schema/environment configuration.
+
+`unsaved-code-guard.ts` installs listeners only while dirty and removes them on clean/unmount: capture ordinary same-tab same-origin links, an explicit cancelable event checked by SignOutButton before Auth mutation, native `beforeunload`, and cancelable same-document Navigation API history traversal. Hash-only links, downloads and modified/new-tab clicks are excluded. External departures use native unload warnings. No history entries or Next.js router internals are patched. Browser/mobile unload suppression and unsupported/noncancelable history remain limitations; see [MDN beforeunload](https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event) and [Navigation events](https://developer.mozilla.org/en-US/docs/Web/API/Navigation/navigate_event).
+
+`tests/e2e/unsaved-code.spec.ts` exercises Python/Java dirty/revert/success, failed and source-bound retries, edits during delayed real saves, navigation cancellation/acceptance, native reload warnings, mobile controls, failed sign-out and listener cleanup. Its fixture helper creates and cleans only scoped synthetic local accounts/assignments. Runtime execution, grades and XP are unchanged; no submitted source is executed on the application server. See the [implementation plan](../workflow/plans/2026-11-01-unsaved-code-guard.md) and [session summary](../logs/2026-11-01-unsaved-code-guard.md).
+
 The CodeLeet MVP data model uses profiles/roles, public assignment rows, separately stored private rubrics, immutable submission revisions, draft/published grades, AI review cache, quota reservations, and usage records. Forums, XP awards and broad analytics are outside this selected MVP. `openspec/changes/deliver-codementor-mvp/design.md` defines ownership, RLS, RPC boundaries, lifecycle/versioning, and quota behavior.
 
 ## Workflow artifact catalog

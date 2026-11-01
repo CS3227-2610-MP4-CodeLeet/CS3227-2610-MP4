@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AssignmentPractice } from '@/features/student-submissions/assignment-practice';
 import type { PracticeCase } from '@/features/student-submissions/practice-tests';
 import { CodeEditor } from '@/features/student-submissions/code-editor';
+import { useSubmissionDraft } from '@/features/student-submissions/use-submission-draft';
 import {
   languageLabels,
   type AssignmentLanguage,
@@ -17,6 +18,14 @@ type SubmissionFormProps = {
   testExamples?: readonly PracticeCase[] | null;
 };
 
+function DraftStatus({ dirty }: { dirty: boolean }) {
+  return (
+    <p role="status" className="text-sm text-muted-foreground">
+      {dirty ? 'Unsaved changes' : 'No unsaved changes'}
+    </p>
+  );
+}
+
 export function SubmissionForm({
   assignmentId,
   language,
@@ -24,26 +33,28 @@ export function SubmissionForm({
   testExamples = null,
 }: SubmissionFormProps) {
   const router = useRouter();
-  const [source, setSource] = useState('');
+  const { source, setSource, dirty, submissionAttempt, acknowledge } =
+    useSubmissionDraft();
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
-  const [requestId, setRequestId] = useState(() => crypto.randomUUID());
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
+    const submitted = submissionAttempt();
     setBusy(true);
     setMessage('');
     try {
       const response = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ assignmentId, source, requestId }),
+        body: JSON.stringify({ assignmentId, ...submitted }),
       });
       const result = await response.json();
       if (!response.ok)
         throw new Error(result.error?.message ?? 'Submission failed.');
       setMessage(`Saved revision ${result.submission.revision}.`);
-      setRequestId(crypto.randomUUID());
+      acknowledge(submitted.source);
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Submission failed.');
@@ -67,6 +78,7 @@ export function SubmissionForm({
         maxLength={8_000}
         rows={18}
       />
+      <DraftStatus dirty={dirty} />
       <AssignmentPractice
         runnerOrigin={browserRunnerOrigin}
         source={source}

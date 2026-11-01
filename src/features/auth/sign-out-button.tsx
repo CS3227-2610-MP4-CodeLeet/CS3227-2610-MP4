@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import { confirmUnsavedNavigation } from '@/features/student-submissions/unsaved-code-guard';
 
 export function SignOutButton() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   async function signOut() {
+    if (!confirmUnsavedNavigation()) return;
     setBusy(true);
     setError('');
     try {
