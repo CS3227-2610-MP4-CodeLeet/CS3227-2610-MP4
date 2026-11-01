@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Continue editing an owned saved revision
+Students SHALL be able to load their own saved revision into its published assignment's editor and submit further work as a new immutable revision. Only a revision identifier SHALL appear in the navigation URL. The server SHALL verify student identity, ownership, assignment association and matching language before supplying exact source; invalid, duplicate, missing, peer or mismatched identifiers SHALL fail closed. This action SHALL NOT save, execute code, publish grades or award XP automatically.
+
+#### Scenario: Reopen and submit in either language
+- **WHEN** a student chooses Continue editing on an available Python or Java revision
+- **THEN** the editor loads exact source with the assignment language and a clean baseline; edits, runs and submission use the existing workspace, a successful save creates a new revision, and the original stays unchanged
+
+#### Scenario: Replace an edited draft
+- **WHEN** a student selects a different revision or leaves a resumed workspace with unsaved edits
+- **THEN** the existing warning allows cancellation without losing source; accepted revision navigation replaces the draft, while save refresh does not replace newer edits
+
+#### Scenario: Unavailable revision or assignment
+- **WHEN** a caller supplies another student's revision, a revision for another assignment/language, malformed or duplicate parameters, or an unpublished assignment
+- **THEN** the editor does not load that source; unavailable assignments do not offer Continue editing, and normal visits without a revision remain blank
+
 ### Requirement: Student list search and language filters
 Assignments and My submissions SHALL provide a bounded case-insensitive literal title search, All languages/Python/Java filtering and Clear filters. Applied filters SHALL be encoded in the URL, combined before history pagination and retained by Next/Previous; applying or clearing SHALL return to page one. Filtered empty states SHALL help the student change or clear filters. Existing publication, verified ownership and metadata projection boundaries SHALL remain enforced.
 

@@ -21,6 +21,7 @@ type CodeEditorProps = {
   describedBy?: string;
   maxLength?: number;
   rows?: number;
+  disabled?: boolean;
 };
 
 function SyntaxSource({
@@ -71,6 +72,7 @@ export function CodeEditor({
   describedBy,
   maxLength,
   rows = 12,
+  disabled = false,
 }: CodeEditorProps) {
   const gutter = useRef<HTMLPreElement>(null);
   const highlight = useRef<HTMLPreElement>(null);
@@ -107,6 +109,7 @@ export function CodeEditor({
         </pre>
       </div>
       <textarea
+        disabled={disabled}
         ref={editorRef}
         id="source-code"
         aria-label={`${languageLabels[language]} source code`}

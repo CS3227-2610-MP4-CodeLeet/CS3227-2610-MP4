@@ -16,6 +16,8 @@ type SubmissionFormProps = {
   language: AssignmentLanguage;
   browserRunnerOrigin?: string | null;
   testExamples?: readonly PracticeCase[] | null;
+  initialSource?: string;
+  editingRevision?: number;
 };
 
 function DraftStatus({ dirty }: { dirty: boolean }) {
@@ -26,15 +28,44 @@ function DraftStatus({ dirty }: { dirty: boolean }) {
   );
 }
 
+function SubmissionFooter({
+  busy,
+  disabled,
+  message,
+}: {
+  busy: boolean;
+  disabled: boolean;
+  message: string;
+}) {
+  return (
+    <footer className="space-y-3 border-t pt-5">
+      <button
+        type="submit"
+        disabled={disabled}
+        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+      >
+        {busy ? 'Saving…' : 'Submit revision'}
+      </button>
+      {message && (
+        <p role="status" className="text-sm text-muted-foreground">
+          {message}
+        </p>
+      )}
+    </footer>
+  );
+}
+
 export function SubmissionForm({
   assignmentId,
   language,
   browserRunnerOrigin = null,
   testExamples = null,
+  initialSource = '',
+  editingRevision,
 }: SubmissionFormProps) {
   const router = useRouter();
-  const { source, setSource, dirty, submissionAttempt, acknowledge } =
-    useSubmissionDraft();
+  const { source, setSource, dirty, ready, submissionAttempt, acknowledge } =
+    useSubmissionDraft(initialSource);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -71,7 +102,13 @@ export function SubmissionForm({
           {source.length.toLocaleString()} / 8,000 characters
         </span>
       </div>
+      {editingRevision !== undefined && (
+        <p className="text-sm text-muted-foreground">
+          Editing revision {editingRevision}
+        </p>
+      )}
       <CodeEditor
+        disabled={!ready}
         language={language}
         source={source}
         onChange={setSource}
@@ -85,20 +122,11 @@ export function SubmissionForm({
         language={language}
         examples={testExamples}
       />
-      <footer className="space-y-3 border-t pt-5">
-        <button
-          type="submit"
-          disabled={busy || !source.trim()}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
-        >
-          {busy ? 'Saving…' : 'Submit revision'}
-        </button>
-        {message && (
-          <p role="status" className="text-sm text-muted-foreground">
-            {message}
-          </p>
-        )}
-      </footer>
+      <SubmissionFooter
+        busy={busy}
+        disabled={!ready || busy || !source.trim()}
+        message={message}
+      />
     </form>
   );
 }

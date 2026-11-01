@@ -274,6 +274,8 @@ No existing application data. Bootstrap tooling, prove runtimes, implement revie
 
 ## Open Questions
 
+Issue #50 adds Continue editing using the published assignment route with strict `fromRevision` UUID, projected student/assignment/language-scoped server read and revision-keyed editor. See the [plan](../../../workflow/plans/2026-11-01-continue-editing-revision.md). Initialize source and clean baseline together; keep ordinary visits blank, unsaved query-navigation protection and current edits across save refresh. No source in URLs/storage, schema change, autosave, execution service or AI changes. AI PR #49 remains unmerged and outside this branch.
+
 - Personal names and coordination budget; the primary responsibility split is non-exclusive as recorded above.
 - Runtime versions/licenses, supported browsers, isolation headers and tested limits.
 - Resolve runtime source-provenance/distribution and production-origin/browser-matrix gates before selecting a production Java runtime. Buffered input is demonstrated for the documented compatibility subset; app integration remains pending. Do not substitute a remote compiler.
