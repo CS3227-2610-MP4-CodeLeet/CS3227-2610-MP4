@@ -22,6 +22,8 @@ Deadline edits racing submissions (existing row/advisory locks); transaction-sta
 ## Tasks
 
 - [x] Write failing pgTAP/helper tests; implement forward schema/RPC/timing and seed examples; apply only local pending migration, verify and commit.
-- [ ] Write API/query/view regressions first; integrate due input, scoped student status and authorized timing views, verify and commit.
-- [ ] Add/run scoped synthetic browser journeys and applicable regression/build/unit/type/lint/format/database/spec/scaffold checks. Update verified guides and chronological log; author-review, independent review pending.
+- [x] Write API/query/view regressions first; integrate due input, scoped student status and authorized timing views, verify and commit.
+- [x] Add/run scoped synthetic browser journeys and applicable regression/build/unit/type/lint/format/database/spec/scaffold checks. Update verified guides and chronological log; author-review, independent review pending.
 - [ ] Push branch, verify branch CI, create linked normal-sized PR body to develop, record evidence and wait for final-head PR checks to pass. No merge or manual deployment.
+
+Combined with develop 17b99a2: 379 units/51 files, 147 database assertions and 67 Chromium passes/seven prerequisite skips (4.8 minutes); Next production build/types, lint/format, strict ten-item OpenSpec validation and scaffold passed. Manual branch workflow 41317655776 passed normal runtime/app/site/database/browser checks before PR creation. Final PR-head checks remain the handoff gate. Hosted migration/review pending.

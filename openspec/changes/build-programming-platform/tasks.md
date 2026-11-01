@@ -183,7 +183,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 24.1 Implement forward deadline/timing schema, compatible authorized RPC, seed examples and failing-first time/database tests; verify without resetting local data.
 - [x] 24.2 Integrate validated SGT deadline authoring, source-free scoped latest-own status and revision/instructor timing views with API/query/render tests.
-- [ ] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
+- [x] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
 - [ ] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending.
 
 ## 23. Issue #56 compare own saved revisions
