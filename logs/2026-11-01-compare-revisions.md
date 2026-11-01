@@ -7,7 +7,7 @@
 - OpenSpec: build-programming-platform, assignments-and-grading, task group 23
 - Branch: feat/compare-revisions from updated develop bfc26dd
 - Plan: workflow/plans/2026-11-01-compare-revisions.md
-- PR: pending
+- PR: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/58
 - Human verification: pending
 - Verifier/date: pending
 
@@ -27,3 +27,15 @@
 7. Integrated updated develop 039c51d without conflicts in merge commit eee33ce. Combined 361 unit tests, Next production build/TypeScript, lint/format and scaffold passed. Started a fresh full combined browser run so the final evidence includes merged forum search. No comparison product changes beyond singular line-count copy after the first run. Beginning remote branch verification in parallel with the local combined run; no PR-ready claim until both and final PR CI pass.
 
 8. Combined full Chromium run passed 63 tests with seven skips, zero failures (4.0 minutes), including merged forum search and comparison plus existing grade, role/privacy, editor/guard/profile and mocked-AI journeys. The comparison mobile screenshot now reflects singular line-count copy. Manual branch application workflow 41313880811 at 203bfe5 completed successfully: normal runtime download plus Next build, product website, unit/browser and database checks passed before PR creation. No hosted comparison/AI/runtime smoke or independent review claimed. A GH log probe incorrectly supplied job name rather than numeric ID and returned 404; workflow status itself is confirmed successful. Finalizing linked PR and final-head CI checks remains.
+
+9. Created enhancement PR #58 to develop after manual branch CI passed; linked issue #56, OpenSpec, plan and summary, using normal paragraph/list body formatting. PR application attempt 1 stopped at runtime build: expected reviewed compiler 4,126,432 bytes / a79245353ac623df4fde5740bb2bedacedc9c98544253f01aa4b63268f9cb8ba, received 12,059 bytes / 474824344a91ef9e72be553d1b81d219c2fca27d154a94cfc0163872f2f73cfe. No evidence establishes the content of those bytes. The same source already passed manual branch and Vercel builds. Preserved fail-closed integrity gates and reran only the failed job after inspecting logs. Application run 41314311055 attempt 2 passed at dc63f7c, including normal runtime/app build, website and browser tests; database, scaffold, CodeQL and Vercel checks passed, Supabase Preview skipped. This is transient upstream-download evidence, not a guarantee of future external availability. No comparison code fix or hash change was needed. GH aggregate log retrieval initially waited for run completion; job-log API required its explicit escape-sequence output option.
+
+10. Completed author review and task/plan evidence; independent/human review remains pending. Stopped only task-owned production/preview servers and restored the original next-env.d.ts dev-path edit from its saved backup; .env.local, user-owned development/runtime servers and unrelated data preserved. Final documentation-only closeout records verified results and triggers a last CI run, which will be checked before handing back the PR. No merge, manual deployment, live AI call or hosted comparison smoke performed.
+
+## Work and verification
+
+- Commits: 6be290e helpers/runtime prerequisite, 3660be4 view/query/browser/docs; updated-develop integration and subsequent verification/closeout commits are in feature history. No runtime diff remains against develop 039c51d.
+- Combined local checks: 361 unit tests/48 files, 124 database assertions, 63 Chromium passes/seven prerequisite skips (4.0 minutes); Next production build/types, lint/format/spec/scaffold/whitespace passed. Earlier pre-integration 349-unit/61-browser results are retained chronologically above.
+- Remote: branch workflow 41313880811 passed before PR creation; PR run 41314311055 attempt 2 passed as above. CI has prerequisite skips rather than the full authenticated local matrix. Final-head closeout results are linked in the PR body after completion.
+- Limitations: comparison is read-only line comparison; line endings normalize only in the view, and large changed middles can be conservative rather than minimal. No actual runtime/hosted/provider or independent-review claim.
+- Human verification: pending.

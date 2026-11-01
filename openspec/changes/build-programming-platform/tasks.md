@@ -184,7 +184,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 23.1 Implement bounded selection/line-diff helpers with failing-first regression tests.
 - [x] 23.2 Add verified own metadata/selected-source loading, comparison route/view and revision-detail action; verify privacy, bounds and safe rendering. Query/render/page tests and four synthetic browser journeys passed; no source writes or schema changes.
 - [x] 23.3 Verify real Python/Java synthetic journeys, navigation/themes/mobile and immutable originals; update guides/log/spec evidence.
-- [ ] 23.4 Author-review, commit/push and create linked PR to develop; wait for final-head CI and record actual results/skips. Independent review remains pending.
+- [x] 23.4 Author-review, commit/push and create linked PR #58 to develop. Verified 361 units, 124 database assertions, 63 local browser passes/seven skips and GitHub application/database/build/site/scaffold/CodeQL/Vercel checks at dc63f7c (application run 41314311055 attempt 2). One upstream wrong-size runtime response required a failed-job retry without changing pins. Final documentation closeout triggers checks again; independent review remains pending.
 
 ## 20. Issue #50 continue editing saved revisions
 
