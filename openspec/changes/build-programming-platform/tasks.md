@@ -169,4 +169,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 20.1 Add strict revision selection and projected owned assignment/language-scoped loading with denial/validation tests.
 - [x] 20.2 Integrate revision actions and revision-keyed initial source/baseline into the existing workspace; preserve unsaved warnings and immutable submissions.
 - [x] 20.3 Verify both languages, runs/new saves/original preservation, retries/refresh/newer edits, canceled replacement and private/unpublished/invalid targets using synthetic fixtures.
-- [ ] 20.4 Update verified guides/log/specs, run checks, author-review, push and create linked PR to develop; leave AI PR #49 unmerged.
+- [x] 20.4 Update verified guides/log/specs, run checks, author-review, push and create linked PR #51 to develop; leave AI PR #49 unmerged. Verification: 267 unit tests, 124 database assertions, 54 full-suite browser passes/seven skips, six focused feature checks including Python/Java runs, build/types/lint/format/spec/scaffold checks passed. Independent teammate review remains pending.
