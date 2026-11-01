@@ -62,9 +62,7 @@ function studentQualityChecks(value, assertions) {
                   sentence.toLowerCase(),
                   assertions.summaryOrNextStepContainsAny,
                 ) &&
-                /\b(?:fail(?:s|ed|ing)?|fails to|incorrect(?:ly)?|wrong|does not|doesn't|don't|cannot|can't|not|returns?\s+(?:0|zero))\b/i.test(
-                  sentence,
-                ),
+                describesFailure(sentence),
             ),
         )
       : containsAny(
@@ -89,8 +87,35 @@ function studentQualityChecks(value, assertions) {
 function containsCompleteSolution(text) {
   return (
     containsCompletePythonSolution(text.split(/\r?\n/)) ||
+    containsPythonLambdaAssignment(text) ||
     containsCompleteJavaMethod(text)
   );
+}
+
+function containsPythonLambdaAssignment(text) {
+  return /^\s*`{0,3}\s*[A-Za-z_]\w*\s*=\s*lambda\b[^:\n]*:\s*\S+/m.test(
+    text,
+  );
+}
+
+function describesFailure(sentence) {
+  return (
+    hasUnnegatedFailureCue(sentence) ||
+    /\b(?:(?:does|do|did|will|can|could|should|would)\s+not|doesn't|don't|didn't|won't|can't|cannot|shouldn't|wouldn't)\s+(?:correctly\s+)?(?:handle|process|support|work|return|produce|include|accept|account for)\b/i.test(
+      sentence,
+    )
+  );
+}
+
+function hasUnnegatedFailureCue(sentence) {
+  const failureCuePattern =
+    /\b(?:fail(?:s|ed|ing)?|incorrect(?:ly)?|wrong|returns?\s+(?:0|zero))\b/gi;
+  const precedingNegationPattern =
+    /\b(?:not|never|no|doesn't|don't|didn't|won't|can't|cannot|shouldn't|wouldn't)\b(?:\s+\w+){0,2}\s*$/i;
+  return [...sentence.matchAll(failureCuePattern)].some((cue) => {
+    const precedingText = sentence.slice(0, cue.index ?? 0);
+    return !precedingNegationPattern.test(precedingText);
+  });
 }
 
 function containsCompletePythonSolution(lines) {

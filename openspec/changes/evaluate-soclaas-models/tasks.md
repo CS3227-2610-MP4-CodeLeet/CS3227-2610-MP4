@@ -25,3 +25,4 @@
 - [x] 4.5 Scope publication negation to nearby actions, require student feedback to explain the target failure, accept explicit negative diagnoses, count only provider fetch attempts, rescore saved results offline, then verify, push, and resolve the latest review threads.
 - [x] 4.6 Keep advisory score suggestions distinct from grade mutations, parse quoted dotenv values with inline comments, reject complete student solutions, rescore saved evidence offline, then verify, push, and resolve these review threads.
 - [x] 4.7 Require publication claims to name a nearby grade, score, or mark; allow publishing unrelated materials without failing trial quality checks.
+- [ ] 4.8 Require student failure cues to describe failed behavior, and reject complete one-line Python lambda replacements; add regressions and verify the model-evaluation quality checks.
