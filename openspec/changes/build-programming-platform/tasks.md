@@ -126,3 +126,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [ ] 13.6 Configure and smoke the single Vercel app Preview deployment; run Production smoke only after provenance/license and independent review gates pass. The requester reports that Python and Java now run in Preview; Production smoke and independent code review remain pending. Update verified docs and the dated issue/OpenSpec/branch/PR log. Keep human verification pending.
 - [x] 13.7 Make `pnpm dev` verify/fetch the pinned local runtime assets and start the loopback static runner with Next.js; verify startup/shutdown, both browser runtimes and no Node-side submitted-code execution. Local startup, Python/Java browser journeys, and clean shutdown were verified; no submitted code is executed in Node.
 - [x] 13.8 Resolve PR #32 review findings: require at least one path segment for immutable versioned runtime caching, stage generated runtime files outside `public/`, and clean abandoned legacy public staging directories. Header matching and builder regression tests pass.
+
+## 19. Issue #46 Java compatibility diagnostics
+
+- [x] 19.1 Add shared, status-gated presentation for recognized unsupported Java compiler diagnostics; preserve raw results, ordinary errors and source without heuristic Thread attribution.
+- [x] 19.2 Verify the real browser example, Runnable/direct-run success, syntax and diagnostic-like output, both result views and existing regressions; document confirmed limits.
+- [ ] 19.3 Finalize verified guides/spec/log evidence, commit/push and publish a linked PR to develop; keep independent review pending.

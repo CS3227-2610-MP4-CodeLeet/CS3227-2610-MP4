@@ -1,5 +1,16 @@
 ## ADDED Requirements
 
+### Requirement: Clear and accurate Java compatibility errors
+The UI SHALL explain recognized unsupported Java compiler diagnostics in concise user-facing language while preserving compile-error status, raw bounded results and unrelated syntax/location details. It SHALL NOT infer threading from source text or unresolved diagnostic placeholders, rewrite source, or equate sequential run calls with starting background threads. Successful program stderr and runtime-error output SHALL remain literal safe text.
+
+#### Scenario: Opaque unsupported-target diagnostic
+- **WHEN** Java compilation reports a recognized unsupported-target or missing-annotation diagnostic with unresolved class placeholders
+- **THEN** custom and practice-test result views explain that the runner does not support a feature, without inventing a missing class or blaming Runnable/Thread generally
+
+#### Scenario: Ordinary or diagnostic-like program output
+- **WHEN** compilation reports an ordinary syntax error or a successful/runtime-failing program prints diagnostic-like stderr
+- **THEN** ordinary diagnostics retain their details and program output is not reclassified as a compiler compatibility failure
+
 ### Requirement: Browser-native Python and Java
 
 The authenticated Python/Java editor MAY expose the existing loopback practice runner automatically in development without a student runner flag. It SHALL use the same in-memory source as submission without treating execution results as grades. Production SHALL NOT enable this local runner regardless of test configuration. This partial integration does not select a hosted runtime or change the authenticated submission contract.
