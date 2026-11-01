@@ -19,6 +19,8 @@ Use a compact shared account page with back-to-workspace link, theme and sign-ou
 
 ## Constraints and review
 
+CI follow-up for PR #39: reproduce the intermittent mobile menu timeout, compare the pending and committed route states, synchronize the existing regression check to the destination URL/editor, assert keyboard opening, then run repeated checks and the browser suite. Keep production menu behavior unchanged. Link verification to issue #38 and the existing summary/PR.
+
 Node 24; no new dependency or privileged app key. Preserve `.env.local` and the pre-existing generated `next-env.d.ts` edit. No specialist delegation authorized; author review must not be represented as independent review. Human log/teammate review remains pending. Existing destructive local seed/reset commands are not needed or run.
 
 Outcome: [PR #39](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/39) targets develop and closes issue #38 on merge. All applicable checks passed; teammate/log review pending. No migration or new environment setting.
