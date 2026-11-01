@@ -9,7 +9,7 @@ This document defines a planned process. It does not claim agents have executed 
 3. Use relevant repository-local Superpowers skills for design/planning, TDD implementation, debugging, verification, review and branch closeout. These are process gates, not evidence that a skill or independent reviewer ran.
 4. Work on a Conventional Commit branch from `develop`. Commit related verified changes incrementally and stage only the owned files.
 5. Maintain the per-change `logs/` summary throughout implementation. Before PR creation/update, summarize each prompt and interaction chronologically, including user requests/steering, actual participants/handoffs, decisions, artifacts, checks, limitations, branch/commits, and links to the issue/OpenSpec/PR. Do not copy raw transcripts or sensitive content; keep human verification pending until reviewed.
-6. Once implementation and applicable checks are complete, push the branch and create or update a PR to `develop` linked to the issue, OpenSpec change and log summary. Review/merge/deployment/release remain separate human decisions.
+6. Once implementation and applicable checks are complete, push the branch and create or update a PR to `develop` linked to the issue, OpenSpec change and log summary. Per the requester's 1 November preference, wait for branch CI before creating a PR and verify all final-head PR checks pass before handing it back as ready; investigate failures and state prerequisite skips. Review/merge/deployment/release remain separate human decisions.
 
 ## Smallest useful coordination
 

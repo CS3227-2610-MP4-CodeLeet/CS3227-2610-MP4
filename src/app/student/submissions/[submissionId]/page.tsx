@@ -11,6 +11,8 @@ import {
   SubmissionTiming,
 } from '@/features/assignment-deadlines/components';
 
+import { comparisonPath } from '@/features/student-submissions/comparison-selection';
+
 export default async function SubmissionPage({
   params,
 }: {
@@ -52,7 +54,16 @@ export default async function SubmissionPage({
         />
         <CapturedDeadline dueAt={submission.due_at_submission} />
       </div>
-      <ContinueEditing submission={submission} />
+      <div className="flex flex-wrap gap-3">
+        <ContinueEditing submission={submission} />
+        <Link
+          href={comparisonPath(submission.id)}
+          prefetch={false}
+          className="inline-flex rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          Compare revisions
+        </Link>
+      </div>
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>
       </pre>
