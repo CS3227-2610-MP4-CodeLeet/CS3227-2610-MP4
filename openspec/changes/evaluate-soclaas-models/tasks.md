@@ -22,3 +22,4 @@
 - [x] 4.2 Diagnose the failed Application build and preserve pinned asset verification while tolerating transient download mismatches.
 - [x] 4.3 Add issue-closing guidance where absent, update the PR to use `Closes #48`, rerun applicable checks, push fixes, reply to and resolve addressed review threads.
 - [ ] 4.4 Balance trials across capped model candidates, report candidates with no trials and omitted cases, isolate grade-claim detection by feedback field, preserve student cache keys with role-specific prompt versions, correct evidence provenance, then verify, push, and resolve the additional review threads.
+- [ ] 4.5 Scope publication negation to nearby actions, require student feedback to explain the target failure, accept explicit negative diagnoses, count only provider fetch attempts, rescore saved results offline, then verify, push, and resolve the latest review threads.

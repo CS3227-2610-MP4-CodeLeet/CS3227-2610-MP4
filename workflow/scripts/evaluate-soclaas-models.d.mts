@@ -26,6 +26,23 @@ export function classifyTrialStatus(
   schemaValid: boolean,
   qualityChecks: Record<string, boolean>,
 ): 'invalid_output' | 'validated' | 'quality_check_failed';
+export function countProviderCalls(
+  results: Array<Record<string, unknown>>,
+): number;
+export function runTrial(input: {
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+  testCase: {
+    id: string;
+    role: 'student' | 'instructor';
+    task: string;
+    source: string;
+    assertions: Record<string, unknown>;
+  };
+  fixtures: { assignment: unknown; rubric: unknown };
+  fetchImpl: typeof fetch;
+}): Promise<Record<string, unknown>>;
 export function summarize(
   results: Array<Record<string, unknown>>,
   candidateModels?: string[],
