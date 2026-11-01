@@ -138,3 +138,10 @@ Explain that practice runs happen on the user's device and do not prove official
 Students can open **Menu → Profile settings** from the workspace. Instructors can choose **Profile** in their account controls. The same page shows your username, email and role. Edit **Username** and choose **Save changes**; a confirmation appears after the update is saved. The username is trimmed and allows 1–80 characters. Sign-in still uses your email. Email and role are read-only on this page.
 
 If saving fails, your typed username stays available for retry. Your saved username persists after reloading. Profile settings support light/dark mode and mobile layouts. Use **Back to assignments** or **Back to instructor workspace** to return. No uploads or email/password/role editing are available here.
+## Forums
+
+Sign in, then choose **Forums** in the student sidebar/Menu or instructor header. Both roles share the same discussions. Choose **New discussion**, enter a title and message, then **Create discussion**. Open a discussion and use **Your reply** → **Post reply** to join in. Each post shows the author’s username/role at posting time and its Singapore timestamp.
+
+Discussions and replies appear newest first, with **Next**/**Previous** after 25 entries. Titles allow up to 160 characters and messages up to 8,000; blank posts are rejected. Posts are plain text, including pasted code and markup. Posting failures retain your draft so you can retry. If you post quickly, wait a minute and try again. Reading/posting requires a signed-in student or instructor account.
+
+This version supports creating discussions and replies; editing/deleting posts and attachments are not available. Forum activity does not award XP or change grades. Verified locally with synthetic accounts; hosted availability depends on deployment and applying the forum migration.

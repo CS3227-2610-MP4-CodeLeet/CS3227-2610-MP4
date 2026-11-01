@@ -60,7 +60,11 @@ async function checkFirstPage(page: Page, data: Fixture) {
     page.getByRole('heading', { name: listName, exact: true }),
   ).toBeVisible();
   const nav = page.getByRole('navigation', { name: 'Student navigation' });
-  await expect(nav.getByRole('link')).toHaveText(['Assignments', listName]);
+  await expect(nav.getByRole('link')).toHaveText([
+    'Assignments',
+    listName,
+    'Forums',
+  ]);
   await expect(nav.getByRole('link', { name: listName })).toHaveAttribute(
     'aria-current',
     'page',
@@ -87,7 +91,7 @@ async function checkFirstPage(page: Page, data: Fixture) {
     page
       .getByRole('navigation', { name: 'Student navigation' })
       .getByRole('link'),
-  ).toHaveText(['Assignments', listName]);
+  ).toHaveText(['Assignments', listName, 'Forums']);
   await page.getByLabel('Workspace menu', { exact: true }).click();
   await page.screenshot({
     path: 'test-results/my-submissions-mobile.png',

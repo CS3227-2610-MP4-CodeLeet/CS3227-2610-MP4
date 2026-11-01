@@ -34,3 +34,7 @@ The app reads `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_K
 Local generated keys are development-only. Keep separate hosted projects for development and production and do not commit credentials. Submitted source is stored for review and never executed by Next.js/Node or a remote service; the separate opt-in practice runner remains browser-local.
 
 To stress the student daily quota locally, run `workflow/scripts/check-ai-quota-concurrency.mjs` with the local Supabase URL, publishable key, and service-role key in process environment variables (`MP4_LOCAL_SERVICE_ROLE_KEY` for the last value). The script creates and deletes synthetic accounts and fixtures. It sends 12 concurrent reservation requests and expects five accepted and seven rate-limited; it does not call SoCLaaS or execute submitted source.
+
+## Forum migration and local examples
+
+Apply `pnpm exec supabase migration up --local` before testing Forums. The additive forum migration creates protected thread/reply tables and a trusted posting RPC. `pnpm db:seed` also inserts three synthetic discussions and two replies; repeat seeds preserve existing rows. Seed loading remains explicitly local-only and is disabled on reset by default. Forum rows use reserved `97000000`/`97000001` UUID prefixes and existing synthetic account identities. No forum passwords, uploads, AI calls or XP are added.

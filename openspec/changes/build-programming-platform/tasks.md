@@ -41,7 +41,7 @@
 
 ## 5. Community and XP
 
-- [ ] 5.1 Implement text threads/replies with authorization and input/request limits.
+- [x] 5.1 Implement text threads/replies with authorization and input/request limits.
 - [ ] 5.2 Implement deterministic leaderboard and synthetic local student/award seeds.
 - [ ] 5.3 Verify duplicate/concurrent publication and corrections cannot inflate XP.
 
@@ -132,3 +132,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 15.1 Implement own-profile loading and strict same-origin session-derived username updates with readonly email/role and privacy/validation tests.
 - [x] 15.2 Add shared account settings UI and role navigation; verify persisted edits, errors, mobile/theme and existing workspace behavior.
 - [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
+## 14. Issue #30 Forums
+
+- [x] 14.1 Add authenticated thread/reply schema, RLS and trusted idempotent posting RPC with atomic quotas and security tests.
+- [x] 14.2 Build bounded same-origin posting API, server loaders, shared-role forum pages/forms and navigation.
+- [x] 14.3 Verify both roles, safe text, paging, retries/concurrency, access/privacy and responsive/theme behavior; run regression checks.
+- [x] 14.4 Update current guides, plans/logs/spec evidence and publish linked PR to develop; leave human review pending.

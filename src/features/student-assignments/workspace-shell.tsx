@@ -6,6 +6,7 @@ import {
   BookOpen,
   ChevronRight,
   FileCode2,
+  MessageSquare,
   Menu,
   Terminal,
 } from 'lucide-react';
@@ -19,27 +20,29 @@ const AuthenticatedWorkspace = createContext(false);
 
 function WorkspaceNavigation() {
   const authenticated = useContext(AuthenticatedWorkspace);
-  const submissions = usePathname().startsWith(submissionsPath);
+  const pathname = usePathname();
+  const items = [
+    { href: '/student/assignments', label: 'Assignments', icon: BookOpen },
+    ...(authenticated
+      ? [
+          { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
+          { href: '/forums', label: 'Forums', icon: MessageSquare },
+        ]
+      : []),
+  ];
   return (
     <nav aria-label="Student navigation" className="space-y-2">
-      <Link
-        href="/student/assignments"
-        aria-current={!submissions ? 'page' : undefined}
-        className={navigationLinkStyle(!submissions)}
-      >
-        <BookOpen aria-hidden="true" className="size-4" />
-        <span>Assignments</span>
-      </Link>
-      {authenticated && (
+      {items.map(({ href, label, icon: Icon }) => (
         <Link
-          href="/student/submissions"
-          aria-current={submissions ? 'page' : undefined}
-          className={navigationLinkStyle(submissions)}
+          key={href}
+          href={href}
+          aria-current={pathname.startsWith(href) ? 'page' : undefined}
+          className={navigationLinkStyle(pathname.startsWith(href))}
         >
-          <FileCode2 aria-hidden="true" className="size-4" />
-          <span>My submissions</span>
+          <Icon aria-hidden="true" className="size-4" />
+          <span>{label}</span>
         </Link>
-      )}
+      ))}
     </nav>
   );
 }
@@ -109,14 +112,21 @@ function WorkspaceHeader({
   theme: 'light' | 'dark';
 }) {
   const submissions = pathname.startsWith(submissionsPath);
+  const forums = pathname.startsWith('/forums');
+  const section = forums
+    ? { href: '/forums', label: 'Forums' }
+    : {
+        href: submissions ? submissionsPath : '/student/assignments',
+        label: submissions ? 'My submissions' : 'Assignments',
+      };
   return (
     <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background px-4 sm:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground sm:text-sm">
         <Link
-          href={submissions ? submissionsPath : '/student/assignments'}
+          href={section.href}
           className="shrink-0 text-cyan-800 dark:text-cyan-300 hover:underline"
         >
-          {submissions ? 'My submissions' : 'Assignments'}
+          {section.label}
         </Link>
         {current && (
           <>
