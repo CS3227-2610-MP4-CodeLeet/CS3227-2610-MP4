@@ -132,3 +132,9 @@ Complete the following for each verified feature before release. Do not present 
 Document account access/profiles, assignment creation, Python and Java practice runs, code submission, student AI feedback, instructor AI evaluation and grade publication, forum threads/replies, XP, and leaderboard behavior only once implemented.
 
 Explain that practice runs happen on the user's device and do not prove official correctness. Explain when code is sent to the server for submission or SoCLaaS feedback, how AI output should be checked, and the published limits/cancellation behavior verified for the selected runtimes.
+
+## Profile settings
+
+Students can open **Menu → Profile settings** from the workspace. Instructors can choose **Profile** in their account controls. The same page shows your username, email and role. Edit **Username** and choose **Save changes**; a confirmation appears after the update is saved. The username is trimmed and allows 1–80 characters. Sign-in still uses your email. Email and role are read-only on this page.
+
+If saving fails, your typed username stays available for retry. Your saved username persists after reloading. Profile settings support light/dark mode and mobile layouts. Use **Back to assignments** or **Back to instructor workspace** to return. No uploads or email/password/role editing are available here.
