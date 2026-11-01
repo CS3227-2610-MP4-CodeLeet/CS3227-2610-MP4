@@ -1,5 +1,22 @@
 ## ADDED Requirements
 
+### Requirement: Optional deadlines and submission timing
+Instructors SHALL be able to create, edit and clear optional assignment due dates, entered/displayed in Singapore time and stored as finite timestamp-with-time-zone instants. Existing assignments SHALL retain no deadline. Students SHALL see current due dates and own latest-revision status: Not submitted, Overdue when past due without a save, Submitted or Submitted late. Revision history/detail and authorized instructor views SHALL display captured submission timing. Status MAY update on load/refresh/save without polling.
+
+Late submissions SHALL remain accepted without an automatic grade penalty. The database SHALL stamp each new revision's actual creation time, capture the current deadline under the assignment lock and determine lateness with a strict later-than comparison. Exactly at the deadline SHALL be on time. Existing revisions and identical request retries SHALL keep their original timing metadata after deadline edits/removal. Direct client timing/identity claims SHALL NOT control saving or grades. Omitted deadline updates SHALL preserve the current value; explicit null SHALL clear it. Existing ownership, RLS, optimistic version/language guards, immutable source and published-grade/private-rubric boundaries SHALL remain enforced.
+
+#### Scenario: Author a deadline and submit in either language
+- **WHEN** an instructor sets a deadline and a student saves Python or Java source before or after it
+- **THEN** the current due date/status is shown, both saves succeed, and each new revision receives database-owned on-time/late metadata without a grade penalty
+
+#### Scenario: Deadline updates and retries
+- **WHEN** an instructor changes/removes a deadline or a student retries an identical request after the deadline
+- **THEN** earlier revision timestamps/deadline/late flags stay unchanged, retries return the original revision and later new saves use the updated deadline
+
+#### Scenario: Privacy, boundaries and old data
+- **WHEN** a peer/unrelated instructor requests timing metadata, client-supplied time/late claims are forged or an old assignment has no deadline
+- **THEN** existing access and input guards prevent disclosure/forgery, no synthetic deadline is invented, and exact-deadline comparison plus SGT/UTC conversion remain consistent
+
 ### Requirement: Student published-grade list
 The system SHALL provide My grades to verified students, listing only their own published grades with assignment title when available, submission language/revision, score, publication time, safe plain-text feedback and a link to the graded revision. It SHALL NOT infer percentages/averages or expose source, rubrics, draft grades or peer records. Use deterministic published_at/ID descending order, 25 entries per page and bounded title/language filters applied before pagination.
 
