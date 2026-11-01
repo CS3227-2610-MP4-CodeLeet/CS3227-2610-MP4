@@ -20,7 +20,7 @@ export function AssignmentPractice({
   if (!runnerOrigin)
     return (
       <p className="text-sm text-muted-foreground">
-        Browser code execution is not configured for this deployment.
+        Code runner is unavailable.
       </p>
     );
   return (

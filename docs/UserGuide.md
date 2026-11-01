@@ -33,6 +33,10 @@ When creating an assignment, instructors select **Python** or **Java**. Its lang
 
 Local development uses real accounts and assignments by default. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. The signed-in sidebar and Menu contain **Assignments** and **My submissions**; sample preview navigation keeps only Assignments. The assignment page is ordered as instructions, editor, **Run code**, input/output, test cases, **Submit revision**, then **Your revisions**. The tests action sits beside the test cases. After saving a revision, history updates and your code stays in the editor.
 
+The real assignment editor shows **Unsaved changes** when your code differs from your last successful submission on that page. Submitting successfully clears it; failed saves keep your code. If you edit while saving, those newer edits remain unsaved. Returning exactly to the submitted code clears the indicator. Running code does not save it.
+
+Leaving through an app link or **Sign out** asks for confirmation when code is unsaved. Cancel to keep editing. Reloading or closing the tab requests your browser's standard warning; Back/Forward confirmation requires a browser that supports cancelable Navigation API history events. Browsers can suppress warnings, particularly on mobile. Drafts are kept only on the open page, so submit a revision to preserve your work.
+
 To practise on a real Python or Java assignment locally, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The local runner remains disabled in production. Hosted execution remains unavailable.
 
 ### My submissions
@@ -40,6 +44,8 @@ To practise on a real Python or Java assignment locally, prepare the runtime ass
 Sign in as a student and select **My submissions** from the sidebar or Menu, or open `/student/submissions`. This lists only your saved revisions across assignments, with the assignment title, Python/Java language, revision number and submission time in Singapore time (SGT). Revisions are newest first, with **Next** and **Previous** for pages of up to 25 entries. On narrow screens, scroll within the table to see all columns.
 
 Select an assignment title in a row to open that revision's saved code, learning-feedback controls and published grade. **All submissions** returns to the list; **Back to assignment** opens the original problem when it is still available. Earlier revisions are kept unchanged. If an assignment is no longer visible, its history row says **Assignment unavailable** and your own revision remains accessible.
+
+On **Assignments** and **My submissions**, enter part of an assignment title, choose **All languages**, **Python** or **Java**, then select **Apply filters**. Title searches ignore capitalization and treat punctuation as ordinary text. Use **Clear filters** to show everything again. Filters stay in the page address when you refresh or use Back/Forward. History's **Next** and **Previous** keep your filters; applying or clearing filters returns to the first page. If an assignment is unavailable, its old title cannot be searched, but its saved revisions still appear when filtering by language alone.
 
 An empty account shows **No submissions yet** and a **Browse assignments** link. A failed history request offers **Try again**; it does not replace your records with samples. The page requires a student sign-in even when sample assignment preview is enabled. Other students' submissions, private rubrics and unpublished grades remain hidden.
 

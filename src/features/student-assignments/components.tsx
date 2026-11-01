@@ -2,14 +2,25 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, BookOpen, Code2 } from 'lucide-react';
 import type { AssignmentDetail, AssignmentSummary } from './types';
 import { languageLabels } from './types';
+import {
+  emptyListFilters,
+  hasListFilters,
+  type ListFilters,
+} from '@/features/student-lists/filters';
+import {
+  FilteredListEmpty,
+  ListFilterControls,
+} from '@/features/student-lists/filter-controls';
 
 const linkStyle =
   'inline-flex items-center gap-2 rounded-md text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring';
 
 export function AssignmentList({
   assignments,
+  filters = emptyListFilters,
 }: {
   assignments: readonly AssignmentSummary[];
+  filters?: ListFilters;
 }) {
   return (
     <section aria-labelledby="assignments-heading" className="space-y-6">
@@ -27,7 +38,10 @@ export function AssignmentList({
           Choose a problem, read the instructions, then work on your solution.
         </p>
       </header>
-      {assignments.length === 0 ? (
+      <ListFilterControls path="/student/assignments" filters={filters} />
+      {assignments.length === 0 && hasListFilters(filters) ? (
+        <FilteredListEmpty kind="assignments" />
+      ) : assignments.length === 0 ? (
         <EmptyAssignments />
       ) : (
         <AssignmentTable assignments={assignments} />

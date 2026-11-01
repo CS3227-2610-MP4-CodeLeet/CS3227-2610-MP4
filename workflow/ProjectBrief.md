@@ -20,6 +20,7 @@ Use one shared course/assignment collection initially. Instructor access is limi
 
 ## Boundaries
 
+- Keep all product UI copy concise, friendly and focused on the user's task. Omit implementation, infrastructure and security commentary unless it helps the user decide what to do. Keep setup details in developer documentation.
 - No uploads, avatars requiring uploads, badges, package installation, plagiarism detection, or GitHub submission integration.
 - Forum means persistent threads/replies; live chat is outside the initial scope.
 - Student-facing AI provides explanations/hints. Instructor-facing AI suggests criterion scores and feedback; publication always requires an explicit instructor action.
