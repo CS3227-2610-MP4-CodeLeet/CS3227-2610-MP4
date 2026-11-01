@@ -22,6 +22,9 @@ export default async function InstructorLayout({
           <Link className="text-sm underline" href="/ai/usage">
             AI usage
           </Link>
+          <Link className="text-sm underline" href="/forums">
+            Forums
+          </Link>
           <Link className="text-sm underline" href="/instructor/ai-context">
             Context comparison
           </Link>
