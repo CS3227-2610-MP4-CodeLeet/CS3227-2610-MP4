@@ -10,7 +10,7 @@
 - [x] 22.1 Add bounded search parsing, literal regex/PostgREST escaping and stable URL/pager helpers with failing-first regressions.
 - [x] 22.2 Integrate title/opening-body search before existing forum paging, Search/Clear controls and no-match copy without changing access/posting/replies.
 - [x] 22.3 Verify both member roles, literal/injection-shaped input, filtering before paging/ties, navigation, safe text and mobile/theme; run applicable regressions/checks.
-- [ ] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR to develop; keep independent review/deployment pending.
+- [x] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR #55 to develop. Combined verification: 324 unit tests, 124 database assertions, 59 browser passes/seven skips, build/types/lint/format/spec/scaffold checks passed. Independent review and hosted verification remain pending.
 
 ## 1. Contracts and feasibility
 
