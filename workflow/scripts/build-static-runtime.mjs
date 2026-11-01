@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   mkdir,
   readFile,
@@ -149,23 +149,38 @@ async function stageBridge(staging, version, sources) {
   return bridge;
 }
 
+async function fetchVerifiedAsset(asset, fetchImpl) {
+  let bytes;
+  let sha256;
+  for (let attempt = 0; attempt < MAX_ASSET_INTEGRITY_ATTEMPTS; attempt += 1) {
+    const url = new URL(asset.url);
+    const options = { redirect: 'error' };
+    if (attempt > 0) {
+      url.searchParams.set('codeleet_integrity_retry', randomUUID());
+      options.cache = 'no-store';
+      options.headers = { 'cache-control': 'no-cache' };
+    }
+    const response = await fetchImpl(url.href, options);
+    if (!response.ok)
+      throw new Error(`Could not fetch reviewed asset: ${asset.name}`);
+    bytes = Buffer.from(await response.arrayBuffer());
+    sha256 = hash(bytes);
+    if (bytes.byteLength === asset.bytes && sha256 === asset.sha256) break;
+    if (attempt === MAX_ASSET_INTEGRITY_ATTEMPTS - 1)
+      throw new Error(
+        `Runtime asset ${asset.name} failed size or SHA-256 verification. ` +
+        `Expected ${asset.bytes} bytes / ${asset.sha256}; received ${bytes.byteLength} bytes / ${sha256}.`,
+      );
+  }
+  if (!bytes || bytes.byteLength !== asset.bytes || sha256 !== asset.sha256)
+    throw new Error(`Runtime asset ${asset.name} failed size or SHA-256 verification.`);
+  return { bytes, sha256 };
+}
+
 async function stageAssets(staging, version, manifest, fetchImpl) {
   const assets = [];
   for (const asset of manifest.assets) {
-    let bytes;
-    let sha256;
-    for (let attempt = 0; attempt < MAX_ASSET_INTEGRITY_ATTEMPTS; attempt += 1) {
-      const response = await fetchImpl(asset.url, { redirect: 'error' });
-      if (!response.ok)
-        throw new Error(`Could not fetch reviewed asset: ${asset.name}`);
-      bytes = Buffer.from(await response.arrayBuffer());
-      sha256 = hash(bytes);
-      if (bytes.byteLength === asset.bytes && sha256 === asset.sha256) break;
-      if (attempt === MAX_ASSET_INTEGRITY_ATTEMPTS - 1)
-        throw new Error(`Runtime asset ${asset.name} failed size or SHA-256 verification.`);
-    }
-    if (!bytes || bytes.byteLength !== asset.bytes || sha256 !== asset.sha256)
-      throw new Error(`Runtime asset ${asset.name} failed size or SHA-256 verification.`);
+    const { bytes, sha256 } = await fetchVerifiedAsset(asset, fetchImpl);
     const path = `/runtime/${version}/assets/${asset.language}/${asset.sha256}/${asset.name}`;
     const target = resolve(staging, path.slice('/runtime/'.length));
     await mkdir(dirname(target), { recursive: true });
