@@ -19,6 +19,26 @@ Assignments and My submissions SHALL provide a bounded case-insensitive literal 
 - **WHEN** applied filters match no records or the student clears them
 - **THEN** the UI offers a helpful no-match state with Clear filters, and clearing restores page one without filters
 
+### Requirement: Unsaved assignment code protection
+The real student assignment editor SHALL indicate when its current source differs from its last successfully submitted snapshot. Initial empty source SHALL be clean. Failed submissions SHALL preserve source and dirty state. A successful submission SHALL acknowledge only the source sent in that request, preserving newer edits as unsaved. Request identifiers SHALL be reused only for retries of the same source.
+
+#### Scenario: Edit, revert and save
+- **WHEN** a student edits Python or Java code, returns to the saved source, or successfully submits it
+- **THEN** the unsaved indicator reflects exact source equality with the last successful snapshot, and running code alone does not mark source saved
+
+#### Scenario: Failed or delayed submission
+- **WHEN** saving fails or the student changes source while a submission is in flight
+- **THEN** the current source stays in the editor and remains unsaved unless it exactly matches a successfully submitted snapshot
+
+#### Scenario: Leave with unsaved code
+- **WHEN** the student follows an ordinary same-tab app link or signs out while code is unsaved
+- **THEN** confirmation precedes navigation or session mutation, cancellation keeps source and session, and saving or unmounting removes the guard
+
+#### Scenario: Browser navigation
+- **WHEN** a dirty editor is reloaded/closed or a cancelable same-document history traversal occurs
+- **THEN** the browser unload warning or history confirmation is requested without inserting history entries
+- **AND** documented browser limitations include suppressed mobile/unload dialogs and unsupported or noncancelable history traversal
+
 ### Requirement: Private cross-assignment submission history
 Authenticated students SHALL have a My submissions list of their own stored revisions across assignments, with assignment title, stored language, revision, submitted time and links to existing authorized detail/feedback/published-grade views. The server SHALL derive student identity from the verified session and enforce an explicit ownership filter alongside RLS. List reads SHALL exclude source, private rubrics and grades. The list SHALL use deterministic newest-first pagination of 25 items, show loading/empty/safe retry states and retain own revisions when assignment metadata is unavailable. This real-data feature SHALL require authentication even when the synthetic assignment preview is enabled.
 
