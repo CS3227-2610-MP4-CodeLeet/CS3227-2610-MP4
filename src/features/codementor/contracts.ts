@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { assignmentLanguages } from '@/features/student-assignments/types';
+import { dueAtSchema } from '@/features/assignment-deadlines/deadlines';
 
 export const assignmentLanguageSchema = z.enum(assignmentLanguages);
 
@@ -17,6 +18,7 @@ export const assignmentInputSchema = z
     title: cleanText(160),
     instructions: cleanText(12_000),
     language: assignmentLanguageSchema.default('python'),
+    dueAt: dueAtSchema,
     rubric: z
       .array(
         z

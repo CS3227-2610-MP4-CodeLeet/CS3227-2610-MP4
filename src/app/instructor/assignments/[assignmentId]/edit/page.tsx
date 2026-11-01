@@ -13,7 +13,7 @@ export default async function EditAssignmentPage({
   const { supabase } = await requireRole('instructor');
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select('id,title,instructions,language,publication_status,version')
+    .select('id,title,instructions,language,publication_status,version,due_at')
     .eq('id', assignmentId)
     .maybeSingle();
   if (error || !assignment) notFound();

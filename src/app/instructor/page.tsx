@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireRole } from '@/lib/auth/verified-user';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
+import { AssignmentDueDate } from '@/features/assignment-deadlines/components';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,7 @@ export default async function InstructorPage() {
   const { supabase } = await requireRole('instructor');
   const { data: assignments, error } = await supabase
     .from('assignments')
-    .select('id,title,language,publication_status,updated_at,version')
+    .select('id,title,language,publication_status,updated_at,version,due_at')
     .order('updated_at', { ascending: false });
   if (error) throw new Error('Assignments could not be loaded');
   return (
@@ -48,6 +49,9 @@ export default async function InstructorPage() {
                   }{' '}
                   · updated{' '}
                   {new Date(assignment.updated_at).toLocaleDateString()}
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  <AssignmentDueDate dueAt={assignment.due_at} />
                 </p>
               </div>
               <div className="flex gap-4 text-sm">

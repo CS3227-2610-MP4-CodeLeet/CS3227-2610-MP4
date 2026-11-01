@@ -12,13 +12,21 @@ import { requireRole } from '@/lib/auth/verified-user';
 import { SubmissionForm } from '@/features/codementor/submission-form';
 import { getAssignmentTestExamples } from '@/features/student-submissions/assignment-practice.server';
 import Link from 'next/link';
+import { submissionStatus } from '@/features/assignment-deadlines/deadlines';
+import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 import { loadRevisionDraft } from '@/features/student-submissions/revision-draft.server';
 import {
   revisionSelection,
   revisionEditorPath,
 } from '@/features/student-submissions/revision-selection';
 
-type SubmissionSummary = { id: string; revision: number; created_at: string };
+type SubmissionSummary = {
+  id: string;
+  revision: number;
+  created_at: string;
+  is_late: boolean;
+  due_at_submission: string | null;
+};
 
 function SubmissionHistory({
   submissions,
@@ -55,6 +63,10 @@ function SubmissionHistory({
               <time dateTime={submission.created_at}>
                 {new Date(submission.created_at).toLocaleString()}
               </time>
+              <SubmissionTiming
+                isLate={submission.is_late}
+                dueAt={submission.due_at_submission}
+              />
             </li>
           ))}
         </ol>
@@ -140,7 +152,7 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
   const { supabase, user } = await requireRole('student');
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select('id,title,instructions,language,publication_status')
+    .select('id,title,instructions,language,publication_status,due_at')
     .eq('id', assignmentId)
     .eq('publication_status', 'published')
     .maybeSingle();
@@ -155,15 +167,20 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
       })
     : null;
   if (revisionId && !draft) notFound();
-  const { data: submissions } = await supabase
+  const { data: submissions, error: historyError } = await supabase
     .from('submissions')
-    .select('id,revision,created_at')
+    .select('id,revision,created_at,is_late,due_at_submission')
     .eq('assignment_id', assignmentId)
     .eq('student_id', user.id)
     .order('revision', { ascending: false });
+  if (historyError) throw new Error('Submission history could not be loaded.');
   const detail = {
     ...assignment,
     language,
+    submission_status: submissionStatus(
+      assignment.due_at,
+      submissions?.[0] ?? null,
+    ),
     publication_status: 'published' as const,
   };
   return { detail, draft, submissions };

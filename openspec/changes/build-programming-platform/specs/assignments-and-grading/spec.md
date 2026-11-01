@@ -1,5 +1,39 @@
 ## ADDED Requirements
 
+### Requirement: Optional deadlines and submission timing
+Instructors SHALL be able to create, edit and clear optional assignment due dates, entered/displayed in Singapore time and stored as finite timestamp-with-time-zone instants. Existing assignments SHALL retain no deadline. Students SHALL see current due dates and own latest-revision status: Not submitted, Overdue when past due without a save, Submitted or Submitted late. Revision history/detail and authorized instructor views SHALL display captured submission timing. Status MAY update on load/refresh/save without polling.
+
+Late submissions SHALL remain accepted without an automatic grade penalty. The database SHALL stamp each new revision's actual creation time, capture the current deadline under the assignment lock and determine lateness with a strict later-than comparison. Exactly at the deadline SHALL be on time. Existing revisions and identical request retries SHALL keep their original timing metadata after deadline edits/removal. Direct client timing/identity claims SHALL NOT control saving or grades. Omitted deadline updates SHALL preserve the current value; explicit null SHALL clear it. Existing ownership, RLS, optimistic version/language guards, immutable source and published-grade/private-rubric boundaries SHALL remain enforced.
+
+#### Scenario: Author a deadline and submit in either language
+- **WHEN** an instructor sets a deadline and a student saves Python or Java source before or after it
+- **THEN** the current due date/status is shown, both saves succeed, and each new revision receives database-owned on-time/late metadata without a grade penalty
+
+#### Scenario: Deadline updates and retries
+- **WHEN** an instructor changes/removes a deadline or a student retries an identical request after the deadline
+- **THEN** earlier revision timestamps/deadline/late flags stay unchanged, retries return the original revision and later new saves use the updated deadline
+
+#### Scenario: Privacy, boundaries and old data
+- **WHEN** a peer/unrelated instructor requests timing metadata, client-supplied time/late claims are forged or an old assignment has no deadline
+- **THEN** existing access and input guards prevent disclosure/forgery, no synthetic deadline is invented, and exact-deadline comparison plus SGT/UTC conversion remain consistent
+
+### Requirement: Compare owned saved revisions
+Verified students SHALL be able to select two of their own saved revision numbers for the same assignment and language and view added, removed and unchanged lines with original/new line numbers. Selection SHALL persist in GET URLs and refresh/history navigation. Default comparison SHALL use predecessor/current, or first/latest when opening revision one; a single saved revision and identical code SHALL have helpful states. Reversed/equal selections SHALL remain valid. Whitespace and final newlines SHALL be represented; line-ending styles MAY be normalized for comparison only. Comparison work SHALL be bounded and MAY show a coarser changed middle block for large inputs. Source SHALL render as safe text with keyboard/mobile/light/dark support, without modifying or executing saved revisions.
+
+The server SHALL derive identity from the verified session, validate identifiers/revision parameters, read only projected own anchor/latest metadata and at most two selected bounded sources, and enforce student/assignment/language filters alongside RLS. Missing/foreign/invalid/duplicate selections SHALL fail closed; unavailable assignment titles SHALL stay hidden. No rubric, unpublished grade, AI, grade/XP write, source query parameter or persistent source cache SHALL be introduced.
+
+#### Scenario: Compare Python or Java revisions
+- **WHEN** a student opens Compare revisions on their saved Python or Java submission and selects two revision numbers
+- **THEN** changes and both line-number sequences are shown, refresh/Back retain selections and both originals remain unchanged
+
+#### Scenario: Empty or unchanged comparison
+- **WHEN** only one own revision exists or selected source is identical
+- **THEN** the student sees a helpful single-revision or No changes state without fabricated differences
+
+#### Scenario: Private and unavailable revisions
+- **WHEN** a caller requests another student's anchor, invalid/duplicate/out-of-range revision numbers or hidden assignment metadata
+- **THEN** unauthorized source and metadata stay inaccessible, own hidden-assignment revisions retain neutral metadata, and no privileged client is used
+
 ### Requirement: Student published-grade list
 The system SHALL provide My grades to verified students, listing only their own published grades with assignment title when available, submission language/revision, score, publication time, safe plain-text feedback and a link to the graded revision. It SHALL NOT infer percentages/averages or expose source, rubrics, draft grades or peer records. Use deterministic published_at/ID descending order, 25 entries per page and bounded title/language filters applied before pagination.
 

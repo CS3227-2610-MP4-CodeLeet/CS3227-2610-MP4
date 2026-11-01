@@ -9,6 +9,8 @@ const rowSchema = z.object({
   language: assignmentLanguageSchema,
   revision: z.number().int().positive(),
   created_at: z.iso.datetime({ offset: true }),
+  is_late: z.boolean().default(false),
+  due_at_submission: z.iso.datetime({ offset: true }).nullable().default(null),
   assignments: z.unknown().optional(),
 });
 
@@ -35,6 +37,8 @@ export function parseHistoryItems(data: unknown) {
       language: row.language,
       revision: row.revision,
       submittedAt: row.created_at,
+      isLate: row.is_late,
+      dueAtSubmission: row.due_at_submission,
     }));
 }
 

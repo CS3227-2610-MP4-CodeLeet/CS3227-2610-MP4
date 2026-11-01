@@ -122,7 +122,8 @@ insert into public.assignments (
   title,
   instructions,
   language,
-  publication_status
+  publication_status,
+  due_at
 )
 select
   format('92000000-0000-4000-8000-%s', lpad(assignment_number::text, 12, '0'))::uuid,
@@ -134,7 +135,12 @@ select
     case when assignment_number % 2 = 0 then 'Java' else 'Python' end),
   format('Synthetic local assignment %s. Write a small program that reads input and prints the requested result.', assignment_number),
   case when assignment_number % 2 = 0 then 'java' else 'python' end,
-  case when assignment_number <= 10 then 'published' else 'draft' end
+  case when assignment_number <= 10 then 'published' else 'draft' end,
+  case assignment_number % 3
+    when 1 then clock_timestamp() + interval '7 days'
+    when 2 then clock_timestamp() - interval '1 day'
+    else null
+  end
 from generate_series(1, 12) as assignments(assignment_number)
 on conflict (id) do nothing;
 

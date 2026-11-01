@@ -7,6 +7,7 @@ import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
 import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
+import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
 
 type Criterion = {
   id: string;
@@ -45,7 +46,9 @@ export default async function InstructorSubmissionPage({
   const { supabase } = await requireRole('instructor');
   const { data: submission } = await supabase
     .from('submissions')
-    .select('id,assignment_id,source,language,revision,created_at')
+    .select(
+      'id,assignment_id,source,language,revision,created_at,is_late,due_at_submission',
+    )
     .eq('id', submissionId)
     .maybeSingle();
   if (!submission) notFound();
@@ -70,7 +73,6 @@ export default async function InstructorSubmissionPage({
   if (!assignment || !rubric) notFound();
   const criteria = rubric.criteria as Criterion[];
   const language = assignmentLanguageSchema.parse(submission.language);
-  const runnerOrigin = resolveBrowserRunnerOrigin(process.env);
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
@@ -84,6 +86,7 @@ export default async function InstructorSubmissionPage({
           {assignment.title} · revision {submission.revision}
         </p>
         <h1 className="text-3xl font-semibold">Review submission</h1>
+        <SubmissionTimingDetails submission={submission} />
         <p className="text-sm text-muted-foreground">
           {languageLabels[language]} source
         </p>
@@ -92,7 +95,7 @@ export default async function InstructorSubmissionPage({
         <code>{submission.source}</code>
       </pre>
       <SubmissionCodeRunner
-        runnerOrigin={runnerOrigin}
+        runnerOrigin={resolveBrowserRunnerOrigin(process.env)}
         language={language}
         source={submission.source}
       />

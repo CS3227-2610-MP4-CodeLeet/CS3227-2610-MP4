@@ -179,6 +179,20 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 19.2 Verify the real browser example, Runnable/direct-run success, syntax and diagnostic-like output, both result views and existing regressions; document confirmed limits.
 - [x] 19.3 Finalize verified guides/spec/log evidence, commit/push and publish PR #47 to develop, linked to issue #46. Verification: 153 unit tests, six real browser runtime tests, build/types/lint/format/spec/scaffold checks pass; independent review remains pending.
 
+## 24. Issue #59 optional assignment deadlines
+
+- [x] 24.1 Implement forward deadline/timing schema, compatible authorized RPC, seed examples and failing-first time/database tests; verify without resetting local data.
+- [x] 24.2 Integrate validated SGT deadline authoring, source-free scoped latest-own status and revision/instructor timing views with API/query/render tests.
+- [x] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
+- [ ] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending.
+
+## 23. Issue #56 compare own saved revisions
+
+- [x] 23.1 Implement bounded selection/line-diff helpers with failing-first regression tests.
+- [x] 23.2 Add verified own metadata/selected-source loading, comparison route/view and revision-detail action; verify privacy, bounds and safe rendering. Query/render/page tests and four synthetic browser journeys passed; no source writes or schema changes.
+- [x] 23.3 Verify real Python/Java synthetic journeys, navigation/themes/mobile and immutable originals; update guides/log/spec evidence.
+- [x] 23.4 Author-review, commit/push and create linked PR #58 to develop. Verified 361 units, 124 database assertions, 63 local browser passes/seven skips and GitHub application/database/build/site/scaffold/CodeQL/Vercel checks at dc63f7c (application run 41314311055 attempt 2). One upstream wrong-size runtime response required a failed-job retry without changing pins. Final documentation closeout triggers checks again; independent review remains pending.
+
 ## 20. Issue #50 continue editing saved revisions
 
 - [x] 20.1 Add strict revision selection and projected owned assignment/language-scoped loading with denial/validation tests.
