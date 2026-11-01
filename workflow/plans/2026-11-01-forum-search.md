@@ -1,6 +1,6 @@
 # Forum search implementation plan
 
-Issue [#54](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/54); branch `feat/forum-search` from develop `ec7bcde`. Active OpenSpec: build-programming-platform, community-and-xp, task group 22. Primary agent implements inline; no delegation requested. Independent My grades PR #53 remains excluded.
+Issue [#54](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/54); branch `feat/forum-search` from develop `ec7bcde`. Active OpenSpec: build-programming-platform, community-and-xp, task group 22. Primary agent implements inline; no delegation requested. Started independently of then-open My grades PR #53; after its external merge, integrate updated develop and rerun combined verification.
 
 ## Design and approaches
 

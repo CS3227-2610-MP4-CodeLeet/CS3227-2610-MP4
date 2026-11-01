@@ -274,7 +274,7 @@ No existing application data. Bootstrap tooling, prove runtimes, implement revie
 
 ## Open Questions
 
-Issue #54 adds independent forum search using existing member-authorized thread reads; see the [plan](../../../workflow/plans/2026-11-01-forum-search.md). Search title/opening body with escaped literal case-insensitive OR before stable bounded paging; separately escape regex and PostgREST quoted-value grammar. GET q is bounded/validated, controls reset pagination, pager retains q and reply paging stays unchanged. No schema, posting, AI or dependency changes; no merge of open My grades PR #53.
+Issue #54 adds independent forum search using existing member-authorized thread reads; see the [plan](../../../workflow/plans/2026-11-01-forum-search.md). Search title/opening body with escaped literal case-insensitive OR before stable bounded paging; separately escape regex and PostgREST quoted-value grammar. GET q is bounded/validated, controls reset pagination, pager retains q and reply paging stays unchanged. No schema, posting, AI or dependency changes. Started independently of then-open My grades PR #53; integrate updated develop after its external merge without additional grade changes.
 
 Issue #50 adds Continue editing using the published assignment route with strict `fromRevision` UUID, projected student/assignment/language-scoped server read and revision-keyed editor. See the [plan](../../../workflow/plans/2026-11-01-continue-editing-revision.md). Initialize source and clean baseline together; keep ordinary visits blank, unsaved query-navigation protection and current edits across save refresh. No source in URLs/storage, schema change, autosave, execution service or AI changes. AI PR #49 remains unmerged and outside this branch.
 

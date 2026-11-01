@@ -217,6 +217,16 @@ The form key includes assignment and selected revision ID; selecting a different
 
 ## Forum design and verification
 
+### Forum search
+
+[Issue #54](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/54) adds URL-backed title/opening-body search without schema or posting changes. `src/features/forums/search.ts` validates an optional trimmed q of at most 160 characters and rejects controls/duplicate parameters. It reuses literal regex escaping and separately escapes backslashes/quotes inside PostgREST quoted values. The fixed title/body OR predicate is applied before existing created_at/ID descending pagination, 25 rows plus one lookahead. Empty search leaves the old read unchanged. Existing member verification, RLS and projected public post columns remain enforced; no author IDs/retry IDs or private student data are added.
+
+`search-controls.tsx` uses Next Form GET navigation with explicit Search/Clear controls; applying/clearing resets page one. `ForumPager` retains q for thread results and keeps existing reply pagination when no q is supplied. Terms and content remain React text; there is no HTML highlighting. Search covers titles/opening posts, not replies. Case-insensitive substring search uses the existing tables without a new search index; reconsider indexing if measured course scale requires it.
+
+Real-SDK unit cases pin query projection, grammar escaping, order and bounds; page checks cover search recovery. Scoped local browser cases verify title/body matches, older results before paging, literal punctuation/quotes/backslashes/injection-shaped text, no reply matches, Back/refresh/clear, both member roles, denied access and mobile/theme. See the [plan](../workflow/plans/2026-11-01-forum-search.md) and [summary](../logs/2026-11-01-forum-search.md). Query handling follows official [Supabase OR](https://supabase.com/docs/reference/javascript/or) and [PostgREST reserved-character](https://docs.postgrest.org/en/stable/references/api/url_grammar.html#reserved-characters) documentation. No code/documentation from previous MPs was reused.
+
+### Thread and reply implementation
+
 [Issue #30](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/30) implements one shared course forum. Routes `/forums`, `/forums/new`, `/forums/[threadId]` verify both identity and trusted role in layout/pages. `src/features/forums/` separates contracts, access, projected server reads, posting API logic, presentation and client form state. Student sidebar/mobile Menu and instructor navigation link to the same routes. Both layouts reuse existing theme/sign-out controls.
 
 Migration `20261031024317_forums.sql` adds `forum_threads`/`forum_replies`, RLS, bounded read projections and indexes. Members can select public post fields; author IDs and retry IDs are excluded. No new profile read grants or direct client writes. A public invoker RPC delegates to the unexposed `forum_private.create_post` definer implementation with an empty search path, explicit authenticated grants and verified role/identity checks. It snapshots username/role, validates content and derives timestamps. Existing users/data are preserved; apply with `pnpm exec supabase migration up --local` for local development. Hosted migration application remains a teammate-managed release action.
