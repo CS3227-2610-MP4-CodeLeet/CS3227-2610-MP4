@@ -140,14 +140,34 @@ it('emits a fixed same-project runtime tree with verified immutable asset paths'
 
 it('rejects a runtime download that differs from the reviewed SHA-256', async () => {
   const { root, manifest } = await fixture();
+  const fetchImpl = vi.fn(async () => new Response('changed bytes'));
   await expect(
     buildStaticRunner({
       repositoryRoot: root,
       outputDirectory: runnerOutputPath(root),
-      fetchImpl: async () => new Response('changed bytes'),
+      fetchImpl,
       assetManifest: manifest,
     }),
   ).rejects.toThrow(/SHA-256/);
+  expect(fetchImpl).toHaveBeenCalledTimes(3);
+});
+
+it('retries a transient runtime asset integrity mismatch without weakening the pin', async () => {
+  const { root, manifest, bytes } = await fixture();
+  let attempts = 0;
+  const fetchImpl = vi.fn(
+    async () =>
+      new Response(attempts++ === 0 ? 'transiently mismatched bytes' : bytes),
+  );
+  const output = await buildStaticRunner({
+    repositoryRoot: root,
+    outputDirectory: runnerOutputPath(root),
+    fetchImpl,
+    assetManifest: manifest,
+  });
+
+  expect(output).toBe(runnerOutputPath(root));
+  expect(fetchImpl).toHaveBeenCalledTimes(2);
 });
 
 it('rejects an asset inventory changed after human distribution review', async () => {

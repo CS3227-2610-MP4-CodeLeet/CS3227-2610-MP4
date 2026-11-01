@@ -1,6 +1,6 @@
 # User Guide
 
-Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. Admin role management has focused unit and database coverage; its authenticated browser journey has not yet been run. No hosted app, live SoCLaaS call or Vercel deployment has been verified.
+Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. A live SoCLaaS model comparison ran on synthetic cases on 2026-11-01; hosted app behavior and Vercel deployment have not been verified. Admin role management has focused unit and database coverage; its authenticated browser journey has not yet been run.
 
 ## Local CodeLeet app
 

@@ -4,6 +4,7 @@ Read `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, and the relevant Op
 
 - Use the active OpenSpec change for planned work; check its status and apply instructions, update its artifacts when scope or decisions change, and mark tasks complete only after verification.
 - Before implementation, link an existing GitHub issue whose scope matches or create one; link the issue, active OpenSpec change, branch, log summary and PR.
+- In PR descriptions, use `Closes #<issue-number>` when merging the PR should close its linked issue; GitHub applies closing keywords when the PR merges into `develop`.
 - Use relevant repository-local Superpowers skills for brainstorming/planning, TDD, debugging, verification, review and branch closeout. Follow user authorization for specialist agents.
 - Use a Conventional Commit branch from `develop`; group related work into focused incremental commits at verified milestones. Stage only files for that change and preserve unrelated edits.
 - Maintain a dated per-change summary in `logs/` from `logs/SessionTemplate.md`. Summarize each prompt and interaction chronologically, including requests/steering, actual participants/handoffs, decisions, files, checks, failures and outcomes; do not store raw transcripts, secrets, credentials, real student data or sensitive prompt text. Keep human verification pending until a teammate reviews it.

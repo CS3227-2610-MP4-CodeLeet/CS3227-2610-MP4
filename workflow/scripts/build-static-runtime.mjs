@@ -14,6 +14,7 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const bridgeFiles = ['lab.mjs', 'supervisor.mjs', 'worker.mjs', 'java-support.mjs'];
 const notices = ['PYODIDE-NOTICE.txt', 'TEAVM-OPENJDK-NOTICE.txt'];
 const assetHosts = new Set(['cdn.jsdelivr.net', 'www.teavm.org']);
+const MAX_ASSET_INTEGRITY_ATTEMPTS = 3;
 
 function hasValidMetadata(asset) {
   return (
@@ -151,11 +152,19 @@ async function stageBridge(staging, version, sources) {
 async function stageAssets(staging, version, manifest, fetchImpl) {
   const assets = [];
   for (const asset of manifest.assets) {
-    const response = await fetchImpl(asset.url, { redirect: 'error' });
-    if (!response.ok) throw new Error(`Could not fetch reviewed asset: ${asset.name}`);
-    const bytes = Buffer.from(await response.arrayBuffer());
-    const sha256 = hash(bytes);
-    if (bytes.byteLength !== asset.bytes || sha256 !== asset.sha256)
+    let bytes;
+    let sha256;
+    for (let attempt = 0; attempt < MAX_ASSET_INTEGRITY_ATTEMPTS; attempt += 1) {
+      const response = await fetchImpl(asset.url, { redirect: 'error' });
+      if (!response.ok)
+        throw new Error(`Could not fetch reviewed asset: ${asset.name}`);
+      bytes = Buffer.from(await response.arrayBuffer());
+      sha256 = hash(bytes);
+      if (bytes.byteLength === asset.bytes && sha256 === asset.sha256) break;
+      if (attempt === MAX_ASSET_INTEGRITY_ATTEMPTS - 1)
+        throw new Error(`Runtime asset ${asset.name} failed size or SHA-256 verification.`);
+    }
+    if (!bytes || bytes.byteLength !== asset.bytes || sha256 !== asset.sha256)
       throw new Error(`Runtime asset ${asset.name} failed size or SHA-256 verification.`);
     const path = `/runtime/${version}/assets/${asset.language}/${asset.sha256}/${asset.name}`;
     const target = resolve(staging, path.slice('/runtime/'.length));
