@@ -37,6 +37,8 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
     timeout-minutes: 15
+    outputs:
+      coverage_artifact: ${{ steps.upload-coverage.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -51,7 +53,22 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - name: Unit tests
-        run: pnpm test:unit
+        run: pnpm test:unit:coverage
+      - name: Prepare Vitest config for coverage reporter
+        if: ${{ always() && hashFiles('coverage/coverage-summary.json') != '' && hashFiles('coverage/coverage-final.json') != '' }}
+        run: cp vitest.config.ts coverage/vitest.config.ts
+      - name: Upload Vitest coverage reports
+        id: upload-coverage
+        if: ${{ always() && hashFiles('coverage/coverage-summary.json') != '' && hashFiles('coverage/coverage-final.json') != '' && hashFiles('coverage/vitest.config.ts') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-coverage
+          path: |
+            coverage/coverage-summary.json
+            coverage/coverage-final.json
+            coverage/vitest.config.ts
+          if-no-files-found: error
+          retention-days: 7
       - run: pnpm build
       - name: Product website build
         run: pnpm site:build
@@ -66,3 +83,28 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
           retention-days: 7
+
+  coverage-report:
+    needs: application
+    if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.application.outputs.coverage_artifact == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout the trusted base revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: Download Vitest coverage reports
+        uses: actions/download-artifact@v4
+        with:
+          name: vitest-coverage
+          path: coverage
+      - name: Comment coverage on the pull request
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          json-summary-path: coverage/coverage-summary.json
+          json-final-path: coverage/coverage-final.json
+          vite-config-path: coverage/vitest.config.ts
+          file-coverage-mode: none
