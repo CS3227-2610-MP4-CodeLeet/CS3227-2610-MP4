@@ -170,6 +170,31 @@ it('retries a transient runtime asset integrity mismatch without weakening the p
   expect(fetchImpl).toHaveBeenCalledTimes(2);
 });
 
+it('bypasses a repeatedly stale URL after a mismatch and still verifies the reviewed bytes', async () => {
+  const { root, manifest, bytes } = await fixture();
+  const fetchImpl = vi.fn(async (url: string, options: RequestInit) => {
+    const requested = new URL(url);
+    if (!requested.searchParams.has('codeleet_integrity_retry'))
+      return new Response('cached incorrect runtime bytes');
+    expect(requested.origin + requested.pathname).toBe(manifest.assets[0].url);
+    expect(options.redirect).toBe('error');
+    expect(options.cache).toBe('no-store');
+    expect(new Headers(options.headers).get('cache-control')).toBe('no-cache');
+    return new Response(bytes);
+  });
+  const output = await buildStaticRunner({
+    repositoryRoot: root,
+    outputDirectory: runnerOutputPath(root),
+    fetchImpl,
+    assetManifest: manifest,
+  });
+  const built = JSON.parse(await readFile(join(output, manifestFile), 'utf8'));
+  expect(
+    await readFile(join(output, built.assets[0].path.replace('/runtime/', ''))),
+  ).toEqual(bytes);
+  expect(fetchImpl).toHaveBeenCalledTimes(2);
+});
+
 it('rejects an asset inventory changed after human distribution review', async () => {
   const { root, manifest } = await fixture();
   const changedManifest = {

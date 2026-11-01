@@ -10,6 +10,8 @@ Use a GET Next Form with q in the URL, explicit Search and Clear search controls
 
 ## Review focus
 
+CI follow-up requested by the user: reuse [runtime issue #31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31), OpenSpec task 13.9 and PR #55. The compiler currently matches its reviewed bytes/hash; historic CI received bytes were not recorded. Reproduce retries stuck on a cached bad response, then add fresh same-origin query nonces and no-cache requests only after mismatches. Keep three attempts, redirect rejection, inventory approval and exact hash/size gates. Add public size/hash diagnostics. Verify unit/static checks and the actual GitHub application build before claiming resolution; do not change approved hashes or commit distributions.
+
 Quotes/backslashes/commas/parentheses and injection-shaped terms must stay literal; wildcard characters must not match everything. Filtering must precede pagination, with stable ties and no private columns added. Validate roles/fixture boundaries, Back/refresh and pagination query retention, blank/invalid queries and mobile/theme. Preserve environment values and the pre-existing generated next-env edit. Use scoped synthetic fixtures, no database reset. Author review only; independent teammate/log verification pending.
 
 ## Tasks
