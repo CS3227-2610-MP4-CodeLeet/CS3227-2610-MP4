@@ -28,3 +28,5 @@
 - Plan: workflow/plans/2026-11-01-forum-search.md.
 - Checks/results: 324 combined unit tests, 124 database assertions, 59 combined browser passes/seven skips; build/types/lint/format/spec/scaffold/whitespace passed as above. Earlier 313-unit/56-browser results are retained as pre-integration evidence.
 - Human verification and independent review: pending.
+
+10. First follow-up CI stopped at TypeScript before build: the new fetch mock accepted a narrower required string/options signature than native fetch. Corrected it to the native input union and optional init; local TypeScript, all 325 unit tests and focused lint passed. This was a test typing defect introduced by the follow-up, not evidence about compiler downloads. Re-running GitHub CI is required.

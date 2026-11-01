@@ -172,16 +172,22 @@ it('retries a transient runtime asset integrity mismatch without weakening the p
 
 it('bypasses a repeatedly stale URL after a mismatch and still verifies the reviewed bytes', async () => {
   const { root, manifest, bytes } = await fixture();
-  const fetchImpl = vi.fn(async (url: string, options: RequestInit) => {
-    const requested = new URL(url);
-    if (!requested.searchParams.has('codeleet_integrity_retry'))
-      return new Response('cached incorrect runtime bytes');
-    expect(requested.origin + requested.pathname).toBe(manifest.assets[0].url);
-    expect(options.redirect).toBe('error');
-    expect(options.cache).toBe('no-store');
-    expect(new Headers(options.headers).get('cache-control')).toBe('no-cache');
-    return new Response(bytes);
-  });
+  const fetchImpl = vi.fn(
+    async (url: Parameters<typeof fetch>[0], options?: RequestInit) => {
+      const requested = new URL(url instanceof Request ? url.url : url);
+      if (!requested.searchParams.has('codeleet_integrity_retry'))
+        return new Response('cached incorrect runtime bytes');
+      expect(requested.origin + requested.pathname).toBe(
+        manifest.assets[0].url,
+      );
+      expect(options?.redirect).toBe('error');
+      expect(options?.cache).toBe('no-store');
+      expect(new Headers(options?.headers).get('cache-control')).toBe(
+        'no-cache',
+      );
+      return new Response(bytes);
+    },
+  );
   const output = await buildStaticRunner({
     repositoryRoot: root,
     outputDirectory: runnerOutputPath(root),
