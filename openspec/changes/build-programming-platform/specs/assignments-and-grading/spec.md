@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Student published-grade list
+The system SHALL provide My grades to verified students, listing only their own published grades with assignment title when available, submission language/revision, score, publication time, safe plain-text feedback and a link to the graded revision. It SHALL NOT infer percentages/averages or expose source, rubrics, draft grades or peer records. Use deterministic published_at/ID descending order, 25 entries per page and bounded title/language filters applied before pagination.
+
+#### Scenario: Published feedback and revision navigation
+- **WHEN** a student opens My grades
+- **THEN** they can read/expand their published instructor feedback and open its own graded revision, with helpful empty/loading/error states and mobile/light/dark support
+
+#### Scenario: Publication, identity and hidden metadata
+- **WHEN** draft/peer grades exist or a caller forges identity query parameters
+- **THEN** they do not affect the verified student's published list; signed-out/instructor access is denied, hidden assignments use neutral metadata, and title searches cannot reveal hidden titles
+
+#### Scenario: Filters and pagination
+- **WHEN** the student applies literal title and Python/Java filters, refreshes or uses Next/Previous
+- **THEN** filters combine before stable pagination and persist in URLs; applying/clearing resets page one, invalid/duplicate parameters fail closed, and null scores do not hide published feedback
+
 ### Requirement: Continue editing an owned saved revision
 Students SHALL be able to load their own saved revision into its published assignment's editor and submit further work as a new immutable revision. Only a revision identifier SHALL appear in the navigation URL. The server SHALL verify student identity, ownership, assignment association and matching language before supplying exact source; invalid, duplicate, missing, peer or mismatched identifiers SHALL fail closed. This action SHALL NOT save, execute code, publish grades or award XP automatically.
 
