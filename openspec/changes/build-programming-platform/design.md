@@ -274,6 +274,8 @@ No existing application data. Bootstrap tooling, prove runtimes, implement revie
 
 ## Open Questions
 
+Issue #52 implements the accepted independent My grades page through existing RLS-protected grades/submissions. See the [plan](../../../workflow/plans/2026-11-01-student-grades.md). Project only published list/feedback fields with verified submission ownership, title/language filtering before deterministic 25-row paging and neutral hidden-assignment metadata. Reuse student workspace/filter controls and shared pagination. No schema, grading/AI mutation, XP or aggregate score contract changes.
+
 Issue #50 adds Continue editing using the published assignment route with strict `fromRevision` UUID, projected student/assignment/language-scoped server read and revision-keyed editor. See the [plan](../../../workflow/plans/2026-11-01-continue-editing-revision.md). Initialize source and clean baseline together; keep ordinary visits blank, unsaved query-navigation protection and current edits across save refresh. No source in URLs/storage, schema change, autosave, execution service or AI changes. AI PR #49 remains unmerged and outside this branch.
 
 - Personal names and coordination budget; the primary responsibility split is non-exclusive as recorded above.

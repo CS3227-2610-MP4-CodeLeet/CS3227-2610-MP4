@@ -3,7 +3,6 @@ import { FileCode2 } from 'lucide-react';
 import { languageLabels } from '@/features/student-assignments/types';
 import type { HistoryItem, HistoryPage } from './history';
 import {
-  buildListUrl,
   emptyListFilters,
   hasListFilters,
   type ListFilters,
@@ -12,6 +11,7 @@ import {
   FilteredListEmpty,
   ListFilterControls,
 } from '@/features/student-lists/filter-controls';
+import { ListPagination } from '@/features/student-lists/pagination';
 
 const listPath = '/student/submissions';
 const linkStyle =
@@ -48,7 +48,9 @@ export function SubmissionHistoryList({
       ) : (
         <HistoryEmpty page={page} />
       )}
-      <HistoryPagination
+      <ListPagination
+        path={listPath}
+        label="Submission history pages"
         page={page}
         hasNext={history.hasNext}
         filters={filters}
@@ -137,41 +139,5 @@ function HistoryRow({ row }: { row: HistoryItem }) {
         </time>
       </td>
     </tr>
-  );
-}
-
-function HistoryPagination({
-  page,
-  hasNext,
-  filters,
-}: {
-  page: number;
-  hasNext: boolean;
-  filters: ListFilters;
-}) {
-  if (page === 1 && !hasNext) return null;
-  return (
-    <nav
-      aria-label="Submission history pages"
-      className="flex flex-wrap items-center gap-3"
-    >
-      {page > 1 && (
-        <Link
-          href={buildListUrl(listPath, filters, page - 1)}
-          className={linkStyle}
-        >
-          Previous
-        </Link>
-      )}
-      <span className="text-sm text-muted-foreground">Page {page}</span>
-      {hasNext && (
-        <Link
-          href={buildListUrl(listPath, filters, page + 1)}
-          className={linkStyle}
-        >
-          Next
-        </Link>
-      )}
-    </nav>
   );
 }
