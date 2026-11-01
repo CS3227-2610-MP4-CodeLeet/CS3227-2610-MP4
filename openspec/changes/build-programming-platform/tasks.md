@@ -132,4 +132,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 14.1 Add authenticated thread/reply schema, RLS and trusted idempotent posting RPC with atomic quotas and security tests.
 - [x] 14.2 Build bounded same-origin posting API, server loaders, shared-role forum pages/forms and navigation.
 - [x] 14.3 Verify both roles, safe text, paging, retries/concurrency, access/privacy and responsive/theme behavior; run regression checks.
-- [ ] 14.4 Update current guides, plans/logs/spec evidence and publish linked PR to develop; leave human review pending.
+- [x] 14.4 Update current guides, plans/logs/spec evidence and publish linked PR to develop; leave human review pending.
