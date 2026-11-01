@@ -22,5 +22,5 @@ Add Continue editing on submission detail only when its assignment is available 
 
 - [x] Write failing query/loader tests for strict IDs, exact owned reads, invalid data and safe failures; implement projected server loader/link helper.
 - [x] Add page integration, revision actions and initial draft baseline; verify query selection resets editor while refresh retains edits. Keep editor/submit disabled until form hydration; deterministic paused-JavaScript regression verified RED then GREEN.
-- [ ] Add both-language browser journeys for exact prefill, run/edit/new revision/original preservation, canceled replacement and private/mismatched/unpublished/invalid targets. Run unsaved-code regressions and applicable unit/build/static/database checks.
+- [x] Add both-language browser journeys for exact prefill, run/edit/new revision/original preservation, canceled replacement and private/mismatched/unpublished/invalid targets. Run unsaved-code regressions and applicable unit/build/static/database checks. Final full run: 54 passed/seven skips; six focused new checks include both browser runtimes. 267 unit tests and 124 database assertions passed.
 - [ ] Update verified guides/log/specs, commit verified milestones, push and create labelled PR to develop. Leave AI PR #49 untouched.

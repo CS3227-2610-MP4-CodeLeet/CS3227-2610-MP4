@@ -7,6 +7,10 @@ Students SHALL be able to load their own saved revision into its published assig
 - **WHEN** a student chooses Continue editing on an available Python or Java revision
 - **THEN** the editor loads exact source with the assignment language and a clean baseline; edits, runs and submission use the existing workspace, a successful save creates a new revision, and the original stays unchanged
 
+#### Scenario: Saved code before client initialization
+- **WHEN** a reopened assignment is displayed before its form JavaScript is ready
+- **THEN** the source is visible but editing and submission stay disabled until the form can handle input, so early actions cannot replace or lose the loaded draft
+
 #### Scenario: Replace an edited draft
 - **WHEN** a student selects a different revision or leaves a resumed workspace with unsaved edits
 - **THEN** the existing warning allows cancellation without losing source; accepted revision navigation replaces the draft, while save refresh does not replace newer edits

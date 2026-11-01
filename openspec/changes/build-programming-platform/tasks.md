@@ -168,5 +168,5 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 20.1 Add strict revision selection and projected owned assignment/language-scoped loading with denial/validation tests.
 - [x] 20.2 Integrate revision actions and revision-keyed initial source/baseline into the existing workspace; preserve unsaved warnings and immutable submissions.
-- [ ] 20.3 Verify both languages, runs/new saves/original preservation, retries/refresh/newer edits, canceled replacement and private/unpublished/invalid targets using synthetic fixtures.
+- [x] 20.3 Verify both languages, runs/new saves/original preservation, retries/refresh/newer edits, canceled replacement and private/unpublished/invalid targets using synthetic fixtures.
 - [ ] 20.4 Update verified guides/log/specs, run checks, author-review, push and create linked PR to develop; leave AI PR #49 unmerged.
