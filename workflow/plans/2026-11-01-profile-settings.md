@@ -15,8 +15,10 @@ Use a compact shared account page with back-to-workspace link, theme and sign-ou
 - [x] Write failing username/API contract tests; add targeted existing-policy checks for peer protection and instructor edits.
 - [x] Implement own-profile loading, bounded PATCH and shared profile form/page/loading/error states and account links.
 - [x] Verify both roles, reload persistence, readonly fields/forgery, safe text, errors, mobile/theme, current DB policies and workspace regressions; run unit/static/build checks.
-- [ ] Update current guides/specs/logs, commit milestones, push and create labelled PR to develop linked to issue #38.
+- [x] Update current guides/specs/logs, commit milestones, push and create labelled PR to develop linked to issue #38.
 
 ## Constraints and review
 
 Node 24; no new dependency or privileged app key. Preserve `.env.local` and the pre-existing generated `next-env.d.ts` edit. No specialist delegation authorized; author review must not be represented as independent review. Human log/teammate review remains pending. Existing destructive local seed/reset commands are not needed or run.
+
+Outcome: [PR #39](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/39) targets develop and closes issue #38 on merge. All applicable checks passed; teammate/log review pending. No migration or new environment setting.

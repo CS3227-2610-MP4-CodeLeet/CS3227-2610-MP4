@@ -5,8 +5,8 @@
 - AI tools/models: Codex; exact model/hidden token/cache metrics unavailable
 - GitHub issue: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/38
 - OpenSpec change: build-programming-platform, accounts-and-access, task group 15
-- Branch and commits: feat/profile-settings from develop 35daede; commits pending
-- Pull request: pending
+- Branch and commits: feat/profile-settings from develop 35daede; implementation e904b5f; PR-link closeout follows
+- Pull request: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/39
 - Human verification: pending
 - Verifier/date: pending
 
@@ -33,4 +33,6 @@
 - Checks: 169 unit tests, 70 database assertions, 14 production browser checks passed (one local-email prerequisite skip). Isolated Next production build/TypeScript, ESLint, Prettier, six strict OpenSpec items, scaffold links and whitespace passed.
 - Failures/retries/limitations: stale generated types and Username accessible labeling were diagnosed and corrected as recorded. No hosted profile deployment, live AI call, migration/reset, runtime-execution or broad-browser claim. Human log verification and independent teammate review remain pending.
 - Resource measurements: no AI/provider calls; hidden measurements unavailable.
-- Next: commit/push the verified feature and open a labelled PR to develop; preserve unrelated local edits and leave human verification pending.
+- Next: teammate review PR #39 and verify this summary. Branch is pushed; generated-file edit and .env.local are preserved. No merge/deployment/release claim.
+
+8. Committed verified implementation as e904b5f, pushed feat/profile-settings and opened enhancement-labelled PR #39 to develop. Linked issue #38, specs, plan and summary. Final handoff leaves human/independent review pending; no merge or deployment performed.

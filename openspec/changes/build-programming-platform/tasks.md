@@ -131,4 +131,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 15.1 Implement own-profile loading and strict same-origin session-derived username updates with readonly email/role and privacy/validation tests.
 - [x] 15.2 Add shared account settings UI and role navigation; verify persisted edits, errors, mobile/theme and existing workspace behavior.
-- [ ] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
+- [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
