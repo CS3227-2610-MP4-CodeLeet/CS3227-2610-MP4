@@ -1,5 +1,6 @@
 import { type NextRequest } from 'next/server';
 import { assignmentInputSchema } from '@/features/codementor/contracts';
+import { deadlineRpcArguments } from '@/features/assignment-deadlines/deadlines';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { hasInstructorAccess } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
@@ -15,7 +16,7 @@ export async function GET() {
   let query = supabase
     .from('assignments')
     .select(
-      'id,title,language,publication_status,instructions,version,created_at,updated_at',
+      'id,title,language,publication_status,instructions,version,created_at,updated_at,due_at',
     );
   if (role === 'student') query = query.eq('publication_status', 'published');
   const { data, error } = await query.order('updated_at', { ascending: false });
@@ -84,6 +85,7 @@ export async function POST(request: NextRequest) {
     p_criteria: parsed.data.rubric,
     p_publication_status: parsed.data.publicationStatus,
     p_language: parsed.data.language,
+    ...deadlineRpcArguments(parsed.data.dueAt),
   });
   if (error)
     return privateJson(

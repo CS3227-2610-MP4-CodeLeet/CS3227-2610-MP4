@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { requireRole } from '@/lib/auth/verified-user';
+import {
+  AssignmentDueDate,
+  SubmissionTiming,
+} from '@/features/assignment-deadlines/components';
 
 export default async function InstructorSubmissionsPage({
   params,
@@ -11,13 +15,13 @@ export default async function InstructorSubmissionsPage({
   const { supabase } = await requireRole('instructor');
   const { data: assignment } = await supabase
     .from('assignments')
-    .select('id,title')
+    .select('id,title,due_at')
     .eq('id', assignmentId)
     .maybeSingle();
   if (!assignment) notFound();
   const { data: submissions, error } = await supabase
     .from('submissions')
-    .select('id,student_id,revision,created_at')
+    .select('id,student_id,revision,created_at,is_late,due_at_submission')
     .eq('assignment_id', assignmentId)
     .order('created_at', { ascending: false });
   if (error) throw new Error('Submissions could not be loaded');
@@ -29,6 +33,9 @@ export default async function InstructorSubmissionsPage({
       <div>
         <p className="text-sm text-muted-foreground">Instructor review</p>
         <h1 className="text-3xl font-semibold">{assignment.title}</h1>
+        <p className="text-sm text-muted-foreground">
+          <AssignmentDueDate dueAt={assignment.due_at} />
+        </p>
       </div>
       {!submissions?.length ? (
         <p className="rounded-xl border p-6 text-muted-foreground">
@@ -46,7 +53,11 @@ export default async function InstructorSubmissionsPage({
                 Student {submission.student_id}
               </p>
             </div>
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <SubmissionTiming
+                isLate={submission.is_late}
+                dueAt={submission.due_at_submission}
+              />
               <time dateTime={submission.created_at}>
                 {new Date(submission.created_at).toLocaleString()}
               </time>

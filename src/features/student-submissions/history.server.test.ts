@@ -31,7 +31,7 @@ it('sends literal title/language filters before paging with verified ownership a
     'imatch.A\\*%_\\[x\\]',
   );
   expect(requested.searchParams.get('select')).toBe(
-    'id,assignment_id,language,revision,created_at,assignments!inner(title)',
+    'id,assignment_id,language,revision,created_at,is_late,due_at_submission,assignments!inner(title)',
   );
   expect(requested.searchParams.get('offset')).toBe('25');
   expect(requested.searchParams.get('limit')).toBe('26');
@@ -55,7 +55,7 @@ it('filters verified identity, selects no code/grades and uses deterministic bou
   expect(client.from).toHaveBeenCalledWith('submissions');
   expect(query.eq).toHaveBeenCalledWith('student_id', user);
   expect(query.select).toHaveBeenCalledWith(
-    'id,assignment_id,language,revision,created_at,assignments(title)',
+    'id,assignment_id,language,revision,created_at,is_late,due_at_submission,assignments(title)',
   );
   expect(query.order.mock.calls).toEqual([
     ['created_at', { ascending: false }],
@@ -94,7 +94,7 @@ it('keeps the outer title join for language-only history so hidden assignments r
   expect(query.eq).toHaveBeenCalledWith('student_id', verifiedStudentId);
   expect(query.eq).toHaveBeenCalledWith('language', 'python');
   expect(query.select).toHaveBeenCalledWith(
-    'id,assignment_id,language,revision,created_at,assignments(title)',
+    'id,assignment_id,language,revision,created_at,is_late,due_at_submission,assignments(title)',
   );
 });
 

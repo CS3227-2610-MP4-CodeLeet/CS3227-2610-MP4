@@ -3,6 +3,10 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  deadlineFromInput,
+  deadlineToInput,
+} from '@/features/assignment-deadlines/deadlines';
+import {
   assignmentLanguages,
   languageLabels,
   type AssignmentLanguage,
@@ -19,6 +23,7 @@ type AssignmentDraft = {
   title: string;
   instructions: string;
   language: AssignmentLanguage;
+  due_at?: string | null;
   languageLocked?: boolean;
   publication_status: 'draft' | 'published';
   version: number;
@@ -33,6 +38,7 @@ type Payload = {
   language: string;
   rubric: Criterion[];
   publicationStatus: string;
+  dueAt: string | null;
   expectedVersion?: number;
 };
 const defaultCriterion: Criterion = {
@@ -88,6 +94,7 @@ function buildPayload(form: FormData, assignment?: AssignmentDraft): Payload {
     language: readText(form, 'language'),
     rubric: criteriaFor(form),
     publicationStatus: readText(form, 'publicationStatus') || 'draft',
+    dueAt: readDeadline(form, assignment),
   };
   if (assignment) payload.expectedVersion = assignment.version;
   return payload;
@@ -109,6 +116,13 @@ async function sendAssignment(
   if (!response.ok)
     throw new Error(result.error?.message ?? 'Assignment could not be saved.');
 }
+function readDeadline(form: FormData, assignment?: AssignmentDraft) {
+  const value = readText(form, 'dueAt');
+  return assignment && value === deadlineToInput(assignment.due_at)
+    ? (assignment.due_at ?? null)
+    : deadlineFromInput(value);
+}
+
 function makeSubmit(
   assignment: AssignmentDraft | undefined,
   setBusy: (busy: boolean) => void,
@@ -152,6 +166,25 @@ export function AssignmentForm({
       className="max-w-3xl space-y-5 rounded-xl border bg-card p-6"
     >
       <AssignmentFields assignment={assignmentFieldsData(assignment)} />
+      <div className="space-y-2 text-sm">
+        <label htmlFor="assignment-due-at" className="block">
+          Due date and time (SGT, optional)
+        </label>
+        <input
+          id="assignment-due-at"
+          aria-describedby="assignment-deadline-help"
+          type="datetime-local"
+          name="dueAt"
+          defaultValue={deadlineToInput(assignment?.due_at)}
+          className="w-full rounded-md border bg-background px-3 py-2"
+        />
+        <p
+          id="assignment-deadline-help"
+          className="text-xs text-muted-foreground"
+        >
+          Late submissions are accepted. Leave blank for no deadline.
+        </p>
+      </div>
       <StatusMessage message={message} />
       <SaveButton busy={busy} />
     </form>

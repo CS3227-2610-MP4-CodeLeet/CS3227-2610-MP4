@@ -6,6 +6,8 @@ import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { assignmentTitle } from '@/features/student-submissions/history';
 import { languageLabels } from '@/features/student-assignments/types';
 import { revisionEditorPath } from '@/features/student-submissions/revision-selection';
+import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
+
 import { comparisonPath } from '@/features/student-submissions/comparison-selection';
 
 export default async function SubmissionPage({
@@ -18,7 +20,7 @@ export default async function SubmissionPage({
   const { data: submission, error } = await supabase
     .from('submissions')
     .select(
-      'id,assignment_id,source,language,revision,created_at,assignments(title,publication_status,language)',
+      'id,assignment_id,source,language,revision,created_at,is_late,due_at_submission,assignments(title,publication_status,language)',
     )
     .eq('id', submissionId)
     .eq('student_id', user.id)
@@ -43,6 +45,7 @@ export default async function SubmissionPage({
           Revision {submission.revision}
         </h1>
         <p className="text-sm text-muted-foreground">{languageLabel} source</p>
+        <SubmissionTimingDetails submission={submission} />
       </div>
       <div className="flex flex-wrap gap-3">
         <ContinueEditing submission={submission} />

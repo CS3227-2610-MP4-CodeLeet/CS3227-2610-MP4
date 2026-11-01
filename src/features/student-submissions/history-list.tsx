@@ -12,6 +12,7 @@ import {
   ListFilterControls,
 } from '@/features/student-lists/filter-controls';
 import { ListPagination } from '@/features/student-lists/pagination';
+import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 
 const listPath = '/student/submissions';
 const linkStyle =
@@ -128,7 +129,12 @@ function HistoryRow({ row }: { row: HistoryItem }) {
         </Link>
       </td>
       <td className="px-3 py-4">{languageLabels[row.language]}</td>
-      <td className="px-3 py-4">{row.revision}</td>
+      <td className="px-3 py-4">
+        <div className="space-y-2">
+          <p>{row.revision}</p>
+          <SubmissionTiming isLate={row.isLate} dueAt={row.dueAtSubmission} />
+        </div>
+      </td>
       <td className="px-4 py-4 whitespace-nowrap">
         <time dateTime={row.submittedAt}>
           {new Date(row.submittedAt).toLocaleString('en-SG', {

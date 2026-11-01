@@ -179,6 +179,13 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 19.2 Verify the real browser example, Runnable/direct-run success, syntax and diagnostic-like output, both result views and existing regressions; document confirmed limits.
 - [x] 19.3 Finalize verified guides/spec/log evidence, commit/push and publish PR #47 to develop, linked to issue #46. Verification: 153 unit tests, six real browser runtime tests, build/types/lint/format/spec/scaffold checks pass; independent review remains pending.
 
+## 24. Issue #59 optional assignment deadlines
+
+- [x] 24.1 Implement forward deadline/timing schema, compatible authorized RPC, seed examples and failing-first time/database tests; verify without resetting local data.
+- [x] 24.2 Integrate validated SGT deadline authoring, source-free scoped latest-own status and revision/instructor timing views with API/query/render tests.
+- [x] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
+- [ ] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending.
+
 ## 23. Issue #56 compare own saved revisions
 
 - [x] 23.1 Implement bounded selection/line-diff helpers with failing-first regression tests.

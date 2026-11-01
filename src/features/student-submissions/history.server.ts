@@ -22,7 +22,7 @@ export async function loadSubmissionHistory(
     let query = client
       .from('submissions')
       .select(
-        `id,assignment_id,language,revision,created_at,${filters.q ? 'assignments!inner(title)' : 'assignments(title)'}`,
+        `id,assignment_id,language,revision,created_at,is_late,due_at_submission,${filters.q ? 'assignments!inner(title)' : 'assignments(title)'}`,
       )
       .eq('student_id', studentId);
     if (filters.language) query = query.eq('language', filters.language);

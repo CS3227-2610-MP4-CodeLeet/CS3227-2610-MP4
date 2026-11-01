@@ -1,3 +1,5 @@
+import type { SubmissionStatus } from '@/features/assignment-deadlines/deadlines';
+
 export const assignmentLanguages = ['python', 'java'] as const;
 export type AssignmentLanguage = (typeof assignmentLanguages)[number];
 
@@ -6,6 +8,8 @@ export type AssignmentRecord = {
   title: string;
   instructions: string;
   language: AssignmentLanguage;
+  due_at?: string | null;
+  submission_status?: SubmissionStatus;
   publication_status: 'draft' | 'published';
 };
 
