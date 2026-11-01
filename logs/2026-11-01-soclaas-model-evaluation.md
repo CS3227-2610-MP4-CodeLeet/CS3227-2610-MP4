@@ -24,7 +24,10 @@
 10. User requested review-comment remediation, repair of failed Application checks, and explicit issue auto-close guidance. Fetched PR #49's four open review threads and confirmed findings for quality-failure classification, student text grading disclosure, grade mutation/publication detection, and partial request budgets. The Application workflow's database job and app formatting/lint/typecheck/unit steps passed; the app build failed while verifying the mutable TeaVM `compiler.wasm` URL against its approved digest.
 11. Checked the same public TeaVM URL directly: its current response is 4,126,432 bytes and matches the approved SHA-256, although the CI run received a mismatch. Added a three-attempt, digest-preserving retry and a regression for transient mismatch recovery and permanent mismatch rejection. Added failing-first evaluator tests for all four review findings; the focused tests initially failed in the expected places, then passed after fixes (19 tests across 2 files).
 12. Tightened evaluation statuses so only schema-valid results passing every quality/security assertion count as accepted. Updated student injection checks to inspect all feedback text, publication checks to handle either word order and grade mutations, and request planning to use non-multiple budgets. Re-scored saved synthetic responses offline without contacting SoCLaaS; Llama accepted results are now 2/4 (3 schema-valid), and qwen3-coder-next remains 4/4 accepted. Bumped the evaluation corpus version to v2.
-13. Added the merge-closing keyword guidance to `AGENTS.md` and the existing PR template. `CONTRIBUTING.md` already contained the required guidance, so it needed no change. Updated PR #49's description to use `Closes #48`; push, CI verification, reviewer replies, and thread resolution are pending.
+13. Added merge-closing keyword guidance to `AGENTS.md` and the existing PR template. `CONTRIBUTING.md` already contained the required guidance, so it needed no change. Updated PR #49's description to use `Closes #48`.
+14. Committed the review work in `fa2c2e4` (evaluator assertions), `64d5f08` (integrity retry), and `ead5408` (workflow guidance/log/tasks), then pushed to `eval/48-soclaas-model-comparison`.
+15. GitHub Application checks run #114 completed successfully on the pushed head: format, lint, typecheck, unit tests, production build, product website build, and browser tests passed; the database job and scaffold workflow also passed. Windows local `pnpm build` still fails separately at runtime-directory replacement with `EPERM`.
+16. Replied in all four review threads and resolved them after the fixes were pushed and CI passed. PR #49 remains open and unmerged; no deployment or release action was taken.
 
 ## Work and verification
 
@@ -34,19 +37,18 @@
 - `pnpm typecheck`: pass.
 - `pnpm format:check`: pass.
 - `pnpm db:test`: pass, 124 assertions across 6 SQL test files. Initial run exposed a local database missing out-of-order migration `20261031024317_forums.sql`; applied that pending migration with `pnpm exec supabase migration up --include-all --local` (no reset), then reran successfully.
-- `pnpm spec:validate`: pass, 9 items.
 - `pnpm exec openspec validate --specs`: pass, 6 main specs.
-- `pnpm spec:validate`: pass, 10 changes/specs after syncing the new main capability.
+- `pnpm spec:validate`: pass, 10 changes/specs including the review tasks.
 - `pnpm format:check`: pass after final docs and spec edits.
 - `git diff --check`: pass on the staged implementation and report; run again after this log closeout edit.
 - `pnpm build`: failed three times at `EPERM` renaming `.runtime.staging-<pid>` to `public/runtime` in the existing static browser-runtime build script. After the latest failure, both paths were absent and there were no tracked `public/` changes. An isolated Node `fs.rename` probe into `public/` passed; the specific build rename failure remains unexplained and unresolved. No AI build error was reached.
-- After PR review fixes, `pnpm test:unit` passed with 271 tests across 38 files; `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` passed. `pnpm spec:validate` passed 10 items before the final review-task update and needs one final rerun.
-- The post-fix Windows `pnpm build` again reached static runtime output replacement and failed with `EPERM` renaming `.runtime.staging-<pid>` to `public/runtime`; asset integrity tests passed locally. The prior Linux Application run failed earlier at TeaVM asset verification. A fresh Linux CI run is required to verify the bounded retry.
+- After PR review fixes, `pnpm test:unit` passed with 271 tests across 38 files; `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` passed. `pnpm spec:validate` passed 10 items after the final review-task update.
+- The post-fix Windows `pnpm build` again reached static runtime output replacement and failed with `EPERM` renaming `.runtime.staging-<pid>` to `public/runtime`; asset integrity tests passed locally. GitHub's Linux Application workflow later passed the full build and browser tests.
 - A small synthetic SoCLaaS prompt-contract pilot and the corrected model comparison made 24 completion requests total across two bounded runs; the model report captures both run summaries and the corrected trial JSON. The configured catalog lookup was a separate request.
 
 ## Failures, limits, and remaining review
 
 - The official SoCLaaS documentation links could not be read due to the environment's DocHub access restriction. The model catalog provided IDs/context sizes only; pricing and provider limits remain unverified. The local harness caps do not assert provider quotas.
 - Product code was not independently reviewed. Hosted app, Vercel deployment, production SoCLaaS behavior, broad prompt-injection resistance, and real-world grading quality were not tested.
-- Build limitation: existing static-runtime build stops at Windows `EPERM` directory replacement, so production build completion is unverified.
+- Build limitation: local Windows static-runtime build stops at `EPERM` directory replacement; Linux GitHub Application build and browser checks passed on the pushed head.
 - Branch was pushed to `origin`; PR #49 is open against `develop`. Human verification remains pending; no merge or deployment occurred.
