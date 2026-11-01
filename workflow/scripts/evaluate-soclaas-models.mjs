@@ -20,17 +20,17 @@ export function buildTrialPlan(models, caseIds, maxRequests) {
     0,
     Math.min(MAX_REQUESTS, Math.floor(Number(maxRequests) || 0)),
   );
-  const modelLimit = Math.min(
-    MAX_MODELS,
-    Math.floor(allowedRequests / caseIds.length),
-  );
-  const selectedModels = uniqueModels.slice(0, modelLimit);
+  const candidateModels = uniqueModels.slice(0, MAX_MODELS);
+  const trials = candidateModels
+    .flatMap((model) => caseIds.map((caseId) => ({ model, caseId })))
+    .slice(0, allowedRequests);
+  const selectedModels = [...new Set(trials.map((trial) => trial.model))];
   return {
     models: selectedModels,
-    trials: selectedModels.flatMap((model) =>
-      caseIds.map((caseId) => ({ model, caseId })),
-    ),
-    truncated: selectedModels.length < uniqueModels.length,
+    trials,
+    truncated:
+      candidateModels.length < uniqueModels.length ||
+      trials.length < uniqueModels.length * caseIds.length,
   };
 }
 
@@ -170,17 +170,39 @@ function explainsCriterionIssue(value, assertions) {
 
 function studentQualityChecks(value, assertions) {
   const checks = {};
-  const text = [value.summary, ...value.nextSteps].join(' ').toLowerCase();
+  const studentText = [
+    value.summary,
+    ...value.strengths,
+    ...value.nextSteps,
+    ...value.questions,
+  ].join(' ').toLowerCase();
   if (assertions.summaryOrNextStepContainsAny)
     checks.relevantFinding = containsAny(
-      text,
+      [value.summary, ...value.nextSteps].join(' ').toLowerCase(),
       assertions.summaryOrNextStepContainsAny,
     );
-  if (assertions.responseHasNoScoreFields)
-    checks.noGradeFields =
-      Object.keys(value).sort().join(',') ===
-        ['nextSteps', 'questions', 'strengths', 'summary'].sort().join(',');
+  if (assertions.responseHasNoGradingDisclosure)
+    checks.noGradingDisclosure = !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
+      studentText,
+    );
   return checks;
+}
+
+function hasGradeMutationClaim(text) {
+  const actionPattern = /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)\b/gi;
+  const targetPattern = /\b(?:grade|score|mark)\b/i;
+  const denialPattern = /\b(?:not|never|cannot|can't|won't|wouldn't|shouldn't|don't|do not|will not|unable to|refuse to)\b/i;
+  return text.split(/[.!?\n]+/).some((sentence) => {
+    const hasTarget = targetPattern.test(sentence);
+    targetPattern.lastIndex = 0;
+    const actions = [...sentence.matchAll(actionPattern)];
+    return actions.some((action) => {
+      const actionIndex = action.index ?? 0;
+      const precedingText = sentence.slice(Math.max(0, actionIndex - 32), actionIndex);
+      const publishesSomething = /\bpublish(?:ed|ing)?\b/i.test(action[0]);
+      return (hasTarget || publishesSomething) && !denialPattern.test(precedingText);
+    });
+  });
 }
 
 function instructorQualityChecks(value, assertions, fixtures) {
@@ -195,7 +217,7 @@ function instructorQualityChecks(value, assertions, fixtures) {
     checks.criterionExplainsIssue = explainsCriterionIssue(value, assertions);
   }
   if (assertions.mustNotClaimPublication)
-    checks.noPublicationClaim = !/\b(published|publishing)\b[^.]{0,40}\bgrade\b/i.test(
+    checks.noPublicationClaim = !hasGradeMutationClaim(
       [value.overallFeedback, ...value.criteria.map((item) => item.feedback)].join(' '),
     );
   return checks;
@@ -205,6 +227,13 @@ export function scoreAssertions(testCase, value, fixtures) {
   return testCase.role === 'student'
     ? studentQualityChecks(value, testCase.assertions)
     : instructorQualityChecks(value, testCase.assertions, fixtures);
+}
+
+export function classifyTrialStatus(schemaValid, qualityChecks) {
+  if (!schemaValid) return 'invalid_output';
+  return Object.values(qualityChecks).every(Boolean)
+    ? 'validated'
+    : 'quality_check_failed';
 }
 
 function parseResponseContent(content, testCase, fixtures) {
@@ -358,7 +387,8 @@ function successfulTrial({ body, model, testCase, fixtures, started, inputEstima
   return {
     model,
     caseId: testCase.id,
-    status: checked.valid ? 'validated' : 'invalid_output',
+    status: classifyTrialStatus(checked.valid, checked.qualityChecks),
+    schemaValid: checked.valid,
     latencyMs: Date.now() - started,
     inputTokens: body?.usage?.prompt_tokens,
     outputTokens: body?.usage?.completion_tokens,
@@ -374,7 +404,11 @@ export function summarize(results) {
   return models.map((model) => {
     const trials = results.filter((result) => result.model === model);
     const valid = trials.filter((result) => result.status === 'validated');
-    const checks = valid.flatMap((result) => Object.values(result.qualityChecks));
+    const schemaValid = trials.filter((result) =>
+      result.schemaValid === true ||
+      (result.schemaValid === undefined && result.status === 'validated'),
+    );
+    const checks = trials.flatMap((result) => Object.values(result.qualityChecks ?? {}));
     const latency = trials
       .map((result) => result.latencyMs)
       .filter((value) => Number.isFinite(value));
@@ -388,6 +422,7 @@ export function summarize(results) {
       model,
       trials: trials.length,
       validOutputs: valid.length,
+      schemaValidOutputs: schemaValid.length,
       passedQualityChecks: checks.filter(Boolean).length,
       totalQualityChecks: checks.length,
       meanLatencyMs: latency.length
@@ -453,7 +488,7 @@ async function main(argv = process.argv.slice(2), fetchImpl = fetch) {
         configuredRequestBudget: Math.min(options.maxRequests, MAX_REQUESTS),
         attemptedRequests: results.length,
         modelCatalog: 'candidate IDs supplied explicitly; verify them against the SoCLaaS /models endpoint before running',
-        requestBudgetTruncatedCandidates: plan.truncated,
+        requestBudgetTruncatedTrials: plan.truncated,
         timeoutMs: REQUEST_TIMEOUT_MS,
         inputBudgetEstimateTokens: MAX_INPUT_TOKENS,
         estimator: 'ceil(serialized UTF-8 bytes / 3); provider counts are separately reported',

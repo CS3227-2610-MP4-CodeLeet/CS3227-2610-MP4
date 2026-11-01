@@ -17,6 +17,10 @@ export function scoreAssertions(
   value: Record<string, unknown>,
   fixtures: { rubric: { criteria: Array<{ id: string; maxScore: number }> } },
 ): Record<string, boolean>;
+export function classifyTrialStatus(
+  schemaValid: boolean,
+  qualityChecks: Record<string, boolean>,
+): 'invalid_output' | 'validated' | 'quality_check_failed';
 export function summarize(results: Array<Record<string, unknown>>): Array<Record<string, unknown>>;
 export function formatSafeProviderError(error: unknown): string;
 export function isProviderConfigurationReady(config: {
