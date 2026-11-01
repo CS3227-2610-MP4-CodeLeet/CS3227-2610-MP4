@@ -174,7 +174,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 ## 23. Issue #56 compare own saved revisions
 
 - [x] 23.1 Implement bounded selection/line-diff helpers with failing-first regression tests.
-- [ ] 23.2 Add verified own metadata/selected-source loading, comparison route/view and revision-detail action; verify privacy, bounds and safe rendering.
+- [x] 23.2 Add verified own metadata/selected-source loading, comparison route/view and revision-detail action; verify privacy, bounds and safe rendering. Query/render/page tests and four synthetic browser journeys passed; no source writes or schema changes.
 - [ ] 23.3 Verify real Python/Java synthetic journeys, navigation/themes/mobile and immutable originals; update guides/log/spec evidence.
 - [ ] 23.4 Author-review, commit/push and create linked PR to develop; wait for final-head CI and record actual results/skips. Independent review remains pending.
 

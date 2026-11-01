@@ -41,6 +41,10 @@ To practise on a real Python or Java assignment locally, prepare the runtime ass
 
 ### My submissions
 
+To see what changed, open a saved revision and choose **Compare revisions**. Enter the **From revision** and **To revision** numbers, then select **Compare**. Added lines have a plus sign and removed lines have a minus sign, with line numbers for both revisions. On narrow screens, scroll inside the code changes area.
+
+The default compares the opened revision with its previous revision; opening revision 1 compares it with your latest revision. You can compare either direction or choose the same revision. Identical code shows **No changes between these revisions**. If you have saved only one revision, save another before comparing. Your saved code stays unchanged. Refresh and browser Back retain your selected comparison.
+
 Sign in as a student and select **My submissions** from the sidebar or Menu, or open `/student/submissions`. This lists only your saved revisions across assignments, with the assignment title, Python/Java language, revision number and submission time in Singapore time (SGT). Revisions are newest first, with **Next** and **Previous** for pages of up to 25 entries. On narrow screens, scroll within the table to see all columns.
 
 Select an assignment title in a row to open that revision's saved code, learning-feedback controls and published grade. **All submissions** returns to the list; **Back to assignment** opens the original problem when it is still available. Earlier revisions are kept unchanged. If an assignment is no longer visible, its history row says **Assignment unavailable** and your own revision remains accessible.
