@@ -126,3 +126,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [ ] 13.6 Configure and smoke the single Vercel app Preview deployment; run Production smoke only after provenance/license and independent review gates pass. The requester reports that Python and Java now run in Preview; Production smoke and independent code review remain pending. Update verified docs and the dated issue/OpenSpec/branch/PR log. Keep human verification pending.
 - [x] 13.7 Make `pnpm dev` verify/fetch the pinned local runtime assets and start the loopback static runner with Next.js; verify startup/shutdown, both browser runtimes and no Node-side submitted-code execution. Local startup, Python/Java browser journeys, and clean shutdown were verified; no submitted code is executed in Node.
 - [x] 13.8 Resolve PR #32 review findings: require at least one path segment for immutable versioned runtime caching, stage generated runtime files outside `public/`, and clean abandoned legacy public staging directories. Header matching and builder regression tests pass.
+
+## 14. Issue #30 Forums
+
+- [ ] 14.1 Add authenticated thread/reply schema, RLS and trusted idempotent posting RPC with atomic quotas and security tests.
+- [ ] 14.2 Build bounded same-origin posting API, server loaders, shared-role forum pages/forms and navigation.
+- [ ] 14.3 Verify both roles, safe text, paging, retries/concurrency, access/privacy and responsive/theme behavior; run regression checks.
+- [ ] 14.4 Update current guides, plans/logs/spec evidence and publish linked PR to develop; leave human review pending.
