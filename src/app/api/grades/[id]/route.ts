@@ -2,6 +2,7 @@ import { type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { validateGradeScores } from '@/features/codementor/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { hasInstructorAccess } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson as response } from '@/lib/http/responses';
 
@@ -119,7 +120,7 @@ export async function PATCH(
       403,
     );
   const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || role !== 'instructor')
+  if (!user || !hasInstructorAccess(role))
     return response(
       { error: { code: 'forbidden', message: 'Instructor access required.' } },
       user ? 403 : 401,
