@@ -2,7 +2,7 @@
 
 **Goal:** Protect students from accidentally discarding code in real Python/Java assignment editors.
 
-**Issue:** [#40](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/40). **Branch:** `feat/unsaved-code-guard`, from `develop`. **Spec:** `openspec/changes/build-programming-platform/specs/assignments-and-grading/spec.md`, task group 16. **PR:** pending.
+**Issue:** [#40](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/40). **Branch:** `feat/unsaved-code-guard`, from `develop`. **Spec:** `openspec/changes/build-programming-platform/specs/assignments-and-grading/spec.md`, task group 16. **PR:** [#41](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/41).
 
 **Execution:** Codex implements inline. No specialist delegation requested; independent teammate review remains pending.
 
@@ -20,7 +20,7 @@ Alternatives considered by the implementer: replacing every Link with a guarded 
 - [x] Implement snapshot acknowledgement, source-bound retries and dirty UI in `src/features/codementor/submission-form.tsx`; add focused hook/browser guard under `src/features/student-submissions/`; ask the guard before `SignOutButton` changes the session.
 - [x] Verify Python and Java: edit/revert, canceled history/reload/link/sign-out, accepted revision links and sign-out, failed save retaining source, edits during delayed save, saved code leaves without warnings and listener cleanup.
 - [x] Run full unit suite, lint, formatting, Next production build/type checks, relevant real-account browser regressions, OpenSpec/scaffold and diff checks. Use synthetic accounts only and clean them without resetting local data.
-- [ ] Update verified guides, dated log and OpenSpec checkboxes, commit focused verified work, push and create a labelled PR to `develop` linking issue/spec/log/checks.
+- [x] Update verified guides, dated log and OpenSpec checkboxes, commit focused verified work, push and create a labelled PR to `develop` linking issue/spec/log/checks.
 
 ## Review focus
 

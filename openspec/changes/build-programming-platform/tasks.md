@@ -131,4 +131,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 16.1 Track the exact submitted source snapshot and show unsaved state; keep failed saves and newer in-flight edits dirty with source-bound idempotent retries.
 - [x] 16.2 Warn before ordinary app links, sign-out and reload/close while dirty; support cancelable browser history traversal without modifying history and clean up listeners after save/unmount.
-- [ ] 16.3 Verify Python/Java save/failure/navigation journeys and regressions, document browser limitations, and publish linked issue/spec/log/PR evidence.
+- [x] 16.3 Verify Python/Java save/failure/navigation journeys and regressions, document browser limitations, and publish linked issue/spec/log/PR evidence. PR #41: 143 unit tests, 18 production Chromium passes with one local-email skip, two expanded new-tab checks, lint/format/build/types/spec/scaffold checks pass; independent review and deployment remain pending.
