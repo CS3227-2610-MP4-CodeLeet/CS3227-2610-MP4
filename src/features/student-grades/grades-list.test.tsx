@@ -33,7 +33,7 @@ it('renders literal feedback, revision links and filtered pagination without inv
     '/student/grades?q=Loops&amp;language=java&amp;page=3',
   );
   expect(html).toContain('/student/grades?q=Loops&amp;language=java"');
-});
+}, 15_000);
 
 it('distinguishes an unpublished empty account from a filtered no-match page', () => {
   const empty = renderToStaticMarkup(

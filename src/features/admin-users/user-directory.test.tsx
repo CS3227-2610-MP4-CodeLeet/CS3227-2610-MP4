@@ -1,4 +1,14 @@
-import { describe, expect, it, vi } from 'vitest';
+/* eslint-disable max-lines-per-function -- behavioral test suites keep related scenarios together. */
+/* eslint-disable sonarjs/no-duplicate-string -- repeated expected text documents the user-facing contract. */
+// @vitest-environment jsdom
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }),
@@ -18,6 +28,11 @@ const users = [
     role: 'admin' as const,
   },
 ];
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 describe('admin user directory', () => {
   it('renders the approved account fields and role options', () => {
@@ -88,5 +103,102 @@ describe('admin user directory', () => {
     finishRequest();
     await expect(firstLoad).resolves.toBe(true);
     expect(inFlight.current).toBe(false);
+  });
+
+  it('loads and appends a subsequent user page', async () => {
+    const next = {
+      ...users[0],
+      user_id: '00000000-0000-4000-8000-000000000002',
+      email: 'next@example.test',
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ users: [next], nextAfter: null }), {
+          status: 200,
+        }),
+      ),
+    );
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter="cursor / one"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Load more users' }));
+    expect(await screen.findByText('next@example.test')).toBeTruthy();
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/admin/users?after=cursor%20%2F%20one',
+      { cache: 'no-store' },
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Load more users' }),
+    ).toBeNull();
+  });
+
+  it('saves another user role and updates that row', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('{}', { status: 200 })),
+    );
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter={null}
+      />,
+    );
+    fireEvent.change(
+      screen.getByRole('combobox', { name: 'Role for admin@example.test' }),
+      { target: { value: 'instructor' } },
+    );
+    await waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/admin/users/00000000-0000-4000-8000-000000000001/role',
+      expect.objectContaining({ method: 'PATCH' }),
+    );
+    expect(
+      (
+        screen.getByRole('combobox', {
+          name: 'Role for admin@example.test',
+        }) as HTMLSelectElement
+      ).value,
+    ).toBe('instructor');
+  });
+
+  it('shows the final-admin denial and does not leave the pending state behind', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(
+            JSON.stringify({ error: { code: 'final_admin_required' } }),
+            { status: 409 },
+          ),
+        ),
+    );
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter={null}
+      />,
+    );
+    fireEvent.change(
+      screen.getByRole('combobox', { name: 'Role for admin@example.test' }),
+      { target: { value: 'student' } },
+    );
+    expect((await screen.findByRole('alert')).textContent).toContain(
+      'at least one admin must remain',
+    );
+    expect(
+      (
+        screen.getByRole('combobox', {
+          name: 'Role for admin@example.test',
+        }) as HTMLSelectElement
+      ).disabled,
+    ).toBe(false);
   });
 });
