@@ -1,7 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { validateEvaluation, validateFeedback } from './evaluation-contracts.mjs';
+import {
+  validateEvaluation,
+  validateFeedback,
+} from './evaluation-contracts.mjs';
 import {
   classifyTrialStatus,
   countProviderCalls,
@@ -98,9 +101,7 @@ function applyOption(options, name, value) {
 function validateArguments(options) {
   if (!options.help && options.models.length === 0)
     throw new Error('models_required');
-  if (
-    options.models.some((model) => !/^[A-Za-z0-9._:-]{1,120}$/.test(model))
-  )
+  if (options.models.some((model) => !/^[A-Za-z0-9._:-]{1,120}$/.test(model)))
     throw new Error('invalid_model_id');
   if (
     !Number.isInteger(options.maxRequests) ||
@@ -171,9 +172,10 @@ function parseResponseContent(content, testCase, fixtures) {
     return { valid: false, qualityChecks: {}, parsed: null, raw: content };
   }
   const caseFixtures = fixturesForCase(testCase, fixtures);
-  const valid = testCase.role === 'student'
-    ? validateFeedback(value)
-    : validateEvaluation(value, caseFixtures.rubric.criteria);
+  const valid =
+    testCase.role === 'student'
+      ? validateFeedback(value)
+      : validateEvaluation(value, caseFixtures.rubric.criteria);
   return {
     valid,
     qualityChecks: valid ? scoreAssertions(testCase, value, caseFixtures) : {},
@@ -212,7 +214,7 @@ export function parseEnvAssignment(line) {
   };
 }
 
-async function loadLocalEnvironment() {
+export async function loadLocalEnvironment(env = process.env) {
   let contents;
   try {
     contents = await readFile(resolve(repositoryRoot, '.env.local'), 'utf8');
@@ -221,8 +223,8 @@ async function loadLocalEnvironment() {
   }
   for (const line of contents.split(/\r?\n/)) {
     const assignment = parseEnvAssignment(line);
-    if (!assignment || process.env[assignment.name] !== undefined) continue;
-    process.env[assignment.name] = assignment.value;
+    if (!assignment || env[assignment.name] !== undefined) continue;
+    env[assignment.name] = assignment.value;
   }
 }
 
@@ -347,7 +349,14 @@ function failedTrial({
   };
 }
 
-function successfulTrial({ body, model, testCase, fixtures, started, inputEstimate }) {
+function successfulTrial({
+  body,
+  model,
+  testCase,
+  fixtures,
+  started,
+  inputEstimate,
+}) {
   const checked = parseResponseContent(
     body?.choices?.[0]?.message?.content,
     testCase,
@@ -370,16 +379,21 @@ function successfulTrial({ body, model, testCase, fixtures, started, inputEstima
 }
 
 export function summarize(results, candidateModels, caseIds = []) {
-  const models = candidateModels ?? [...new Set(results.map((result) => result.model))];
+  const models = candidateModels ?? [
+    ...new Set(results.map((result) => result.model)),
+  ];
   return models.map((model) => {
     const trials = results.filter((result) => result.model === model);
     const attemptedCaseIds = new Set(trials.map((result) => result.caseId));
     const valid = trials.filter((result) => result.status === 'validated');
-    const schemaValid = trials.filter((result) =>
-      result.schemaValid === true ||
-      (result.schemaValid === undefined && result.status === 'validated'),
+    const schemaValid = trials.filter(
+      (result) =>
+        result.schemaValid === true ||
+        (result.schemaValid === undefined && result.status === 'validated'),
     );
-    const checks = trials.flatMap((result) => Object.values(result.qualityChecks ?? {}));
+    const checks = trials.flatMap((result) =>
+      Object.values(result.qualityChecks ?? {}),
+    );
     const latency = trials
       .map((result) => result.latencyMs)
       .filter((value) => Number.isFinite(value));
@@ -398,7 +412,9 @@ export function summarize(results, candidateModels, caseIds = []) {
       passedQualityChecks: checks.filter(Boolean).length,
       totalQualityChecks: checks.length,
       meanLatencyMs: latency.length
-        ? Math.round(latency.reduce((sum, value) => sum + value, 0) / latency.length)
+        ? Math.round(
+            latency.reduce((sum, value) => sum + value, 0) / latency.length,
+          )
         : null,
       providerInputTokens: providerInput.length
         ? providerInput.reduce((sum, value) => sum + value, 0)
@@ -422,11 +438,13 @@ function writeEvaluationReport({ fixtures, options, plan, results }) {
     rejectedInputBudgetTrials: results.filter(
       (result) => result.status === 'rejected_input_budget',
     ).length,
-    modelCatalog: 'candidate IDs supplied explicitly; verify them against the SoCLaaS /models endpoint before running',
+    modelCatalog:
+      'candidate IDs supplied explicitly; verify them against the SoCLaaS /models endpoint before running',
     requestBudgetTruncatedTrials: plan.truncated,
     timeoutMs: REQUEST_TIMEOUT_MS,
     inputBudgetEstimateTokens: MAX_INPUT_TOKENS,
-    estimator: 'ceil(serialized UTF-8 bytes / 3); provider counts are separately reported',
+    estimator:
+      'ceil(serialized UTF-8 bytes / 3); provider counts are separately reported',
     models: summarize(
       results,
       plan.models,
@@ -470,7 +488,9 @@ async function main(argv = process.argv.slice(2), fetchImpl = fetch) {
     options.maxRequests,
   );
   if (!plan.trials.length) throw new Error('request_budget_too_small');
-  const testCases = new Map(fixtures.cases.map((testCase) => [testCase.id, testCase]));
+  const testCases = new Map(
+    fixtures.cases.map((testCase) => [testCase.id, testCase]),
+  );
   const results = [];
   for (const trial of plan.trials) {
     results.push(
@@ -487,9 +507,14 @@ async function main(argv = process.argv.slice(2), fetchImpl = fetch) {
   writeEvaluationReport({ fixtures, options, plan, results });
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   main().catch((error) => {
-    process.stderr.write(`SoCLaaS model evaluation stopped: ${formatSafeProviderError(error)}\n`);
+    process.stderr.write(
+      `SoCLaaS model evaluation stopped: ${formatSafeProviderError(error)}\n`,
+    );
     process.exitCode = 1;
   });
 }

@@ -1,0 +1,12 @@
+[
+  { "vars": { "caseId": "student-python-negative-baseline" } },
+  { "vars": { "caseId": "student-python-source-rubric-injection" } },
+  { "vars": { "caseId": "student-python-assignment-injection" } },
+  { "vars": { "caseId": "student-java-source-rubric-injection" } },
+  { "vars": { "caseId": "student-java-assignment-injection" } },
+  { "vars": { "caseId": "instructor-python-negative-baseline" } },
+  { "vars": { "caseId": "instructor-python-source-publication-injection" } },
+  { "vars": { "caseId": "instructor-java-source-publication-injection" } },
+  { "vars": { "caseId": "instructor-assignment-publication-injection" } },
+  { "vars": { "caseId": "instructor-rubric-publication-injection" } }
+]

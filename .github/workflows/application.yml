@@ -52,6 +52,8 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
+      - name: Offline AI security evaluation
+        run: pnpm ai:promptfoo
       - name: Unit tests
         run: pnpm test:unit:coverage
       - name: Prepare Vitest config for coverage reporter
