@@ -1,3 +1,10 @@
+## 25. Issue #70 User Guide and security/reflection evidence
+
+- [x] 25.1 Audit current routes, test assertions, prior experiments and merged CI; link a focused documentation issue/branch without changing product behavior.
+- [x] 25.2 Update user journeys and add a traceable security evidence report/reflection analysis with dated observations, skips and remaining release gates.
+- [x] 25.3 Verify links/format/spec/scaffold and applicable existing tests; record failures, actual outcomes and unavailable measurements in the dated summary. Local pinned-Node coverage: 496 tests/80 files passed; links/format/spec/scaffold passed. Local database unavailable; baseline CI passed 147 assertions. Hosted/independent review not claimed.
+- [ ] 25.4 Commit/push and create a linked PR to develop after branch CI; wait for final-head checks. Human reflection review and hosted acceptance remain pending.
+
 ## 21. Issue #52 My grades
 
 - [x] 21.1 Implement projected published-grade DTO/query with explicit ownership, bounded filters/pagination, safe failures and unit/privacy tests.

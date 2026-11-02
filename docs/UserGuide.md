@@ -1,188 +1,116 @@
-# User Guide
+# CodeLeet User Guide
 
-Status: CodeLeet student/instructor flows and local RLS policies are verified with synthetic records. The authenticated browser journey, including two rubric criteria, immutable revisions and explicit grade publication, passed against local Supabase with mocked AI. A live SoCLaaS model comparison ran on synthetic cases on 2026-11-01; hosted app behavior and Vercel deployment have not been verified. Admin role management has focused unit and database coverage; its authenticated browser journey has not yet been run.
+CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-## Local CodeLeet app
+This guide describes the merged app at `0a26127` (2 November 2026). Local synthetic tests and linked CI records support these features. A verified public address, hosted email delivery and complete hosted student/instructor checks are still pending in repository evidence. Ask your team for its current test address and accounts.
 
-The code editor shows line numbers and colours Python/Java keywords, strings, comments and other syntax. Colours follow your light/dark preference. Line numbers scroll with the code and long lines scroll horizontally inside the editor. Highlighting does not reformat, validate or execute your program; the editable source remains plain text. Real assignments and submissions support both Python and Java. The assignment determines the editor language.
+## Start locally
 
-Some Java features are unavailable in the code runner. Starting background threads with `Thread.start()` (including examples that wait with `join()`) and `Thread.sleep()` currently fail to compile. A `Runnable` called directly with `.run()` can work, but executes sequentially. For recognized compatibility failures, the result explains: **This program uses a feature that the code runner does not support.** Your code stays unchanged; ordinary syntax errors still show their compiler details.
+Follow the [README](../README.md) and [database setup](../supabase/README.md) to install the pinned Node 24/pnpm versions, start Supabase, apply migrations and configure ignored `.env.local`. Then run:
 
-Use **Tab** to indent and **Shift+Tab** to unindent; select multiple lines to adjust a whole block. **Enter** keeps the current indentation and adds a level after Python block colons or opening brackets/Java braces. Enter between matching brackets creates an indented blank line. Typing a Java closing brace on an indented blank line removes one level. Indentation uses four-space stops. **Ctrl+Z** undoes an edit in the verified Chromium browser. To move keyboard focus out of the editor, press **Escape**, then **Tab** (or Shift+Tab to move backward). This is indentation assistance, not a full language formatter.
+```powershell
+npx.cmd --yes pnpm@12.15.0 dev
+```
 
-The moon/sun control applies to the landing page, sign-in, account creation and signed-in workspace. Your browser remembers the choice. Account creation requires matching **Password** and **Confirm password** fields; each has its own Show/Hide eye button. Signing in requires only the password. Signed-in student and instructor headers include **Sign out**. If signing out fails, the page shows an error and lets you retry.
+Open the address printed by Next.js, normally http://localhost:3000. This command prepares runtime assets and starts the local runner too; do not start port 3130 separately. For an occupied port, see the [Developer Guide](DeveloperGuide.md). Database resets delete local data and are not needed for ordinary sign-in.
 
-1. Install Node 24 and pnpm as described in the repository README.
-2. Start the local Supabase stack with `pnpm db:start`, then apply new migrations with `pnpm exec supabase migration up --local`. Use `pnpm db:reset` only for a disposable database: it deletes existing local data.
-3. Copy `.env.example` to the ignored `.env.local`, then set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` using the local Supabase status output. Keep all other local service keys private.
-4. Run `pnpm dev` and open the address printed by Next.js.
-5. Create a student account at **Create student account**, entering your **Username**, email and matching passwords. Local email confirmation is disabled by default. Public registration always creates a student account.
-6. To exercise instructor screens, first create an account and use a trusted local Supabase admin session to set that account's `user_roles.role` to `instructor`; see [local database setup](../supabase/README.md). Never expose first-admin provisioning through the app.
+## Account and appearance
 
-### Admin role management
+Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. Sign in with email and password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. Use **Sign out** when finished; a failure lets you retry.
 
-An admin also has instructor access. After signing in, admins can use **Admin panel** in the instructor header to view registered users' email, display name, user ID and role, then change a role to **Student**, **Instructor** or **Admin**. Role changes take effect immediately and are applied by a protected server/database operation. Public registration cannot create instructor or admin accounts. See [local database setup](../supabase/README.md) for the trusted first-admin procedure; the local seed includes `admin@codeleet.test`.
+For a forgotten password, choose **Forgot password?**, enter your email and select **Send reset link**. The acknowledgement does not reveal whether an account exists. Open the newest email link in the same browser, enter matching passwords of at least eight characters and choose **Update password**. Then sign in again. Invalid/expired/reused links offer **Request a new link**. Resend delays or provider limits may require a wait. Local emails appear in [Mailpit](http://localhost:54324); hosted delivery is unverified.
 
-Changing your own admin role shows a warning and asks for confirmation before sending the change. The change is blocked if it would leave the system without an admin. A confirmed self-change to student returns to student assignments; a change to instructor returns to the instructor workspace. This feature has focused unit and database checks; the authenticated admin browser journey is still pending.
+Students open **Menu → Profile settings**; instructors choose **Profile**. Edit **Username** and select **Save changes**. Usernames allow 1–80 characters after trimming. Email and role are read-only here. Failed saves retain your typed username.
 
-Students can browse published Python and Java assignments, submit revisions (up to 8,000 characters), view their own history, request learning feedback, and see grades only after publication. Instructors can create/edit/publish assignments with 1–20 private rubric criteria, review owned submissions, request AI rubric suggestions, edit grade drafts, and explicitly publish grades. Both roles can inspect their own AI usage. Instructors can compare focused and broader authorized contexts; each uncached comparison may use two daily AI request slots.
+The moon/sun control changes light/dark mode across account pages and the workspace. Your browser remembers the choice; without one, the app follows your device preference. Switching themes preserves your code/results.
 
-AI is disabled unless `SOCLAAS_AI_ENABLED=true` and a server-side SoCLaaS URL/key/model are configured. Without these values, the rest of the local assignment workflows remain available and review requests show a safe unavailable message. Do not enter real student data in the synthetic experiment harness. Product AI context includes source code as untrusted text, but submitted source is never executed by Next.js/Node, a remote service, or the AI model. The separate optional browser practice environment is described below.
+## Student: assignments and deadlines
 
-When creating an assignment, instructors select **Python** or **Java**. Its language is fixed once a student submits code. Each saved revision records its language, and students can see only their own revisions. Forums, XP/badges, uploads, plagiarism checks and broad analytics are not included in this selected MVP.
+Choose **Assignments** in the sidebar or **Menu**. Only published assignments appear. Enter part of a title, choose **All languages**, **Python** or **Java**, then **Apply filters**. **Clear filters** restores all assignments. Filters remain in the address on refresh/Back. Open an assignment to read instructions above the editor. Its language is fixed by the instructor. Empty lists show **No assignments yet**; failures offer **Try again**. Draft or missing assignments are unavailable.
 
-Local development uses real accounts and assignments by default. The student workspace then shows real published assignments without sample-data notices or a redundant Home link. The signed-in sidebar and Menu contain **Assignments** and **My submissions**; sample preview navigation keeps only Assignments. The assignment page is ordered as instructions, editor, **Run code**, input/output, test cases, **Submit revision**, then **Your revisions**. The tests action sits beside the test cases. After saving a revision, history updates and your code stays in the editor.
+Due dates use Singapore time (SGT). An assignment without one shows **No deadline**.
 
-The real assignment editor shows **Unsaved changes** when your code differs from your last successful submission on that page. Submitting successfully clears it; failed saves keep your code. If you edit while saving, those newer edits remain unsaved. Returning exactly to the submitted code clears the indicator. Running code does not save it.
+| Status | Meaning |
+| --- | --- |
+| Not submitted | You have not saved a revision. |
+| Overdue | The deadline passed and you have not submitted. You can still submit. |
+| Submitted | Your latest revision was saved on time or without a deadline. |
+| Submitted late | Your latest revision was saved after its deadline. |
 
-Leaving through an app link or **Sign out** asks for confirmation when code is unsaved. Cancel to keep editing. Reloading or closing the tab requests your browser's standard warning; Back/Forward confirmation requires a browser that supports cancelable Navigation API history events. Browsers can suppress warnings, particularly on mobile. Drafts are kept only on the open page, so submit a revision to preserve your work.
+Late submissions are accepted without an automatic grade penalty. Revisions retain the deadline that applied when saved and show **Late**, **On time**, or **Submitted** without a deadline. Later deadline edits do not rewrite old timing. Status updates when you open/refresh the page or save a revision.
 
-To practise on a real Python or Java assignment locally, prepare the runtime assets and start the local runner using the commands below, then restart `pnpm dev`. **Run code** uses the same source as **Submit revision**, with optional standard input; it executes only in your browser. No published-tests action is shown for real assignments because authored test cases are not connected yet. The local runner remains disabled in production. Hosted execution remains unavailable.
+## Student: write, run and submit
 
-### Assignment deadlines
+The editor shows line numbers and syntax colours. **Tab** indents, **Shift+Tab** unindents, and **Enter** continues indentation. Select several lines to adjust a block. **Escape**, then **Tab**, moves focus outside the editor. **Ctrl+Z** was verified in Chromium. These controls assist indentation; they are not a full IDE/formatter.
 
-Instructors can set **Due date and time (SGT, optional)** when creating or editing an assignment. Leave it blank to remove the deadline. All due dates use Singapore time (SGT).
+### Run code
 
-Your assignment list and workspace show the due date and your latest saved submission status:
+Enter a complete Python program or Java program with one public `Main` class. Enter optional **Standard input**, then **Run code**. Printed output appears in **Output**, with errors when present. Returning a value alone does not print an answer. Source edits make previous results stale. Runs happen in your browser and do not save revisions, publish grades or award XP. Leaving the assignment ends the run. If unavailable, check setup/connection and retry; your code stays in the editor.
 
-- **Not submitted:** you have not saved a revision.
-- **Overdue:** the due date has passed and you have not saved a revision. You can still submit.
-- **Submitted:** your latest revision was saved on time or without a deadline.
-- **Submitted late:** your latest revision was saved after its deadline.
+Java supports the documented basic `Scanner` and `BufferedReader` input methods, but not all standard library features. `Thread.start()`, examples waiting with `join()`, and `Thread.sleep()` currently fail compilation. Calling a `Runnable` with `.run()` can work sequentially. Recognized compatibility errors explain the unsupported feature; ordinary compiler errors retain their details.
 
-Late submissions are accepted without an automatic grade penalty. Saved revisions show **Late**, **On time**, or **Submitted** when no deadline applied. Their original deadline and timing remain unchanged if an instructor later edits the due date. Status updates when you open/refresh the page or save a revision. Instructors can see timing while reviewing submissions.
+Input is limited to 4,096 UTF-8 bytes and combined output to 8,192 bytes per case. Execution has a five-second limit per case, with a separate Java preparation/compilation deadline. Timing depends on your device. Chromium has local runtime evidence; other browsers and hosted instructor execution still need verification. Vercel builds support the same-project runner when runtime assets are prepared; this does not establish that a particular deployment was tested.
+
+### Test cases
+
+Instructor-authored case creation/publication is not connected yet. Local developers can enable explicitly labelled examples, absent in production. **Use example test cases** supplies three examples for reading two integers and printing their sum; these are not your instructor's tests. Select **Run tests** and expand a case for input, expected/actual output and verdict. Results distinguish passed, wrong output, compilation/runtime errors and timeouts. Comparison ignores line-ending differences and one final newline; other spaces and capitalization matter. Passing examples does not prove general correctness. Developer-only fixture setup is in the [Developer Guide](DeveloperGuide.md).
+
+### Submit revision
+
+Select **Submit revision** below the run/test section to save code, up to 8,000 characters. Blank, invalid or oversized source shows an error. Success adds an immutable revision to **Your revisions** and leaves the code in the editor. Failed saves retain the draft for retry.
+
+**Unsaved changes** means the source differs from the last successful save on that page. Running does not save it. New edits made during a save remain unsaved. Navigation/sign-out ask for confirmation before losing changes. Reload/close warnings depend on the browser; Back/Forward protection requires supported navigation events. Drafts are not autosaved: submit to preserve your work.
+
+## Student: submissions, feedback and grades
 
 ### My submissions
 
-To see what changed, open a saved revision and choose **Compare revisions**. Enter the **From revision** and **To revision** numbers, then select **Compare**. Added lines have a plus sign and removed lines have a minus sign, with line numbers for both revisions. On narrow screens, scroll inside the code changes area.
+Choose **My submissions** in the sidebar/Menu. Your revisions appear newest first with assignment, language, revision and SGT timestamp. **Next**/**Previous** navigate pages of up to 25 entries. Title/language filters persist when paging. On mobile, scroll inside the table.
 
-The default compares the opened revision with its previous revision; opening revision 1 compares it with your latest revision. You can compare either direction or choose the same revision. Identical code shows **No changes between these revisions**. If you have saved only one revision, save another before comparing. Your saved code stays unchanged. Refresh and browser Back retain your selected comparison.
+Open an assignment title in a row for saved code, learning-feedback controls and any published grade. **All submissions** returns to the list; **Back to assignment** opens an available problem. An unavailable assignment's own revisions remain accessible under **Assignment unavailable** without searchable hidden titles. Empty accounts show **No submissions yet**; failed requests offer **Try again**. Other students' code, private rubrics and unpublished grades remain hidden.
 
-Sign in as a student and select **My submissions** from the sidebar or Menu, or open `/student/submissions`. This lists only your saved revisions across assignments, with the assignment title, Python/Java language, revision number and submission time in Singapore time (SGT). Revisions are newest first, with **Next** and **Previous** for pages of up to 25 entries. On narrow screens, scroll within the table to see all columns.
+Choose **Continue editing** from a revision or **Your revisions** to load saved source. **Editing revision N** identifies the starting point. Edit and submit a new revision; the original stays unchanged. Switching revisions with unsaved edits asks for confirmation. Ordinary assignment visits start with an empty editor.
 
-Select an assignment title in a row to open that revision's saved code, learning-feedback controls and published grade. **All submissions** returns to the list; **Back to assignment** opens the original problem when it is still available. Earlier revisions are kept unchanged. If an assignment is no longer visible, its history row says **Assignment unavailable** and your own revision remains accessible.
+### Compare revisions
 
-To work from saved code, open a revision and select **Continue editing**. You can also choose **Continue editing** beside a revision under **Your revisions** on an assignment. Its code opens in the Python or Java editor with **Editing revision N** above it. Edit, run or test the code, then select **Submit revision** to save a new revision; the original stays unchanged. Choosing another revision while you have unsaved edits asks for confirmation. Cancel to keep your draft. Assignments that are unavailable do not offer this action. Opening an assignment normally still starts with an empty editor.
+Open a saved revision, choose **Compare revisions**, enter **From revision**/**To revision**, then **Compare**. Added/removed lines have plus/minus signs and line numbers. Identical source shows **No changes between these revisions**. You can reverse direction or compare a revision with itself. Save a second revision before comparing different versions.
 
-On **Assignments** and **My submissions**, enter part of an assignment title, choose **All languages**, **Python** or **Java**, then select **Apply filters**. Title searches ignore capitalization and treat punctuation as ordinary text. Use **Clear filters** to show everything again. Filters stay in the page address when you refresh or use Back/Forward. History's **Next** and **Previous** keep your filters; applying or clearing filters returns to the first page. If an assignment is unavailable, its old title cannot be searched, but its saved revisions still appear when filtering by language alone.
+The default compares with the previous revision; revision 1 compares with your latest. Refresh/Back preserve the selected pair. Comparison never changes source. On mobile, scroll inside the changes area.
 
-An empty account shows **No submissions yet** and a **Browse assignments** link. A failed history request offers **Try again**; it does not replace your records with samples. The page requires a student sign-in even when sample assignment preview is enabled. Other students' submissions, private rubrics and unpublished grades remain hidden.
+### Learning feedback
+
+On a saved submission, select **Request review** under **Learning feedback** for a summary, strengths, next steps and questions. Check hints against your code: AI can be wrong and does not change grades. Requesting feedback sends saved code and assignment context to the configured SoCLaaS service; student context excludes private rubrics. Disabled/unavailable AI or exhausted usage shows an error while keeping the submission accessible. Retry later as appropriate. Historical live evaluation used synthetic Python examples, not all programs or Java assignments.
 
 ### My grades
 
-Choose **My grades** in the sidebar or **Menu** to see your published grades, newest first. Each entry shows the assignment, Python/Java language, revision, score and publication time in SGT. Expand **Instructor feedback** to read the comments, or choose **View revision** to open the saved code and published grade. Scores are shown as awarded, without an assumed percentage or maximum.
+Choose **My grades** in the sidebar/Menu for published grades, newest first. Expand **Instructor feedback** or **View revision**. Scores have no assumed percentage/maximum. Filters/pagination work like My submissions. Empty accounts show **No published grades yet**. Own published grades remain available when the assignment is unavailable, without exposing its hidden title.
 
-Search by assignment title and/or choose a language, then select **Apply filters**. **Next** and **Previous** keep your filters; **Clear filters** returns to the latest grades. Only published grades appear. An empty account shows **No published grades yet**. If an assignment is no longer available, its own published grades remain listed as **Assignment unavailable**, but its hidden title cannot be searched.
+## Instructor: assignments and grading
 
-### Example tests in real assignments (local development)
+1. In the instructor workspace, choose **New assignment**. Enter **Title**, **Instructions**, **Language** and 1–20 private rubric criteria.
+2. Optionally set **Due date and time (SGT, optional)**. Blank means no deadline; clearing it removes one.
+3. Choose **Draft** or **Published** under **Status**, then **Save assignment**. Drafts stay hidden. Use **Edit** to update an owned assignment. Language cannot change after a submission.
+4. Choose **Submissions** on an assignment, then a revision to review saved source/timing. Available **Run code** executes it in your browser.
+5. Under **AI rubric suggestions**, choose **Request review** for advisory criterion scores/comments. Review them yourself; this does not save/publish a grade.
+6. Enter criterion scores and feedback. **Save draft** keeps the grade private. Select **Publish this grade to the student**, then **Save and publish**, to release it. If another edit changed the record, reload before retrying.
 
-With the local runtime prepared/running, set `STUDENT_TEST_CASE_FIXTURES_ENABLED=true` in ignored `.env.local`, then restart the development server. Open a published Python or Java assignment and select **Use example test cases** below the editor. These are standalone examples for a program that reads two integers and prints their sum; they are **not your instructor's assignment tests**.
+Instructors can review submissions/private rubrics only for owned assignments. AI cannot publish grades. Both roles can visit `/ai/usage` for their own recent usage; instructors also have an **AI usage** link. Counts may be estimates when provider counts are absent. Instructor context comparison uses authorized contexts; two uncached reviews can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
 
-Select **Run tests** to compare the current editor source with the three examples. Expand a case to see its input, expected output and actual output. Results distinguish Passed, Wrong output, Compile error, Runtime error and Time limit exceeded. Editing code makes earlier results stale. Deselecting examples stops an active run and clears the results while keeping the code. Practice runs do not save revisions or affect grades; use **Submit revision** separately.
-
-The example option is absent by default and in production, even if the flag is set. Instructor-authored case creation/publication and real case loading are still pending. The existing browser runtime limits and supported Java library subset apply.
-
-### Forgot password
-
-From **Sign in**, select **Forgot password?**, enter your account email and select **Send reset link**. The acknowledgement is the same for registered and unregistered addresses. Open the newest email link in the same browser where you requested it, enter matching new passwords (at least eight characters), and select **Update password**. Both password fields have independent eye buttons. After success, sign in using the new password. An expired, reused or invalid link offers **Request a new link**.
-
-Local Supabase captures emails in **[Mailpit](http://localhost:54324)**; they are not delivered to a real inbox. Use that local mailbox to open the link while testing. Requesting a link has a short resend delay, and provider rate limits may require a longer wait. Hosted email delivery has not been verified.
-
-## Local assignment preview
-
-1. Follow the README installation steps using Node 24.22.1.
-2. For UI tests only, set `PLAYWRIGHT_ASSIGNMENT_FIXTURES=true` in the test server environment and restart the development server with `pnpm dev` (or `npx --yes pnpm@12.15.0 dev`).
-3. Open `/student/assignments` at the local address printed by Next.js.
-4. Select **View** in the assignment table for **Find the largest number** (Python) or **Count the vowels** (Java).
-5. Read the instructions, then use **All assignments** to return.
-
-The banner identifies sample data; no account or database data is shown. Draft and missing assignments show **Assignment unavailable**. The preview is disabled by default and remains unavailable under `pnpm start`/production even if the flag is true.
-
-On desktop, the sidebar links to assignments and the published sample problems. **Menu** is available in the top-right on every screen size for the same navigation; it supports keyboard activation. The problem title, instructions and example appear above **Your code**. The editor uses a native text area with syntax colours, line numbers and a filename label; no external IDE service is involved. Long lines scroll inside the editor rather than widening the page.
-
-Use the moon/sun button immediately to the right of **Menu**, at the far-right edge of the top bar, to change the student workspace, editor and results. Its tooltip and accessible name are **Switch to dark mode** / **Switch to light mode**. Without a saved choice, the workspace uses the device preference after loading. Your explicit choice is remembered in this browser across navigation and reloads; it does not save source code or results. If browser storage is blocked, switching still works for the current session. Theme changes preserve the current draft and run/results. The same preference also applies to the public home and account pages.
-
-### Local code-entry checks
-
-On either assignment detail page, scroll to **Your code**. The language is fixed to the assignment's Python or Java language. Enter source in the labeled textarea; the counter measures UTF-8 bytes, not characters, up to 32,768 bytes (32 KiB).
-
-Select **Check code** to check input rules only. Blank/whitespace-only text, NUL, invalid Unicode and oversized source are rejected. Oversized text also shows an error immediately. Errors focus the editor when checked and preserve all entered text so it can be corrected. Exactly 32,768 bytes is allowed; for example, é uses two bytes and 😀 uses four.
-
-The **Submit code** button remains disabled. Check code is not a correctness/compilation check or a successful submission; it does not run or transmit source. There is no autosave or database integration. Refreshing the page clears the editor; opening a different assignment starts its own empty editor. Local validation is not a substitute for later server/database enforcement.
-
-### Browser runs and published practice tests (additional local opt-in)
-
-Use Node 24. In a PowerShell terminal from the project root, prepare the reviewed runtime files and start the local static runner:
-
-```powershell
-node workflow/scripts/fetch-runtime-assets.mjs
-node src/runtime-lab/server.mjs
-```
-
-In another terminal start the website:
-
-```powershell
-$env:PLAYWRIGHT_ASSIGNMENT_FIXTURES = "true"
-pnpm dev
-```
-
-Open `/student/assignments` at the address printed by Next.js (normally http://localhost:3000). Open a Python/Java assignment and enter a complete program that reads stdin and prints the answer. Python's sample now expects space-separated integers and printed output, not a function return value. Java requires one public Main class; buffered UTF-8 input, BufferedReader and the documented basic Scanner methods are supported.
-
-- **Run code:** enter optional **Standard input**, then run your program. The result shows completion/error, stdout, stderr when present and approximate execution time.
-- **Run published tests:** runs the three synthetic public cases for that sample assignment, sequentially with fresh state. Each case shows its input, expected stdout, verdict and actual stdout. Custom stdin is ignored for this action.
-- To leave an active run, use **All assignments** or another navigation link. Leaving the assignment ends the runner; automatic execution and suite deadlines also remain active. There is no Stop button in the student workspace.
-
-These cases are explicitly sample data in the independent browser-practice preview. CodeLeet instructors can create and publish assignment records, but authored practice tests are not shared with this preview. Results are practice feedback only and do not submit code, publish grades or award XP. Edited source hides previous results until it is run again. Output is rendered as text, including any HTML-like content.
-
-The compact toolbar above input/output contains **Run code** and **Run published tests**. While a suite is running, the status identifies its current test number. The summary shows the number passed and run. Select a test-case row to expand its input, expected output, actual output and diagnostics; failed cases expand automatically. On wider screens these values appear next to one another, and on mobile they stack. Custom-input output appears in the separate **Output** panel.
-
-Matching normalizes CRLF/lone CR line endings and ignores one final newline on each output. All other spaces, blank lines and capitalization matter. A runtime error or timeout never passes even if partial output matches. Stderr is diagnostic output, not the expected answer. Passing published samples does not prove correctness for every possible input.
-
-Limits: up to five cases (current samples have three), 4,096 UTF-8 bytes of stdin and 8,192 bytes of combined output per case, five seconds of program execution per case, a separate 20-second preparation/Java compilation deadline, and a 90-second suite deadline. Runtime loading has separate bounded recovery. Execution timing excludes initialization/compilation and is approximate local wall time; machine/browser differences make it unsuitable for official performance comparisons. No hard browser memory quota is claimed.
-
-If the bridge is unavailable, the page asks you to start port 3130; start the static runner and try again. Missing/failed runtime assets show a recovery error; prepare the assets and retry. Stop both terminal processes with Ctrl+C when finished. The runner preview is available only in development with the explicit test fixture setting and remains unavailable in production. It is verified locally in Chromium, not deployed or approved for use with real authenticated data. Supported Java API details and remaining production gates are in the [input report](../workflow/evidence/runtime-feasibility/java-input-resolution.md).
-
-For local UI checks, add `?preview=empty` to the assignment list for **No assignments yet**, `?preview=slow` for a brief loading state or `?preview=error` for the failure state. **Try again** reloads the normal list. These controls exist only in the development preview.
-
-Verified locally in Playwright Chromium at desktop and 375px viewport width. This does not establish browser-runtime compatibility or real student access-control correctness.
-
-## Access
-
-- Production URL: not deployed.
-- Supported browsers: pending runtime evaluation.
-- Tester accounts and reset instructions: not provisioned.
-
-## Feature documentation template
-
-Complete the following for each verified feature before release. Do not present planned behavior as available behavior.
-
-### <Feature name>
-
-- Available to:
-- Preconditions and test data:
-- Steps:
-- Expected visible result:
-- Errors and recovery:
-- Limits and known issues:
-- Last verified release/browser:
-
-## Required coverage before release
-
-Document account access/profiles, assignment creation, Python and Java practice runs, code submission, student AI feedback, instructor AI evaluation and grade publication, forum threads/replies, XP, and leaderboard behavior only once implemented.
-
-Explain that practice runs happen on the user's device and do not prove official correctness. Explain when code is sent to the server for submission or SoCLaaS feedback, how AI output should be checked, and the published limits/cancellation behavior verified for the selected runtimes.
-
-## Profile settings
-
-Students can open **Menu → Profile settings** from the workspace. Instructors can choose **Profile** in their account controls. The same page shows your username, email and role. Edit **Username** and choose **Save changes**; a confirmation appears after the update is saved. The username is trimmed and allows 1–80 characters. Sign-in still uses your email. Email and role are read-only on this page.
-
-If saving fails, your typed username stays available for retry. Your saved username persists after reloading. Profile settings support light/dark mode and mobile layouts. Use **Back to assignments** or **Back to instructor workspace** to return. No uploads or email/password/role editing are available here.
 ## Forums
 
-Enter text in **Search discussions** and select **Search** to find matching thread titles or opening posts. Search ignores capitalization and treats punctuation as ordinary text. Replies are not included. **Next** and **Previous** keep the search; **Clear search** returns to all discussions. Applying a search starts on the first page, and your search stays in the address when you refresh or use Back. Searching requires a signed-in account with forum access.
+Choose **Forums** from the student sidebar/Menu or instructor header. Both roles share discussions. Select **New discussion**, enter title/message, then **Create discussion**. In a discussion, use **Your reply → Post reply**.
 
-Sign in, then choose **Forums** in the student sidebar/Menu or instructor header. Both roles share the same discussions. Choose **New discussion**, enter a title and message, then **Create discussion**. Open a discussion and use **Your reply** → **Post reply** to join in. Each post shows the author’s username/role at posting time and its Singapore timestamp.
+**Search discussions → Search** finds titles/opening messages, ignoring capitalization and treating punctuation literally; replies are not searched. **Clear search** restores all discussions. Paging preserves search; refresh/Back retain its address.
 
-Discussions and replies appear newest first, with **Next**/**Previous** after 25 entries. Titles allow up to 160 characters and messages up to 8,000; blank posts are rejected. Posts are plain text, including pasted code and markup. Posting failures retain your draft so you can retry. If you post quickly, wait a minute and try again. Reading/posting requires a signed-in student or instructor account.
+Threads/replies appear newest first, 25 per page, with author username/role at posting time and SGT timestamp. Titles allow 160 characters, messages 8,000. Posts are plain text, including code/markup. Failures retain your draft. If posting too quickly, wait a minute. Editing/deletion and attachments are unavailable. Forum activity does not change grades or award XP.
 
-This version supports creating discussions and replies; editing/deleting posts and attachments are not available. Forum activity does not award XP or change grades. Verified locally with synthetic accounts; hosted availability depends on deployment and applying the forum migration.
+## Admin accounts
+
+Admins also have instructor access and an **Admin panel** link to manage roles. Signup cannot create admins. Trusted admin access is required; the app prevents removing the last admin. Self-role changes ask for confirmation and may return you to another workspace. Unit/database checks cover this interface; a complete authenticated admin browser journey is pending. First-admin provisioning is in [database setup](../supabase/README.md).
+
+## Current limits and test coverage
+
+- No uploads, achievement badges, XP/leaderboard or instructor-authored published-case workflow is available.
+- Use synthetic accounts/code for testing. A verified hosted address, public tester accounts and complete supported-browser matrix are not recorded yet.
+- Automated UI tests may mock AI or skip missing prerequisites. They do not establish live-model quality, hosted email delivery or deployed runner security.
+- Reproduction commands, historical evidence and release checks are in the [security evidence report](../workflow/evidence/2026-11-02-security-testing.md).
