@@ -1,0 +1,35 @@
+# Session: 2 November 2026 — assignment XP
+
+- Timezone: Asia/Singapore.
+- Participants/actual agent IDs: requester, coordinator `/root` and bounded read-only reviewer `/root/xp_security_review`.
+- AI tools/models: Codex; exact model/resource counters unavailable.
+- Issue: [#77](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/77).
+- OpenSpec: `build-programming-platform`, task group 27.
+- Branch: `feat/assignment-xp`, from merged develop `00ae158`.
+- PR/commits: not created yet; implementation and verification in progress.
+- Human verification: pending.
+- Verifier/date: pending.
+
+## Prompt and interaction summaries
+
+1. The requester emphasized that instructors set an assignment's XP. Coordinator proposed proportional floor-based awards using the best published revision, correcting/replacing rather than adding duplicate awards, and no XP from unpublished grades/browser runs. The requester accepted with an affirmative reply.
+2. Inspected current grading and assignment-save operations and fetched updated develop. Practice-test PR #76 is merged; no teammate PR or existing XP implementation was found. Current assignment editing can change rubrics, so an explicit published-score basis is needed to avoid silently reinterpreting older grades. Created issue #77 and a fresh XP branch, leaving leaderboard for later.
+3. Asked the material remaining rule: should later assignment-maximum XP edits recalculate existing awards or become locked after first publication? Recommended recalculation but did not treat it as accepted. Prepared a draft design with confirmed rules, pending policy and separately labelled proposed bounds/legacy rollout. No schema/application changes, service operations or new agent runs performed.
+4. Requester explicitly chose recalculating existing awards using the new maximum XP. Updated the concrete draft with transactional recalculation/audit behavior; no locking of the maximum after grading. Proposed numeric bounds and legacy-score-basis rollout remain visible for design review. Scaffold/link checks, strict OpenSpec validation (11 items) and whitespace checks passed.
+
+5. Requester explicitly approved the concrete design, including required bounds and legacy instructor review. Read repository instructions, active OpenSpec, local workflow/TDD/Supabase/Postgres skills and installed Next route guides; wrote the implementation plan. Existing issue #77 and isolated branch preceded implementation.
+6. Implemented failing-first contract/API/UI and transactional database tests, then max-XP storage, a private publication score basis, assignment-serialized grade wrapper, current awards and nonzero audit deltas, backward-compatible XP-aware assignment save and own-only student API/page. Applied only the forward migration locally; no reset or real data/provider calls.
+7. Bounded independent reviewer `/root/xp_security_review` inspected source without edits, secrets or service operations. It found numeric(7,2) grade-total rounding could under-award a fractional full score or reject publication. Coordinator reproduced both with failing tests, widened total_score to unconstrained numeric and verified exact accepted values; existing data remains unchanged. Review also prompted rollback, zero/cap, hidden-title and private-core-denial coverage. Initial review did not execute tests.
+8. Full unit run exposed two old assignment-form fixtures missing the newly required maximum. Updated synthetic fixtures to explicitly choose zero, then all 540 unit tests across 91 files passed, with 82.22% statements, 77.35% branches, 83.89% functions and 83.99% lines. Earlier focused units passed; all local database tests passed (228 assertions across nine files, including 48 XP assertions). Added Python/Java browser authoring/concurrent publication/configuration, mobile and foreign-instructor checks; browser/build verification still in progress. Lint initially caught function complexity/duplicate test text; extracted bounded helpers rather than disabling checks.
+
+9. Reviewer recheck found floating-point addition noise still affected widened totals. Coordinator reproduced three failed assertions, then canonicalized the stored total after mature validation. Reviewer identified a legacy duplicate-rubric/extra-key edge case in the first sum; two further failing assertions reproduced inflated totals. Summation now follows only the exact rubric entries validated by the core. Fresh database suite: 239 assertions across nine files, including 59 XP assertions, all pass. Reviewer final source-only disposition: findings resolved; no additional concrete defect in scope. See the linked review record; it did not rerun tests or use services.
+10. Local production build passed; XP browser publication/configuration/concurrency journeys passed for both languages. Foreign-instructor save denial uses existing 409 conflict semantics, with unchanged persisted maximum verified. Full browser run exposed old four-item sidebar expectations; updated them for My XP. One concurrent DB rerun hit unscoped synthetic award assertions while browser fixtures existed; scoped assertions and the failure-injection trigger to their own synthetic data, then reran. No real data was changed. Final broader browser/static/CI checks remain in progress.
+
+## Work and verification
+
+- Design: [approved design](../workflow/plans/2026-11-02-assignment-xp-design.md); [implementation plan](../workflow/plans/2026-11-02-assignment-xp.md).
+- Scope: assignment maximums, transactional best-published awards, private score snapshots, own-only My XP. Leaderboard deferred.
+- Review: [independent source review](../workflow/evidence/2026-11-02-assignment-xp-review.md).
+- Checks recorded above are local synthetic evidence; final build/browser/static/CI checks remain pending.
+- Resource measurements: exact model, token counts and provider cache metrics unavailable; no product AI calls. Review used narrowly scoped source context and one separate reviewer.
+- Human verification and hosted rollout remain pending. Existing assignments default to zero; historical grades require review/republishing. No deployment claimed.
