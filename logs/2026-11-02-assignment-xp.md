@@ -6,7 +6,7 @@
 - Issue: [#77](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/77).
 - OpenSpec: `build-programming-platform`, task group 27.
 - Branch: `feat/assignment-xp`, from merged develop `00ae158`.
-- PR/commits: da857cc persistence, 49b1f99 API/UI, 4ce1575 build/spec compatibility; PR pending branch CI.
+- PR/commits: da857cc persistence, 49b1f99 API/UI, 4ce1575 build/spec compatibility; [PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79) to develop; initial source head c31a497.
 - Human verification: pending.
 - Verifier/date: pending.
 
@@ -32,11 +32,14 @@
 14. Clean final browser run completed: 74 passed and seven prerequisite skips (six opt-in lab-runtime tests and local email recovery), 81 total, in 6.4 minutes. Authenticated Python/Java execution remained enabled. The earlier 71-pass/three-failure run, failed first replay and successful six-case replay are separate runs, not silently replaced. Cleaned the exact synthetic account identified in the earlier interrupted cleanup after checking its test-only identity; no broad deletion/reset. Stopped task-owned production/preview/runtime servers, restored generated next-env references, and left local Supabase running.
 15. Fresh final database check under the locked CLI passed 239 assertions/nine files. Updated stale README/product-site status to match verified local features and distinguish pending leaderboard/hosted acceptance; rebuilt the website successfully. Application milestone 49b1f99 and build/spec compatibility milestone 4ce1575 recorded. Final local static checks and branch CI/PR closeout follow; human verification remains pending.
 
+16. Pushed the clean feature branch and manually dispatched application CI before creating a PR, as requested. Branch run 41389980044 passed application/database jobs on c31a497; coverage-report skipped because this was a manual run. After a user interruption/resume request, checked the completed run and created PR #79 to develop with Closes #77, approved design/spec/plan/log/review links and actual checks/rollout limits. Initial PR application run 41402012554 and other PR-specific checks are in progress; Vercel reports success and Supabase Preview skipped. No merge or manual deployment performed.
+17. Initial PR-head c31a497 passed application/database/coverage-report (run 41402012554), scaffold, both CodeQL analyses and Vercel checks; Supabase Preview skipped. CI browser run passed 29 tests and skipped 52 because authenticated/local-runtime/email prerequisites are not provisioned there; the separate local run exercised 74 tests with seven skips. Marked verified XP OpenSpec/implementation tasks complete and recorded PR/CI links. A documentation-only closeout commit will trigger final-head checks again; these will be checked before handoff. No hosted feature smoke acceptance is inferred from a successful Vercel build.
+
 ## Work and verification
 
 - Design: [approved design](../workflow/plans/2026-11-02-assignment-xp-design.md); [implementation plan](../workflow/plans/2026-11-02-assignment-xp.md).
 - Scope: assignment maximums, transactional best-published awards, private score snapshots, own-only My XP. Leaderboard deferred.
 - Review: [independent source review](../workflow/evidence/2026-11-02-assignment-xp-review.md).
-- Local evidence: 541 units/91 files, 239 database assertions/nine files, clean full browser 74 passed/seven prerequisite skips, runtime/app and product-site builds; lint/format/types, scaffold/local links and strict OpenSpec (11 items). Branch/final PR CI remains pending.
+- Local evidence: 541 units/91 files, 239 database assertions/nine files, clean full browser 74 passed/seven prerequisite skips, runtime/app and product-site builds; lint/format/types, scaffold/local links and strict OpenSpec (11 items). Branch CI passed: [run 41389980044](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41389980044). Initial PR source-head checks passed: [run 41402012554](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41402012554). Documentation closeout head will be checked separately; final status is recorded in PR #79.
 - Resource measurements: exact model, token counts and provider cache metrics unavailable; no product AI calls. Review used narrowly scoped source context and one separate reviewer.
 - Human verification and hosted rollout remain pending. Existing assignments default to zero; historical grades require review/republishing. No deployment claimed.

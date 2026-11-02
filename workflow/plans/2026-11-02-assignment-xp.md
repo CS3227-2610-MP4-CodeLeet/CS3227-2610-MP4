@@ -7,4 +7,6 @@ Issue #77; branch `feat/assignment-xp` from develop `00ae158`. [Approved design]
 - [x] Student UI/API: own total as a decimal string and paged source-free assignment award projection under RLS; hidden assignment titles stay hidden. Add My XP route/navigation with safe error/empty/mobile/theme behavior; no peer grades/rubrics/source.
 - [x] Security/regressions: fractional/zero/cap, best revision, corrections/unpublish, same-amount republish, max edits, rubric snapshots, legacy review, rollback and concurrent publication/XP edits; forged direct writes and private-core invocation denied.
 - [x] Review and verify unit/DB/browser/build/format/lint/types/spec/scaffold; update guides/logs/rollout evidence. Existing grades earn only after review/republishing; no destructive local reset.
-- [ ] Focused verified commits, branch CI then linked PR to develop; wait final-head checks. Human/hosted acceptance remains separate.
+- [x] Focused verified commits, branch CI then linked PR to develop; wait final-head checks. Human/hosted acceptance remains separate.
+
+PR #79: branch CI 41389980044 and initial PR-head CI 41402012554 passed; documentation closeout head is checked separately in the PR. Local browser evidence exercises authenticated XP/runtime paths that CI skips without local credentials. Human/hosted verification remains pending.

@@ -3,7 +3,7 @@
 - [x] 27.1 Resolve later maximum-XP edit policy and review design, including proposed bounds and legacy published-grade basis; write implementation plan.
 - [x] 27.2 Implement owner-configured assignment XP and atomic server-owned best-published-grade awards/audit adjustments, with denial, retry, correction and concurrent-publication tests.
 - [x] 27.3 Show own student total/assignment awards without private rubric/draft/peer data; verify published score basis, zero/fractional limits and rollout compatibility.
-- [ ] 27.4 Complete applicable regression/security/browser checks and scoped review, update guides/logs, pass branch CI and create a linked PR with final-head checks. Leaderboard and hosted release remain separate.
+- [x] 27.4 Complete applicable regression/security/browser checks and scoped review, update guides/logs, pass branch CI and create a linked PR with final-head checks. Leaderboard and hosted release remain separate.
 
 ## 26. Issue #74 instructor-authored public practice tests
 
