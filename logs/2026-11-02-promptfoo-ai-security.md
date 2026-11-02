@@ -1,0 +1,31 @@
+# Session: 2026-11-02 — Promptfoo AI security evaluation
+
+- Timezone: Asia/Singapore
+- Participants/actual agent IDs: Requester; Codex `/root`; no specialist agents or teammate reviews used
+- AI tools/models, where known: Codex GPT-6; GitHub and Promptfoo official documentation consulted
+- GitHub issue: [#75](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/75)
+- OpenSpec change: `openspec/changes/build-programming-platform/`
+- Branch and commits: `feat/75-promptfoo-ai-security-eval`; planning commit pending
+- Pull request: pending
+- Human verification: pending
+- Verifier/date: pending
+
+## Prompt and interaction summaries
+
+1. Requester asked for an evidence-based assessment of current AI security controls and whether Promptfoo should be added. Codex inspected the existing role-aware context, SoCLaaS gateway, security tests, evaluation evidence, project brief and active OpenSpec change. Recommendation: use Promptfoo as a focused supplement.
+2. Requester approved proceeding and required all project costs to remain zero. Codex created issue #75 and drafted a local-first design: MIT-licensed development-only Promptfoo; static synthetic inputs; no Promptfoo-hosted services or paid providers; no live requests in CI.
+3. Requester approved the design and confirmed the configured SoCLaaS service is free, authorizing its use while keeping its key in `.env.local`. Codex drafted the implementation plan; later live execution loaded the key inside the runner without displaying or recording it.
+4. Requester asked for more cases where feasible. Codex expanded the plan to ten synthetic cases spanning both roles and languages plus source, assignment-instruction and rubric-description injection, and updated the active OpenSpec artifacts.
+5. Codex added a development-only Promptfoo config, a cross-platform gated runner, an ID-only ten-case selector, deterministic assertion adapter, tests, CI offline invocation and contributor documentation. The first test run failed as expected because the new Promptfoo selector file was missing.
+6. Codex installed Promptfoo 0.125.1 from its MIT package as a development-only dependency. The focused provider/config tests passed 13/13; the offline CLI evaluation passed 10/10 with telemetry, remote generation, sharing, cache and report writes disabled.
+7. Requester had authorized the free SoCLaaS live run. The first ten-call live evaluation passed 5/10; all five instructor outputs used a legacy schema because the synthetic instructor tasks omitted the exact product JSON keys. Codex added a contract regression test and aligned all instructor cases with the product task contract.
+8. The corrected ten-call live evaluation passed 9/10 with no provider errors. All instructor cases passed; `student-java-assignment-injection` was the sole failed Promptfoo assertion. The CLI did not preserve the failed assertion's detailed reason, so only its case ID and aggregate outcome are recorded. This result was retained as a finding rather than tuning the case to pass.
+
+## Work and verification
+
+- Files and requirement links: OpenSpec design/spec/tasks for issue #75; approved plan at `docs/superpowers/plans/2026-11-02-promptfoo-ai-security-evaluation.md`; provider, ten cases, runner/config/assertions, MJS declarations, focused tests, CI step, developer guide, evidence and this log. Provider slice commit: `1f1c36b`.
+- Review boundary: repository instructions reserve specialist delegation for explicit user/task authorization, so no reviewer subagent was used. Codex reviewed the final changes locally; independent human teammate verification remains pending.
+- Commands/checks actually run and outcomes: focused provider/config tests passed 13/13; `pnpm ai:promptfoo` passed 10/10 offline; corrected live evaluation made ten SoCLaaS calls and passed 9/10; `pnpm test:unit` passed 509 tests across 82 files; `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm spec:validate` (11/11), `pnpm check:scaffold`, and `git diff --check` passed. Promptfoo CLI 0.125.1 supports the configured `eval --safe-mode`, `--no-share`, `--no-cache`, and `--no-write` flags. GitHub CI/PR are pending.
+- Failures, retries, unresolved issues: initial focused config test failed because `promptfoo-tests.json` was missing, then passed after implementation. Initial instructor live cases failed because their task text omitted the product JSON keys; corrected live run passed all instructor cases. One live student Java assignment-injection assertion remains failed; its detailed check reason was not retained by the compact CLI output. Full lint first identified two complexity/length violations and typecheck exposed missing MJS declarations; these were fixed and checks passed. `pnpm build` failed twice in the pre-Next runtime asset staging step with EPERM renaming `.runtime.staging-*` to `public/runtime`; a minimal cleaned-up Node rename test passed for both empty and nested dummy trees, and the builder removed failed staging/output directories. No runtime builder change was made because the cause is not isolated. Restricted terminal commands initially needed elevated execution; no key values were printed.
+- Resource measurements and unavailable fields: the initial ten-call live run reported 5,270 total tokens (2,597 prompt / 2,673 completion) in 18 seconds; the corrected ten-call run reported 6,044 total tokens (2,657 prompt / 3,387 completion) in 22 seconds. SoCLaaS was confirmed free by the requester. No credential values or raw model outputs were written to repository files. Detailed per-case latency and the failed live assertion's specific quality check were not retained.
+- Next steps: finalize OpenSpec checkboxes only for verified tasks, complete scoped commits, push and open the linked PR after branch CI; leave independent human verification pending.

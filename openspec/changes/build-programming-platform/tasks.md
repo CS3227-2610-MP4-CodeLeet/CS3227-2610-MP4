@@ -70,6 +70,13 @@
 - [ ] 4.5 Test malformed output, XSS, role/cache leakage, quota races and provider failures.
 - [ ] 4.6 Run bounded live adversarial/quality evaluations and record limitations.
 
+### Issue #75: zero-cost Promptfoo AI security evaluation
+
+- [x] 4.7.1 Pin the free MIT-licensed Promptfoo CLI as a development-only dependency and add a local fixed-case evaluation using synthetic student/instructor contexts; disable telemetry, hosted generation, sharing, and remote graders.
+- [x] 4.7.2 Reuse the existing AI prompt/context case source where practical; cover both roles/languages and source-code, assignment-instruction and rubric-description attacks, then verify rubric separation, output safety and advisory-only instructor results with deterministic local assertions. The corrected live sample passed 9/10; one student Java assignment-injection assertion remains a finding.
+- [x] 4.7.3 Keep live SoCLaaS calls out of CI; allow only an explicitly gated ten-request maximum against the confirmed free endpoint and record cost/data-flow limits and evidence. The live command ran twice, each capped at ten synthetic requests.
+- [ ] 4.7.4 Run the local evaluation and applicable checks, update the dated summary, and create a linked PR to develop after branch CI passes.
+
 ## 5. Community and XP
 
 - [x] 5.1 Implement text threads/replies with authorization and input/request limits.
