@@ -43,7 +43,7 @@ Interfaces: controller exposes stable snapshot/subscription plus edit, restore/d
 - [x] Write failing tests for 500-ms persistence, restore/discard gate, page-hide flush, explicit revision context, in-flight acknowledgement, failed storage, conflict choices, unmount and auth invalidation.
 - [x] Run focused tests and confirm new assertions fail before implementing.
 - [x] Implement controller and UI, provide server-verified student/revision context, subscribe/unsubscribe synchronous Supabase auth callbacks, clear browser drafts only after confirmed sign-out/recovery exit.
-- [ ] Run focused storage/lifecycle/render/auth tests, lint/types and commit the integrated feature.
+- [x] Run focused storage/lifecycle/render/auth tests, lint/types and commit the integrated feature (`5e94ad6`).
 
 ## Task 3: Browser evidence and release-ready PR
 
@@ -52,4 +52,4 @@ Files: new `tests/e2e/draft-autosave.spec.ts`, guides, OpenSpec task/design/spec
 - [x] Add real synthetic authenticated Python/Java tests for refresh/tab-close recovery, submission and privacy; test same-context tabs, invalidation/sign-out, discard, storage error, revision context, themes/mobile.
 - [x] Run focused browser tests, then appropriate regression suite and app build, units/coverage, lint/format/types, strict specs/scaffold; record actual outcomes and skips.
 - [x] Request fresh bounded source/security review; fix material defects with regression tests, record findings and limitations.
-- [ ] Update verified guides and log; commit, push, pass branch CI, create PR to develop with `Closes #82`, then confirm final-head checks. No merge or hosted deployment.
+- [x] Update verified guides and log; commit, push, pass branch CI, create PR #83 to develop with `Closes #82`, then confirm implementation-head checks. The documentation closeout triggers checks again; final status is recorded on the PR before handoff. No merge or hosted deployment.

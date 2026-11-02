@@ -192,7 +192,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 29.1 Implement bounded account/assignment/language/revision-scoped browser storage, validation, retention, conflict tokens and invalidation with failing-first tests.
 - [x] 29.2 Integrate restore/discard, debounced persistence, conflict choices, exact submission acknowledgement and sign-out/auth cleanup without changing official submissions.
 - [x] 29.3 Verify authenticated Python/Java recovery, cross-account/tab boundaries, failure and submission races; update verified guides and independent review evidence. Local verification: 581 units, 84 browser passes/seven prerequisite skips, build/site/types/lint/format/spec/scaffold pass; bounded independent source review fixes verified.
-- [ ] 29.4 Commit/push, pass branch CI before PR creation and confirm final-head PR checks; link issue #82/design/summary. Human review and hosted verification remain separate.
+- [x] 29.4 Commit/push, pass branch CI before PR creation and confirm PR checks; PR #83 links issue #82/design/summary. Branch run 41446869897 and implementation-head PR run 41447276707 passed application/database; coverage/scaffold/CodeQL/Vercel passed, Supabase Preview skipped. Documentation-only closeout checks are tracked on the PR before final handoff. Human review and hosted verification remain separate.
 
 ## 16. Issue #40 unsaved assignment code safeguard
 
