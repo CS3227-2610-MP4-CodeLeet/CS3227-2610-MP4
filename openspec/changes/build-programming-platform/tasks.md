@@ -1,5 +1,7 @@
 ## 25. Issue #70 User Guide and security/reflection evidence
 
+- [x] 25.5 Issue #72 follows the requester's two-member reflection structure: index plus MP4-specific Paul/John drafts and preserved shared evidence. Updated develop verification: 147 links/13 documents, theme/member-review structure, formatting/scaffold/strict OpenSpec passed. Branch CI 41377040526 passed before linked PR #73; final-head checks are monitored/reported there. Member contribution/wording verification remains pending.
+
 - [x] 25.1 Audit current routes, test assertions, prior experiments and merged CI; link a focused documentation issue/branch without changing product behavior.
 - [x] 25.2 Update user journeys and add a traceable security evidence report/reflection analysis with dated observations, skips and remaining release gates.
 - [x] 25.3 Verify links/format/spec/scaffold and applicable existing tests; record failures, actual outcomes and unavailable measurements in the dated summary. Local pinned-Node coverage: 496 tests/80 files passed; links/format/spec/scaffold passed. Local database unavailable; baseline CI passed 147 assertions. Hosted/independent review not claimed.

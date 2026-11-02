@@ -17,6 +17,14 @@ Use normal student/instructor journeys in `docs/UserGuide.md`, reproducible chec
 - [x] Verify documentation links/format/spec/scaffold, run applicable existing tests and record actual outcomes and prerequisite failures.
 - [x] Commit/push focused documentation, verify branch CI and create linked [PR #71](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/71) to develop. Branch workflow 41375618030 passed; final-head checks are monitored/reported on the PR before handoff. Human review and release remain separate.
 
+## Follow-up: individual reflection structure
+
+The requester supplied MP3 reflection material as a structural reference, not MP4 evidence. Keep `docs/Reflections.md` as a short MP4 index linking `PaulReflections.md` and `JohnReflections.md`. Draft different role-focused analyses of actual MP4 evidence; cover Multi-Agent SE, Context Engineering, Resource-aware Use, AI/development security and SDD. Preserve previous shared observations in `workflow/evidence/2026-11-02-reflection-observations.md`. Attribution and personal wording require each member's review; do not copy MP3 implementation, workflow prose, counts or outcomes.
+
+PR #71 merged before this follow-up was included. Its publication/checks now use [issue #72's plan](2026-11-02-individual-mp4-reflections.md) on a fresh branch from merged develop; the earlier PR remains the evidence audit baseline.
+
+- [x] Verify individual draft claims/links and index structure, format and validate artifacts: 142 links across 11 documents, member/theme structure, formatting/scaffold/11-item strict OpenSpec validation. Continue issue #70 / PR #71; final-head CI is monitored/reported before handoff. Member review remains pending.
+
 ## Review focus
 
 - Distinguish current implementation, past local experiments, mocked tests and deployed verification.
