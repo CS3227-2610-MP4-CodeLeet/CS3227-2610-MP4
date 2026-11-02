@@ -8,7 +8,11 @@ Product screens SHALL use concise, plain wording that helps students and instruc
 - **THEN** the UI explains the unavailable action without asking end users to configure infrastructure or credentials
 
 ### Requirement: Email password recovery
-The system SHALL provide a Forgot password email request from sign-in, use Supabase Auth's PKCE recovery and respond without disclosing account existence. It SHALL enforce pending/resend controls and show safe provider/rate errors without exposing provider details. Only a fixed same-origin recovery destination SHALL be accepted by the callback, and a server-verified identity SHALL be required to render the new-password form. Matching passwords with the existing visibility controls SHALL update only that authenticated identity; invalid, expired and replayed links SHALL offer a new request. Successful password update and any subsequent sign-out failure SHALL be reported distinctly. Passwords/tokens/email bodies SHALL NOT be logged by application code.
+The system SHALL provide a Forgot password email request from sign-in, use Supabase Auth's PKCE recovery and respond without disclosing account existence.
+
+#### Scenario: Required constraints for email password recovery
+- **WHEN** this capability is used
+- **THEN** It SHALL enforce pending/resend controls and show safe provider/rate errors without exposing provider details. Only a fixed same-origin recovery destination SHALL be accepted by the callback, and a server-verified identity SHALL be required to render the new-password form. Matching passwords with the existing visibility controls SHALL update only that authenticated identity; invalid, expired and replayed links SHALL offer a new request. Successful password update and any subsequent sign-out failure SHALL be reported distinctly. Passwords/tokens/email bodies SHALL NOT be logged by application code.
 
 #### Scenario: Recovery request
 - **WHEN** a visitor submits a valid email for password recovery
@@ -27,7 +31,11 @@ The system SHALL provide a Forgot password email request from sign-in, use Supab
 - **THEN** it is ignored in favor of the existing verified role destination without redirecting to an attacker-controlled URL
 
 ### Requirement: Consistent account controls
-The visible product name SHALL be CodeLeet and the registration profile-name field SHALL be labeled Username. The label change SHALL preserve existing profile storage and email-based authentication.
+The visible product name SHALL be CodeLeet and the registration profile-name field SHALL be labeled Username.
+
+#### Scenario: Required constraints for consistent account controls
+- **WHEN** this capability is used
+- **THEN** The label change SHALL preserve existing profile storage and email-based authentication.
 
 The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
 
@@ -51,7 +59,11 @@ The system SHALL support student/instructor identities with Supabase Auth. Publi
 - **THEN** the system rejects or ignores elevation and retains student permissions
 
 ### Requirement: Authorized profiles and private data
-The system SHALL allow users to edit their own text profile and SHALL enforce ownership through server checks and database policies. Students SHALL NOT access private rubrics, draft grades or other students' submissions.
+The system SHALL allow users to edit their own text profile and SHALL enforce ownership through server checks and database policies.
+
+#### Scenario: Required constraints for authorized profiles and private data
+- **WHEN** this capability is used
+- **THEN** Students SHALL NOT access private rubrics, draft grades or other students' submissions.
 
 Every protected student operation SHALL use a request-scoped cookie-based Supabase client with getUser verification and a protected role lookup. It SHALL NOT trust getSession alone or client-provided identity/role. Authenticated student responses SHALL use private, no-store caching. Missing/invalid identity SHALL yield 401, verified non-students 403 and unavailable verification dependencies 503.
 
