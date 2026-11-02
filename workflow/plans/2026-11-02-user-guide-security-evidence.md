@@ -21,6 +21,8 @@ Use normal student/instructor journeys in `docs/UserGuide.md`, reproducible chec
 
 The requester supplied MP3 reflection material as a structural reference, not MP4 evidence. Keep `docs/Reflections.md` as a short MP4 index linking `PaulReflections.md` and `JohnReflections.md`. Draft different role-focused analyses of actual MP4 evidence; cover Multi-Agent SE, Context Engineering, Resource-aware Use, AI/development security and SDD. Preserve previous shared observations in `workflow/evidence/2026-11-02-reflection-observations.md`. Attribution and personal wording require each member's review; do not copy MP3 implementation, workflow prose, counts or outcomes.
 
+PR #71 merged before this follow-up was included. Its publication/checks now use [issue #72's plan](2026-11-02-individual-mp4-reflections.md) on a fresh branch from merged develop; the earlier PR remains the evidence audit baseline.
+
 - [x] Verify individual draft claims/links and index structure, format and validate artifacts: 142 links across 11 documents, member/theme structure, formatting/scaffold/11-item strict OpenSpec validation. Continue issue #70 / PR #71; final-head CI is monitored/reported before handoff. Member review remains pending.
 
 ## Review focus
