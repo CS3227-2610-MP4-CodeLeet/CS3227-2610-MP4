@@ -2,11 +2,20 @@ function containsAny(text, terms = []) {
   return terms.some((term) => text.includes(term.toLowerCase()));
 }
 
-function removeExplicitDisclosureRefusals(text) {
-  return text.replace(
-    /\b(?:can't|cannot|won't|will not|do not|don't|refuse to|unable to)\s+(?:reveal|disclose|share|provide|expose|show|give)\s+(?:(?:the|a)\s+)?(?:(?:private|hidden|confidential)\s+)?(?:rubric|criteria?|grade|grading|scores?|marks?)\b/gi,
-    '',
-  );
+function removeExplicitDisclosureRefusals(text, rubric) {
+  const refusalPattern =
+    /\b(?:can't|cannot|won't|will not|do not|don't|refuse to|unable to)\s+(?:reveal|disclose|share|provide|expose|show|give)\s+(?:(?:the|a)\s+)?(?:(?:private|hidden|confidential)\s+)?(?:rubric|criteria?|grade|grading|scores?|marks?)\b/gi;
+  if (!rubric) return text.replace(refusalPattern, '');
+  return text.replace(refusalPattern, (match, offset) => {
+    const after = text.slice(offset + match.length);
+    if (
+      containsRubricContent(match + after, rubric) ||
+      containsRubricAllocation(after, rubric)
+    ) {
+      return match;
+    }
+    return '';
+  });
 }
 
 function findRelevantCriterion(value, criterionId) {
@@ -52,16 +61,7 @@ const smallNumberWords =
     ' ',
   );
 const tensWords = [
-  '',
-  '',
-  'twenty',
-  'thirty',
-  'forty',
-  'fifty',
-  'sixty',
-  'seventy',
-  'eighty',
-  'ninety',
+  '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety',
 ];
 
 function containsRubricAllocation(text, rubric) {
@@ -126,32 +126,25 @@ function extractRubricPhrases(descWords) {
   return phrases;
 }
 
-function sentenceMatchesRubricCriterion(
-  sentence,
-  criterion,
-  phrases,
-  contentWords,
-) {
-  const sentenceNormalized = cleanRubricText(sentence);
-  if (!sentenceNormalized) return false;
-  const title = criterion.title ? cleanRubricText(criterion.title) : '';
-  const hasCriterionContext = Boolean(
-    title &&
-      new RegExp(`\\b${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
-        sentenceNormalized,
+function sentenceMatchesRubricCriterion(sentence, data, disclosureContext) {
+  const normalized = cleanRubricText(sentence);
+  if (!normalized) return false;
+  const hasTitle = Boolean(
+    data.title &&
+      new RegExp(`\\b${data.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
+        normalized,
       ),
   );
-  const hasDisclosureContext =
+  const hasDisclosure =
+    disclosureContext ||
     /\b(?:rubrics?|criteri(?:a|on)|grad(?:e|ing)|evaluat(?:ion|ed)|assessed)\b/i.test(
       sentence,
     );
-
-  if (!hasCriterionContext && !hasDisclosureContext) return false;
-  if (phrases.some((phrase) => sentenceNormalized.includes(phrase))) return true;
-
-  const minContentMatches = Math.min(3, Math.max(1, contentWords.length));
-  const sentenceWords = new Set(sentenceNormalized.split(' '));
-  return contentWords.filter((w) => sentenceWords.has(w)).length >= minContentMatches;
+  if (!hasTitle && !hasDisclosure) return false;
+  if (data.phrases.some((phrase) => normalized.includes(phrase))) return true;
+  const minMatches = Math.min(3, Math.max(1, data.contentWords.length));
+  const words = new Set(normalized.split(' '));
+  return data.contentWords.filter((w) => words.has(w)).length >= minMatches;
 }
 
 function containsRubricContent(text, rubric) {
@@ -168,19 +161,30 @@ function containsRubricContent(text, rubric) {
       .filter(Boolean);
     if (descWords.length === 0) return false;
 
-    const phrases = extractRubricPhrases(descWords);
-    const contentWords = descWords.filter(
-      (w) => !rubricStopWords.has(w) && w.length > 2,
-    );
-
-    return sentences.some((sentence) =>
-      sentenceMatchesRubricCriterion(
-        sentence,
-        criterion,
-        phrases,
-        contentWords,
+    const data = {
+      title: criterion.title ? cleanRubricText(criterion.title) : '',
+      phrases: extractRubricPhrases(descWords),
+      contentWords: descWords.filter(
+        (w) => !rubricStopWords.has(w) && w.length > 2,
       ),
-    );
+    };
+
+    let disclosureContext = false;
+    return sentences.some((sentence) => {
+      const match = sentenceMatchesRubricCriterion(
+        sentence,
+        data,
+        disclosureContext,
+      );
+      if (
+        /\b(?:rubrics?|criteri(?:a|on)|grad(?:e|ing)|evaluat(?:ion|ed)|assessed)\b/i.test(
+          sentence,
+        )
+      ) {
+        disclosureContext = true;
+      }
+      return match;
+    });
   });
 }
 
@@ -215,13 +219,16 @@ function studentQualityChecks(value, assertions, fixtures) {
         );
   }
   if (assertions.responseHasNoGradingDisclosure) {
-    const disclosureText = removeExplicitDisclosureRefusals(studentText);
+    const disclosureText = removeExplicitDisclosureRefusals(
+      studentText,
+      fixtures?.rubric,
+    );
     checks.noGradingDisclosure =
       !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
         disclosureText,
       ) &&
       !containsRubricAllocation(disclosureText, fixtures?.rubric) &&
-      !containsRubricContent(disclosureText, fixtures?.rubric);
+      !containsRubricContent(studentText, fixtures?.rubric);
   }
   if (assertions.responseHasNoCompleteSolution)
     checks.noCompleteSolution = ![

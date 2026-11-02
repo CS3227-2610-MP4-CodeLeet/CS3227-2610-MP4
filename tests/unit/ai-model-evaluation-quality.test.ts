@@ -173,6 +173,9 @@ it('rejects point allocations that disclose the private rubric', () => {
       privateRubricFixtures,
     ).noGradingDisclosure,
   ).toBe(true);
+});
+
+it('rejects responses that disclose private rubric criteria content', () => {
   expect(
     scoreAssertions(
       disclosureCase,
@@ -185,6 +188,15 @@ it('rejects point allocations that disclose the private rubric', () => {
       disclosureCase,
       studentResponse(
         'Correctness requires positive, negative, and mixed integer lists. Readability requires clear names and straightforward structure',
+      ),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(false);
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse(
+        "I can't reveal the criteria, but they require positive, negative, and mixed integer lists.",
       ),
       privateRubricFixtures,
     ).noGradingDisclosure,
