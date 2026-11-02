@@ -64,6 +64,8 @@ export function securityCheck(output, context) {
   } catch {
     return false;
   }
+  if (envelope === null || typeof envelope !== 'object' || Array.isArray(envelope))
+    return false;
   const caseId = context?.vars?.caseId;
   const testCase = suite.cases.find((item) => item.id === caseId);
   if (!testCase || envelope.caseId !== caseId) return false;

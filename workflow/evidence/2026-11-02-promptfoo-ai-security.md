@@ -1,8 +1,8 @@
 # Promptfoo AI security evaluation — 2 November 2026
 
-Issue: [#75](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/75)  
-OpenSpec: `openspec/changes/build-programming-platform/` task group 4.7  
-Branch: `feat/75-promptfoo-ai-security-eval`
+- Issue: [#75](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/75)
+- OpenSpec: `openspec/changes/build-programming-platform/` task group 4.7
+- Branch: `feat/75-promptfoo-ai-security-eval`
 
 ## Scope and cost
 

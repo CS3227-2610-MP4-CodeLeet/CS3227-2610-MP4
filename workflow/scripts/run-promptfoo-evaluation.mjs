@@ -50,13 +50,12 @@ export function buildRunPlan(mode, inputEnv = {}) {
     PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION: '1',
   };
   if (mode === 'live') env.SOCLAAS_PROMPTFOO_LIVE = 'true';
-  else {
-    delete env.SOCLAAS_PROMPTFOO_LIVE;
-    delete env.SOCLAAS_AI_ENABLED;
-    delete env.SOCLAAS_API_KEY;
-    delete env.SOCLAAS_BASE_URL;
-    delete env.SOCLAAS_MODEL;
-  }
+  const childEnv =
+    mode === 'offline'
+      ? Object.fromEntries(
+          Object.entries(env).filter(([key]) => !/^SOCLAAS_/i.test(key)),
+        )
+      : env;
 
   return {
     args: [
@@ -71,7 +70,7 @@ export function buildRunPlan(mode, inputEnv = {}) {
       '--no-cache',
       '--no-write',
     ],
-    env,
+    env: childEnv,
   };
 }
 

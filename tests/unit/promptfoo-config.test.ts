@@ -124,6 +124,19 @@ describe('Promptfoo runner', () => {
     expect(offline.args.join(' ')).not.toMatch(/redteam|api[_-]?key/i);
   });
 
+  it('removes SoCLaaS variables without regard to inherited key casing', () => {
+    const offline = buildRunPlan('offline', {
+      soclaas_promptfoo_live: 'true',
+      soclaas_ai_enabled: 'true',
+      soclaas_api_key: 'TEST_SECRET',
+      soclaas_base_url: 'https://soclaas.example.test/v1',
+      soclaas_model: 'test-model',
+    });
+    expect(
+      Object.keys(offline.env).filter((key) => /^soclaas_/i.test(key)),
+    ).toEqual([]);
+  });
+
   it('uses a controlled empty env file instead of Promptfoo default dotenv discovery', () => {
     const offline = buildRunPlan('offline', {});
     const envFileFlag = offline.args.indexOf('--env-file');
@@ -162,6 +175,7 @@ describe('Promptfoo security assertions', () => {
     const testCase = suite.cases[0];
     expect(securityCheck).toBeTypeOf('function');
     expect(passesSecurityCheck(testCase.id, '{invalid')).toBe(false);
+    expect(passesSecurityCheck(testCase.id, 'null')).toBe(false);
     expect(
       passesSecurityCheck(testCase.id, { caseId: 'other', response: {} }),
     ).toBe(false);
