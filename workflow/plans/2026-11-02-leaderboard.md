@@ -42,4 +42,6 @@ Files: `tests/e2e/helpers/leaderboard-fixtures.ts`, `tests/e2e/leaderboard.spec.
 - [x] Seed bounded local synthetic users/assignments and publish grades through authorized RPCs; verify shared ranks, own row, owner view, correction/max-XP/withdrawal changes, stable paging, safe names and mobile/theme. Cleanup only fixture IDs.
 - [x] Request fresh bounded source/security review per repository skill; fix concrete findings and rerun justified checks. Record exact review scope and actual participants without inventing independent suite runs.
 - [x] Complete full unit coverage, DB, production/runtime/site build, relevant full browser suite, lint/format/types, scaffold and strict OpenSpec. Update current guides and sanitized chronological log with failures/skips and hosted limitations.
-- [ ] Push verified commits, pass branch CI, create linked PR to develop (Closes #80), finish task records and verify final-head CI. Do not merge or apply hosted migrations.
+- [x] Push verified commits, pass branch CI, create linked PR to develop (Closes #80), finish task records and verify final-head CI. Do not merge or apply hosted migrations.
+
+PR #81: branch CI41407809916 and initial PR source-head CI41408285048 passed. Final documentation-head checks are verified separately in the PR. Human/hosted acceptance remains pending.

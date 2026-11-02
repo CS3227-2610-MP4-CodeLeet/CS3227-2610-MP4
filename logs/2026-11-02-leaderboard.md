@@ -6,7 +6,7 @@
 - Issue: [#80](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/80).
 - OpenSpec: `build-programming-platform`, community-and-xp leaderboard requirement/task 5.2.
 - Branch: `feat/leaderboard` from fetched `origin/develop` at `00ae158`.
-- PR/commits: implementation milestones6789ffe/7fe675a; PR pending branch CI.
+- PR/commits: implementation milestones6789ffe/7fe675a; [PR #81](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/81) to develop; source head507414f.
 - Dependency: [XP PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79), open at initial check; not merged by coordinator.
 - Human verification: pending.
 - Verifier/date: pending.
@@ -32,10 +32,13 @@
 
 14. Full final local browser run passed77 tests with seven prerequisite skips (six opt-in lab-runtime cases and local email recovery),84 total, in7.2 minutes. Authenticated Python/Java execution was enabled. Stopped task-owned production/preview/runtime servers and restored generated next-env references; local Docker/Supabase remain running. No environment-file edits or manual deployment. App/API/UI milestone7fe675a committed. Local verification is complete; branch CI and final PR checks follow before handoff.
 
+15. Pushed the clean feature branch and passed manual branch application/database CI41407809916 on507414f before creating PR #81 to develop with Closes #80 and all design/spec/plan/log/review links. Manual coverage-report skipped as expected outside a PR. PR-specific checks41408285048 are in progress; Vercel reports success and Supabase Preview skipped. No merge or manual deployment performed. Final-head results will be recorded in the PR after verification.
+16. Initial PR source head507414f passed application/database/coverage-report in41408285048, scaffold, both CodeQL analyses and Vercel checks. Supabase Preview skipped. CI browser run:29passed/55prerequisite skips because local authenticated/runtime/email prerequisites are not supplied; separate local evidence is77passed/seven skips. Marked verified OpenSpec/task records complete and linked the PR/run. A documentation-only closeout commit will trigger final-head checks, which will be verified before handoff. Hosted role/migration/browser acceptance and human verification remain pending.
+
 ## Work and verification
 
 - [Approved design](../workflow/plans/2026-11-02-leaderboard-design.md); [implementation plan](../workflow/plans/2026-11-02-leaderboard.md); [actual design/source review](../workflow/evidence/2026-11-02-leaderboard-review.md).
-- Local checks:555 units/96 files,282 databaseassertions/10 files (43 leaderboard assertions), three focused browser journeys; app/site/static checks pass; full browser77 passed/seven prerequisite skips. Branch/finalPR CI remains pending.
+- Local checks:555 units/96 files,282 databaseassertions/10 files (43 leaderboard assertions), three focused browser journeys; app/site/static checks pass; full browser77 passed/seven prerequisite skips. Branch CI passed: [run41407809916](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41407809916). Initial PR source-head checks passed: [run41408285048](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41408285048). Documentation closeout checks are verified separately; final status is recorded in PR #81.
 - Advisors: no issues. DB lint: pre-existing practice-case initializer warning only.
 - No product AI calls or measured token/cache statistics. Narrow reviewer follow-ups reused one source reviewer; browser fixtures use three ranked students while transactional SQL covers larger page-boundary cohorts, reducing account/setup overhead without claiming measured speedup.
 - Next: finish applicable checks, record actual results, push verified commits and create PR after branch CI. Human verification and hosted migration/acceptance remain pending.
