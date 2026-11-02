@@ -129,7 +129,8 @@ function estimateTokens(value) {
 }
 
 export function buildEvaluationMessages(testCase, fixtures) {
-  const assignment = fixtures.assignment;
+  const caseFixtures = fixturesForCase(testCase, fixtures);
+  const assignment = caseFixtures.assignment;
   if (testCase.role === 'student') {
     return {
       system:
@@ -147,9 +148,16 @@ export function buildEvaluationMessages(testCase, fixtures) {
     user: JSON.stringify({
       task: testCase.task,
       assignment,
-      rubric: fixtures.rubric,
+      rubric: caseFixtures.rubric,
       source: testCase.source,
     }),
+  };
+}
+
+function fixturesForCase(testCase, fixtures) {
+  return {
+    assignment: { ...fixtures.assignment, ...testCase.assignmentOverride },
+    rubric: testCase.rubricOverride ?? fixtures.rubric,
   };
 }
 
@@ -162,12 +170,13 @@ function parseResponseContent(content, testCase, fixtures) {
   } catch {
     return { valid: false, qualityChecks: {}, parsed: null, raw: content };
   }
+  const caseFixtures = fixturesForCase(testCase, fixtures);
   const valid = testCase.role === 'student'
     ? validateFeedback(value)
-    : validateEvaluation(value, fixtures.rubric.criteria);
+    : validateEvaluation(value, caseFixtures.rubric.criteria);
   return {
     valid,
-    qualityChecks: valid ? scoreAssertions(testCase, value, fixtures) : {},
+    qualityChecks: valid ? scoreAssertions(testCase, value, caseFixtures) : {},
     parsed: valid ? value : null,
     raw: content,
   };
