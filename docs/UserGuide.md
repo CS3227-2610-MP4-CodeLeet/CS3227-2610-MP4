@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide describes the current local implementation. The [practice-test summary](../logs/2026-11-02-published-practice-tests.md) records its latest verification and migration status; the earlier cross-feature audit used merged commit `0a26127` (2 November 2026). A verified public address, hosted email delivery and complete hosted student/instructor checks are still pending in repository evidence. Ask your team for its current test address and accounts.
+This guide describes the current local implementation. The [XP summary](../logs/2026-11-02-assignment-xp.md) and [practice-test summary](../logs/2026-11-02-published-practice-tests.md) record their verification and migration status; the earlier cross-feature audit used merged commit `0a26127` (2 November 2026). A verified public address, hosted email delivery and complete hosted student/instructor checks are still pending in repository evidence. Ask your team for its current test address and accounts.
 
 ## Start locally
 
@@ -89,9 +89,15 @@ On a saved submission, select **Request review** under **Learning feedback** for
 
 Choose **My grades** in the sidebar/Menu for published grades, newest first. Expand **Instructor feedback** or **View revision**. Scores have no assumed percentage/maximum. Filters/pagination work like My submissions. Empty accounts show **No published grades yet**. Own published grades remain available when the assignment is unavailable, without exposing its hidden title.
 
+### My XP
+
+Choose **My XP** in the sidebar/Menu to see your total and assignment awards. Your best currently published result for each assignment counts. XP is your score divided by that grade's rubric maximum, multiplied by the assignment's maximum XP and rounded down. For example, 8 out of 10 on a 100-XP assignment earns 80 XP. Saving more revisions does not add duplicate awards.
+
+Corrected or withdrawn grades and changes to an assignment's maximum XP can increase or decrease your total. Draft grades, AI suggestions, running code and forum activity do not earn XP. **Next**/**Previous** browse up to 25 awards per page. An unavailable assignment keeps its award without showing its hidden title. Loading failures offer **Try again**.
+
 ## Instructor: assignments and grading
 
-1. In the instructor workspace, choose **New assignment**. Enter **Title**, **Instructions**, **Language** and 1–20 private rubric criteria.
+1. In the instructor workspace, choose **New assignment**. Enter **Title**, **Instructions**, **Language**, **Maximum XP** and 1–20 private rubric criteria. Maximum XP must be a whole number from 0 to 100,000; enter 0 for no XP.
 2. Optionally set **Due date and time (SGT, optional)**. Blank means no deadline; clearing it removes one.
 3. Choose **Draft** or **Published** under **Status**, then **Save assignment**. Drafts stay hidden. Use **Edit** to update an owned assignment. Language cannot change after a submission.
 4. Choose **Submissions** on an assignment, then a revision to review saved source/timing. Available **Run code** executes it in your browser.
@@ -99,6 +105,8 @@ Choose **My grades** in the sidebar/Menu for published grades, newest first. Exp
 6. Enter criterion scores and feedback. **Save draft** keeps the grade private. Select **Publish this grade to the student**, then **Save and publish**, to release it. If another edit changed the record, reload before retrying.
 
 Instructors can review submissions/private rubrics only for owned assignments. AI cannot publish grades. Both roles can visit `/ai/usage` for their own recent usage; instructors also have an **AI usage** link. Counts may be estimates when provider counts are absent. Instructor context comparison uses authorized contexts; two uncached reviews can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
+
+Publishing or correcting a grade updates the student's assignment XP automatically. Changing **Maximum XP** recalculates existing awards. Later rubric edits do not change the denominator captured with an earlier publication. Assignments created before XP was added start at zero; review and republish older grades before they can earn XP.
 
 ### Publish practice tests
 
@@ -122,7 +130,7 @@ Admins also have instructor access and an **Admin panel** link to manage roles. 
 
 ## Current limits and test coverage
 
-- No uploads, achievement badges, XP/leaderboard, hidden tests or automatic grading from browser runs is available.
+- No uploads, achievement badges, leaderboard, hidden tests or automatic grading from browser runs is available.
 - Use synthetic accounts/code for testing. A verified hosted address, public tester accounts and complete supported-browser matrix are not recorded yet.
 - Automated UI tests may mock AI or skip missing prerequisites. They do not establish live-model quality, hosted email delivery or deployed runner security.
 - Reproduction commands, historical evidence and release checks are in the [security evidence report](../workflow/evidence/2026-11-02-security-testing.md).

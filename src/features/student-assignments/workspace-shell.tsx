@@ -18,6 +18,7 @@ import { ThemeButton, useWorkspaceTheme } from './workspace-theme';
 
 const submissionsPath = '/student/submissions';
 const gradesPath = '/student/grades';
+const xpPath = '/student/xp';
 const AuthenticatedWorkspace = createContext(false);
 
 function WorkspaceNavigation() {
@@ -29,6 +30,7 @@ function WorkspaceNavigation() {
       ? [
           { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
           { href: gradesPath, label: 'My grades', icon: ClipboardList },
+          { href: xpPath, label: 'My XP', icon: ClipboardList },
           { href: '/forums', label: 'Forums', icon: MessageSquare },
         ]
       : []),
@@ -116,14 +118,16 @@ function WorkspaceHeader({
 }) {
   const submissions = pathname.startsWith(submissionsPath);
   const forums = pathname.startsWith('/forums');
-  const section = pathname.startsWith(gradesPath)
-    ? { href: gradesPath, label: 'My grades' }
-    : forums
-      ? { href: '/forums', label: 'Forums' }
-      : {
-          href: submissions ? submissionsPath : '/student/assignments',
-          label: submissions ? 'My submissions' : 'Assignments',
-        };
+  const section = pathname.startsWith(xpPath)
+    ? { href: xpPath, label: 'My XP' }
+    : pathname.startsWith(gradesPath)
+      ? { href: gradesPath, label: 'My grades' }
+      : forums
+        ? { href: '/forums', label: 'Forums' }
+        : {
+            href: submissions ? submissionsPath : '/student/assignments',
+            label: submissions ? 'My submissions' : 'Assignments',
+          };
   return (
     <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background px-4 sm:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground sm:text-sm">

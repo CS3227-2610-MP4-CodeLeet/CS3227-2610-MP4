@@ -64,6 +64,7 @@ async function checkFirstPage(page: Page, data: Fixture) {
     'Assignments',
     listName,
     'My grades',
+    'My XP',
     'Forums',
   ]);
   await expect(nav.getByRole('link', { name: listName })).toHaveAttribute(
@@ -92,7 +93,7 @@ async function checkFirstPage(page: Page, data: Fixture) {
     page
       .getByRole('navigation', { name: 'Student navigation' })
       .getByRole('link'),
-  ).toHaveText(['Assignments', listName, 'My grades', 'Forums']);
+  ).toHaveText(['Assignments', listName, 'My grades', 'My XP', 'Forums']);
   await page.getByLabel('Workspace menu', { exact: true }).click();
   await page.screenshot({
     path: 'test-results/my-submissions-mobile.png',

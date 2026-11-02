@@ -1,8 +1,8 @@
 ## 27. Issue #77 instructor-configured assignment XP
 
 - [x] 27.1 Resolve later maximum-XP edit policy and review design, including proposed bounds and legacy published-grade basis; write implementation plan.
-- [ ] 27.2 Implement owner-configured assignment XP and atomic server-owned best-published-grade awards/audit adjustments, with denial, retry, correction and concurrent-publication tests.
-- [ ] 27.3 Show own student total/assignment awards without private rubric/draft/peer data; verify published score basis, zero/fractional limits and rollout compatibility.
+- [x] 27.2 Implement owner-configured assignment XP and atomic server-owned best-published-grade awards/audit adjustments, with denial, retry, correction and concurrent-publication tests.
+- [x] 27.3 Show own student total/assignment awards without private rubric/draft/peer data; verify published score basis, zero/fractional limits and rollout compatibility.
 - [ ] 27.4 Complete applicable regression/security/browser checks and scoped review, update guides/logs, pass branch CI and create a linked PR with final-head checks. Leaderboard and hosted release remain separate.
 
 ## 26. Issue #74 instructor-authored public practice tests
@@ -65,7 +65,7 @@
 - [ ] 3.1 Implement assignment creation/private rubrics and student browsing; student work is detailed in task group 7.
 - [ ] 3.2 Implement isolated browser Python/Java adapters with stdin, diagnostics, stop and rerun.
 - [ ] 3.3 Implement immutable code submission revisions and authorized history through the agreed schema and student integration in task group 7.
-- [ ] 3.4 Implement version-checked grade publication with atomic idempotent XP adjustment.
+- [x] 3.4 Implement version-checked grade publication with atomic idempotent XP adjustment.
 - [ ] 3.5 Test access boundaries, private grading data, revision races, forged run results and both languages.
 
 ## 4. SoCLaaS features
@@ -81,7 +81,7 @@
 
 - [x] 5.1 Implement text threads/replies with authorization and input/request limits.
 - [ ] 5.2 Implement deterministic leaderboard and synthetic local student/award seeds.
-- [ ] 5.3 Verify duplicate/concurrent publication and corrections cannot inflate XP.
+- [x] 5.3 Verify duplicate/concurrent publication and corrections cannot inflate XP.
 
 ## 6. Review, evidence and release
 

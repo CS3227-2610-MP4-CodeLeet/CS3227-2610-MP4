@@ -6,7 +6,7 @@
 - Issue: [#77](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/77).
 - OpenSpec: `build-programming-platform`, task group 27.
 - Branch: `feat/assignment-xp`, from merged develop `00ae158`.
-- PR/commits: not created yet; implementation and verification in progress.
+- PR/commits: persistence da857cc; app milestone and PR pending final checks.
 - Human verification: pending.
 - Verifier/date: pending.
 
@@ -24,6 +24,10 @@
 
 9. Reviewer recheck found floating-point addition noise still affected widened totals. Coordinator reproduced three failed assertions, then canonicalized the stored total after mature validation. Reviewer identified a legacy duplicate-rubric/extra-key edge case in the first sum; two further failing assertions reproduced inflated totals. Summation now follows only the exact rubric entries validated by the core. Fresh database suite: 239 assertions across nine files, including 59 XP assertions, all pass. Reviewer final source-only disposition: findings resolved; no additional concrete defect in scope. See the linked review record; it did not rerun tests or use services.
 10. Local production build passed; XP browser publication/configuration/concurrency journeys passed for both languages. Foreign-instructor save denial uses existing 409 conflict semantics, with unchanged persisted maximum verified. Full browser run exposed old four-item sidebar expectations; updated them for My XP. One concurrent DB rerun hit unscoped synthetic award assertions while browser fixtures existed; scoped assertions and the failure-injection trigger to their own synthetic data, then reran. No real data was changed. Final broader browser/static/CI checks remain in progress.
+
+11. The first broader browser run completed with 71 passed, seven prerequisite skips and three failures (old sidebar expectations plus a Java timeout during cleanup). A first six-case replay still showed inconsistent local navigation/sign-in; inspected public request paths/statuses and page errors without changing timeouts. The local installed dependency versions were behind the committed lockfile. A frozen-lockfile install aligned them without changing tracked dependency versions; rebuilt/restarted task-owned servers. The exact cause of the temporary browser failures is not proven solely by this recovery.
+12. Website build separately failed because Docusaurus resolves its required @mdx-js/react peer from the site root. Added an explicit website dependency at the already-locked 3.1.1 version, with only an importer entry added to the lockfile; no transitive version change. Website build then passed. Current pinned OpenSpec 1.15 strict validation reported existing overlong requirement paragraphs: moved their remaining sentences into scenarios without dropping wording, retained optional MAY behavior, and verified all eleven items pass. CI previously used 1.8; did not downgrade or weaken either validator.
+13. Added a failing-first XP breadcrumb assertion and corrected its section label. Fresh locked-dependency unit/coverage: 541 tests/91 files pass (82.23% statements, 77.37% branches, 83.89% functions, 84.00% lines). Production/runtime build and website build pass. Final focused browser replay: six tests pass, including XP/concurrency/privacy, real Python/Java execution/submissions and My submissions. Full clean browser rerun is in progress. Persistence milestone committed as da857cc; no PR or hosted deployment yet.
 
 ## Work and verification
 

@@ -20,6 +20,9 @@ describe('instructor assignment form', () => {
       .mockResolvedValue(new Response('{}', { status: 201 }));
     vi.stubGlobal('fetch', fetch);
     render(<AssignmentForm />);
+    fireEvent.change(screen.getByLabelText('Maximum XP'), {
+      target: { value: '0' },
+    });
     fireEvent.change(screen.getByLabelText('Title'), {
       target: { value: 'Array basics' },
     });
@@ -83,6 +86,7 @@ describe('instructor assignment form', () => {
           languageLocked: true,
           publication_status: 'published',
           version: 7,
+          max_xp: 0,
           criteria: [
             {
               id: 'criterion-1',
@@ -117,6 +121,9 @@ describe('instructor assignment form', () => {
 
   it('adds, edits, and removes rubric criteria while retaining one required row', () => {
     render(<AssignmentForm />);
+    fireEvent.change(screen.getByLabelText('Maximum XP'), {
+      target: { value: '0' },
+    });
     fireEvent.click(
       screen.getByRole('button', { name: 'Add rubric criterion' }),
     );
