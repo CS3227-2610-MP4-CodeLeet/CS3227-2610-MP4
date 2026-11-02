@@ -104,10 +104,9 @@ function containsRubricAllocation(text, rubric) {
       const association = sentence.slice(left, Math.min(sentence.length, scoreEnd + 48));
       return (
         scoreEnd - left <= 80 &&
-        (/[=:]/.test(association) ||
-          /\b(?:worth|points?|pts?|score|maximum|max|out of)\b/i.test(
-            association,
-          ))
+        /\b(?:worth|points?|pts?|score|maximum|max|out of)\b/i.test(
+          association,
+        )
       );
     });
   });
@@ -167,8 +166,6 @@ function containsCompleteSolution(text) {
 }
 
 function containsBodyOnlySolution(text) {
-  const returnExpression =
-    /\breturn\s+(?:-?\d+|[A-Za-z_$][\w$]*(?:(?:\s*\([^;\n]*?\))|(?:\s*\[[^\]\n]*\])|(?:\s*\.\s*[A-Za-z_$][\w$]*(?:\s*\([^;\n]*?\))?))*)\s*;?(?=$|[\s`.,])/i;
   const standaloneCodeLine = /^\s*`{0,3}\s*return\s+[^\n]+?;?\s*`{0,3}\s*$/m;
   const replacementInstruction =
     /\b(?:replace|write|set|implement)\b[^!?\n]{0,100}\b(?:function|method)\s+body\b[^!?\n]{0,100}\breturn\s+/i;
@@ -177,8 +174,108 @@ function containsBodyOnlySolution(text) {
   return (
     standaloneCodeLine.test(text) ||
     ((replacementInstruction.test(text) || bodyUsageInstruction.test(text)) &&
-      returnExpression.test(text))
+      containsSimpleReturnExpression(text))
   );
+}
+
+function consumeIdentifier(text, start) {
+  if (!/[A-Za-z_$]/.test(text[start] ?? '')) return -1;
+  let index = start + 1;
+  while (/[\w$]/.test(text[index] ?? '')) index += 1;
+  return index;
+}
+
+function updateQuotedState(state, character) {
+  if (state.quote !== undefined) {
+    if (state.escaped) state.escaped = false;
+    else if (character === '\\') state.escaped = true;
+    else if (character === state.quote) state.quote = undefined;
+    return true;
+  }
+  if (character === '"' || character === "'" || character === '`') {
+    state.quote = character;
+    return true;
+  }
+  return false;
+}
+
+function advanceGroupState(state, character, index) {
+  if (updateQuotedState(state, character)) return -1;
+  const closingFor = { '(': ')', '[': ']', '{': '}' };
+  if (closingFor[character]) state.closings.push(closingFor[character]);
+  else if (character === ')' || character === ']' || character === '}') {
+    if (state.closings.pop() !== character) return -1;
+    if (state.closings.length === 0) return index + 1;
+  }
+  return -1;
+}
+
+function consumeBalancedGroup(text, start) {
+  const closingFor = { '(': ')', '[': ']', '{': '}' };
+  const firstClosing = closingFor[text[start]];
+  if (!firstClosing) return -1;
+  const state = { closings: [firstClosing], quote: undefined, escaped: false };
+  for (let index = start + 1; index < text.length; index += 1) {
+    const end = advanceGroupState(state, text[index], index);
+    if (end !== -1) return end;
+  }
+  return -1;
+}
+
+function extractReturnExpression(text) {
+  const match = /\breturn\s+/i.exec(text);
+  if (!match) return undefined;
+  const start = (match.index ?? 0) + match[0].length;
+  let expression = text.slice(start, start + 256);
+  const semicolon = expression.indexOf(';');
+  const newline = expression.indexOf('\n');
+  const statementEnd =
+    semicolon === -1
+      ? newline
+      : newline === -1
+        ? semicolon
+        : Math.min(semicolon, newline);
+  if (statementEnd !== -1) expression = expression.slice(0, statementEnd);
+  return expression
+    .replace(/\s+for\s+(?:the|a)\s+(?:function|method)\s+body\b[\s\S]*$/i, '')
+    .trim()
+    .replace(/[.!?]+$/g, '')
+    .replace(/^[`]+|[`]+$/g, '')
+    .trim();
+}
+
+function skipWhitespace(text, start) {
+  let index = start;
+  while (/\s/.test(text[index] ?? '')) index += 1;
+  return index;
+}
+
+function consumeExpressionPart(text, index) {
+  if (text[index] === '.') {
+    const memberStart = skipWhitespace(text, index + 1);
+    return consumeIdentifier(text, memberStart);
+  }
+  if (text[index] === '(' || text[index] === '[')
+    return consumeBalancedGroup(text, index);
+  return -1;
+}
+
+function isSimpleReturnExpression(expression) {
+  if (/^-?\d+$/.test(expression)) return true;
+  let index = consumeIdentifier(expression, 0);
+  if (index === -1) return false;
+  while (index < expression.length) {
+    index = skipWhitespace(expression, index);
+    if (index === expression.length) return true;
+    index = consumeExpressionPart(expression, index);
+    if (index === -1) return false;
+  }
+  return true;
+}
+
+function containsSimpleReturnExpression(text) {
+  const expression = extractReturnExpression(text);
+  return expression !== undefined && isSimpleReturnExpression(expression);
 }
 
 function containsPythonLambdaAssignment(text) {
