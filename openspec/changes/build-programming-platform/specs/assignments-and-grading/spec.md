@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Browser draft recovery
+The student editor SHALL preserve unfinished source on the same browser/device with explicit recovery and account/context isolation.
+
+#### Scenario: Return to unfinished code
+- **WHEN** a student edits a real Python or Java assignment and returns after a refresh or tab close
+- **THEN** a valid local draft saved after 500 ms is offered through Restore draft or Discard draft before editing; records are scoped to verified student, assignment, language and starting revision, retained for seven days with at most ten contexts, and limited to valid source up to 8,000 characters and 32 KiB UTF-8 including blank drafts
+
+#### Scenario: Official submission and concurrent edits
+- **WHEN** a revision submission succeeds, fails or overlaps newer editor changes
+- **THEN** autosave never creates an official revision, grade or XP; failed saves preserve source and exact successful-source acknowledgement removes only the submitted draft while preserving newer edits and other contexts
+
+#### Scenario: Shared browser and conflicting tabs
+- **WHEN** sign-out succeeds, the authenticated account changes, or another tab changes this draft
+- **THEN** sign-out clears app draft records and invalidates active writers, account loss prevents old-account writes, and conflicting tabs require an explicit keep/load choice without silently replacing visible source; storage or browser API failures leave Run/Submit and navigation protection usable
+
 ### Requirement: Instructor-authored public practice cases
 Verified owning instructors SHALL manage up to five ordered public stdin/expected-stdout cases on a dedicated assignment Practice tests page.
 

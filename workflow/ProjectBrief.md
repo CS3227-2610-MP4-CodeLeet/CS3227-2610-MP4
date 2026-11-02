@@ -12,7 +12,7 @@ Coursemology's public guide is a reference for user journeys, not a requirement 
 
 Two members cover student and instructor roles. Responsibility notes below identify primary accountability, not exclusive implementation rights: either member may implement any task. Coordinate changes to shared contracts, schemas, lockfiles and common services, and record the actual implementer and reviewer. Personal names and coordination budgets are not yet recorded.
 
-Student: register/sign in, edit text profile, browse assignments, enter a single Python or Java source file, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in discussions, and view XP/rank.
+Student: register/sign in, edit text profile, browse assignments, enter a single Python or Java source file, recover unfinished same-device browser drafts, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in discussions, and view XP/rank.
 
 Instructor: sign in with a trusted provisioned role, edit text profile, create assignments and grading rubrics, review authorized submissions, request AI rubric evaluation, edit and publish grades, and participate in discussions.
 

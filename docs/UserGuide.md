@@ -63,7 +63,11 @@ Only in explicit local development configuration, an assignment with no publishe
 
 Select **Submit revision** below the run/test section to save code, up to 8,000 characters. Blank, invalid or oversized source shows an error. Success adds an immutable revision to **Your revisions** and leaves the code in the editor. Failed saves retain the draft for retry.
 
-**Unsaved changes** means the source differs from the last successful save on that page. Running does not save it. New edits made during a save remain unsaved. Navigation/sign-out ask for confirmation before losing changes. Reload/close warnings depend on the browser; Back/Forward protection requires supported navigation events. Drafts are not autosaved: submit to preserve your work.
+**Unsaved changes** means the source differs from the last successful submission on that page. Running does not submit it. New edits made during a submission remain unsaved. Navigation/sign-out ask for confirmation; reload/close warnings depend on the browser, and Back/Forward protection requires supported navigation events.
+
+Your unfinished code is automatically saved on this browser/device after a short pause. **Draft saved on this device** confirms the local save; use **Submit revision** to submit your work. When you return after a refresh or closing the tab, choose **Restore draft** or **Discard draft** before editing. Each assignment and each saved revision you continue editing has a separate draft. If another tab changes the same draft, choose **Load other draft** or **Keep this tab’s code**.
+
+Drafts are kept for seven days, with up to ten editor drafts on this browser. Older drafts may be removed to make room. They do not move between devices or browser profiles, and signing out clears this browser's CodeLeet drafts. Browser storage clearing/private browsing can remove them too; avoid leaving unfinished code on a shared device. If you see **Couldn't save draft on this device**, keep the page open and submit your revision. Very recent edits may not survive an abrupt closure before autosave finishes.
 
 ## Student: submissions, feedback and grades
 
