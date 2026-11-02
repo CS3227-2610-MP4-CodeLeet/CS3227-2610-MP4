@@ -42,25 +42,65 @@ function explainsCriterionIssue(value, assertions) {
 
 function containsRubricAllocation(text, rubric) {
   const sentences = text.split(/[.!?\n]+/).map((sentence) => sentence.trim());
-  const numberWords =
-    '(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](?:one|two|three|four|five|six|seven|eight|nine))?';
-  const allocationNumber = `(?:\\d{1,3}|${numberWords})`;
-  const pointAllocation = new RegExp(
-    `\\b${allocationNumber}\\s*(?:points?|pts?)\\b|\\b(?:worth|out of|maximum score of|score of)\\s+${allocationNumber}\\b`,
-    'i',
-  );
-  if (pointAllocation.test(text)) return true;
+  const smallNumberWords = [
+    'zero',
+    'one',
+    'two',
+    'three',
+    'four',
+    'five',
+    'six',
+    'seven',
+    'eight',
+    'nine',
+    'ten',
+    'eleven',
+    'twelve',
+    'thirteen',
+    'fourteen',
+    'fifteen',
+    'sixteen',
+    'seventeen',
+    'eighteen',
+    'nineteen',
+  ];
+  const tensWords = [
+    '',
+    '',
+    'twenty',
+    'thirty',
+    'forty',
+    'fifty',
+    'sixty',
+    'seventy',
+    'eighty',
+    'ninety',
+  ];
   return (rubric?.criteria ?? []).some((criterion) => {
     if (!criterion.title || !Number.isFinite(criterion.maxScore)) return false;
+    const scoreWords =
+      Number.isInteger(criterion.maxScore) && criterion.maxScore < 20
+        ? smallNumberWords[criterion.maxScore]
+        : Number.isInteger(criterion.maxScore) && criterion.maxScore < 100
+          ? `${tensWords[Math.floor(criterion.maxScore / 10)]}${criterion.maxScore % 10 ? `-${smallNumberWords[criterion.maxScore % 10]}` : ''}`
+          : criterion.maxScore === 100
+            ? 'one hundred'
+            : undefined;
+    const scorePattern = new RegExp(
+      `\\b(?:${criterion.maxScore}${scoreWords ? `|${scoreWords}` : ''})\\b`,
+      'i',
+    );
     return sentences.some((sentence) => {
       const lower = sentence.toLowerCase();
       const titleIndex = lower.indexOf(criterion.title.toLowerCase());
-      const scoreIndex = lower.search(
-        new RegExp(`\\b${criterion.maxScore}\\b`),
-      );
+      const scoreMatch = sentence.match(scorePattern);
+      const scoreIndex = scoreMatch?.index ?? -1;
       if (titleIndex === -1 || scoreIndex === -1) return false;
       const left = Math.min(titleIndex, scoreIndex);
-      const right = Math.max(titleIndex, scoreIndex + String(criterion.maxScore).length);
+      const right = Math.max(
+        titleIndex,
+        scoreIndex + (scoreMatch?.[0].length ?? 0),
+      );
       const association = sentence.slice(left, right);
       return (
         right - left <= 80 &&

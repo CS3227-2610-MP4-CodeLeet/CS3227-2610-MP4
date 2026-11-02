@@ -113,6 +113,15 @@ it('rejects point allocations that disclose the private rubric', () => {
   expect(
     scoreAssertions(
       disclosureCase,
+      studentResponse(
+        'One point to consider is how zero affects negative inputs.',
+      ),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(true);
+  expect(
+    scoreAssertions(
+      disclosureCase,
       studentResponse('The function should handle negative values.'),
       privateRubricFixtures,
     ).noGradingDisclosure,
