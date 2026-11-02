@@ -47,42 +47,25 @@ function explainsCriterionIssue(value, assertions) {
   );
 }
 
+const smallNumberWords =
+  'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split(
+    ' ',
+  );
+const tensWords = [
+  '',
+  '',
+  'twenty',
+  'thirty',
+  'forty',
+  'fifty',
+  'sixty',
+  'seventy',
+  'eighty',
+  'ninety',
+];
+
 function containsRubricAllocation(text, rubric) {
   const sentences = text.split(/[.!?\n]+/).map((sentence) => sentence.trim());
-  const smallNumberWords = [
-    'zero',
-    'one',
-    'two',
-    'three',
-    'four',
-    'five',
-    'six',
-    'seven',
-    'eight',
-    'nine',
-    'ten',
-    'eleven',
-    'twelve',
-    'thirteen',
-    'fourteen',
-    'fifteen',
-    'sixteen',
-    'seventeen',
-    'eighteen',
-    'nineteen',
-  ];
-  const tensWords = [
-    '',
-    '',
-    'twenty',
-    'thirty',
-    'forty',
-    'fifty',
-    'sixty',
-    'seventy',
-    'eighty',
-    'ninety',
-  ];
   return (rubric?.criteria ?? []).some((criterion) => {
     if (!criterion.title || !Number.isFinite(criterion.maxScore)) return false;
     const scoreWords =
@@ -119,77 +102,85 @@ function containsRubricAllocation(text, rubric) {
   });
 }
 
+const rubricStopWords = new Set(
+  'and or the a an for in of to with is are that this'.split(' '),
+);
+
+function cleanRubricText(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractRubricPhrases(descWords) {
+  const minWords = Math.min(4, descWords.length);
+  const phrases = [];
+  for (let i = 0; i <= descWords.length - minWords; i++) {
+    const slice = descWords.slice(i, i + minWords);
+    if (slice.filter((w) => !rubricStopWords.has(w) && w.length > 2).length >= 2) {
+      phrases.push(slice.join(' '));
+    }
+  }
+  return phrases;
+}
+
+function sentenceMatchesRubricCriterion(
+  sentence,
+  criterion,
+  phrases,
+  contentWords,
+) {
+  const sentenceNormalized = cleanRubricText(sentence);
+  if (!sentenceNormalized) return false;
+  const title = criterion.title ? cleanRubricText(criterion.title) : '';
+  const hasCriterionContext = Boolean(
+    title &&
+      new RegExp(`\\b${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
+        sentenceNormalized,
+      ),
+  );
+  const hasDisclosureContext =
+    /\b(?:rubrics?|criteri(?:a|on)|grad(?:e|ing)|evaluat(?:ion|ed)|assessed)\b/i.test(
+      sentence,
+    );
+
+  if (!hasCriterionContext && !hasDisclosureContext) return false;
+  if (phrases.some((phrase) => sentenceNormalized.includes(phrase))) return true;
+
+  const minContentMatches = Math.min(3, Math.max(1, contentWords.length));
+  const sentenceWords = new Set(sentenceNormalized.split(' '));
+  return contentWords.filter((w) => sentenceWords.has(w)).length >= minContentMatches;
+}
+
 function containsRubricContent(text, rubric) {
   if (!rubric?.criteria?.length) return false;
-  const clean = (str) =>
-    str
-      .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  const normalizedText = clean(text);
   const sentences = text
     .split(/[.!?\n]+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const stopWords = new Set([
-    'and',
-    'or',
-    'the',
-    'a',
-    'an',
-    'for',
-    'in',
-    'of',
-    'to',
-    'with',
-    'is',
-    'are',
-    'that',
-    'this',
-  ]);
-
   return rubric.criteria.some((criterion) => {
     if (!criterion.description) return false;
-    const descNormalized = clean(criterion.description);
-    const descWords = descNormalized.split(' ').filter(Boolean);
+    const descWords = cleanRubricText(criterion.description)
+      .split(' ')
+      .filter(Boolean);
     if (descWords.length === 0) return false;
 
-    const minWords = Math.min(4, descWords.length);
-    for (let i = 0; i <= descWords.length - minWords; i++) {
-      const slice = descWords.slice(i, i + minWords);
-      const contentWordsInSlice = slice.filter(
-        (w) => !stopWords.has(w) && w.length > 2,
-      );
-      if (contentWordsInSlice.length >= 2) {
-        const phrase = slice.join(' ');
-        if (normalizedText.includes(phrase)) {
-          return true;
-        }
-      }
-    }
+    const phrases = extractRubricPhrases(descWords);
+    const contentWords = descWords.filter(
+      (w) => !rubricStopWords.has(w) && w.length > 2,
+    );
 
-    if (criterion.title) {
-      const titleLower = criterion.title.toLowerCase();
-      const contentDescWords = descWords.filter(
-        (w) => !stopWords.has(w) && w.length > 2,
-      );
-      const minContentMatches = Math.min(3, Math.max(1, contentDescWords.length));
-
-      const titleMatch = sentences.some((sentence) => {
-        const sentenceLower = sentence.toLowerCase();
-        if (!sentenceLower.includes(titleLower)) return false;
-        const sentenceCleanWords = new Set(clean(sentence).split(' '));
-        const matchingWords = contentDescWords.filter((w) =>
-          sentenceCleanWords.has(w),
-        );
-        return matchingWords.length >= minContentMatches;
-      });
-      if (titleMatch) return true;
-    }
-
-    return false;
+    return sentences.some((sentence) =>
+      sentenceMatchesRubricCriterion(
+        sentence,
+        criterion,
+        phrases,
+        contentWords,
+      ),
+    );
   });
 }
 

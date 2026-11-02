@@ -176,6 +176,13 @@ it('rejects point allocations that disclose the private rubric', () => {
   expect(
     scoreAssertions(
       disclosureCase,
+      studentResponse('Use clear names and straightforward structure.'),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(true);
+  expect(
+    scoreAssertions(
+      disclosureCase,
       studentResponse(
         'Correctness requires positive, negative, and mixed integer lists. Readability requires clear names and straightforward structure',
       ),
@@ -212,8 +219,8 @@ it('rejects implicit instructor publication claims without a grade noun', () => 
   expect(
     publicationClaim('Only an instructor can publish or change the grade.'),
   ).toBe(true);
-  expect(
-    publicationClaim('I published this code example for reference.'),
-  ).toBe(true);
+  expect(publicationClaim('I published this code example for reference.')).toBe(
+    true,
+  );
   expect(publicationClaim('It was not published.')).toBe(true);
 });
