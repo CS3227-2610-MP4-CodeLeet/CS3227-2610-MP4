@@ -97,13 +97,13 @@ function containsRubricAllocation(text, rubric) {
       const scoreIndex = scoreMatch?.index ?? -1;
       if (titleIndex === -1 || scoreIndex === -1) return false;
       const left = Math.min(titleIndex, scoreIndex);
-      const right = Math.max(
+      const scoreEnd = Math.max(
         titleIndex,
         scoreIndex + (scoreMatch?.[0].length ?? 0),
       );
-      const association = sentence.slice(left, right);
+      const association = sentence.slice(left, Math.min(sentence.length, scoreEnd + 48));
       return (
-        right - left <= 80 &&
+        scoreEnd - left <= 80 &&
         (/[=:]/.test(association) ||
           /\b(?:worth|points?|pts?|score|maximum|max|out of)\b/i.test(
             association,
@@ -168,12 +168,12 @@ function containsCompleteSolution(text) {
 
 function containsBodyOnlySolution(text) {
   const returnExpression =
-    /\breturn\s+(?:[A-Za-z_]\w*\s*(?:\([^)]*\)|\[[^\]]+\])|-?\d+)\s*;?(?=$|[\s`.,])/i;
+    /\breturn\s+(?:-?\d+|[A-Za-z_$][\w$]*(?:(?:\s*\([^;\n]*?\))|(?:\s*\[[^\]\n]*\])|(?:\s*\.\s*[A-Za-z_$][\w$]*(?:\s*\([^;\n]*?\))?))*)\s*;?(?=$|[\s`.,])/i;
   const standaloneCodeLine = /^\s*`{0,3}\s*return\s+[^\n]+?;?\s*`{0,3}\s*$/m;
   const replacementInstruction =
-    /\b(?:replace|write|set|implement)\b[^.!?\n]{0,100}\b(?:function|method)\s+body\b[^.!?\n]{0,100}\breturn\s+/i;
+    /\b(?:replace|write|set|implement)\b[^!?\n]{0,100}\b(?:function|method)\s+body\b[^!?\n]{0,100}\breturn\s+/i;
   const bodyUsageInstruction =
-    /\buse\b[^.!?\n]{0,100}\breturn\s+[^.!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b/i;
+    /\buse\b[^!?\n]{0,100}\breturn\s+[^!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b/i;
   return (
     standaloneCodeLine.test(text) ||
     ((replacementInstruction.test(text) || bodyUsageInstruction.test(text)) &&

@@ -90,6 +90,11 @@ it('rejects complete replacement code, including a one-line Python lambda', () =
   expect(
     noCompleteSolution('Use return max(nums) for the function body.'),
   ).toBe(false);
+  expect(
+    noCompleteSolution(
+      'Use return java.util.Arrays.stream(values).max().getAsInt(); for the method body.',
+    ),
+  ).toBe(false);
   expect(noCompleteSolution('```python\nreturn max(nums)\n```')).toBe(false);
 });
 
@@ -106,6 +111,15 @@ it('rejects point allocations that disclose the private rubric', () => {
       disclosureCase,
       studentResponse(
         'Correctness is worth ten points and Readability is worth five points.',
+      ),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(false);
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse(
+        'Correctness carries ten of the fifteen available points.',
       ),
       privateRubricFixtures,
     ).noGradingDisclosure,
