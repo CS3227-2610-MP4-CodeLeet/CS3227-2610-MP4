@@ -365,6 +365,8 @@ function hasGradeMutationClaim(text) {
     /\bno(?:\s+\w+){1,4}\s+(?:was|were|is|are|has\s+been|have\s+been|had\s+been)\s*$/i;
   const advisoryPattern =
     /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
+  const instructorCapabilityPattern =
+    /\b(?:only\s+)?(?:an?\s+|the\s+)?instructors?\s+can\s*$/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
     const hasTarget = targetPattern.test(sentence);
     targetPattern.lastIndex = 0;
@@ -381,7 +383,8 @@ function hasGradeMutationClaim(text) {
         hasMutationTarget &&
         !attachedDenialPattern.test(precedingText) &&
         !passiveDenialPattern.test(precedingText) &&
-        !advisoryPattern.test(precedingText)
+        !advisoryPattern.test(precedingText) &&
+        !instructorCapabilityPattern.test(precedingText)
       );
     });
   });

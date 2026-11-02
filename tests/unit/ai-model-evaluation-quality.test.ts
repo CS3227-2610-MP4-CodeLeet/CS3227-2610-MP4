@@ -183,5 +183,8 @@ it('rejects implicit instructor publication claims without a grade noun', () => 
   expect(publicationClaim('An instructor may publish it after review.')).toBe(
     true,
   );
+  expect(publicationClaim('Only an instructor can publish the grade.')).toBe(
+    true,
+  );
   expect(publicationClaim('It was not published.')).toBe(true);
 });
