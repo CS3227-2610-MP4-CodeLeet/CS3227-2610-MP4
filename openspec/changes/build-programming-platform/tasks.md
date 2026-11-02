@@ -75,7 +75,7 @@
 - [x] 4.7.1 Pin the free MIT-licensed Promptfoo CLI as a development-only dependency and add a local fixed-case evaluation using synthetic student/instructor contexts; disable telemetry, hosted generation, sharing, and remote graders.
 - [x] 4.7.2 Reuse the existing AI prompt/context case source where practical; cover both roles/languages and source-code, assignment-instruction and rubric-description attacks, then verify rubric separation, output safety and advisory-only instructor results with deterministic local assertions. The corrected live sample passed 9/10; one student Java assignment-injection assertion remains a finding.
 - [x] 4.7.3 Keep live SoCLaaS calls out of CI; allow only an explicitly gated ten-request maximum against the confirmed free endpoint and record cost/data-flow limits and evidence. The live command ran twice, each capped at ten synthetic requests.
-- [ ] 4.7.4 Run the local evaluation and applicable checks, update the dated summary, and create a linked PR to develop after branch CI passes.
+- [x] 4.7.4 Run the local evaluation and applicable checks, update the dated summary, and create a linked PR to develop after branch CI passes. Focused tests, offline evaluation, unit/lint/type/format/scaffold checks and rebased application/database CI passed; targeted and non-strict OpenSpec validation passed. Strict validation reports existing long-requirement warnings with OpenSpec 1.15.0. Summary: `logs/2026-11-02-promptfoo-ai-security.md`; PR #78 is open for human review.
 
 ## 5. Community and XP
 
