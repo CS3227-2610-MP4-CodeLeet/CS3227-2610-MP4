@@ -15,9 +15,28 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('next/navigation', () => ({ redirect: mocks.redirect }));
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getVerifiedUserRole, requireRole } from './verified-user';
+import {
+  getVerifiedUserRole,
+  requireRole,
+  requireMember,
+} from './verified-user';
 
 describe('verified application identity', () => {
+  it('requires a verified provisioned member for shared pages', async () => {
+    mocks.getUser.mockResolvedValue({ data: { user: null }, error: null });
+    await expect(requireMember()).rejects.toThrow('redirect:/sign-in');
+    mocks.getUser.mockResolvedValue({
+      data: { user: { id: 'member' } },
+      error: null,
+    });
+    const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    mocks.from.mockReturnValue({
+      select: () => ({ eq: () => ({ maybeSingle }) }),
+    });
+    await expect(requireMember()).rejects.toThrow('redirect:/unauthorized');
+    maybeSingle.mockResolvedValue({ data: { role: 'student' }, error: null });
+    expect((await requireMember()).role).toBe('student');
+  });
   afterEach(() => vi.unstubAllEnvs());
 
   beforeEach(() => {

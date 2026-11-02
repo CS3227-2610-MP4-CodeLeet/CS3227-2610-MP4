@@ -21,20 +21,20 @@ const gradesPath = '/student/grades';
 const xpPath = '/student/xp';
 const AuthenticatedWorkspace = createContext(false);
 
+const workspaceDestinations = [
+  { href: '/student/assignments', label: 'Assignments', icon: BookOpen },
+  { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
+  { href: gradesPath, label: 'My grades', icon: ClipboardList },
+  { href: xpPath, label: 'My XP', icon: ClipboardList },
+  { href: '/leaderboard', label: 'Leaderboard', icon: ClipboardList },
+  { href: '/forums', label: 'Forums', icon: MessageSquare },
+];
 function WorkspaceNavigation() {
   const authenticated = useContext(AuthenticatedWorkspace);
   const pathname = usePathname();
-  const items = [
-    { href: '/student/assignments', label: 'Assignments', icon: BookOpen },
-    ...(authenticated
-      ? [
-          { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
-          { href: gradesPath, label: 'My grades', icon: ClipboardList },
-          { href: xpPath, label: 'My XP', icon: ClipboardList },
-          { href: '/forums', label: 'Forums', icon: MessageSquare },
-        ]
-      : []),
-  ];
+  const items = authenticated
+    ? workspaceDestinations
+    : workspaceDestinations.slice(0, 1);
   return (
     <nav aria-label="Student navigation" className="space-y-2">
       {items.map(({ href, label, icon: Icon }) => (
@@ -116,18 +116,9 @@ function WorkspaceHeader({
   current?: AssignmentSummary;
   theme: 'light' | 'dark';
 }) {
-  const submissions = pathname.startsWith(submissionsPath);
-  const forums = pathname.startsWith('/forums');
-  const section = pathname.startsWith(xpPath)
-    ? { href: xpPath, label: 'My XP' }
-    : pathname.startsWith(gradesPath)
-      ? { href: gradesPath, label: 'My grades' }
-      : forums
-        ? { href: '/forums', label: 'Forums' }
-        : {
-            href: submissions ? submissionsPath : '/student/assignments',
-            label: submissions ? 'My submissions' : 'Assignments',
-          };
+  const section =
+    workspaceDestinations.find((item) => pathname.startsWith(item.href)) ??
+    workspaceDestinations[0];
   return (
     <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background px-4 sm:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground sm:text-sm">

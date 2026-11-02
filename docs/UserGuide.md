@@ -95,6 +95,14 @@ Choose **My XP** in the sidebar/Menu to see your total and assignment awards. Yo
 
 Corrected or withdrawn grades and changes to an assignment's maximum XP can increase or decrease your total. Draft grades, AI suggestions, running code and forum activity do not earn XP. **Next**/**Previous** browse up to 25 awards per page. An unavailable assignment keeps its award without showing its hidden title. Loading failures offer **Try again**.
 
+## Leaderboard
+
+Choose **Leaderboard** from the student sidebar/Menu or instructor header. Students with positive total XP appear highest first, with **Rank**, **Username** and **XP**. Equal XP shares a rank: two students in first place are followed by rank 3. Within a tie, usernames sort alphabetically, ignoring capitalization; duplicate usernames have a consistent order.
+
+Students see **Your rank** and **Your XP** even when their row is on another page. **You** identifies their row. Zero XP shows **Unranked** and is not listed. Instructors/admins can browse but are not ranked. **Next**/**Previous** browse 25 rows at a time; mobile tables scroll within their panel when needed.
+
+Refresh or reopen the page after grades or maximum XP change to see updated totals. Running code, AI suggestions and forum activity do not improve rank. An empty board shows **No rankings yet**; a failed load offers **Try again**. Only signed-in members can browse usernames/totals; the leaderboard does not display emails, submissions or assignment-level awards.
+
 ## Instructor: assignments and grading
 
 1. In the instructor workspace, choose **New assignment**. Enter **Title**, **Instructions**, **Language**, **Maximum XP** and 1–20 private rubric criteria. Maximum XP must be a whole number from 0 to 100,000; enter 0 for no XP.
@@ -130,7 +138,7 @@ Admins also have instructor access and an **Admin panel** link to manage roles. 
 
 ## Current limits and test coverage
 
-- No uploads, achievement badges, leaderboard, hidden tests or automatic grading from browser runs is available.
+- No uploads, achievement badges, hidden tests or automatic grading from browser runs is available.
 - Use synthetic accounts/code for testing. A verified hosted address, public tester accounts and complete supported-browser matrix are not recorded yet.
 - Automated UI tests may mock AI or skip missing prerequisites. They do not establish live-model quality, hosted email delivery or deployed runner security.
 - Reproduction commands, historical evidence and release checks are in the [security evidence report](../workflow/evidence/2026-11-02-security-testing.md).

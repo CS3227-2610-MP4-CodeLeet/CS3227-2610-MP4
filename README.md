@@ -2,13 +2,13 @@
 
 A Coursemology-inspired programming assignment platform for students and instructors.
 
-Status: authenticated student/instructor workflows, browser-only Python/Java practice, forums and instructor-configured XP are implemented with local synthetic verification. Leaderboard and complete hosted acceptance remain pending. See the [User Guide](docs/UserGuide.md) for current features and limits.
+Status: authenticated student/instructor workflows, browser-only Python/Java practice, forums, instructor-configured XP and leaderboard are implemented with local synthetic verification. Complete hosted acceptance remains pending. See the [User Guide](docs/UserGuide.md) for current features and limits.
 
 ## Product scope
 
 - Students enter, run, and submit single-file Python or Java programs, receive AI hints, and view published grades.
 - Instructors create assignments and rubrics, review submissions, request AI grading suggestions, and approve grades for publication.
-- Both roles have profiles and access to discussion threads. Students can view their own XP; leaderboard is planned separately.
+- Both roles have profiles and access to discussion threads and leaderboard. Students can view their own XP and rank.
 - Python execution and Java source compilation/execution happen in the browser. Local and same-project runtime builds are available; hosted acceptance, browser coverage and distribution/provenance review remain separate gates.
 - No file uploads, badges, package installation, or server-side code execution.
 

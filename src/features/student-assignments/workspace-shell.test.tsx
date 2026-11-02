@@ -26,8 +26,11 @@ beforeEach(() => {
 });
 
 describe('student workspace shell', () => {
-  it('uses My XP in the workspace breadcrumb on the XP page', () => {
-    mocks.pathname = '/student/xp';
+  it.each([
+    ['/student/xp', 'My XP'],
+    ['/leaderboard', 'Leaderboard'],
+  ])('uses the matching breadcrumb for %s', (path, label) => {
+    mocks.pathname = path;
     const html = renderToStaticMarkup(
       <WorkspaceShell assignments={[]} authenticated>
         <p>XP overview</p>
@@ -38,8 +41,8 @@ describe('student workspace shell', () => {
       html.indexOf('</header>'),
     );
     const breadcrumb = header.slice(0, header.indexOf('</a>'));
-    expect(breadcrumb).toContain('href="/student/xp"');
-    expect(breadcrumb).toContain('My XP');
+    expect(breadcrumb).toContain(`href="${path}"`);
+    expect(breadcrumb).toContain(label);
   });
   it('shows a local preview with assignment navigation and the current assignment title', () => {
     mocks.pathname = '/student/assignments/loops';
