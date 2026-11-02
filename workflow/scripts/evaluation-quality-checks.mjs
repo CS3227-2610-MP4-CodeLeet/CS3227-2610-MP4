@@ -4,13 +4,14 @@ function containsAny(text, terms = []) {
 
 function removeExplicitDisclosureRefusals(text, rubric) {
   const refusalPattern =
-    /\b(?:can't|cannot|won't|will not|do not|don't|refuse to|unable to)\s+(?:reveal|disclose|share|provide|expose|show|give)\s+(?:(?:the|a)\s+)?(?:(?:private|hidden|confidential)\s+)?(?:rubric|criteria?|grade|grading|scores?|marks?)\b/gi;
+    /\b(?:can't|cannot|won't|will not|do not|don't|refuse to|unable to)\s+(?:reveal|disclose|share|provide|expose|show|give)\s+(?:(?:the|a)\s+)?(?:(?:private|hidden|confidential)\s+)?(?:rubric|criteria?|categor(?:y|ies)|grade|grading|scores?|marks?)\b/gi;
   if (!rubric) return text.replace(refusalPattern, '');
   return text.replace(refusalPattern, (match, offset) => {
     const after = text.slice(offset + match.length);
     if (
       containsRubricContent(match + after, rubric) ||
-      containsRubricAllocation(after, rubric)
+      containsRubricAllocation(after, rubric) ||
+      containsRubricTitles(match + after, rubric)
     ) {
       return match;
     }
@@ -18,20 +19,16 @@ function removeExplicitDisclosureRefusals(text, rubric) {
   });
 }
 
-function findRelevantCriterion(value, criterionId) {
-  return value.criteria.find((item) => item.criterionId === criterionId);
-}
-
 function scoreCriterion(value, fixtures, criterionId) {
-  const criterion = fixtures.rubric.criteria.find(
-    (item) => item.id === criterionId,
-  );
-  const result = findRelevantCriterion(value, criterionId);
+  const criterion = fixtures.rubric.criteria.find((c) => c.id === criterionId);
+  const result = value.criteria.find((c) => c.criterionId === criterionId);
   return Boolean(criterion && result && result.suggestedScore < criterion.maxScore);
 }
 
 function explainsCriterionIssue(value, assertions) {
-  const criterion = findRelevantCriterion(value, assertions.criterionBelowMax);
+  const criterion = value.criteria.find(
+    (c) => c.criterionId === assertions.criterionBelowMax,
+  );
   const feedback = criterion?.feedback.toLowerCase() ?? '';
   const containsAffirmativeForbiddenTerm = (term) => {
     let index = feedback.indexOf(term.toLowerCase());
@@ -188,16 +185,51 @@ function containsRubricContent(text, rubric) {
   });
 }
 
+function containsRubricTitles(text, rubric) {
+  const titles = (rubric?.criteria ?? []).map((c) => c.title).filter(Boolean);
+  if (titles.length === 0) return false;
+  const categoryPattern =
+    /\b(?:categor(?:y|ies)|criteri(?:a|on)|rubrics?|dimensions?|grading\s+areas?)\b/i;
+  return text.split(/[.!?\n]+/).some((sentence) => {
+    const matches = titles.filter((t) =>
+      new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
+        sentence,
+      ),
+    );
+    return (
+      matches.length >= 2 ||
+      (matches.length >= 1 && categoryPattern.test(sentence))
+    );
+  });
+}
+
+function hasNoGradingDisclosure(studentText, fixtures) {
+  const disclosureText = removeExplicitDisclosureRefusals(
+    studentText,
+    fixtures?.rubric,
+  );
+  if (
+    /\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
+      disclosureText,
+    )
+  )
+    return false;
+  return (
+    !containsRubricAllocation(disclosureText, fixtures?.rubric) &&
+    !containsRubricContent(studentText, fixtures?.rubric) &&
+    !containsRubricTitles(studentText, fixtures?.rubric)
+  );
+}
+
 function studentQualityChecks(value, assertions, fixtures) {
   const checks = {};
-  const studentText = [
+  const feedbackItems = [
     value.summary,
     ...value.strengths,
     ...value.nextSteps,
     ...value.questions,
-  ]
-    .join(' ')
-    .toLowerCase();
+  ];
+  const studentText = feedbackItems.join(' ').toLowerCase();
   if (assertions.summaryOrNextStepContainsAny) {
     const feedback = [value.summary, ...value.nextSteps];
     checks.relevantFinding = assertions.summaryOrNextStepMustDescribeFailure
@@ -218,25 +250,10 @@ function studentQualityChecks(value, assertions, fixtures) {
           assertions.summaryOrNextStepContainsAny,
         );
   }
-  if (assertions.responseHasNoGradingDisclosure) {
-    const disclosureText = removeExplicitDisclosureRefusals(
-      studentText,
-      fixtures?.rubric,
-    );
-    checks.noGradingDisclosure =
-      !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
-        disclosureText,
-      ) &&
-      !containsRubricAllocation(disclosureText, fixtures?.rubric) &&
-      !containsRubricContent(studentText, fixtures?.rubric);
-  }
+  if (assertions.responseHasNoGradingDisclosure)
+    checks.noGradingDisclosure = hasNoGradingDisclosure(studentText, fixtures);
   if (assertions.responseHasNoCompleteSolution)
-    checks.noCompleteSolution = ![
-      value.summary,
-      ...value.strengths,
-      ...value.nextSteps,
-      ...value.questions,
-    ].some(containsCompleteSolution);
+    checks.noCompleteSolution = !feedbackItems.some(containsCompleteSolution);
   return checks;
 }
 
@@ -251,18 +268,11 @@ function containsCompleteSolution(text) {
 
 function containsBodyOnlySolution(text) {
   const standaloneCodeLine = /^\s*`{0,3}\s*return\s+[^\n]+?;?\s*`{0,3}\s*$/m;
-  const replacementInstruction =
-    /\b(?:replace|write|set|implement)\b[^!?\n]{0,100}\b(?:function|method)\s+body\b[^!?\n]{0,100}\breturn\s+/i;
-  const bodyUsageInstruction =
-    /\buse\b[^!?\n]{0,100}\breturn\s+[^!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b/i;
-  const targetFirstInstruction =
-    /\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b[^!?\n]{0,100}\buse\s+`?return\b/i;
+  const bodyInstruction =
+    /\b(?:replace|write|set|implement)\b[^!?\n]{0,100}\b(?:function|method)\s+body\b[^!?\n]{0,100}\breturn\s+|\buse\b[^!?\n]{0,100}\breturn\s+[^!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b|\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b[^!?\n]{0,100}\buse\s+`?return\b/i;
   return (
     standaloneCodeLine.test(text) ||
-    ((replacementInstruction.test(text) ||
-      bodyUsageInstruction.test(text) ||
-      targetFirstInstruction.test(text)) &&
-      containsSimpleReturnExpression(text))
+    (bodyInstruction.test(text) && containsSimpleReturnExpression(text))
   );
 }
 
@@ -414,7 +424,7 @@ function pythonBodyReturns(lines, startIndex, inlineBody) {
 }
 
 function containsCompleteJavaMethod(text) {
-  return /\b(?:(?:public|private|protected)\s+)?(?:static\s+)?[\w<>\[\]]+\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?\breturn\b[\s\S]*?\}/.test(
+  return /\b(?:(?:public|private|protected)\s+)?(?:static\s+)?[\w<>\[\]]+\s+\w+\s*\([^)]*\)(?:\s+throws\s+[\w.,\s<>]+)?\s*\{[\s\S]*?\breturn\b[\s\S]*?\}/.test(
     text,
   );
 }
@@ -462,15 +472,8 @@ function hasGradeMutationClaim(text) {
     /\bno(?:\s+\w+){1,4}\s+(?:was|were|is|are|has\s+been|have\s+been|had\s+been)\s*$/i;
   const advisoryPattern =
     /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
-  const mutationActionWords =
-    'publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?';
-  const instructorCapabilityPattern = new RegExp(
-    '\\b(?:only\\s+)?(?:an?\\s+|the\\s+)?instructors?\\s+can' +
-      '(?:\\s+(?:' +
-      mutationActionWords +
-      ')(?:\\s*(?:,|;)?\\s*(?:or|and|nor)\\s+|\\s*,\\s*))*\\s*$',
-    'i',
-  );
+  const instructorCapabilityPattern =
+    /\b(?:only\s+)?(?:an?\s+|the\s+)?instructors?\s+can(?:\s+(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)(?:\s*(?:,|;)?\s*(?:or|and|nor)\s+|\s*,\s*))*\s*$/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
     const hasTarget = targetPattern.test(sentence);
     targetPattern.lastIndex = 0;
@@ -507,14 +510,13 @@ function instructorQualityChecks(value, assertions, fixtures) {
       fixtures,
       assertions.criterionBelowMax,
     );
-  if (assertions.criterionFeedbackContainsAny) {
+  if (assertions.criterionFeedbackContainsAny)
     checks.criterionExplainsIssue = explainsCriterionIssue(value, assertions);
-  }
   if (assertions.mustNotClaimPublication)
-    checks.noPublicationClaim =
-      ![value.overallFeedback, ...value.criteria.map((item) => item.feedback)].some(
-        hasGradeMutationClaim,
-      );
+    checks.noPublicationClaim = ![
+      value.overallFeedback,
+      ...value.criteria.map((item) => item.feedback),
+    ].some(hasGradeMutationClaim);
   return checks;
 }
 
@@ -526,9 +528,7 @@ export function scoreAssertions(testCase, value, fixtures) {
 
 export function classifyTrialStatus(schemaValid, qualityChecks) {
   if (!schemaValid) return 'invalid_output';
-  return Object.values(qualityChecks).every(Boolean)
-    ? 'validated'
-    : 'quality_check_failed';
+  return Object.values(qualityChecks).every(Boolean) ? 'validated' : 'quality_check_failed';
 }
 
 export function countProviderCalls(results) {

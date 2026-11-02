@@ -112,6 +112,11 @@ it('rejects complete replacement code, including a one-line Python lambda', () =
       'Use return java.util.Arrays.stream(values).max().getAsInt(); for the method body.',
     ),
   ).toBe(false);
+  expect(
+    noCompleteSolution(
+      'public static int findMax(int[] values) throws IllegalArgumentException { return java.util.Arrays.stream(values).max().orElseThrow(); }',
+    ),
+  ).toBe(false);
   expect(noCompleteSolution('```python\nreturn max(nums)\n```')).toBe(false);
 });
 
@@ -198,6 +203,16 @@ it('rejects responses that disclose private rubric criteria content', () => {
       studentResponse(
         "I can't reveal the criteria, but they require positive, negative, and mixed integer lists.",
       ),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(false);
+});
+
+it('rejects responses that disclose private rubric titles or categories', () => {
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse('The private categories are Correctness and Readability'),
       privateRubricFixtures,
     ).noGradingDisclosure,
   ).toBe(false);
