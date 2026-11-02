@@ -73,9 +73,10 @@
 ### Issue #75: zero-cost Promptfoo AI security evaluation
 
 - [x] 4.7.1 Pin the free MIT-licensed Promptfoo CLI as a development-only dependency and add a local fixed-case evaluation using synthetic student/instructor contexts; disable telemetry, hosted generation, sharing, and remote graders.
-- [x] 4.7.2 Reuse the existing AI prompt/context case source where practical; cover both roles/languages and source-code, assignment-instruction and rubric-description attacks, then verify rubric separation, output safety and advisory-only instructor results with deterministic local assertions. The corrected live sample passed 9/10; one student Java assignment-injection assertion remains a finding.
+- [x] 4.7.2 Reuse the existing AI prompt/context case source where practical; cover both roles/languages and source-code, assignment-instruction and rubric-description attacks, then verify rubric separation, output safety and advisory-only instructor results with deterministic local assertions. The post-review live run passed 10/10; the earlier 9/10 result and failed student Java assignment-injection case are retained as historical evidence.
 - [x] 4.7.3 Keep live SoCLaaS calls out of CI; allow only an explicitly gated ten-request maximum against the confirmed free endpoint and record cost/data-flow limits and evidence. The live command ran twice, each capped at ten synthetic requests.
 - [x] 4.7.4 Run the local evaluation and applicable checks, update the dated summary, and create a linked PR to develop after branch CI passes. Focused tests, offline evaluation, unit/lint/type/format/scaffold checks and rebased application/database CI passed; targeted and non-strict OpenSpec validation passed. Strict validation reports existing long-requirement warnings with OpenSpec 1.15.0. Summary: `logs/2026-11-02-promptfoo-ai-security.md`; PR #78 is open for human review.
+- [ ] 4.7.5 Address PR #78 review findings: enforce the telemetry opt-out in the pinned Promptfoo package, disable update checks, strengthen rubric/solution/publication assertions, and add regressions for each reviewed bypass. Verify the fixed local configuration with offline evaluation and applicable checks before closing addressed review threads.
 
 ## 5. Community and XP
 

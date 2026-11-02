@@ -15,8 +15,8 @@ The team SHALL implement/test AI security and record reproducible context/resour
 - **THEN** the record includes actual usage and quality without unauthorized data or unmeasured savings claims
 
 #### Scenario: No-cost AI security evaluation
-- **WHEN** the repository AI security evaluation runs without an explicitly verified no-cost model provider
-- **THEN** it uses only local deterministic fixtures, makes no inference or hosted Promptfoo requests, and records that it does not establish model resistance
+- **WHEN** the default local Promptfoo fixture evaluation runs
+- **THEN** it uses only local deterministic fixtures, makes no model inference or Promptfoo telemetry/update requests, and records that it does not establish model resistance
 - **AND** any optional live SoCLaaS evaluation is explicitly invoked, bounded, and uses synthetic cases only
 
 ### Requirement: Separate deployment and accurate artifacts
