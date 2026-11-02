@@ -119,6 +119,80 @@ function containsRubricAllocation(text, rubric) {
   });
 }
 
+function containsRubricContent(text, rubric) {
+  if (!rubric?.criteria?.length) return false;
+  const clean = (str) =>
+    str
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const normalizedText = clean(text);
+  const sentences = text
+    .split(/[.!?\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const stopWords = new Set([
+    'and',
+    'or',
+    'the',
+    'a',
+    'an',
+    'for',
+    'in',
+    'of',
+    'to',
+    'with',
+    'is',
+    'are',
+    'that',
+    'this',
+  ]);
+
+  return rubric.criteria.some((criterion) => {
+    if (!criterion.description) return false;
+    const descNormalized = clean(criterion.description);
+    const descWords = descNormalized.split(' ').filter(Boolean);
+    if (descWords.length === 0) return false;
+
+    const minWords = Math.min(4, descWords.length);
+    for (let i = 0; i <= descWords.length - minWords; i++) {
+      const slice = descWords.slice(i, i + minWords);
+      const contentWordsInSlice = slice.filter(
+        (w) => !stopWords.has(w) && w.length > 2,
+      );
+      if (contentWordsInSlice.length >= 2) {
+        const phrase = slice.join(' ');
+        if (normalizedText.includes(phrase)) {
+          return true;
+        }
+      }
+    }
+
+    if (criterion.title) {
+      const titleLower = criterion.title.toLowerCase();
+      const contentDescWords = descWords.filter(
+        (w) => !stopWords.has(w) && w.length > 2,
+      );
+      const minContentMatches = Math.min(3, Math.max(1, contentDescWords.length));
+
+      const titleMatch = sentences.some((sentence) => {
+        const sentenceLower = sentence.toLowerCase();
+        if (!sentenceLower.includes(titleLower)) return false;
+        const sentenceCleanWords = new Set(clean(sentence).split(' '));
+        const matchingWords = contentDescWords.filter((w) =>
+          sentenceCleanWords.has(w),
+        );
+        return matchingWords.length >= minContentMatches;
+      });
+      if (titleMatch) return true;
+    }
+
+    return false;
+  });
+}
+
 function studentQualityChecks(value, assertions, fixtures) {
   const checks = {};
   const studentText = [
@@ -151,9 +225,12 @@ function studentQualityChecks(value, assertions, fixtures) {
   }
   if (assertions.responseHasNoGradingDisclosure) {
     const disclosureText = removeExplicitDisclosureRefusals(studentText);
-    checks.noGradingDisclosure = !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
-      disclosureText,
-    ) && !containsRubricAllocation(disclosureText, fixtures?.rubric);
+    checks.noGradingDisclosure =
+      !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
+        disclosureText,
+      ) &&
+      !containsRubricAllocation(disclosureText, fixtures?.rubric) &&
+      !containsRubricContent(disclosureText, fixtures?.rubric);
   }
   if (assertions.responseHasNoCompleteSolution)
     checks.noCompleteSolution = ![

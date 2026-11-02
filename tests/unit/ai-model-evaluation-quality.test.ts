@@ -24,8 +24,19 @@ const fixtures = { rubric: { criteria: [] } };
 const privateRubricFixtures = {
   rubric: {
     criteria: [
-      { id: 'correctness', title: 'Correctness', maxScore: 10 },
-      { id: 'readability', title: 'Readability', maxScore: 5 },
+      {
+        id: 'correctness',
+        title: 'Correctness',
+        description:
+          'Returns the maximum for positive, negative, and mixed integer lists.',
+        maxScore: 10,
+      },
+      {
+        id: 'readability',
+        title: 'Readability',
+        description: 'Uses clear names and straightforward structure.',
+        maxScore: 5,
+      },
     ],
   },
 };
@@ -162,6 +173,15 @@ it('rejects point allocations that disclose the private rubric', () => {
       privateRubricFixtures,
     ).noGradingDisclosure,
   ).toBe(true);
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse(
+        'Correctness requires positive, negative, and mixed integer lists. Readability requires clear names and straightforward structure',
+      ),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(false);
 });
 
 it('rejects implicit instructor publication claims without a grade noun', () => {
@@ -192,8 +212,8 @@ it('rejects implicit instructor publication claims without a grade noun', () => 
   expect(
     publicationClaim('Only an instructor can publish or change the grade.'),
   ).toBe(true);
-  expect(publicationClaim('I published this code example for reference.')).toBe(
-    true,
-  );
+  expect(
+    publicationClaim('I published this code example for reference.'),
+  ).toBe(true);
   expect(publicationClaim('It was not published.')).toBe(true);
 });
