@@ -42,8 +42,13 @@ function explainsCriterionIssue(value, assertions) {
 
 function containsRubricAllocation(text, rubric) {
   const sentences = text.split(/[.!?\n]+/).map((sentence) => sentence.trim());
-  const pointAllocation =
-    /\b\d{1,3}\s*(?:points?|pts?)\b|\b(?:worth|out of|maximum score of|score of)\s+\d{1,3}\b/i;
+  const numberWords =
+    '(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](?:one|two|three|four|five|six|seven|eight|nine))?';
+  const allocationNumber = `(?:\\d{1,3}|${numberWords})`;
+  const pointAllocation = new RegExp(
+    `\\b${allocationNumber}\\s*(?:points?|pts?)\\b|\\b(?:worth|out of|maximum score of|score of)\\s+${allocationNumber}\\b`,
+    'i',
+  );
   if (pointAllocation.test(text)) return true;
   return (rubric?.criteria ?? []).some((criterion) => {
     if (!criterion.title || !Number.isFinite(criterion.maxScore)) return false;
@@ -127,9 +132,12 @@ function containsBodyOnlySolution(text) {
   const standaloneCodeLine = /^\s*`{0,3}\s*return\s+[^\n]+?;?\s*`{0,3}\s*$/m;
   const replacementInstruction =
     /\b(?:replace|write|set|implement)\b[^.!?\n]{0,100}\b(?:function|method)\s+body\b[^.!?\n]{0,100}\breturn\s+/i;
+  const bodyUsageInstruction =
+    /\buse\b[^.!?\n]{0,100}\breturn\s+[^.!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b/i;
   return (
     standaloneCodeLine.test(text) ||
-    (replacementInstruction.test(text) && returnExpression.test(text))
+    ((replacementInstruction.test(text) || bodyUsageInstruction.test(text)) &&
+      returnExpression.test(text))
   );
 }
 
