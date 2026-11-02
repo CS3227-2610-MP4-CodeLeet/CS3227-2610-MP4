@@ -67,6 +67,7 @@ test('instructor creates an SGT deadline, edits without losing seconds and clear
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
   await page.goto('/instructor/assignments/new');
+  await page.getByLabel('Maximum XP', { exact: true }).fill('0');
   await page
     .getByLabel('Title', { exact: true })
     .fill('Deadline authoring example');

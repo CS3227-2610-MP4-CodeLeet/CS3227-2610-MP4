@@ -2,19 +2,19 @@
 
 A Coursemology-inspired programming assignment platform for students and instructors.
 
-**Status: local Next.js foundation, synthetic student workspace, and an opt-in browser-only Python/Java practice runner. Authenticated student/instructor services and deployment are not implemented yet.**
+Status: authenticated student/instructor workflows, browser-only Python/Java practice, forums and instructor-configured XP are implemented with local synthetic verification. Leaderboard and complete hosted acceptance remain pending. See the [User Guide](docs/UserGuide.md) for current features and limits.
 
-## Planned product
+## Product scope
 
 - Students enter, run, and submit single-file Python or Java programs, receive AI hints, and view published grades.
 - Instructors create assignments and rubrics, review submissions, request AI grading suggestions, and approve grades for publication.
-- Both roles have profiles and access to discussion threads. Students earn XP and appear on a leaderboard.
-- Python execution and Java source compilation/execution happen in the browser in the opt-in local preview. Production runtime selection and hosting remain pending browser coverage, distribution/provenance review, and credential-free origin integration.
+- Both roles have profiles and access to discussion threads. Students can view their own XP; leaderboard is planned separately.
+- Python execution and Java source compilation/execution happen in the browser. Local and same-project runtime builds are available; hosted acceptance, browser coverage and distribution/provenance review remain separate gates.
 - No file uploads, badges, package installation, or server-side code execution.
 
 ## Technology direction
 
-Initialized: Next.js App Router, React, TypeScript, Tailwind CSS, shadcn configuration, ESLint, Prettier, Vitest, Playwright, Supabase Auth/PostgreSQL/RLS foundations, Zod and pnpm. Exact dependencies are recorded in package.json and pnpm-lock.yaml. Local Supabase has a fresh profile/trusted-role migration and database security tests; application auth routes, SoCLaaS and hosted Vercel projects remain future work. The Docusaurus product site is configured for GitHub Pages but has not been published.
+Implemented with Next.js App Router, React, TypeScript, Tailwind CSS, shadcn configuration, ESLint, Prettier, Vitest, Playwright, Supabase Auth/PostgreSQL/RLS, Zod and pnpm. Exact dependencies are recorded in package.json and pnpm-lock.yaml. Local migrations/security tests and SoCLaaS integration are available. Hosted rollout/acceptance is tracked separately. The Docusaurus product site is configured for GitHub Pages; a verified public release is not established by local builds.
 
 Technology choices were informed by MP3. Its implementation and project files have not been copied; this is a fresh MP4 scaffold.
 
@@ -63,4 +63,4 @@ For UI tests only, set `PLAYWRIGHT_ASSIGNMENT_FIXTURES=true` in the test server 
 
 This is development-only synthetic data, not a login or database-backed flow. Production ignores the flag and denies these preview pages. Assignment details include a plain-text code editor with the fixed language, a 32 KiB UTF-8 counter and local input checks. Submit code remains disabled; code is not saved or submitted. The separate runner preview can execute code locally in the browser when enabled; follow the [runner setup and limitations](docs/UserGuide.md#browser-runs-and-published-practice-tests-additional-local-opt-in). Local list state examples are `?preview=empty`, `?preview=slow` and `?preview=error`; error recovery returns to the normal list.
 
-The [browser runtime feasibility experiment](workflow/evidence/runtime-feasibility/README.md) records real Python/Java probes and coordinated security/testing evidence. [Java buffered input works](workflow/evidence/runtime-feasibility/java-input-resolution.md) for the documented basic Scanner/BufferedReader subset. The local runner preview supports Run code and synthetic published practice tests, but is not a production service or grading mechanism. Teacher publishing/storage, runtime provenance/distribution review, supported-browser coverage, and production runner verification remain incomplete.
+The [browser runtime feasibility experiment](workflow/evidence/runtime-feasibility/README.md) records real Python/Java probes and coordinated security/testing evidence. [Java buffered input works](workflow/evidence/runtime-feasibility/java-input-resolution.md) for the documented basic Scanner/BufferedReader subset. Authenticated assignments support Run code and instructor-published practice tests without making browser results official grades or XP. Runtime provenance/distribution review, supported-browser coverage and complete hosted runner verification remain pending.

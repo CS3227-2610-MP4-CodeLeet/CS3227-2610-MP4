@@ -58,6 +58,18 @@ beforeEach(() => {
   mocks.from.mockReset();
   mocks.rpc.mockReset();
 });
+it('sends explicitly configured XP through the atomic XP-aware RPC', async () => {
+  mocks.getUser.mockResolvedValue(context('instructor'));
+  mocks.rpc.mockResolvedValue({
+    data: { id: 'saved', max_xp: 100 },
+    error: null,
+  });
+  expect((await post({ ...assignment, maxXp: 100 })).status).toBe(201);
+  expect(mocks.rpc).toHaveBeenCalledWith(
+    'save_assignment_with_xp',
+    expect.objectContaining({ p_max_xp: 100, p_update_due_at: false }),
+  );
+});
 
 describe('assignment collection route', () => {
   it('requires an authenticated role and restricts student reads to published assignments', async () => {

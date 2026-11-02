@@ -1,7 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: Instructor-authored public practice cases
-Verified owning instructors SHALL manage up to five ordered public stdin/expected-stdout cases on a dedicated assignment Practice tests page. Names SHALL be nonblank and at most 120 Unicode code points after trimming; case UUIDs SHALL be distinct; input/output SHALL preserve literal whitespace and be valid text without NUL, bounded to 4,096/8,192 UTF-8 bytes respectively. Empty input/output SHALL be valid.
+Verified owning instructors SHALL manage up to five ordered public stdin/expected-stdout cases on a dedicated assignment Practice tests page.
+
+#### Scenario: Required constraints for instructor-authored public practice cases
+- **WHEN** this capability is used
+- **THEN** Names SHALL be nonblank and at most 120 Unicode code points after trimming; case UUIDs SHALL be distinct; input/output SHALL preserve literal whitespace and be valid text without NUL, bounded to 4,096/8,192 UTF-8 bytes respectively. Empty input/output SHALL be valid.
 
 Private drafts and public snapshots SHALL reside in separate RLS-protected storage. Save draft SHALL not replace a published set; Publish tests SHALL atomically save/publish the edited set; Unpublish tests SHALL remove public cases while retaining the draft. Each write SHALL require an expected edit version, verified trusted instructor role and assignment ownership, and reject conflicts without partial writes. Direct client writes SHALL be denied. Published snapshot revisions SHALL advance on publish/unpublish.
 
@@ -21,7 +25,11 @@ Student reads SHALL return only the public projection for a published assignment
 - **AND** unpublishing the assignment makes the assignment/cases unavailable to students
 
 ### Requirement: Optional deadlines and submission timing
-Instructors SHALL be able to create, edit and clear optional assignment due dates, entered/displayed in Singapore time and stored as finite timestamp-with-time-zone instants. Existing assignments SHALL retain no deadline. Students SHALL see current due dates and own latest-revision status: Not submitted, Overdue when past due without a save, Submitted or Submitted late. Revision history/detail and authorized instructor views SHALL display captured submission timing. Status MAY update on load/refresh/save without polling.
+Instructors SHALL be able to create, edit and clear optional assignment due dates, entered/displayed in Singapore time and stored as finite timestamp-with-time-zone instants.
+
+#### Scenario: Required constraints for optional deadlines and submission timing
+- **WHEN** this capability is used
+- **THEN** Existing assignments SHALL retain no deadline. Students SHALL see current due dates and own latest-revision status: Not submitted, Overdue when past due without a save, Submitted or Submitted late. Revision history/detail and authorized instructor views SHALL display captured submission timing. Status MAY update on load/refresh/save without polling.
 
 Late submissions SHALL remain accepted without an automatic grade penalty. The database SHALL stamp each new revision's actual creation time, capture the current deadline under the assignment lock and determine lateness with a strict later-than comparison. Exactly at the deadline SHALL be on time. Existing revisions and identical request retries SHALL keep their original timing metadata after deadline edits/removal. Direct client timing/identity claims SHALL NOT control saving or grades. Omitted deadline updates SHALL preserve the current value; explicit null SHALL clear it. Existing ownership, RLS, optimistic version/language guards, immutable source and published-grade/private-rubric boundaries SHALL remain enforced.
 
@@ -38,7 +46,11 @@ Late submissions SHALL remain accepted without an automatic grade penalty. The d
 - **THEN** existing access and input guards prevent disclosure/forgery, no synthetic deadline is invented, and exact-deadline comparison plus SGT/UTC conversion remain consistent
 
 ### Requirement: Compare owned saved revisions
-Verified students SHALL be able to select two of their own saved revision numbers for the same assignment and language and view added, removed and unchanged lines with original/new line numbers. Selection SHALL persist in GET URLs and refresh/history navigation. Default comparison SHALL use predecessor/current, or first/latest when opening revision one; a single saved revision and identical code SHALL have helpful states. Reversed/equal selections SHALL remain valid. Whitespace and final newlines SHALL be represented; line-ending styles MAY be normalized for comparison only. Comparison work SHALL be bounded and MAY show a coarser changed middle block for large inputs. Source SHALL render as safe text with keyboard/mobile/light/dark support, without modifying or executing saved revisions.
+Verified students SHALL be able to select two of their own saved revision numbers for the same assignment and language and view added, removed and unchanged lines with original/new line numbers.
+
+#### Scenario: Required constraints for compare owned saved revisions
+- **WHEN** this capability is used
+- **THEN** Selection SHALL persist in GET URLs and refresh/history navigation. Default comparison SHALL use predecessor/current, or first/latest when opening revision one; a single saved revision and identical code SHALL have helpful states. Reversed/equal selections SHALL remain valid. Whitespace and final newlines SHALL be represented; line-ending styles MAY be normalized for comparison only. Comparison work SHALL be bounded and MAY show a coarser changed middle block for large inputs. Source SHALL render as safe text with keyboard/mobile/light/dark support, without modifying or executing saved revisions.
 
 The server SHALL derive identity from the verified session, validate identifiers/revision parameters, read only projected own anchor/latest metadata and at most two selected bounded sources, and enforce student/assignment/language filters alongside RLS. Missing/foreign/invalid/duplicate selections SHALL fail closed; unavailable assignment titles SHALL stay hidden. No rubric, unpublished grade, AI, grade/XP write, source query parameter or persistent source cache SHALL be introduced.
 
@@ -70,7 +82,11 @@ The system SHALL provide My grades to verified students, listing only their own 
 - **THEN** filters combine before stable pagination and persist in URLs; applying/clearing resets page one, invalid/duplicate parameters fail closed, and null scores do not hide published feedback
 
 ### Requirement: Continue editing an owned saved revision
-Students SHALL be able to load their own saved revision into its published assignment's editor and submit further work as a new immutable revision. Only a revision identifier SHALL appear in the navigation URL. The server SHALL verify student identity, ownership, assignment association and matching language before supplying exact source; invalid, duplicate, missing, peer or mismatched identifiers SHALL fail closed. This action SHALL NOT save, execute code, publish grades or award XP automatically.
+Students SHALL be able to load their own saved revision into its published assignment's editor and submit further work as a new immutable revision.
+
+#### Scenario: Required constraints for continue editing an owned saved revision
+- **WHEN** this capability is used
+- **THEN** Only a revision identifier SHALL appear in the navigation URL. The server SHALL verify student identity, ownership, assignment association and matching language before supplying exact source; invalid, duplicate, missing, peer or mismatched identifiers SHALL fail closed. This action SHALL NOT save, execute code, publish grades or award XP automatically.
 
 #### Scenario: Reopen and submit in either language
 - **WHEN** a student chooses Continue editing on an available Python or Java revision
@@ -128,7 +144,11 @@ The real student assignment editor SHALL indicate when its current source differ
 - **AND** documented browser limitations include suppressed mobile/unload dialogs and unsupported or noncancelable history traversal
 
 ### Requirement: Private cross-assignment submission history
-Authenticated students SHALL have a My submissions list of their own stored revisions across assignments, with assignment title, stored language, revision, submitted time and links to existing authorized detail/feedback/published-grade views. The server SHALL derive student identity from the verified session and enforce an explicit ownership filter alongside RLS. List reads SHALL exclude source, private rubrics and grades. The list SHALL use deterministic newest-first pagination of 25 items, show loading/empty/safe retry states and retain own revisions when assignment metadata is unavailable. This real-data feature SHALL require authentication even when the synthetic assignment preview is enabled.
+Authenticated students SHALL have a My submissions list of their own stored revisions across assignments, with assignment title, stored language, revision, submitted time and links to existing authorized detail/feedback/published-grade views.
+
+#### Scenario: Required constraints for private cross-assignment submission history
+- **WHEN** this capability is used
+- **THEN** The server SHALL derive student identity from the verified session and enforce an explicit ownership filter alongside RLS. List reads SHALL exclude source, private rubrics and grades. The list SHALL use deterministic newest-first pagination of 25 items, show loading/empty/safe retry states and retain own revisions when assignment metadata is unavailable. This real-data feature SHALL require authentication even when the synthetic assignment preview is enabled.
 
 #### Scenario: Find and revisit revisions
 - **WHEN** a student opens My submissions after saving Python/Java revisions to different assignments
@@ -143,14 +163,22 @@ Authenticated students SHALL have a My submissions list of their own stored revi
 - **THEN** unavailable metadata uses a neutral label without losing the revision, while failures show a retry state without disclosing backend details or using fixtures
 
 ### Requirement: Focused student assignment layout
-The student sidebar and Menu SHALL contain only the Assignments navigation entry, with nonshrinking padded CodeLeet branding. Assignment discovery SHALL remain in the main list. For an enabled local runner, the real assignment page SHALL order instructions, source editor, Run code, Run & test input/output, test cases and their action, Submit revision/status, then Your revisions. Run/test actions SHALL remain non-submitting buttons, and changes to layout SHALL preserve source, saving and execution behavior.
+The student sidebar and Menu SHALL contain only the Assignments navigation entry, with nonshrinking padded CodeLeet branding.
+
+#### Scenario: Required constraints for focused student assignment layout
+- **WHEN** this capability is used
+- **THEN** Assignment discovery SHALL remain in the main list. For an enabled local runner, the real assignment page SHALL order instructions, source editor, Run code, Run & test input/output, test cases and their action, Submit revision/status, then Your revisions. Run/test actions SHALL remain non-submitting buttons, and changes to layout SHALL preserve source, saving and execution behavior.
 
 #### Scenario: Navigate and work on an assignment
 - **WHEN** a student opens an assignment on desktop or uses Menu on mobile
 - **THEN** navigation offers Assignments without duplicated published-assignment shortcuts, the problem precedes source, and submission/history follow practice results
 
 ### Requirement: Real assignment language and immutable revision language
-The authenticated assignment workflow SHALL accept Python or Java, defaulting omitted assignment language to Python for existing callers. Instructor creation/editing SHALL expose this choice. Every stored revision SHALL derive its language from the assignment on the server and retain that language with its source. The real editor, browser runner, revision views and AI context SHALL use the validated stored language. Unsupported assignment languages and client-supplied submission language fields SHALL be rejected. This integration retains the authenticated MVP's 8,000-character source bound and 201 response for successful or identical retried submissions; the earlier 32 KiB preview contract is separate.
+The authenticated assignment workflow SHALL accept Python or Java, defaulting omitted assignment language to Python for existing callers.
+
+#### Scenario: Required constraints for real assignment language and immutable revision language
+- **WHEN** this capability is used
+- **THEN** Instructor creation/editing SHALL expose this choice. Every stored revision SHALL derive its language from the assignment on the server and retain that language with its source. The real editor, browser runner, revision views and AI context SHALL use the validated stored language. Unsupported assignment languages and client-supplied submission language fields SHALL be rejected. This integration retains the authenticated MVP's 8,000-character source bound and 201 response for successful or identical retried submissions; the earlier 32 KiB preview contract is separate.
 
 #### Scenario: Both real languages
 - **WHEN** an instructor publishes a Python or Java assignment and a student runs and submits its source
@@ -176,7 +204,11 @@ Student source entry SHALL show syntax colours appropriate to the assignment lan
 - **THEN** the syntax colours follow the theme and the gutter/highlight stay aligned with the input without widening the page
 
 ### Requirement: Keyboard indentation
-The shared source editor SHALL support four-space Tab indentation, selected-block indentation and Shift+Tab unindentation. Enter SHALL preserve leading whitespace and add a level after Python block colons or opening delimiters outside strings/comments. Enter between matching brackets SHALL place the caret on an indented blank line, and a Java closing brace on an indented blank line SHALL remove one level. Editing SHALL preserve source outside the change and enforce the existing textarea character limit without truncation. Escape then Tab SHALL allow normal focus movement; composition and modifier shortcuts SHALL remain native. Native undo SHALL work in the verified Chromium editing path.
+The shared source editor SHALL support four-space Tab indentation, selected-block indentation and Shift+Tab unindentation.
+
+#### Scenario: Required constraints for keyboard indentation
+- **WHEN** this capability is used
+- **THEN** Enter SHALL preserve leading whitespace and add a level after Python block colons or opening delimiters outside strings/comments. Enter between matching brackets SHALL place the caret on an indented blank line, and a Java closing brace on an indented blank line SHALL remove one level. Editing SHALL preserve source outside the change and enforce the existing textarea character limit without truncation. Escape then Tab SHALL allow normal focus movement; composition and modifier shortcuts SHALL remain native. Native undo SHALL work in the verified Chromium editing path.
 
 #### Scenario: Selected block
 - **WHEN** a student selects several code lines and presses Tab then Shift+Tab
@@ -202,7 +234,11 @@ Before shared-service integration, synthetic assignment list/detail previews SHA
 - **THEN** students can read Python/Java sample instructions, observe the appropriate state and recover through assignment navigation without any submission or authentication being simulated
 
 ### Requirement: Local source entry preview
-The opted-in development preview SHALL provide a labeled code-entry textarea with the assignment's fixed Python/Java language, UTF-8 byte counter and local input validation. It SHALL retain source on validation errors, reject blank, invalid Unicode, NUL and source above 32,768 UTF-8 bytes without truncation, and render source as plain text. Check code SHALL NOT execute or transmit source. An additional opt-in local runner preview MAY pass source through a validated browser message bridge for local execution/published practice tests; source SHALL NOT be sent to a server or persisted. Submit code SHALL remain disabled until authenticated integration exists.
+The opted-in development preview SHALL provide a labeled code-entry textarea with the assignment's fixed Python/Java language, UTF-8 byte counter and local input validation.
+
+#### Scenario: Required constraints for local source entry preview
+- **WHEN** this capability is used
+- **THEN** It SHALL retain source on validation errors, reject blank, invalid Unicode, NUL and source above 32,768 UTF-8 bytes without truncation, and render source as plain text. Check code SHALL NOT execute or transmit source. An additional opt-in local runner preview MAY pass source through a validated browser message bridge for local execution/published practice tests; source SHALL NOT be sent to a server or persisted. Submit code SHALL remain disabled until authenticated integration exists.
 
 #### Scenario: Local validation failure
 - **WHEN** a tester checks blank or oversized source in the enabled preview
@@ -255,7 +291,11 @@ Student-visible assignment data SHALL include ID, title, instructions, language 
 - **THEN** its private content is not returned
 
 ### Requirement: Immutable code revisions
-The system SHALL accept bounded single-file Python or Java source as immutable revisions and associate grades/feedback with exact revisions. Resubmission SHALL preserve prior evaluated code.
+The system SHALL accept bounded single-file Python or Java source as immutable revisions and associate grades/feedback with exact revisions.
+
+#### Scenario: Required constraints for immutable code revisions
+- **WHEN** this capability is used
+- **THEN** Resubmission SHALL preserve prior evaluated code.
 
 Each revision SHALL associate assignment ID, authenticated student ID, source code, language, authoritative revision and timestamp. Student identity, revision and time SHALL be determined or verified server-side, and language SHALL match the published assignment. Successful creation SHALL return stored revision metadata that the student can read in their own history.
 

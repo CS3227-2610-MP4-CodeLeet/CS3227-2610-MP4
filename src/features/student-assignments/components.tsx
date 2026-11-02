@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, BookOpen, Code2 } from 'lucide-react';
 import type { AssignmentDetail, AssignmentSummary } from './types';
 import { languageLabels } from './types';
+import { AssignmentXp } from '@/features/assignment-xp/components';
 import {
   emptyListFilters,
   hasListFilters,
@@ -210,6 +211,7 @@ export function AssignmentInstructions({
           </h1>
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             <AssignmentDueDate dueAt={assignment.due_at} />
+            <AssignmentXp value={assignment.max_xp} />
             {assignment.submission_status && (
               <SubmissionStatusBadge status={assignment.submission_status} />
             )}

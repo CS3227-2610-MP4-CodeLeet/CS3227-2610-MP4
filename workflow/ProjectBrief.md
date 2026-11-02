@@ -1,6 +1,6 @@
 # Project brief
 
-Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services and instructor-authored public practice cases are implemented with synthetic local evidence. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. XP/leaderboard features, complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. Authored-case rollout and exact checks are tracked in issue #74 and its dated summary.
+Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services, instructor-authored public practice cases and instructor-configured assignment XP are implemented with synthetic local evidence. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. Leaderboard, complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. XP rollout and exact checks are tracked in issue #77 and its dated summary; authored cases in issue #74.
 
 ## Sources and precedence
 
