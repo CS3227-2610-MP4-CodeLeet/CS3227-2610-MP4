@@ -94,6 +94,9 @@ it('rejects complete replacement code, including a one-line Python lambda', () =
     noCompleteSolution('For the function body, use return max(nums).'),
   ).toBe(false);
   expect(
+    noCompleteSolution('For the function body, use `return max(nums).`.'),
+  ).toBe(false);
+  expect(
     noCompleteSolution(
       'Use return java.util.Arrays.stream(values).max().getAsInt(); for the method body.',
     ),

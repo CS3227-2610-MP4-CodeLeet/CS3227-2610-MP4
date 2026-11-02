@@ -181,7 +181,7 @@ function containsBodyOnlySolution(text) {
   const bodyUsageInstruction =
     /\buse\b[^!?\n]{0,100}\breturn\s+[^!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b/i;
   const targetFirstInstruction =
-    /\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b[^!?\n]{0,100}\buse\s+return\b/i;
+    /\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b[^!?\n]{0,100}\buse\s+`?return\b/i;
   return (
     standaloneCodeLine.test(text) ||
     ((replacementInstruction.test(text) ||
@@ -252,8 +252,7 @@ function extractReturnExpression(text) {
   return expression
     .replace(/\s+for\s+(?:the|a)\s+(?:function|method)\s+body\b[\s\S]*$/i, '')
     .trim()
-    .replace(/[.!?]+$/g, '')
-    .replace(/^[`]+|[`]+$/g, '')
+    .replace(/[`.!?]+\s*$/g, '')
     .trim();
 }
 
