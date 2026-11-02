@@ -1,3 +1,11 @@
+## 26. Issue #74 instructor-authored public practice tests
+
+- [x] 26.1 Requester approved the concrete design on 2 November 2026; implementation plan written. Teammate review remains separate.
+- [ ] 26.2 Add bounded case contracts, private draft/public snapshot persistence, owner-only atomic version-checked save/publish/unpublish and RLS/API denial tests.
+- [ ] 26.3 Implement instructor authoring and student published-case loading using existing browser-only Python/Java execution, snapshot-safe results and no grading/fixture fallback.
+- [ ] 26.4 Verify role/draft/assignment visibility, conflicts, byte/whitespace boundaries, both language journeys and mobile/theme/regressions; update verified guides/handoff/logs and migration rollout notes.
+- [ ] 26.5 Push verified milestones, pass branch CI and create a linked PR to develop; verify final-head checks and document prerequisite skips. Independent/human/hosted acceptance remains separate.
+
 ## 25. Issue #70 User Guide and security/reflection evidence
 
 - [x] 25.5 Issue #72 follows the requester's two-member reflection structure: index plus MP4-specific Paul/John drafts and preserved shared evidence. Updated develop verification: 147 links/13 documents, theme/member-review structure, formatting/scaffold/strict OpenSpec passed. Branch CI 41377040526 passed before linked PR #73; final-head checks are monitored/reported there. Member contribution/wording verification remains pending.

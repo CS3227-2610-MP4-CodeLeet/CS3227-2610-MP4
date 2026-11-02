@@ -1,5 +1,25 @@
 ## ADDED Requirements
 
+### Requirement: Instructor-authored public practice cases
+Verified owning instructors SHALL manage up to five ordered public stdin/expected-stdout cases on a dedicated assignment Practice tests page. Names SHALL be nonblank and at most 120 Unicode code points after trimming; case UUIDs SHALL be distinct; input/output SHALL preserve literal whitespace and be valid text without NUL, bounded to 4,096/8,192 UTF-8 bytes respectively. Empty input/output SHALL be valid.
+
+Private drafts and public snapshots SHALL reside in separate RLS-protected storage. Save draft SHALL not replace a published set; Publish tests SHALL atomically save/publish the edited set; Unpublish tests SHALL remove public cases while retaining the draft. Each write SHALL require an expected edit version, verified trusted instructor role and assignment ownership, and reject conflicts without partial writes. Direct client writes SHALL be denied. Published snapshot revisions SHALL advance on publish/unpublish.
+
+Student reads SHALL return only the public projection for a published assignment, with assignment and test-set versions from one database snapshot. Missing/hidden assignments SHALL be unavailable rather than empty; a failed read SHALL not become an empty set or fixture fallback. Source, rubrics, grades and drafts SHALL be excluded. API writes SHALL enforce strict bounded JSON, same-origin and verified roles, with sanitized private/no-store responses. No AI, official result, grade or XP write SHALL result from this feature.
+
+#### Scenario: Edit without releasing a new set
+- **WHEN** an instructor saves changes as a draft after publishing cases
+- **THEN** students continue to receive the previously published cases until explicit publication
+
+#### Scenario: Conflicting author edits
+- **WHEN** two updates use the same expected edit version
+- **THEN** only one succeeds and the other receives a conflict without replacing its typed draft
+
+#### Scenario: Assignment or test unpublication
+- **WHEN** cases are unpublished
+- **THEN** the accessible assignment returns an empty public set and retains the private draft
+- **AND** unpublishing the assignment makes the assignment/cases unavailable to students
+
 ### Requirement: Optional deadlines and submission timing
 Instructors SHALL be able to create, edit and clear optional assignment due dates, entered/displayed in Singapore time and stored as finite timestamp-with-time-zone instants. Existing assignments SHALL retain no deadline. Students SHALL see current due dates and own latest-revision status: Not submitted, Overdue when past due without a save, Submitted or Submitted late. Revision history/detail and authorized instructor views SHALL display captured submission timing. Status MAY update on load/refresh/save without polling.
 
