@@ -57,6 +57,12 @@ export default async function InstructorPage() {
               <div className="flex gap-4 text-sm">
                 <Link
                   className="underline"
+                  href={`/instructor/assignments/${assignment.id}/practice-tests`}
+                >
+                  Practice tests
+                </Link>
+                <Link
+                  className="underline"
                   href={`/instructor/assignments/${assignment.id}/edit`}
                 >
                   Edit

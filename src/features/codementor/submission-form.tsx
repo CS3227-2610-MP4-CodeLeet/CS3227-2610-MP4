@@ -117,6 +117,7 @@ export function SubmissionForm({
       />
       <DraftStatus dirty={dirty} />
       <AssignmentPractice
+        assignmentId={assignmentId}
         runnerOrigin={browserRunnerOrigin}
         source={source}
         language={language}

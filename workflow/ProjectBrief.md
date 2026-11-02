@@ -1,6 +1,6 @@
 # Project brief
 
-Status: Shared signed-in forum threads/replies and CodeLeet student/instructor MVP routes and local Supabase-backed services are implemented and verified with synthetic records and mocked AI. XP/leaderboard features, hosted Supabase/Vercel deployment, live SoCLaaS verification, and same-project browser-runtime distribution/licensing review remain pending.
+Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services and instructor-authored public practice cases are implemented with synthetic local evidence. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. XP/leaderboard features, complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. Authored-case rollout and exact checks are tracked in issue #74 and its dated summary.
 
 ## Sources and precedence
 

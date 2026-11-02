@@ -34,6 +34,12 @@ export default async function EditAssignmentPage({
         Back to assignments
       </Link>
       <h1 className="text-3xl font-semibold">Edit assignment</h1>
+      <Link
+        className="inline-block text-sm underline"
+        href={`/instructor/assignments/${assignmentId}/practice-tests`}
+      >
+        Practice tests
+      </Link>
       <AssignmentForm
         assignment={{
           ...assignment,

@@ -1,9 +1,9 @@
 ## 26. Issue #74 instructor-authored public practice tests
 
 - [x] 26.1 Requester approved the concrete design on 2 November 2026; implementation plan written. Teammate review remains separate.
-- [ ] 26.2 Add bounded case contracts, private draft/public snapshot persistence, owner-only atomic version-checked save/publish/unpublish and RLS/API denial tests.
-- [ ] 26.3 Implement instructor authoring and student published-case loading using existing browser-only Python/Java execution, snapshot-safe results and no grading/fixture fallback.
-- [ ] 26.4 Verify role/draft/assignment visibility, conflicts, byte/whitespace boundaries, both language journeys and mobile/theme/regressions; update verified guides/handoff/logs and migration rollout notes.
+- [x] 26.2 Add bounded case contracts, private draft/public snapshots, owner-only atomic version-checked save/publish/unpublish and RLS/API denial tests. All 180 database assertions/eight files pass, including 33 authored-case assertions and publication/Unicode checks.
+- [x] 26.3 Implement instructor authoring and student published-case loading with browser-only Python/Java execution, fresh/safe snapshots and no grading/fixture fallback. Both actual-language journeys, concurrent API/denial and mobile recovery pass; independent review findings resolved.
+- [x] 26.4 Verify role/draft/assignment visibility, conflicts, byte/whitespace/Unicode limits, both real-language journeys and mobile recovery; update guides/handoff/logs/rollout notes. Final local checks: 526 unit tests, 180 DB assertions, build/lint/format/types/spec/scaffold pass. Combined browser run 70 passes/seven skips plus one corrected harness startup replay pass; scoped independent findings resolved. See dated summary for exact limits.
 - [ ] 26.5 Push verified milestones, pass branch CI and create a linked PR to develop; verify final-head checks and document prerequisite skips. Independent/human/hosted acceptance remains separate.
 
 ## 25. Issue #70 User Guide and security/reflection evidence

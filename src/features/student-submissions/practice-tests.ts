@@ -52,7 +52,7 @@ export function validateCases(cases: readonly PracticeCase[]) {
       (item) =>
         !item.id ||
         !item.name ||
-        item.name.length > 120 ||
+        Array.from(item.name).length > 120 ||
         bytes(item.stdin) > 4096 ||
         bytes(item.expected_stdout) > 8192,
     )
