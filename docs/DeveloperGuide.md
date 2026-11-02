@@ -1,6 +1,8 @@
 # Developer Guide
 
-Status: CodeLeet student/instructor MVP routes, assignment/submission/grade flows, SoCLaaS integration, context comparison, usage views, and additive Supabase RLS/RPC migrations are implemented. Local schema and security tests are available. Hosted Supabase/Vercel setup and live SoCLaaS verification remain external gates.
+Status: CodeLeet student/instructor MVP routes, assignment/submission/grade flows, SoCLaaS integration, context comparison, usage views, and additive Supabase RLS/RPC migrations are implemented. Local schema and security tests are available. A bounded live synthetic SoCLaaS comparison is recorded separately; hosted application acceptance remains an external gate.
+
+For current security coverage, exact evidence scope, reproduction commands and unverified release gates, see the [2 November security evidence audit](../workflow/evidence/2026-11-02-security-testing.md). Its threat-to-test map distinguishes mocked/unit checks, database assertions, historical live experiments and hosted verification. The [User Guide](UserGuide.md) covers current user journeys; early preview sections elsewhere in this document describe development fixtures, not the default user experience. The [per-change plan](../workflow/plans/2026-11-02-user-guide-security-evidence.md) and [session summary](../logs/2026-11-02-user-guide-security-evidence.md) record this documentation audit.
 
 ## Technology and setup
 

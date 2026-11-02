@@ -46,6 +46,28 @@ Java compilation originally counted toward execution time. Separating the execut
 
 Sandboxed Windows web-server teardown stalled despite passing browser scenarios; manual owned-server sessions allowed the same suite to finish cleanly. The exact OS/sandbox cause is unproven. Those retries and setup costs are part of the workflow evidence, not hidden as a clean first attempt. Full runtime website cases remain opt-in because the reviewed runtime binaries are not redistributed in the repository; default CI therefore does not establish runtime acceptance. Token counts, internal reasoning percentages and cache-hit metrics remain unavailable.
 
+## Evidence audit: merged journeys and security (2 November)
+
+The [security evidence map](../workflow/evidence/2026-11-02-security-testing.md) connects role isolation, AI context/output boundaries, quotas, revision privacy and browser execution to concrete tests. This audit was direct coordinator work, not a new multi-agent experiment or independent review. The existing specialist runtime experiment remains the source for actual delegation evidence.
+
+### Observation: green CI has a scope
+
+The merged `develop` workflow at `0a26127` passed 147 database assertions and 80 unit-test files, but its browser run had 29 passes and 45 prerequisite skips. The earlier local deadline run recorded 67 browser passes with seven skips. These totals are not a quality or performance comparison: they used different trees and available credentials/opt-ins. A green workflow cannot establish authenticated or actual-runtime behavior that it skipped. A useful handoff must include the commit, environment, mocked services and skipped prerequisites, not merely “tests pass.”
+
+### Observation: retrieved context can contradict itself
+
+The User Guide retained early preview-only claims that forums were unavailable and hosted execution was disabled, alongside later forum instructions. Checking current routes, runner environment selection and test assertions exposed the contradictions. Reorganizing the guide around current user journeys and moving security/reproduction detail to a linked report keeps normal usage concise without losing the evidence needed for review. This is a qualitative observation; no controlled retrieval-quality, token or latency comparison was run, so no measured improvement is claimed.
+
+### Observation: model quality needs assertions beyond valid JSON
+
+The [SoCLaaS experiment](../workflow/experiments/2026-11-01-soclaas-model-evaluation.md) recorded 3/4 schema-valid outputs for `llama3.1:8b`, but only 1/4 passed all configured task/security checks. `qwen3-coder-next` passed 4/4 in the corrected four-case synthetic comparison. An initial pilot exposed a missing `totalScore` prompt requirement; a contract test and instructor prompt version update made the expected interface explicit. This supports testing the prompt/validator contract and keeping cache keys versioned, rather than accepting a parseable response as correct. Four cases per model cannot establish general grading accuracy or prompt-injection resistance; the experiment did not evaluate Java feedback.
+
+### Resource decisions and remaining work
+
+This audit reused saved CI/experiment records and existing tests and made no live provider calls. It did not spawn new agents for a bounded documentation task. Avoiding duplicate evaluations limits calls, but actual token/cost savings cannot be calculated without a matched baseline. The first local test attempt also revealed stale DOM-test dependencies, followed by a Node patch incompatibility during installation. These setup failures belong in the session log rather than being erased from a clean final total.
+
+Runtime byte caching, application AI response caching, provider prompt caching and agent context reuse are different mechanisms. Available evidence must not be used to infer savings for another mechanism. Provider prices/rate-limit verification, development token/cache metrics, internal reasoning percentages, a controlled context/delegation comparison and member-authored reflection remain pending. Team members should validate these generated observations and add their own decisions and contribution links before submission.
+
 ## Individual reflections
 
 ### Member A: <name>
