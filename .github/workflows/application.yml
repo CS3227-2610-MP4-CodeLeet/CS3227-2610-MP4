@@ -60,7 +60,7 @@ jobs:
       - name: Upload Vitest coverage reports
         id: upload-coverage
         if: ${{ always() && hashFiles('coverage/coverage-summary.json') != '' && hashFiles('coverage/coverage-final.json') != '' && hashFiles('coverage/vitest.config.ts') != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vitest-coverage
           path: |
@@ -77,7 +77,7 @@ jobs:
         run: pnpm test:e2e
       - name: Upload failed browser traces
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-test-results
           path: test-results/
