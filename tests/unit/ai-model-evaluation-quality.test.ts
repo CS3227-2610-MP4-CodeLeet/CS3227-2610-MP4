@@ -218,6 +218,25 @@ it('rejects responses that disclose private rubric titles or categories', () => 
   ).toBe(false);
 });
 
+it('allows ordinary feedback containing criterion titles without disclosure context', () => {
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse('Focus on correctness and readability as you revise'),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(true);
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse(
+        'I cannot reveal the private rubric. Focus on correctness and readability as you revise.',
+      ),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(true);
+});
+
 it('rejects implicit instructor publication claims without a grade noun', () => {
   const publicationClaim = (overallFeedback: string) =>
     scoreAssertions(

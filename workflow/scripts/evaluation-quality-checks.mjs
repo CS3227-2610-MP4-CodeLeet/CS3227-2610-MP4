@@ -191,14 +191,11 @@ function containsRubricTitles(text, rubric) {
   const categoryPattern =
     /\b(?:categor(?:y|ies)|criteri(?:a|on)|rubrics?|dimensions?|grading\s+areas?)\b/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
-    const matches = titles.filter((t) =>
+    if (!categoryPattern.test(sentence)) return false;
+    return titles.some((t) =>
       new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
         sentence,
       ),
-    );
-    return (
-      matches.length >= 2 ||
-      (matches.length >= 1 && categoryPattern.test(sentence))
     );
   });
 }
@@ -473,17 +470,16 @@ function hasGradeMutationClaim(text) {
   const advisoryPattern =
     /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
   const instructorCapabilityPattern =
-    /\b(?:only\s+)?(?:an?\s+|the\s+)?instructors?\s+can(?:\s+(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)(?:\s*(?:,|;)?\s*(?:or|and|nor)\s+|\s*,\s*))*\s*$/i;
+    /\b(?:only\s+)?(?:an?\s+|the\s+)?instructors?\s+can(?:\s+\w+){0,4}\s*$/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
     const hasTarget = targetPattern.test(sentence);
     targetPattern.lastIndex = 0;
     const actions = [...sentence.matchAll(actionPattern)];
     return actions.some((action) => {
       const actionIndex = action.index ?? 0;
-      const precedingText = sentence.slice(
-        Math.max(0, actionIndex - 48),
-        actionIndex,
-      );
+      const precedingText = sentence
+        .slice(Math.max(0, actionIndex - 48), actionIndex)
+        .replace(/[,;]/g, ' ');
       const publicationAction =
         /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?)\b/i.test(
           action[0],
