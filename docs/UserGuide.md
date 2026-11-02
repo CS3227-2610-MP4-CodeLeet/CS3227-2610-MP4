@@ -97,7 +97,7 @@ Corrected or withdrawn grades and changes to an assignment's maximum XP can incr
 
 ## Leaderboard
 
-Choose **Leaderboard** from the student sidebar/Menu or instructor header. Students with positive total XP appear highest first, with **Rank**, **Username** and **XP**. Equal XP shares a rank: two students in first place are followed by rank 3. Within a tie, usernames sort alphabetically, ignoring capitalization; duplicate usernames have a consistent order.
+Choose **Leaderboard** from the student sidebar/Menu or instructor header. Students with positive total XP appear highest first, with **Rank**, **Username** and **XP**. Equal XP shares a rank: two students in first place are followed by rank 3. Within a tie, usernames sort ignoring capitalization; duplicate usernames have a consistent order.
 
 Students see **Your rank** and **Your XP** even when their row is on another page. **You** identifies their row. Zero XP shows **Unranked** and is not listed. Instructors/admins can browse but are not ranked. **Next**/**Previous** browse 25 rows at a time; mobile tables scroll within their panel when needed.
 

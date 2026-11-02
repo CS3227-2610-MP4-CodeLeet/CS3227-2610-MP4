@@ -87,7 +87,7 @@
 ## 5. Community and XP
 
 - [x] 5.1 Implement text threads/replies with authorization and input/request limits.
-- [ ] 5.2 Implement deterministic leaderboard and synthetic local student/award seeds.
+- [x] 5.2 Implement deterministic leaderboard and synthetic local student/award seeds.
 - [x] 5.3 Verify duplicate/concurrent publication and corrections cannot inflate XP.
 
 ## 6. Review, evidence and release

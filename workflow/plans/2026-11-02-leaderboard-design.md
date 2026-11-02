@@ -1,6 +1,6 @@
 # XP leaderboard — approved design
 
-Issue [#80](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/80); branch `feat/leaderboard` from develop `00ae158`. Active OpenSpec: `build-programming-platform`, community-and-xp/task 5.2. Dependency: [XP PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79), open when checked. Status: requester explicitly approved this design and shared ranks on 2 November 2026. XP PR #79 subsequently merged into develop a42179d; implementation is in progress.
+Issue [#80](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/80); branch `feat/leaderboard` from develop `00ae158`. Active OpenSpec: `build-programming-platform`, community-and-xp/task 5.2. Dependency: [XP PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79), open when checked. Status: requester explicitly approved this design and shared ranks on 2 November 2026. XP PR #79 subsequently merged into develop a42179d; implementation and local verification are complete; CI/hosted gates are tracked in the summary.
 
 ## Intended experience
 
