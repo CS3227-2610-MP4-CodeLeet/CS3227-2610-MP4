@@ -25,6 +25,7 @@ vi.mock('@/lib/supabase/browser', () => ({
 vi.mock('next/navigation', () => ({ useRouter: () => mocks.router }));
 
 beforeEach(() => {
+  localStorage.clear();
   mocks.resetPasswordForEmail.mockReset();
   mocks.updateUser.mockReset();
   mocks.signOut.mockReset();
@@ -147,6 +148,8 @@ describe('password recovery and account exit', () => {
   });
 
   it('signs out locally and redirects, or reports a safe failure', async () => {
+    const draftKey = 'codeleet:draft:v1:synthetic';
+    localStorage.setItem(draftKey, 'synthetic unfinished work');
     mocks.signOut
       .mockResolvedValueOnce({ error: null })
       .mockRejectedValueOnce(new Error('private details'));
@@ -156,12 +159,15 @@ describe('password recovery and account exit', () => {
       expect(mocks.signOut).toHaveBeenCalledWith({ scope: 'local' }),
     );
     expect(mocks.router.replace).toHaveBeenCalledWith('/sign-in');
+    expect(localStorage.getItem(draftKey)).toBeNull();
     unmount();
 
+    localStorage.setItem(draftKey, 'synthetic unfinished work');
     render(<SignOutButton />);
     fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
     expect((await screen.findByRole('alert')).textContent).toBe(
       'Sign-out failed. Try again.',
     );
+    expect(localStorage.getItem(draftKey)).toBe('synthetic unfinished work');
   });
 });

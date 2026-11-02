@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { confirmUnsavedNavigation } from '@/features/student-submissions/unsaved-code-guard';
+import { clearBrowserDrafts } from '@/features/student-submissions/draft-storage';
 
 export function SignOutButton() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export function SignOutButton() {
         scope: 'local',
       });
       if (result.error) throw result.error;
+      await clearBrowserDrafts();
       router.replace('/sign-in');
       router.refresh();
     } catch {

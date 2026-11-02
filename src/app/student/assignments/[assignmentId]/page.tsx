@@ -98,7 +98,7 @@ export default async function AssignmentDetailPage({
       />
     );
   }
-  const { detail, draft, submissions } = await loadWorkspace(
+  const { detail, draft, submissions, studentId } = await loadWorkspace(
     assignmentId,
     selection.data,
   );
@@ -108,7 +108,13 @@ export default async function AssignmentDetailPage({
       <SubmissionForm
         assignmentId={assignmentId}
         language={detail.language}
-        key={`${assignmentId}:${draft?.id ?? 'blank'}`}
+        key={`${studentId}:${assignmentId}:${detail.language}:${draft?.id ?? 'blank'}`}
+        draftContext={{
+          studentId,
+          assignmentId,
+          language: detail.language,
+          revisionId: draft?.id ?? null,
+        }}
         initialSource={draft?.source}
         editingRevision={draft?.revision}
         testExamples={getAssignmentTestExamples(
@@ -183,5 +189,5 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
     ),
     publication_status: 'published' as const,
   };
-  return { detail, draft, submissions };
+  return { detail, draft, submissions, studentId: user.id };
 }

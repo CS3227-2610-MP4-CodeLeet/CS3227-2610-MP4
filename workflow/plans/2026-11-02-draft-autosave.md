@@ -30,26 +30,26 @@
 Files: new `src/features/student-submissions/draft-storage.ts` and `.test.ts`.
 Interfaces: `DraftContext`, `DraftRecord`; `draftKey(context)`, `readDraft(storage, context)`, `writeDraft(storage, {context, source, expected, epoch})`, `clearBrowserDrafts()`. Storage outcomes distinguish conflict, expired/corrupt, invalidated and unavailable.
 
-- [ ] Write tests for scope separation, blank/Unicode/bounds, corruption/expiry, ten-context pruning, expected-record conflict, app-only cleanup and invalidation epoch.
-- [ ] Run `vitest run src/features/student-submissions/draft-storage.test.ts`; confirm missing behavior fails.
-- [ ] Implement schema validation and bounded repository; serialize mutations with Web Locks in browser adapter, reject unavailable storage safely.
-- [ ] Rerun tests and commit the verified repository with spec/log updates.
+- [x] Write tests for scope separation, blank/Unicode/bounds, corruption/expiry, ten-context pruning, expected-record conflict, app-only cleanup and invalidation epoch.
+- [x] Run `vitest run src/features/student-submissions/draft-storage.test.ts`; confirm missing behavior fails.
+- [x] Implement schema validation and bounded repository; serialize mutations with Web Locks in browser adapter, reject unavailable storage safely.
+- [x] Rerun tests and commit the verified repository with spec/log updates.
 
 ## Task 2: Editor lifecycle and recovery UI
 
 Files: new `draft-controller.ts`, `use-browser-draft.ts`, `draft-recovery.tsx` and tests; modify `use-submission-draft.ts`, `codementor/submission-form.tsx`, authenticated assignment page, `auth/sign-out-button.tsx`, `auth/reset-password-form.tsx`.
 Interfaces: controller exposes stable snapshot/subscription plus edit, restore/discard, conflict choice, acknowledge and stop; React adapter binds verified context/auth and cleanup. Existing `submissionAttempt` remains source-bound; autosave acknowledgement receives the exact submitted source.
 
-- [ ] Write failing tests for 500-ms persistence, restore/discard gate, page-hide flush, explicit revision context, in-flight acknowledgement, failed storage, conflict choices, unmount and auth invalidation.
-- [ ] Run focused tests and confirm new assertions fail before implementing.
-- [ ] Implement controller and UI, provide server-verified student/revision context, subscribe/unsubscribe synchronous Supabase auth callbacks, clear browser drafts only after confirmed sign-out/recovery exit.
+- [x] Write failing tests for 500-ms persistence, restore/discard gate, page-hide flush, explicit revision context, in-flight acknowledgement, failed storage, conflict choices, unmount and auth invalidation.
+- [x] Run focused tests and confirm new assertions fail before implementing.
+- [x] Implement controller and UI, provide server-verified student/revision context, subscribe/unsubscribe synchronous Supabase auth callbacks, clear browser drafts only after confirmed sign-out/recovery exit.
 - [ ] Run focused storage/lifecycle/render/auth tests, lint/types and commit the integrated feature.
 
 ## Task 3: Browser evidence and release-ready PR
 
 Files: new `tests/e2e/draft-autosave.spec.ts`, guides, OpenSpec task/design/spec, dated summary and evidence.
 
-- [ ] Add real synthetic authenticated Python/Java tests for refresh/tab-close recovery, submission and privacy; test same-context tabs, invalidation/sign-out, discard, storage error, revision context, themes/mobile.
-- [ ] Run focused browser tests, then appropriate regression suite and app build, units/coverage, lint/format/types, strict specs/scaffold; record actual outcomes and skips.
-- [ ] Request fresh bounded source/security review; fix material defects with regression tests, record findings and limitations.
+- [x] Add real synthetic authenticated Python/Java tests for refresh/tab-close recovery, submission and privacy; test same-context tabs, invalidation/sign-out, discard, storage error, revision context, themes/mobile.
+- [x] Run focused browser tests, then appropriate regression suite and app build, units/coverage, lint/format/types, strict specs/scaffold; record actual outcomes and skips.
+- [x] Request fresh bounded source/security review; fix material defects with regression tests, record findings and limitations.
 - [ ] Update verified guides and log; commit, push, pass branch CI, create PR to develop with `Closes #82`, then confirm final-head checks. No merge or hosted deployment.

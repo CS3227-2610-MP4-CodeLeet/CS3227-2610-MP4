@@ -6,13 +6,16 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { AuthCard } from './auth-form';
 import { PasswordField } from './password-field';
 import { SignOutButton } from './sign-out-button';
+import { clearBrowserDrafts } from '@/features/student-submissions/draft-storage';
 
 async function finishRecovery() {
   try {
     const { error } = await createSupabaseBrowserClient().auth.signOut({
       scope: 'global',
     });
-    return !error;
+    if (error) return false;
+    await clearBrowserDrafts();
+    return true;
   } catch {
     return false;
   }

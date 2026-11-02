@@ -1,18 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef } from 'react';
 import { installUnsavedCodeGuard } from './unsaved-code-guard';
+import { useBrowserDraft } from './use-browser-draft';
+import type { DraftContext } from './draft-storage';
 
-const subscribeReady = () => () => undefined;
-const clientReady = () => true;
-const serverReady = () => false;
-
-export function useSubmissionDraft(initialSource = '') {
-  const ready = useSyncExternalStore(subscribeReady, clientReady, serverReady);
-  const [source, setSource] = useState(initialSource);
-  const [savedSource, setSavedSource] = useState(initialSource);
+export function useSubmissionDraft(initialSource = '', context?: DraftContext) {
+  const browserDraft = useBrowserDraft(initialSource, context);
+  const { source, setSource, dirty } = browserDraft;
+  const ready = !['loading', 'recover', 'stopped'].includes(
+    browserDraft.status,
+  );
   const attempt = useRef<{ source: string; requestId: string } | null>(null);
-  const dirty = source !== savedSource;
 
   useEffect(() => {
     if (dirty) return installUnsavedCodeGuard();
@@ -26,9 +25,17 @@ export function useSubmissionDraft(initialSource = '') {
   }
 
   function acknowledge(submittedSource: string) {
-    setSavedSource(submittedSource);
+    browserDraft.acknowledge(submittedSource);
     attempt.current = null;
   }
 
-  return { source, setSource, dirty, ready, submissionAttempt, acknowledge };
+  return {
+    source,
+    setSource,
+    dirty,
+    ready,
+    submissionAttempt,
+    acknowledge,
+    browserDraft,
+  };
 }

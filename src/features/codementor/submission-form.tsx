@@ -6,6 +6,8 @@ import { AssignmentPractice } from '@/features/student-submissions/assignment-pr
 import type { PracticeCase } from '@/features/student-submissions/practice-tests';
 import { CodeEditor } from '@/features/student-submissions/code-editor';
 import { useSubmissionDraft } from '@/features/student-submissions/use-submission-draft';
+import { DraftRecovery } from '@/features/student-submissions/draft-recovery';
+import type { DraftContext } from '@/features/student-submissions/draft-storage';
 import {
   languageLabels,
   type AssignmentLanguage,
@@ -18,6 +20,7 @@ type SubmissionFormProps = {
   testExamples?: readonly PracticeCase[] | null;
   initialSource?: string;
   editingRevision?: number;
+  draftContext?: DraftContext;
 };
 
 function DraftStatus({ dirty }: { dirty: boolean }) {
@@ -25,6 +28,44 @@ function DraftStatus({ dirty }: { dirty: boolean }) {
     <p role="status" className="text-sm text-muted-foreground">
       {dirty ? 'Unsaved changes' : 'No unsaved changes'}
     </p>
+  );
+}
+
+function SubmissionEditor({
+  language,
+  editingRevision,
+  draft,
+  recover,
+}: {
+  language: AssignmentLanguage;
+  editingRevision?: number;
+  draft: ReturnType<typeof useSubmissionDraft>;
+  recover: boolean;
+}) {
+  return (
+    <>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-semibold">{languageLabels[language]} submission</h2>
+        <span className="text-xs text-muted-foreground">
+          {draft.source.length.toLocaleString()} / 8,000 characters
+        </span>
+      </div>
+      {editingRevision !== undefined && (
+        <p className="text-sm text-muted-foreground">
+          Editing revision {editingRevision}
+        </p>
+      )}
+      {recover && <DraftRecovery {...draft.browserDraft} />}
+      <CodeEditor
+        disabled={!draft.ready}
+        language={language}
+        source={draft.source}
+        onChange={draft.setSource}
+        maxLength={8_000}
+        rows={18}
+      />
+      <DraftStatus dirty={draft.dirty} />
+    </>
   );
 }
 
@@ -62,16 +103,17 @@ export function SubmissionForm({
   testExamples = null,
   initialSource = '',
   editingRevision,
+  draftContext,
 }: SubmissionFormProps) {
   const router = useRouter();
-  const { source, setSource, dirty, ready, submissionAttempt, acknowledge } =
-    useSubmissionDraft(initialSource);
+  const draft = useSubmissionDraft(initialSource, draftContext);
+  const { source, ready, submissionAttempt, acknowledge } = draft;
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || !ready) return;
     const submitted = submissionAttempt();
     setBusy(true);
     setMessage('');
@@ -96,26 +138,12 @@ export function SubmissionForm({
 
   return (
     <form className="space-y-3 rounded-xl border bg-card p-5" onSubmit={submit}>
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="font-semibold">{languageLabels[language]} submission</h2>
-        <span className="text-xs text-muted-foreground">
-          {source.length.toLocaleString()} / 8,000 characters
-        </span>
-      </div>
-      {editingRevision !== undefined && (
-        <p className="text-sm text-muted-foreground">
-          Editing revision {editingRevision}
-        </p>
-      )}
-      <CodeEditor
-        disabled={!ready}
+      <SubmissionEditor
         language={language}
-        source={source}
-        onChange={setSource}
-        maxLength={8_000}
-        rows={18}
+        editingRevision={editingRevision}
+        draft={draft}
+        recover={!!draftContext}
       />
-      <DraftStatus dirty={dirty} />
       <AssignmentPractice
         assignmentId={assignmentId}
         runnerOrigin={browserRunnerOrigin}
