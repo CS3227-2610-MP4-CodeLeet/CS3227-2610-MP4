@@ -344,8 +344,10 @@ function containsCompleteJavaMethod(text) {
   );
 }
 
-function hasNearbyGradeTarget(sentence, actionIndex, actionLength) {
-  return [...sentence.matchAll(/\b(?:grade|score|mark)\b/gi)].some((target) => {
+function hasNearbyEvaluationTarget(sentence, actionIndex, actionLength) {
+  const targetPattern =
+    /\b(?:grade|score|mark|evaluation|assessment|result)s?\b/gi;
+  return [...sentence.matchAll(targetPattern)].some((target) => {
     const targetIndex = target.index ?? 0;
     const gap =
       targetIndex < actionIndex
@@ -355,8 +357,29 @@ function hasNearbyGradeTarget(sentence, actionIndex, actionLength) {
   });
 }
 
+function hasPublicationTarget(sentence, actionIndex, actionLength) {
+  if (hasNearbyEvaluationTarget(sentence, actionIndex, actionLength)) {
+    return true;
+  }
+  const nonEvaluationTarget =
+    /\b(?:code|source(?:\s+code)?|example|sample|snippet|solution|implementation|tests?|repo(?:sitory)?|file)\b/i;
+  if (nonEvaluationTarget.test(sentence)) {
+    return false;
+  }
+  const pronounPattern = /\b(?:it|this|that)\b/gi;
+  return [...sentence.matchAll(pronounPattern)].some((target) => {
+    const targetIndex = target.index ?? 0;
+    const gap =
+      targetIndex < actionIndex
+        ? sentence.slice(targetIndex + target[0].length, actionIndex)
+        : sentence.slice(actionIndex + actionLength, targetIndex);
+    return (gap.match(/\b[\w'-]+\b/g) ?? []).length <= 3;
+  });
+}
+
 function hasGradeMutationClaim(text) {
-  const actionPattern = /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)\b/gi;
+  const actionPattern =
+    /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)\b/gi;
   const targetPattern = /\b(?:grade|score|mark)\b/i;
   const attachedDenialPattern =
     /\b(?:not|never|cannot|can't|won't|wouldn't|shouldn't|don't|didn't|doesn't|do not|did not|does not|will not|would not|should not|unable to|refuse to)\b(?:\s+\w+){0,3}\s*$/i;
@@ -364,19 +387,31 @@ function hasGradeMutationClaim(text) {
     /\bno(?:\s+\w+){1,4}\s+(?:was|were|is|are|has\s+been|have\s+been|had\s+been)\s*$/i;
   const advisoryPattern =
     /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
-  const instructorCapabilityPattern =
-    /\b(?:only\s+)?(?:an?\s+|the\s+)?instructors?\s+can\s*$/i;
+  const mutationActionWords =
+    'publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?';
+  const instructorCapabilityPattern = new RegExp(
+    '\\b(?:only\\s+)?(?:an?\\s+|the\\s+)?instructors?\\s+can' +
+      '(?:\\s+(?:' +
+      mutationActionWords +
+      ')(?:\\s*(?:,|;)?\\s*(?:or|and|nor)\\s+|\\s*,\\s*))*\\s*$',
+    'i',
+  );
   return text.split(/[.!?\n]+/).some((sentence) => {
     const hasTarget = targetPattern.test(sentence);
     targetPattern.lastIndex = 0;
     const actions = [...sentence.matchAll(actionPattern)];
     return actions.some((action) => {
       const actionIndex = action.index ?? 0;
-      const precedingText = sentence.slice(Math.max(0, actionIndex - 48), actionIndex);
-      const publicationAction = /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?)\b/i.test(action[0]);
-      const implicitReferent = /\b(?:it|this|that|these|those|evaluation|assessment|result)\b/i.test(sentence);
+      const precedingText = sentence.slice(
+        Math.max(0, actionIndex - 48),
+        actionIndex,
+      );
+      const publicationAction =
+        /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?)\b/i.test(
+          action[0],
+        );
       const hasMutationTarget = publicationAction
-        ? hasNearbyGradeTarget(sentence, actionIndex, action[0].length) || implicitReferent
+        ? hasPublicationTarget(sentence, actionIndex, action[0].length)
         : hasTarget;
       return (
         hasMutationTarget &&
