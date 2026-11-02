@@ -15,7 +15,7 @@ Use normal student/instructor journeys in `docs/UserGuide.md`, reproducible chec
 - [x] Audit routes, controls, test assertions, historical experiments and merged CI against the guide; link issue and OpenSpec before editing.
 - [x] Replace stale guide claims, index security evidence and append scoped reflections with measurement limitations.
 - [x] Verify documentation links/format/spec/scaffold, run applicable existing tests and record actual outcomes and prerequisite failures.
-- [ ] Commit/push focused documentation, verify branch CI, create a linked PR to develop and wait for final-head checks. Human review and release remain separate.
+- [x] Commit/push focused documentation, verify branch CI and create linked [PR #71](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/71) to develop. Branch workflow 41375618030 passed; final-head checks are monitored/reported on the PR before handoff. Human review and release remain separate.
 
 ## Review focus
 

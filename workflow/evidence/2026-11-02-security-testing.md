@@ -2,6 +2,8 @@
 
 Issue: [#70](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/70). Source baseline: `0a26127d583fbeaab3a9a1f33afcc65ee6ca5721` on merged `develop`. OpenSpec: [engineering and delivery](../../openspec/changes/build-programming-platform/specs/engineering-and-delivery/spec.md). This is an evidence audit, not a penetration-test certification or deployed acceptance report. Human verification remains pending.
 
+Review: [PR #71](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/71). [Branch CI 41375618030](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41375618030) passed on `d73426e` before PR creation: coverage, application/runtime/site builds, 147 database assertions and 29 browser passes/45 prerequisite skips. Final-head check status is reported on the PR; this document does not turn those skips into verified authenticated journeys.
+
 ## Evidence types and results
 
 The [merged baseline application workflow](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41373536575) completed successfully. Its database job passed **147 assertions across seven pgTAP files**. Its application job passed **80 unit-test files**, runtime/app build and product-site build. Coverage was **82.03% statements, 76.79% branches, 83.97% functions and 83.71% lines**; coverage measures exercised code, not security assurance.
