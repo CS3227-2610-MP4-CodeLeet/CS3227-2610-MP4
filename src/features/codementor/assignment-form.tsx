@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { MaximumXpField } from '@/features/assignment-xp/components';
+import { maxXpSchema } from '@/features/assignment-xp/contracts';
 import {
   deadlineFromInput,
   deadlineToInput,
@@ -24,6 +26,7 @@ type AssignmentDraft = {
   instructions: string;
   language: AssignmentLanguage;
   due_at?: string | null;
+  max_xp?: number;
   languageLocked?: boolean;
   publication_status: 'draft' | 'published';
   version: number;
@@ -39,6 +42,7 @@ type Payload = {
   rubric: Criterion[];
   publicationStatus: string;
   dueAt: string | null;
+  maxXp: number;
   expectedVersion?: number;
 };
 const defaultCriterion: Criterion = {
@@ -95,9 +99,18 @@ function buildPayload(form: FormData, assignment?: AssignmentDraft): Payload {
     rubric: criteriaFor(form),
     publicationStatus: readText(form, 'publicationStatus') || 'draft',
     dueAt: readDeadline(form, assignment),
+    maxXp: readMaxXp(form),
   };
   if (assignment) payload.expectedVersion = assignment.version;
   return payload;
+}
+function readMaxXp(form: FormData) {
+  const text = readText(form, 'maxXp');
+  if (!text.trim()) throw new Error('Choose a maximum XP amount.');
+  const value = maxXpSchema.safeParse(Number(text));
+  if (!value.success)
+    throw new Error('Maximum XP must be a whole number from 0 to 100,000.');
+  return value.data;
 }
 async function sendAssignment(
   assignment: AssignmentDraft | undefined,
@@ -166,6 +179,7 @@ export function AssignmentForm({
       className="max-w-3xl space-y-5 rounded-xl border bg-card p-6"
     >
       <AssignmentFields assignment={assignmentFieldsData(assignment)} />
+      <MaximumXpField value={assignment?.max_xp} />
       <div className="space-y-2 text-sm">
         <label htmlFor="assignment-due-at" className="block">
           Due date and time (SGT, optional)

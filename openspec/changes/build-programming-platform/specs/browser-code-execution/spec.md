@@ -12,8 +12,11 @@ The UI SHALL explain recognized unsupported Java compiler diagnostics in concise
 - **THEN** ordinary diagnostics retain their details and program output is not reclassified as a compiler compatibility failure
 
 ### Requirement: Browser-native Python and Java
+The authenticated Python/Java editor MAY expose the existing loopback practice runner automatically in development without a student runner flag. If exposed, the following constraints SHALL apply.
 
-The authenticated Python/Java editor MAY expose the existing loopback practice runner automatically in development without a student runner flag. It SHALL use the same in-memory source as submission without treating execution results as grades. Production SHALL NOT enable this local runner regardless of test configuration. This partial integration does not select a hosted runtime or change the authenticated submission contract.
+#### Scenario: Required constraints for browser-native python and java
+- **WHEN** this capability is used
+- **THEN** It SHALL use the same in-memory source as submission without treating execution results as grades. Production SHALL NOT enable this local runner regardless of test configuration. This partial integration does not select a hosted runtime or change the authenticated submission contract.
 The system SHALL execute Python and compile/execute Java source entirely in the browser through evaluated compatible runtimes. It SHALL NOT send source to remote execution or compilation services.
 
 #### Scenario: Python with stdin
@@ -45,7 +48,11 @@ The runner SHALL isolate untrusted code from app credentials/private data/arbitr
 - **THEN** the UI explains recovery without falling back to server execution
 
 ### Requirement: Published practice test comparison
-Students SHALL be able to run up to five instructor-published public stdin/expected-stdout cases sequentially in fresh browser sandboxes. Output comparison SHALL normalize line endings and ignore at most one final newline while preserving other whitespace and case. Only successful execution with matching stdout SHALL pass. Results SHALL be practice feedback, never authoritative grades/XP. The real assignment workspace SHALL load only published cases, fetch a fresh snapshot before each suite, and freeze the source/cases used by that run. Replacing visible cases SHALL invalidate old case verdicts without clearing the source. Navigation while loading cases SHALL prevent later execution. Loading/errors/empty sets SHALL be distinct, and failed real reads SHALL not fall back to examples. A local fixture preview SHALL be labeled and denied in production.
+Students SHALL be able to run up to five instructor-published public stdin/expected-stdout cases sequentially in fresh browser sandboxes.
+
+#### Scenario: Required constraints for published practice test comparison
+- **WHEN** this capability is used
+- **THEN** Output comparison SHALL normalize line endings and ignore at most one final newline while preserving other whitespace and case. Only successful execution with matching stdout SHALL pass. Results SHALL be practice feedback, never authoritative grades/XP. The real assignment workspace SHALL load only published cases, fetch a fresh snapshot before each suite, and freeze the source/cases used by that run. Replacing visible cases SHALL invalidate old case verdicts without clearing the source. Navigation while loading cases SHALL prevent later execution. Loading/errors/empty sets SHALL be distinct, and failed real reads SHALL not fall back to examples. A local fixture preview SHALL be labeled and denied in production.
 
 #### Scenario: Published cases change after a run
 - **WHEN** a student refreshes cases after an instructor changes their names/input/expected output or ordering
@@ -68,7 +75,11 @@ Students SHALL be able to run up to five instructor-published public stdin/expec
 - **THEN** its five-second per-case execution deadline starts separately from runtime loading/compilation, and displayed timing is approximate local wall time
 
 ### Requirement: Development examples in real student assignments
-While teacher cases are unavailable, the authenticated assignment workspace MAY expose standalone example cases only in development with the explicit example-fixture setting. The student SHALL explicitly select the examples, whose task and provenance SHALL be clearly distinguished from the assignment. Production and default configuration SHALL not supply fixture cases. Existing browser-only execution, limits and safe results rendering SHALL apply; running examples SHALL not submit source/results or award grades/XP.
+While teacher cases are unavailable, the authenticated assignment workspace MAY expose standalone example cases only in development with the explicit example-fixture setting. If exposed, the following constraints SHALL apply.
+
+#### Scenario: Required constraints for development examples in real student assignments
+- **WHEN** this capability is used
+- **THEN** The student SHALL explicitly select the examples, whose task and provenance SHALL be clearly distinguished from the assignment. Production and default configuration SHALL not supply fixture cases. Existing browser-only execution, limits and safe results rendering SHALL apply; running examples SHALL not submit source/results or award grades/XP.
 
 #### Scenario: Explicit example selection
 - **WHEN** a student selects the development examples and runs the current Python/Java editor source
@@ -83,7 +94,11 @@ While teacher cases are unavailable, the authenticated assignment workspace MAY 
 - **THEN** the server supplies no example cases and no fixture fallback is offered
 
 ### Requirement: Real-data local defaults
-Real accounts and assignments SHALL be the normal development workflow. Synthetic assignments SHALL require PLAYWRIGHT_ASSIGNMENT_FIXTURES=true on a development UI-test server and SHALL never be a production fallback. The two former student preview flags SHALL not control application behavior. A normal `pnpm dev` startup SHALL verify or fetch the pinned local runtime assets into the ignored cache and start the loopback static runtime server alongside Next.js. The Node process may fetch and serve runtime files only; Python/Java source SHALL continue to compile and execute in the browser.
+Real accounts and assignments SHALL be the normal development workflow.
+
+#### Scenario: Required constraints for real-data local defaults
+- **WHEN** this capability is used
+- **THEN** Synthetic assignments SHALL require PLAYWRIGHT_ASSIGNMENT_FIXTURES=true on a development UI-test server and SHALL never be a production fallback. The two former student preview flags SHALL not control application behavior. A normal `pnpm dev` startup SHALL verify or fetch the pinned local runtime assets into the ignored cache and start the loopback static runtime server alongside Next.js. The Node process may fetch and serve runtime files only; Python/Java source SHALL continue to compile and execute in the browser.
 
 #### Scenario: Normal local startup
 - **WHEN** a developer starts Next.js without fixture settings
@@ -92,7 +107,11 @@ Real accounts and assignments SHALL be the normal development workflow. Syntheti
 - **AND** Python/Java compilation and execution remain in the browser
 
 ### Requirement: Vercel-hosted browser execution for students and instructors
-The system SHALL expose explicit Run code for authenticated students on their assignment editor and authenticated instructors on an owned assignment's submission-review page in Vercel Preview and Production. It SHALL use the current editor source or the already-authorized submission source/language and execute only in the browser through Pyodide/TeaVM. It SHALL NOT execute source in Next.js, Node.js, a Vercel Function or a remote execution/compiler service. Runs and results SHALL NOT submit revisions, publish grades or award XP.
+The system SHALL expose explicit Run code for authenticated students on their assignment editor and authenticated instructors on an owned assignment's submission-review page in Vercel Preview and Production.
+
+#### Scenario: Required constraints for vercel-hosted browser execution for students and instructors
+- **WHEN** this capability is used
+- **THEN** It SHALL use the current editor source or the already-authorized submission source/language and execute only in the browser through Pyodide/TeaVM. It SHALL NOT execute source in Next.js, Node.js, a Vercel Function or a remote execution/compiler service. Runs and results SHALL NOT submit revisions, publish grades or award XP.
 
 The browser bridge and runtime artifacts SHALL be served from a versioned static path in the same Vercel project and deployment as the application. Every Preview and Production app deployment SHALL include its matching reviewed runtime assets; no second Vercel project, runtime distribution environment variable, runner-origin environment variable, cross-origin asset host or code-execution endpoint is required. Builds SHALL fail if the inventory approval record/notices are missing or mismatched, downloads fail, or asset sizes/SHA-256 values differ from the approved manifest. Runtime files SHALL use immutable versioned paths. The trusted app page SHALL fetch only the fixed same-deployment runtime manifest and assets, verify hashes/size, and transfer the bytes to a fresh opaque-origin sandbox. Same-origin requests MAY carry the browser's normal deployment/session cookies only to that same app deployment; no credentials or source may be sent to a third-party origin. The runner iframe SHALL use `sandbox="allow-scripts"` without `allow-same-origin`, and SHALL keep the existing opaque worker, network denial, input/output bounds and deadlines. Parent messages from the opaque frame SHALL be accepted only from the expected iframe window with the active nonce/protocol/run ID and bounded result; messages to the opaque target SHALL use `*` only with that exact window and no secrets. Authenticated app CSP SHALL NOT receive the runner's eval allowance.
 

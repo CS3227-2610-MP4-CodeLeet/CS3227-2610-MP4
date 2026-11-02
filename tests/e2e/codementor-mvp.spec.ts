@@ -61,6 +61,7 @@ async function createPublishedAssignment(
   await signIn(page, instructorEmail);
   await expect(page).toHaveURL(/\/instructor$/);
   await page.getByRole('link', { name: 'New assignment' }).click();
+  await page.getByLabel('Maximum XP', { exact: true }).fill('0');
   await page.getByLabel('Title', { exact: true }).fill(`Loops ${suffix}`);
   await page
     .getByLabel('Instructions')

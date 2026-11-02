@@ -1,6 +1,10 @@
 import { type NextRequest } from 'next/server';
 import { assignmentInputSchema } from '@/features/codementor/contracts';
 import { deadlineRpcArguments } from '@/features/assignment-deadlines/deadlines';
+import {
+  assignmentSaveRpc,
+  xpAssignmentArguments,
+} from '@/features/assignment-xp/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { hasInstructorAccess } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
@@ -77,7 +81,7 @@ export async function POST(request: NextRequest) {
       },
       400,
     );
-  const { data, error } = await supabase.rpc('save_assignment', {
+  const { data, error } = await supabase.rpc(assignmentSaveRpc(parsed.data), {
     p_assignment_id: null,
     p_expected_version: 0,
     p_title: parsed.data.title,
@@ -86,6 +90,7 @@ export async function POST(request: NextRequest) {
     p_publication_status: parsed.data.publicationStatus,
     p_language: parsed.data.language,
     ...deadlineRpcArguments(parsed.data.dueAt),
+    ...xpAssignmentArguments(parsed.data),
   });
   if (error)
     return privateJson(

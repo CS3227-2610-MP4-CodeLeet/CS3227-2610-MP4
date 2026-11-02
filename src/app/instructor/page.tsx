@@ -3,14 +3,21 @@ import { requireRole } from '@/lib/auth/verified-user';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
 import { AssignmentDueDate } from '@/features/assignment-deadlines/components';
+import { AssignmentXp } from '@/features/assignment-xp/components';
 
 export const dynamic = 'force-dynamic';
+
+function languageLabel(language: unknown) {
+  return languageLabels[assignmentLanguageSchema.parse(language)];
+}
 
 export default async function InstructorPage() {
   const { supabase } = await requireRole('instructor');
   const { data: assignments, error } = await supabase
     .from('assignments')
-    .select('id,title,language,publication_status,updated_at,version,due_at')
+    .select(
+      'id,title,language,publication_status,updated_at,version,due_at,max_xp',
+    )
     .order('updated_at', { ascending: false });
   if (error) throw new Error('Assignments could not be loaded');
   return (
@@ -42,16 +49,12 @@ export default async function InstructorPage() {
                 <h2 className="font-semibold">{assignment.title}</h2>
                 <p className="text-sm text-muted-foreground">
                   {assignment.publication_status} ·{' '}
-                  {
-                    languageLabels[
-                      assignmentLanguageSchema.parse(assignment.language)
-                    ]
-                  }{' '}
-                  · updated{' '}
+                  {languageLabel(assignment.language)} · updated{' '}
                   {new Date(assignment.updated_at).toLocaleDateString()}
                 </p>
-                <p className="mt-2 text-xs text-muted-foreground">
+                <p className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   <AssignmentDueDate dueAt={assignment.due_at} />
+                  <AssignmentXp value={assignment.max_xp} />
                 </p>
               </div>
               <div className="flex gap-4 text-sm">

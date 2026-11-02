@@ -127,6 +127,7 @@ async function publishAssignment(
 ): Promise<Assignment> {
   await signIn(page, owner);
   await page.getByRole('link', { name: 'New assignment' }).click();
+  await page.getByLabel('Maximum XP', { exact: true }).fill('0');
   await page
     .getByLabel('Title', { exact: true })
     .fill(`Language fixture ${crypto.randomUUID()}`);

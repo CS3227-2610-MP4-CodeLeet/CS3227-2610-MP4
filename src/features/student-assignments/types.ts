@@ -9,6 +9,7 @@ export type AssignmentRecord = {
   instructions: string;
   language: AssignmentLanguage;
   due_at?: string | null;
+  max_xp?: number;
   submission_status?: SubmissionStatus;
   publication_status: 'draft' | 'published';
 };

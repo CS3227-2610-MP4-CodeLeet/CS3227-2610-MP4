@@ -8,6 +8,7 @@ export async function verifyAssignmentLayout(page: Page) {
     'Assignments',
     'My submissions',
     'My grades',
+    'My XP',
     'Forums',
   ]);
   if (process.env.RUN_AUTHENTICATED_RUNTIME_TESTS !== '1') return;
