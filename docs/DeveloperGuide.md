@@ -4,6 +4,8 @@ Status: CodeLeet student/instructor MVP routes, assignment/submission/grade flow
 
 For current security coverage, exact evidence scope, reproduction commands and unverified release gates, see the [2 November security evidence audit](../workflow/evidence/2026-11-02-security-testing.md). Its threat-to-test map distinguishes mocked/unit checks, database assertions, historical live experiments and hosted verification. The [User Guide](UserGuide.md) covers current user journeys; early preview sections elsewhere in this document describe development fixtures, not the default user experience. The [per-change plan](../workflow/plans/2026-11-02-user-guide-security-evidence.md) and [session summary](../logs/2026-11-02-user-guide-security-evidence.md) record this documentation audit.
 
+The [reflection index](Reflections.md) links individual MP4 drafts for Paul and John. Both require member verification of attribution, wording and conclusions. Earlier team observations are preserved as a [shared evidence note](../workflow/evidence/2026-11-02-reflection-observations.md), rather than presented as either member's completed personal reflection.
+
 ## Technology and setup
 
 Use Node.js 24.22.1 from `.node-version` and pnpm 12.15.0 from `package.json`. Install pnpm directly with `npm install --global pnpm@12.15.0`, or prefix commands with `npx --yes pnpm@12.15.0`. Corepack is not required. Run `pnpm install --frozen-lockfile`, then `pnpm dev` and open http://localhost:3000. The home page uses local system fonts and needs no Supabase/SoCLaaS keys.
