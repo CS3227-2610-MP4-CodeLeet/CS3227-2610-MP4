@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { assignmentLanguages } from '@/features/student-assignments/types';
 import { dueAtSchema } from '@/features/assignment-deadlines/deadlines';
+import { maxXpSchema } from '@/features/assignment-xp/contracts';
 
 export const assignmentLanguageSchema = z.enum(assignmentLanguages);
 
@@ -19,6 +20,7 @@ export const assignmentInputSchema = z
     instructions: cleanText(12_000),
     language: assignmentLanguageSchema.default('python'),
     dueAt: dueAtSchema,
+    maxXp: maxXpSchema.optional(),
     rubric: z
       .array(
         z

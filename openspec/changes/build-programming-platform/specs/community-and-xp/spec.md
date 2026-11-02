@@ -45,6 +45,21 @@ The system SHALL derive XP from authorized published grades using a documented f
 - **WHEN** an instructor authorizes a published-grade correction
 - **THEN** XP adjusts to the new formula result rather than adding another full award
 
+#### Scenario: Instructor maximum and best published revision
+- **WHEN** an instructor creates or edits an owned assignment
+- **THEN** Maximum XP is a required whole number from 0–100,000, with zero awarding no XP; older clients omitting it preserve existing values
+- **AND** each student's award is floor(published score / captured rubric maximum × current assignment maximum XP), using only their best currently published revision, with latest revision then grade ID breaking equal-score ties
+
+#### Scenario: Maximum edits, withdrawal and legacy publication
+- **WHEN** an instructor changes maximum XP, corrects a published grade or withdraws publication
+- **THEN** current awards and nonzero audit deltas change in the same transaction, serialized with publication; no published candidate yields zero
+- **AND** later rubric edits do not reinterpret earlier captured score bases; pre-migration grades require instructor review/republishing before earning XP
+
+#### Scenario: Private own XP
+- **WHEN** a verified student opens My XP
+- **THEN** their exact total and stable 25-row assignment breakdown exclude peer data, private rubrics, unpublished grades, grade/source identifiers and hidden assignment titles
+- **AND** client award/ledger writes and private grading-core invocation are denied; browser results and AI suggestions cannot award XP
+
 ### Requirement: Deterministic private-data-safe leaderboard
 The system SHALL show display names/XP with documented deterministic ties, without emails or private submissions. Synthetic seeds SHALL support local testing.
 

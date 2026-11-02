@@ -152,7 +152,7 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
   const { supabase, user } = await requireRole('student');
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select('id,title,instructions,language,publication_status,due_at')
+    .select('id,title,instructions,language,publication_status,due_at,max_xp')
     .eq('id', assignmentId)
     .eq('publication_status', 'published')
     .maybeSingle();

@@ -26,6 +26,21 @@ beforeEach(() => {
 });
 
 describe('student workspace shell', () => {
+  it('uses My XP in the workspace breadcrumb on the XP page', () => {
+    mocks.pathname = '/student/xp';
+    const html = renderToStaticMarkup(
+      <WorkspaceShell assignments={[]} authenticated>
+        <p>XP overview</p>
+      </WorkspaceShell>,
+    );
+    const header = html.slice(
+      html.indexOf('<header'),
+      html.indexOf('</header>'),
+    );
+    const breadcrumb = header.slice(0, header.indexOf('</a>'));
+    expect(breadcrumb).toContain('href="/student/xp"');
+    expect(breadcrumb).toContain('My XP');
+  });
   it('shows a local preview with assignment navigation and the current assignment title', () => {
     mocks.pathname = '/student/assignments/loops';
     const html = renderToStaticMarkup(

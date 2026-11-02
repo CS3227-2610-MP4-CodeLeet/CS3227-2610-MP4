@@ -37,6 +37,23 @@ beforeEach(() => {
   mocks.getUser.mockReset();
   mocks.rpc.mockReset();
 });
+it('updates XP and an explicitly cleared deadline together', async () => {
+  mocks.getUser.mockResolvedValue({
+    user: { id: 'owner' },
+    role: 'instructor',
+    supabase: { rpc: mocks.rpc },
+  });
+  mocks.rpc.mockResolvedValue({ data: { id, max_xp: 0 }, error: null });
+  expect((await call({ ...input, maxXp: 0, dueAt: null })).status).toBe(200);
+  expect(mocks.rpc).toHaveBeenCalledWith(
+    'save_assignment_with_xp',
+    expect.objectContaining({
+      p_max_xp: 0,
+      p_update_due_at: true,
+      p_due_at: null,
+    }),
+  );
+});
 
 describe('assignment PATCH route', () => {
   it('rejects cross-origin and unauthorized callers', async () => {
