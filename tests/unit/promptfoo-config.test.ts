@@ -124,6 +124,17 @@ describe('Promptfoo runner', () => {
     expect(offline.args.join(' ')).not.toMatch(/redteam|api[_-]?key/i);
   });
 
+  it('uses a controlled empty env file instead of Promptfoo default dotenv discovery', () => {
+    const offline = buildRunPlan('offline', {});
+    const envFileFlag = offline.args.indexOf('--env-file');
+    expect(envFileFlag).toBeGreaterThan(-1);
+    const envFile = offline.args[envFileFlag + 1];
+    expect(envFile).toMatch(/offline-empty\.env$/);
+    expect(readFileSync(envFile, 'utf8')).not.toMatch(
+      /^\s*[A-Za-z_][A-Za-z0-9_]*\s*=/m,
+    );
+  });
+
   it('fails closed when the live SoCLaaS configuration is incomplete', () => {
     const disabledLive = buildRunPlan('live', {});
     expect(disabledLive.error).toBe('provider_configuration_unavailable');

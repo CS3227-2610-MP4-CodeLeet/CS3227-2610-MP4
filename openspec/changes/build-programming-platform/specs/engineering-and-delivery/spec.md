@@ -16,7 +16,7 @@ The team SHALL implement/test AI security and record reproducible context/resour
 
 #### Scenario: No-cost AI security evaluation
 - **WHEN** the default local Promptfoo fixture evaluation runs
-- **THEN** it uses only local deterministic fixtures, makes no model inference or Promptfoo telemetry/update requests, and records that it does not establish model resistance
+- **THEN** it uses only local deterministic fixtures, passes an explicit controlled env file so Promptfoo cannot reload repository `.env` files, makes no model inference or Promptfoo telemetry/update requests, and records that it does not establish model resistance
 - **AND** any optional live SoCLaaS evaluation is explicitly invoked, bounded, and uses synthetic cases only
 
 ### Requirement: Separate deployment and accurate artifacts

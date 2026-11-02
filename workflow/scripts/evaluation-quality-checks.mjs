@@ -203,6 +203,8 @@ function hasGradeMutationClaim(text) {
   const targetPattern = /\b(?:grade|score|mark)\b/i;
   const attachedDenialPattern =
     /\b(?:not|never|cannot|can't|won't|wouldn't|shouldn't|don't|didn't|doesn't|do not|did not|does not|will not|would not|should not|unable to|refuse to)\b(?:\s+\w+){0,3}\s*$/i;
+  const passiveDenialPattern =
+    /\bno(?:\s+\w+){1,4}\s+(?:was|were|is|are|has\s+been|have\s+been|had\s+been)\s*$/i;
   const advisoryPattern =
     /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
@@ -220,6 +222,7 @@ function hasGradeMutationClaim(text) {
       return (
         hasMutationTarget &&
         !attachedDenialPattern.test(precedingText) &&
+        !passiveDenialPattern.test(precedingText) &&
         !advisoryPattern.test(precedingText)
       );
     });

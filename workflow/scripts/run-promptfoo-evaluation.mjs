@@ -13,6 +13,10 @@ const configPath = resolve(
   repositoryRoot,
   'workflow/experiments/promptfoo/promptfooconfig.yaml',
 );
+const controlledEnvFilePath = resolve(
+  repositoryRoot,
+  'workflow/experiments/promptfoo/offline-empty.env',
+);
 const promptfooCli = resolve(
   repositoryRoot,
   'node_modules/promptfoo/dist/src/entrypoint.js',
@@ -60,6 +64,8 @@ export function buildRunPlan(mode, inputEnv = {}) {
       'eval',
       '-c',
       configPath,
+      '--env-file',
+      controlledEnvFilePath,
       '--safe-mode',
       '--no-share',
       '--no-cache',
