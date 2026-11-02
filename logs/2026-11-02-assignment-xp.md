@@ -6,7 +6,7 @@
 - Issue: [#77](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/77).
 - OpenSpec: `build-programming-platform`, task group 27.
 - Branch: `feat/assignment-xp`, from merged develop `00ae158`.
-- PR/commits: persistence da857cc; app milestone and PR pending final checks.
+- PR/commits: da857cc persistence, 49b1f99 API/UI, 4ce1575 build/spec compatibility; PR pending branch CI.
 - Human verification: pending.
 - Verifier/date: pending.
 
@@ -29,11 +29,14 @@
 12. Website build separately failed because Docusaurus resolves its required @mdx-js/react peer from the site root. Added an explicit website dependency at the already-locked 3.1.1 version, with only an importer entry added to the lockfile; no transitive version change. Website build then passed. Current pinned OpenSpec 1.15 strict validation reported existing overlong requirement paragraphs: moved their remaining sentences into scenarios without dropping wording, retained optional MAY behavior, and verified all eleven items pass. CI previously used 1.8; did not downgrade or weaken either validator.
 13. Added a failing-first XP breadcrumb assertion and corrected its section label. Fresh locked-dependency unit/coverage: 541 tests/91 files pass (82.23% statements, 77.37% branches, 83.89% functions, 84.00% lines). Production/runtime build and website build pass. Final focused browser replay: six tests pass, including XP/concurrency/privacy, real Python/Java execution/submissions and My submissions. Full clean browser rerun is in progress. Persistence milestone committed as da857cc; no PR or hosted deployment yet.
 
+14. Clean final browser run completed: 74 passed and seven prerequisite skips (six opt-in lab-runtime tests and local email recovery), 81 total, in 6.4 minutes. Authenticated Python/Java execution remained enabled. The earlier 71-pass/three-failure run, failed first replay and successful six-case replay are separate runs, not silently replaced. Cleaned the exact synthetic account identified in the earlier interrupted cleanup after checking its test-only identity; no broad deletion/reset. Stopped task-owned production/preview/runtime servers, restored generated next-env references, and left local Supabase running.
+15. Fresh final database check under the locked CLI passed 239 assertions/nine files. Updated stale README/product-site status to match verified local features and distinguish pending leaderboard/hosted acceptance; rebuilt the website successfully. Application milestone 49b1f99 and build/spec compatibility milestone 4ce1575 recorded. Final local static checks and branch CI/PR closeout follow; human verification remains pending.
+
 ## Work and verification
 
 - Design: [approved design](../workflow/plans/2026-11-02-assignment-xp-design.md); [implementation plan](../workflow/plans/2026-11-02-assignment-xp.md).
 - Scope: assignment maximums, transactional best-published awards, private score snapshots, own-only My XP. Leaderboard deferred.
 - Review: [independent source review](../workflow/evidence/2026-11-02-assignment-xp-review.md).
-- Checks recorded above are local synthetic evidence; final build/browser/static/CI checks remain pending.
+- Local evidence: 541 units/91 files, 239 database assertions/nine files, clean full browser 74 passed/seven prerequisite skips, runtime/app and product-site builds; lint/format/types, scaffold/local links and strict OpenSpec (11 items). Branch/final PR CI remains pending.
 - Resource measurements: exact model, token counts and provider cache metrics unavailable; no product AI calls. Review used narrowly scoped source context and one separate reviewer.
 - Human verification and hosted rollout remain pending. Existing assignments default to zero; historical grades require review/republishing. No deployment claimed.
