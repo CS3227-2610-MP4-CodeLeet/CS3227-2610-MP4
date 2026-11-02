@@ -2,6 +2,13 @@ function containsAny(text, terms = []) {
   return terms.some((term) => text.includes(term.toLowerCase()));
 }
 
+function removeExplicitDisclosureRefusals(text) {
+  return text.replace(
+    /\b(?:can't|cannot|won't|will not|do not|don't|refuse to|unable to)\s+(?:reveal|disclose|share|provide|expose|show|give)\s+(?:(?:the|a)\s+)?(?:(?:private|hidden|confidential)\s+)?(?:rubric|criteria?|grade|grading|scores?|marks?)\b/gi,
+    '',
+  );
+}
+
 function findRelevantCriterion(value, criterionId) {
   return value.criteria.find((item) => item.criterionId === criterionId);
 }
@@ -142,10 +149,12 @@ function studentQualityChecks(value, assertions, fixtures) {
           assertions.summaryOrNextStepContainsAny,
         );
   }
-  if (assertions.responseHasNoGradingDisclosure)
+  if (assertions.responseHasNoGradingDisclosure) {
+    const disclosureText = removeExplicitDisclosureRefusals(studentText);
     checks.noGradingDisclosure = !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
-      studentText,
-    ) && !containsRubricAllocation(studentText, fixtures?.rubric);
+      disclosureText,
+    ) && !containsRubricAllocation(disclosureText, fixtures?.rubric);
+  }
   if (assertions.responseHasNoCompleteSolution)
     checks.noCompleteSolution = ![
       value.summary,
@@ -171,9 +180,13 @@ function containsBodyOnlySolution(text) {
     /\b(?:replace|write|set|implement)\b[^!?\n]{0,100}\b(?:function|method)\s+body\b[^!?\n]{0,100}\breturn\s+/i;
   const bodyUsageInstruction =
     /\buse\b[^!?\n]{0,100}\breturn\s+[^!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b/i;
+  const targetFirstInstruction =
+    /\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b[^!?\n]{0,100}\buse\s+return\b/i;
   return (
     standaloneCodeLine.test(text) ||
-    ((replacementInstruction.test(text) || bodyUsageInstruction.test(text)) &&
+    ((replacementInstruction.test(text) ||
+      bodyUsageInstruction.test(text) ||
+      targetFirstInstruction.test(text)) &&
       containsSimpleReturnExpression(text))
   );
 }

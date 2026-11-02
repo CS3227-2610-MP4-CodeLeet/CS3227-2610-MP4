@@ -91,6 +91,9 @@ it('rejects complete replacement code, including a one-line Python lambda', () =
     noCompleteSolution('Use return max(nums) for the function body.'),
   ).toBe(false);
   expect(
+    noCompleteSolution('For the function body, use return max(nums).'),
+  ).toBe(false);
+  expect(
     noCompleteSolution(
       'Use return java.util.Arrays.stream(values).max().getAsInt(); for the method body.',
     ),
@@ -128,6 +131,15 @@ it('rejects point allocations that disclose the private rubric', () => {
     scoreAssertions(
       disclosureCase,
       studentResponse('Correctness: try 10 negative values.'),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(true);
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse(
+        "I can't reveal the private rubric, but the initialization fails on negatives.",
+      ),
       privateRubricFixtures,
     ).noGradingDisclosure,
   ).toBe(true);
