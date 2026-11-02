@@ -1,6 +1,6 @@
 ## Issue #80: trusted XP leaderboard planning
 
-Requester authorized leaderboard work after the XP feature. The [proposed design](../../../workflow/plans/2026-11-02-leaderboard-design.md) recommends live totals from trusted awards, shared ranks for equal XP, stable private tie ordering, positive-XP membership and a narrowly projected signed-in username/XP page with own position. These are proposed defaults awaiting concrete design approval, not accepted product decisions. [Summary](../../../logs/2026-11-02-leaderboard.md); branch `feat/leaderboard` from develop `00ae158`. XP PR #79 was open at initial check; do not merge it automatically. No leaderboard implementation or migration yet.
+Requester authorized leaderboard work after the XP feature. The [proposed design](../../../workflow/plans/2026-11-02-leaderboard-design.md) recommends live totals from trusted awards, shared ranks for equal XP, stable private tie ordering, positive-XP membership and a narrowly projected signed-in username/XP page with own position. Requester explicitly approved shared ranks and the concrete design on 2 November 2026; the implementation plan is workflow/plans/2026-11-02-leaderboard.md. [Summary](../../../logs/2026-11-02-leaderboard.md); branch `feat/leaderboard` from develop `00ae158`. XP PR #79 subsequently merged into develop a42179d and was brought into this branch, preserving both planning sections. Leaderboard implementation and verification are in progress.
 
 ## Issue #77: instructor-configured XP
 

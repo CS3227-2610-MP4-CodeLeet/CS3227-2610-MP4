@@ -66,3 +66,18 @@ The system SHALL show display names/XP with documented deterministic ties, witho
 #### Scenario: Equal XP
 - **WHEN** seeded students have equal XP
 - **THEN** repeat queries preserve the documented tie order without private profile fields
+
+#### Scenario: Shared ranks and bounded browsing
+- **WHEN** a verified student, instructor or admin opens Leaderboard
+- **THEN** current students with positive summed server-owned XP appear highest first in 25-row pages, with shared competition ranks (1, 1, 3)
+- **AND** ties sort by case-insensitive username then a private stable ID, without changing their shared rank or returning that ID
+
+#### Scenario: Own position and zero XP
+- **WHEN** a student browses any page
+- **THEN** their exact total and global rank are available even outside that page, and their displayed row is marked You; zero XP is unranked and excluded from the table
+- **AND** instructors/admins can browse but are not ranked and receive no student summary
+
+#### Scenario: Corrected awards and narrow access
+- **WHEN** published grades, maximum XP or current student roles change
+- **THEN** the next leaderboard read reflects authoritative current awards/roles in one snapshot, without writing awards or exposing assignment titles, private grades, submissions, emails or broad peer profiles
+- **AND** anonymous/unprovisioned callers, duplicate/invalid pages and forged identity/XP/rank parameters are denied; errors are distinct from empty results

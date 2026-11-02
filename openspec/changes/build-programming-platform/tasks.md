@@ -1,8 +1,8 @@
 ## 28. Issue #80 trusted XP leaderboard
 
-- [ ] 28.1 Review/approve ranking, visibility and narrow privacy design; write implementation plan after approval and ensure XP dependency is available.
-- [ ] 28.2 Implement one-snapshot trusted XP rankings and own position without widening profile/award access; verify ties, paging, roles, corrections and forged data denial.
-- [ ] 28.3 Add signed-in student/instructor leaderboard navigation, safe responsive/theme/error states and scoped synthetic seed/browser evidence.
+- [x] 28.1 Review/approve ranking, visibility and narrow privacy design; write implementation plan after approval and ensure XP dependency is available.
+- [x] 28.2 Implement one-snapshot trusted XP rankings and own position without widening profile/award access; verify ties, paging, roles, corrections and forged data denial.
+- [x] 28.3 Add signed-in student/instructor leaderboard navigation, safe responsive/theme/error states and scoped synthetic seed/browser evidence.
 - [ ] 28.4 Complete review and applicable checks, update guides/logs, push verified milestones and create a linked PR to develop after branch CI; verify final-head checks.
 
 ## 27. Issue #77 instructor-configured assignment XP

@@ -1,12 +1,12 @@
 # Session: 2 November 2026 — trusted XP leaderboard
 
 - Timezone: Asia/Singapore.
-- Participants/actual agent IDs: requester, coordinator `/root` and read-only design checker `/root/leaderboard_design_check`.
+- Participants/actual agent IDs: requester, coordinator `/root` , read-only design checker `/root/leaderboard_design_check` and source reviewer `/root/leaderboard_security_review`.
 - AI tools/models: Codex; exact model and resource counters unavailable.
 - Issue: [#80](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/80).
 - OpenSpec: `build-programming-platform`, community-and-xp leaderboard requirement/task 5.2.
 - Branch: `feat/leaderboard` from fetched `origin/develop` at `00ae158`.
-- PR/commits: not created; ranking/design clarification pending.
+- PR/commits: not created; design approved; implementation/checks in progress.
 - Dependency: [XP PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79), open at initial check; not merged by coordinator.
 - Human verification: pending.
 - Verifier/date: pending.
@@ -20,10 +20,18 @@
 
 5. The brainstorming skill's written-design builder check explicitly required a separate reviewer. Dispatched fresh read-only agent /root/leaderboard_design_check with the design, current XP dependency and profile/RLS context, a four-minute requested budget, and no edits/service/secret access. It reported **nothing important left**. This is design review, not implementation/security verification or a measured duration. Updated active OpenSpec issue/task links; concrete requester approval remains pending.
 
+6. Requester explicitly selected shared ranks (1, 1, 3) and approved the entire concrete design. Used writing-plans and inline executing/TDD workflow, with Supabase/Postgres and installed Next route documentation. XP PR #79 had merged into develop a42179d; merged that dependency into the feature branch, resolving two planning-only conflicts by retaining both sections (3c2478e). Wrote implementation plan and updated accepted specs/tasks. A frozen dependency install found the lockfile current; no package changes.
+7. Contract tests failed for missing implementation; API/query/UI/shared-member/breadcrumb regressions also failed first. Local database was unavailable because Docker Desktop was stopped. Started Docker Desktop hidden, then the existing Supabase stack without reset. DB test failed for missing RPC before applying additive migration20261102071000. Implemented private role-checked read projection/public invoker wrapper, exact totals/shared ranks, strict API and protected page/navigation. Initial DB269 assertions/10files and focused21units passed; type/lint caught a test-only option and oversized component, repaired by extracting a table component.
+8. Ruling: extract the existing forum member guard as shared requireMember and keep its existing import as an alias, rather than coupling leaderboard to a forum-named guard. Membership behavior stays the same and a failing-first shared guard test covers signed-out/unprovisioned/member paths. Navigation/breadcrumb share one destination list to avoid inconsistent labels.
+9. Per repository executing/review skills, dispatched fresh read-only reviewer /root/leaderboard_security_review with approved spec/plan and scoped source paths, an eight-minute requested budget and no edits/service/secret access. It found error-boundary refresh did not clear caught errors; reproduced failing callback regression and used Next retry with explicit-render refresh fallback. It also found DB tests assumed empty rankings; reproduced eight failed assertions with an extra synthetic200000-XP student in a rollback-only probe. First probe lacked pgTAP setup and a test-helper replacement had a quoting error; repaired the harness before using its results. Baseline-aware expectations and exact32fixture profile updates passed with the unrelated synthetic account. Added current-role, explicit-zero and multi-assignment coverage: DB282assertions/10files pass.
+10. Reviewer recheck found tests scanning legitimate username text for forbidden field names and browser fixtures assuming page1. Changed SQL privacy assertion to approved JSON keys and browser fixtures to locate known rows across pages. No new product defect found in that recheck. Full unit coverage including retry fix:555tests/96files pass (82.23%statements,77.80%branches,83.77%functions,83.89%lines). Browser/build/final checks are in progress; review source-only, no independent test rerun claimed.
+11. Final source-only reviewer recheck confirmed retry handling, baseline-aware SQL tests, approved-field assertions and cross-page fixture discovery resolved all reported findings; no new concrete defect. New actual Chromium journeys: three passed in23seconds, covering student/instructor access, ties/own row, maximum edits/corrections/withdrawal, forged parameters/no POST, private payloads, safe markup names, mobile/theme and later pages. Existing sidebar assertions were updated for Leaderboard. Full regression suite remains pending; the initial focused build preceded the retry patch, so a final build is being rerun before broader browser verification.
+12. Local Supabase advisors reported no issues. DB lint completed with one warning in the pre-existing public.valid_practice_cases UUID-array initializer; no new leaderboard warning. Fresh database282assertions/10files passed after the final key-only privacy assertion. The standard pinned runtime asset build passed, and final app/site builds are in progress. No environment file access, dependency edits, provider calls, reset or hosted deployment.
+
 ## Work and verification
 
-- Read-only exploration: `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, active community-and-xp spec, existing XP/auth/workspace/profile code and relevant local process skills. No environment file access.
-- Checks: clean tree before branch creation; fetched develop; confirmed XP PR open and no separate matching leaderboard issue before creating #80. No product tests yet because no implementation exists.
-- No product source/database/configuration/dependency changes, provider calls or deployment. One bounded read-only builder check was executed; it did not run product tests.
-- Proposed design: [ranking, privacy and integration](../workflow/plans/2026-11-02-leaderboard-design.md), awaiting requester approval.
-- Next: settle rank approach, prepare concrete design for approval, then implementation plan and failing-first tests. XP implementation must be available on develop before dependent implementation is integrated; do not merge another PR automatically.
+- [Approved design](../workflow/plans/2026-11-02-leaderboard-design.md); [implementation plan](../workflow/plans/2026-11-02-leaderboard.md); [actual design/source review](../workflow/evidence/2026-11-02-leaderboard-review.md).
+- Local checks:555units/96files,282databaseassertions/10files (43leaderboard assertions), three focused browser journeys; final app/site/full-browser/static/CI checks remain pending.
+- Advisors: no issues. DB lint: pre-existing practice-case initializer warning only.
+- No product AI calls or measured token/cache statistics. Narrow reviewer follow-ups reused one source reviewer; browser fixtures use three ranked students while transactional SQL covers larger page-boundary cohorts, reducing account/setup overhead without claiming measured speedup.
+- Next: finish applicable checks, record actual results, push verified commits and create PR after branch CI. Human verification and hosted migration/acceptance remain pending.

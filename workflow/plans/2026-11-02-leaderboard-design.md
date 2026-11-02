@@ -1,24 +1,24 @@
-# XP leaderboard — proposed design
+# XP leaderboard — approved design
 
-Issue [#80](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/80); branch `feat/leaderboard` from develop `00ae158`. Active OpenSpec: `build-programming-platform`, community-and-xp/task 5.2. Dependency: [XP PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79), open when checked. Status: concrete proposal awaiting requester approval; no product implementation. The requester authorized leaderboard work but has not yet confirmed the tie-rule question or this design.
+Issue [#80](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/80); branch `feat/leaderboard` from develop `00ae158`. Active OpenSpec: `build-programming-platform`, community-and-xp/task 5.2. Dependency: [XP PR #79](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/79), open when checked. Status: requester explicitly approved this design and shared ranks on 2 November 2026. XP PR #79 subsequently merged into develop a42179d; implementation is in progress.
 
 ## Intended experience
 
 - Add **Leaderboard** to student navigation and the instructor workspace.
 - Show a simple table with **Rank**, **Username** and **XP**, 25 rows per page with Previous/Next. Reuse existing light/dark/mobile patterns; no badges or decorative achievement system.
 - List current students with positive total XP, highest first. Avoid exposing a directory of unused zero-XP accounts.
-- Proposed shared ranks: equal XP receives the same rank, e.g. **1, 1, 3**. Within a tie, sort by case-insensitive username, then a stable internal identifier. Neither alphabetical order nor the identifier changes the shared rank. Duplicate usernames remain possible.
+- Approved shared ranks: equal XP receives the same rank, e.g. **1, 1, 3**. Within a tie, sort by case-insensitive username, then a stable internal identifier. Neither alphabetical order nor the identifier changes the shared rank. Duplicate usernames remain possible.
 - Students also see their own XP/rank even when their row is on another page. Highlight their row with **You**. A student with zero XP sees zero and an unranked state. Instructors/admins can browse but are not ranked and have no student summary.
 - An empty board says **No rankings yet**. Errors offer **Try again**, without presenting failed loads as an empty board. Refresh/reopen obtains current results; no automatic polling or realtime subscription.
 
-These details, including positive-XP membership and shared ranks, are coordinator recommendations for this review, not previously confirmed requester decisions.
+The requester approved all proposed defaults, including positive-XP membership and shared ranks.
 
 ## Approaches considered
 
 1. **Live aggregation from trusted XP awards — recommended.** Sum existing server-owned awards, rank current students and return the page/own position from one database statement. Grade corrections, maximum edits and withdrawals appear on the next request; no second persisted total can drift.
 2. **Persisted/cached leaderboard.** Faster at much larger scale, but adds invalidation, duplicate state and correction consistency work without a demonstrated need in this shared-course project. Defer until measured demand justifies it.
 
-For ties, shared competition ranks reflect equal achievement. Unique ordinal positions are an alternative if requested, but would assign different ranks to equal XP. The earlier async question remains unconfirmed; approval of this document would select the recommended approach and shared-rank policy.
+For ties, shared competition ranks reflect equal achievement. Unique ordinal positions are an alternative if requested, but would assign different ranks to equal XP. The requester explicitly selected shared ranks and approved the live-aggregation design.
 
 ## Data and privacy boundary
 
