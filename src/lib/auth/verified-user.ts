@@ -47,3 +47,10 @@ export async function requireRole(expected: AppRole) {
     role: AppRole;
   };
 }
+
+export async function requireMember() {
+  const context = await getVerifiedUserRole();
+  if (!context.user || !context.supabase) redirect('/sign-in');
+  if (!context.role) redirect('/unauthorized');
+  return { supabase: context.supabase, user: context.user, role: context.role };
+}
