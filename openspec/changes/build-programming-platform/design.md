@@ -340,4 +340,8 @@ Issue #25 simplifies local configuration after the requester selected real-data 
 
 ## Issue #30 independent shared forum
 
+## Issue #82 browser draft autosave and recovery
+
+The requester approved [same-device browser drafts](../../../workflow/plans/2026-11-02-draft-autosave-design.md) on 2 November 2026. Follow the [implementation plan](../../../workflow/plans/2026-11-02-draft-autosave.md) and task group 29. Keep the server-verified account/assignment/language/starting-revision context separate from official immutable submissions. Bounded versioned local records, explicit recovery/conflict choices, Web Locks, source-bound acknowledgement and auth invalidation preserve work without adding a draft endpoint or altering grades/XP. Full storage/API denial cannot guarantee persistence or cleanup; preserve visible code and navigation protection. Hosted acceptance remains separate.
+
 The requester selected forum work to proceed independently of teammate AI/deployment/test-case integration. See the [forum plan](../../../workflow/plans/2026-10-31-forums.md). Deliver one signed-in shared course forum, persistent plain-text threads/replies, trusted username/role snapshots, both-role navigation, stable bounded newest-first pages, retry-safe posting and atomic per-user quotas. Use RLS-protected read projections and an unexposed privileged RPC implementation behind a public invoker wrapper; never broaden profile/submission/grade access. UI supports creation/reading only. No editing/deletion, uploads, live chat, Markdown/HTML, AI or XP. Local seed adds three threads/two replies; migration is additive and verified without resetting existing data. Independent teammate/log review and hosted deployment remain separate gates.

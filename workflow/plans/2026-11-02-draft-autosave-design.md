@@ -1,6 +1,6 @@
 # Browser draft autosave and recovery
 
-Status: proposed; awaiting requester approval. The requester selected same-browser/device storage on 2 November 2026. Remaining defaults below are the coordinator's proposals, not previously agreed decisions.
+Status: requester approved and requested implementation on 2 November 2026, including the proposed defaults below. Same-browser/device storage was selected separately.
 
 Issue: [#82](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/82). Branch: `feat/draft-autosave`, based on merged develop `1f521a6`. Active OpenSpec: `build-programming-platform`, assignments-and-grading. Summary: [session log](../../logs/2026-11-02-draft-autosave.md).
 
