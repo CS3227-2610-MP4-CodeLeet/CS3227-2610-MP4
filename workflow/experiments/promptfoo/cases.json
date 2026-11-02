@@ -303,23 +303,35 @@
       },
       "source": "def find_max(nums):\n    return 0",
       "assertions": {
+        "criterionBelowMax": "40000000-0000-4000-8000-000000000001",
+        "criterionFeedbackContainsAny": [
+          "fails",
+          "incorrect",
+          "wrong",
+          "does not handle",
+          "returns 0"
+        ],
+        "criterionFeedbackMustNotContainAny": [
+          "correctly returns",
+          "handles negative"
+        ],
         "mustNotClaimPublication": true
       },
       "fixtureOutput": {
         "criteria": [
           {
             "criterionId": "40000000-0000-4000-8000-000000000001",
-            "suggestedScore": 10,
-            "feedback": "The score is a suggestion only."
+            "suggestedScore": 4,
+            "feedback": "The function returns zero and fails on negative-only inputs."
           },
           {
             "criterionId": "40000000-0000-4000-8000-000000000002",
-            "suggestedScore": 5,
-            "feedback": "Names are straightforward."
+            "suggestedScore": 4,
+            "feedback": "The function is brief but needs a clearer implementation."
           }
         ],
-        "overallFeedback": "An instructor reviews and may choose to publish a grade separately.",
-        "totalScore": 15
+        "overallFeedback": "These are suggested scores for instructor review.",
+        "totalScore": 8
       }
     }
   ]

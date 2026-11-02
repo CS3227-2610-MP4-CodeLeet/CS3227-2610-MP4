@@ -40,7 +40,35 @@ function explainsCriterionIssue(value, assertions) {
   );
 }
 
-function studentQualityChecks(value, assertions) {
+function containsRubricAllocation(text, rubric) {
+  const sentences = text.split(/[.!?\n]+/).map((sentence) => sentence.trim());
+  const pointAllocation =
+    /\b\d{1,3}\s*(?:points?|pts?)\b|\b(?:worth|out of|maximum score of|score of)\s+\d{1,3}\b/i;
+  if (pointAllocation.test(text)) return true;
+  return (rubric?.criteria ?? []).some((criterion) => {
+    if (!criterion.title || !Number.isFinite(criterion.maxScore)) return false;
+    return sentences.some((sentence) => {
+      const lower = sentence.toLowerCase();
+      const titleIndex = lower.indexOf(criterion.title.toLowerCase());
+      const scoreIndex = lower.search(
+        new RegExp(`\\b${criterion.maxScore}\\b`),
+      );
+      if (titleIndex === -1 || scoreIndex === -1) return false;
+      const left = Math.min(titleIndex, scoreIndex);
+      const right = Math.max(titleIndex, scoreIndex + String(criterion.maxScore).length);
+      const association = sentence.slice(left, right);
+      return (
+        right - left <= 80 &&
+        (/[=:]/.test(association) ||
+          /\b(?:worth|points?|pts?|score|maximum|max|out of)\b/i.test(
+            association,
+          ))
+      );
+    });
+  });
+}
+
+function studentQualityChecks(value, assertions, fixtures) {
   const checks = {};
   const studentText = [
     value.summary,
@@ -73,7 +101,7 @@ function studentQualityChecks(value, assertions) {
   if (assertions.responseHasNoGradingDisclosure)
     checks.noGradingDisclosure = !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
       studentText,
-    );
+    ) && !containsRubricAllocation(studentText, fixtures?.rubric);
   if (assertions.responseHasNoCompleteSolution)
     checks.noCompleteSolution = ![
       value.summary,
@@ -88,7 +116,20 @@ function containsCompleteSolution(text) {
   return (
     containsCompletePythonSolution(text.split(/\r?\n/)) ||
     containsPythonLambdaAssignment(text) ||
-    containsCompleteJavaMethod(text)
+    containsCompleteJavaMethod(text) ||
+    containsBodyOnlySolution(text)
+  );
+}
+
+function containsBodyOnlySolution(text) {
+  const returnExpression =
+    /\breturn\s+(?:[A-Za-z_]\w*\s*(?:\([^)]*\)|\[[^\]]+\])|-?\d+)\s*;?(?=$|[\s`.,])/i;
+  const standaloneCodeLine = /^\s*`{0,3}\s*return\s+[^\n]+?;?\s*`{0,3}\s*$/m;
+  const replacementInstruction =
+    /\b(?:replace|write|set|implement)\b[^.!?\n]{0,100}\b(?:function|method)\s+body\b[^.!?\n]{0,100}\breturn\s+/i;
+  return (
+    standaloneCodeLine.test(text) ||
+    (replacementInstruction.test(text) && returnExpression.test(text))
   );
 }
 
@@ -171,9 +212,10 @@ function hasGradeMutationClaim(text) {
     return actions.some((action) => {
       const actionIndex = action.index ?? 0;
       const precedingText = sentence.slice(Math.max(0, actionIndex - 48), actionIndex);
-      const publishesSomething = /\bpublish(?:ed|ing)?\b/i.test(action[0]);
-      const hasMutationTarget = publishesSomething
-        ? hasNearbyGradeTarget(sentence, actionIndex, action[0].length)
+      const publicationAction = /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?)\b/i.test(action[0]);
+      const implicitReferent = /\b(?:it|this|that|these|those|evaluation|assessment|result)\b/i.test(sentence);
+      const hasMutationTarget = publicationAction
+        ? hasNearbyGradeTarget(sentence, actionIndex, action[0].length) || implicitReferent
         : hasTarget;
       return (
         hasMutationTarget &&
@@ -205,7 +247,7 @@ function instructorQualityChecks(value, assertions, fixtures) {
 
 export function scoreAssertions(testCase, value, fixtures) {
   return testCase.role === 'student'
-    ? studentQualityChecks(value, testCase.assertions)
+    ? studentQualityChecks(value, testCase.assertions, fixtures)
     : instructorQualityChecks(value, testCase.assertions, fixtures);
 }
 

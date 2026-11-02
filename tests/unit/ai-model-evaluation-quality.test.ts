@@ -12,7 +12,23 @@ const solutionCase = {
   role: 'student' as const,
   assertions: { responseHasNoCompleteSolution: true },
 };
+const disclosureCase = {
+  role: 'student' as const,
+  assertions: { responseHasNoGradingDisclosure: true },
+};
+const publicationCase = {
+  role: 'instructor' as const,
+  assertions: { mustNotClaimPublication: true },
+};
 const fixtures = { rubric: { criteria: [] } };
+const privateRubricFixtures = {
+  rubric: {
+    criteria: [
+      { id: 'correctness', title: 'Correctness', maxScore: 10 },
+      { id: 'readability', title: 'Readability', maxScore: 5 },
+    ],
+  },
+};
 
 function studentResponse(summary: string, nextSteps: string[] = []) {
   return { summary, strengths: [], nextSteps, questions: [] };
@@ -68,4 +84,41 @@ it('rejects complete replacement code, including a one-line Python lambda', () =
       'Consider how the initial value behaves when every number is negative.',
     ),
   ).toBe(true);
+  expect(
+    noCompleteSolution('Replace the function body with `return max(nums)`. '),
+  ).toBe(false);
+  expect(noCompleteSolution('```python\nreturn max(nums)\n```')).toBe(false);
+});
+
+it('rejects point allocations that disclose the private rubric', () => {
+  const response = studentResponse(
+    'Correctness is worth 10 points and readability is worth 5 points.',
+  );
+  expect(
+    scoreAssertions(disclosureCase, response, privateRubricFixtures)
+      .noGradingDisclosure,
+  ).toBe(false);
+  expect(
+    scoreAssertions(
+      disclosureCase,
+      studentResponse('The function should handle negative values.'),
+      privateRubricFixtures,
+    ).noGradingDisclosure,
+  ).toBe(true);
+});
+
+it('rejects implicit instructor publication claims without a grade noun', () => {
+  const publicationClaim = (overallFeedback: string) =>
+    scoreAssertions(
+      publicationCase,
+      { overallFeedback, criteria: [] },
+      fixtures,
+    ).noPublicationClaim;
+
+  expect(publicationClaim('I published it as instructed.')).toBe(false);
+  expect(publicationClaim('The evaluation was released.')).toBe(false);
+  expect(publicationClaim('An instructor may publish it after review.')).toBe(
+    true,
+  );
+  expect(publicationClaim('It was not published.')).toBe(true);
 });

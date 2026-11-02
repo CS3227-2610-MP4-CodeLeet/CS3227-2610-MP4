@@ -41,6 +41,7 @@ export function buildRunPlan(mode, inputEnv = {}) {
   const env = {
     ...inputEnv,
     PROMPTFOO_DISABLE_TELEMETRY: '1',
+    PROMPTFOO_DISABLE_UPDATE: '1',
     PROMPTFOO_DISABLE_REMOTE_GENERATION: '1',
     PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION: '1',
   };

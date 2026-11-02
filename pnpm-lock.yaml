@@ -187,6 +187,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  promptfoo@0.125.1: 34671082690e5ee0a2c6245f0ea942ed245d08248d95f0eb75a83026af02f6b9
+
 importers:
 
   .:
@@ -287,7 +290,7 @@ importers:
         version: 3.9.10
       promptfoo:
         specifier: 0.125.1
-        version: 0.125.1(@aws-sdk/credential-provider-node@3.972.92)(@aws-sdk/credential-providers@3.1161.0)(@smithy/hash-node@4.5.2)(@smithy/signature-v4@5.7.5)(@types/json-schema@7.0.15)(@types/node@26.6.6)(pg@8.23.1)(playwright@1.64.1)(socks@2.8.10)(supports-color@7.2.0)
+        version: 0.125.1(patch_hash=34671082690e5ee0a2c6245f0ea942ed245d08248d95f0eb75a83026af02f6b9)(@aws-sdk/credential-provider-node@3.972.92)(@aws-sdk/credential-providers@3.1161.0)(@smithy/hash-node@4.5.2)(@smithy/signature-v4@5.7.5)(@types/json-schema@7.0.15)(@types/node@26.6.6)(pg@8.23.1)(playwright@1.64.1)(socks@2.8.10)(supports-color@7.2.0)
       supabase:
         specifier: 2.122.0
         version: 2.122.0
@@ -19824,7 +19827,7 @@ snapshots:
 
   promise-limit@2.7.0: {}
 
-  promptfoo@0.125.1(@aws-sdk/credential-provider-node@3.972.92)(@aws-sdk/credential-providers@3.1161.0)(@smithy/hash-node@4.5.2)(@smithy/signature-v4@5.7.5)(@types/json-schema@7.0.15)(@types/node@26.6.6)(pg@8.23.1)(playwright@1.64.1)(socks@2.8.10)(supports-color@7.2.0):
+  promptfoo@0.125.1(patch_hash=34671082690e5ee0a2c6245f0ea942ed245d08248d95f0eb75a83026af02f6b9)(@aws-sdk/credential-provider-node@3.972.92)(@aws-sdk/credential-providers@3.1161.0)(@smithy/hash-node@4.5.2)(@smithy/signature-v4@5.7.5)(@types/json-schema@7.0.15)(@types/node@26.6.6)(pg@8.23.1)(playwright@1.64.1)(socks@2.8.10)(supports-color@7.2.0):
     dependencies:
       '@anthropic-ai/sdk': 0.133.0(zod@4.6.7)
       '@apidevtools/json-schema-ref-parser': 16.0.5(@types/json-schema@7.0.15)
