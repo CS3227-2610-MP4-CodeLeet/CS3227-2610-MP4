@@ -1,22 +1,33 @@
 'use client';
-
 import { useState } from 'react';
 import type { AssignmentLanguage } from '@/features/student-assignments/types';
 import type { PracticeCase } from './practice-tests';
 import { PracticeRunner } from './practice-runner';
+import { usePublishedCases } from '@/features/practice-test-authoring/use-published-cases';
+import {
+  PublishedCasesControls,
+  ExampleCaseToggle,
+} from '@/features/practice-test-authoring/student-controls';
 
+type Props = {
+  runnerOrigin: string | null;
+  language: AssignmentLanguage;
+  source: string;
+  examples: readonly PracticeCase[] | null;
+  assignmentId?: string;
+};
 export function AssignmentPractice({
   runnerOrigin,
   language,
   source,
   examples,
-}: {
-  runnerOrigin: string | null;
-  language: AssignmentLanguage;
-  source: string;
-  examples: readonly PracticeCase[] | null;
-}) {
+  assignmentId,
+}: Props) {
   const [useExamples, setUseExamples] = useState(false);
+  const published = usePublishedCases(assignmentId);
+  const ready = canShowCases(published, assignmentId);
+  const allowExamples = ready && published.cases.length === 0;
+  const showingExamples = useExamples && allowExamples;
   if (!runnerOrigin)
     return (
       <p className="text-sm text-muted-foreground">
@@ -26,34 +37,35 @@ export function AssignmentPractice({
   return (
     <PracticeRunner
       runnerOrigin={runnerOrigin}
-      key={useExamples ? 'examples' : 'custom'}
+      key={showingExamples ? 'examples' : 'custom'}
       language={language}
       source={source}
-      cases={useExamples ? (examples ?? []) : []}
-      caseKind={useExamples ? 'examples' : 'published'}
-      beforeCases={
-        examples && (
-          <div className="space-y-2 rounded-md border bg-muted/30 p-3 text-sm">
-            <label className="flex items-center gap-2 font-medium">
-              <input
-                type="checkbox"
-                checked={useExamples}
-                onChange={(event) => setUseExamples(event.target.checked)}
-                aria-describedby="example-tests-description"
-                className="size-4 accent-cyan-700"
-              />
-              Use example test cases
-            </label>
-            <div
-              id="example-tests-description"
-              className="space-y-1 text-xs text-muted-foreground"
-            >
-              <p>Read two integers from standard input and print their sum.</p>
-              <p>These examples are not your assignment’s tests.</p>
-            </div>
-          </div>
-        )
+      cases={showingExamples ? (examples ?? []) : published.cases}
+      casesReady={ready}
+      loadCases={
+        assignmentId && !showingExamples ? published.refresh : undefined
       }
+      caseKind={showingExamples ? 'examples' : 'published'}
+      beforeCases={(busy) => (
+        <>
+          {assignmentId && (
+            <PublishedCasesControls state={published} busy={busy} />
+          )}
+          {examples && allowExamples && (
+            <ExampleCaseToggle
+              checked={useExamples}
+              onChange={setUseExamples}
+            />
+          )}
+        </>
+      )}
     />
   );
+}
+function canShowCases(
+  published: ReturnType<typeof usePublishedCases>,
+  id?: string,
+) {
+  if (!id) return true;
+  return published.ready && !published.error;
 }

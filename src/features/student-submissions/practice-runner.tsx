@@ -203,7 +203,9 @@ type PracticeRunnerProps = {
   source: string;
   cases: readonly PracticeCase[];
   caseKind?: PracticeCaseKind;
-  beforeCases?: ReactNode;
+  beforeCases?: ReactNode | ((busy: boolean) => ReactNode);
+  casesReady?: boolean;
+  loadCases?: (signal: AbortSignal) => Promise<readonly PracticeCase[]>;
 };
 
 export function PracticeRunner({
@@ -213,6 +215,8 @@ export function PracticeRunner({
   cases,
   caseKind = 'published',
   beforeCases = null,
+  casesReady = true,
+  loadCases,
 }: PracticeRunnerProps) {
   const [stdin, setStdin] = useState('');
   const [busy, setBusy] = useState(false);
@@ -221,16 +225,19 @@ export function PracticeRunner({
   const [single, setSingle] = useState<BrowserRun | null>(null);
   const [message, setMessage] = useState('');
   const [testedSource, setTestedSource] = useState('');
+  const [caseSignature, setCaseSignature] = useState('');
   const active = useRef<ActiveRun | null>(null);
   const changed = testedSource !== source;
   useEffect(() => () => stopActiveRun(active.current), []);
 
-  function start(tests: boolean) {
-    return startPracticeRun({
+  const start = (tests: boolean) =>
+    startPracticeRun({
       tests,
       source,
       stdin,
       cases,
+      loadCases,
+      setCaseSignature,
       language,
       active,
       setBusy,
@@ -241,17 +248,13 @@ export function PracticeRunner({
       setMessage,
       runnerOrigin,
     });
-  }
 
   return (
     <section
       className="min-w-0 space-y-4 border-t pt-4"
       aria-labelledby="practice-heading"
     >
-      <RunCodeButton busy={busy} onRun={() => void start(false)} />
-      <h3 id="practice-heading" className="text-sm font-semibold">
-        Run &amp; test
-      </h3>
+      <PracticeHeading busy={busy} onRun={() => void start(false)} />
       <PracticeOutputArea
         stdin={stdin}
         busy={busy}
@@ -263,29 +266,81 @@ export function PracticeRunner({
         caseCount={cases.length}
         message={message}
       >
-        {beforeCases}
-        <CaseResults
+        {typeof beforeCases === 'function' ? beforeCases(busy) : beforeCases}
+        <PreparedCases
+          ready={casesReady}
           cases={cases}
           results={changed ? [] : results}
           kind={caseKind}
-          action={
-            cases.length > 0 ? (
-              <TestCasesAction
-                busy={busy}
-                kind={caseKind}
-                onRun={() => void start(true)}
-              />
-            ) : null
-          }
+          busy={busy}
+          signature={caseSignature}
+          onRun={() => void start(true)}
         />
       </PracticeOutputArea>
     </section>
   );
 }
+function PreparedCases({
+  ready,
+  cases,
+  results,
+  kind,
+  busy,
+  signature,
+  onRun,
+}: {
+  ready: boolean;
+  cases: readonly PracticeCase[];
+  results: PracticeResult[];
+  kind: PracticeCaseKind;
+  busy: boolean;
+  signature: string;
+  onRun: () => void;
+}) {
+  if (!ready) return null;
+  const replaced = results.length > 0 && signature !== JSON.stringify(cases);
+  return (
+    <>
+      {replaced && (
+        <p className="text-xs text-amber-800 dark:text-amber-200">
+          Tests changed. Run again to update the results.
+        </p>
+      )}
+      <CaseResults
+        cases={cases}
+        results={replaced ? [] : results}
+        kind={kind}
+        action={
+          cases.length > 0 ? (
+            <TestCasesAction busy={busy} kind={kind} onRun={onRun} />
+          ) : null
+        }
+      />
+    </>
+  );
+}
+function PracticeHeading({
+  busy,
+  onRun,
+}: {
+  busy: boolean;
+  onRun: () => void;
+}) {
+  return (
+    <>
+      <RunCodeButton busy={busy} onRun={onRun} />
+      <h3 id="practice-heading" className="text-sm font-semibold">
+        Run &amp; test
+      </h3>
+    </>
+  );
+}
 
 type StartRunOptions = {
+  setCaseSignature: (signature: string) => void;
   runnerOrigin: string;
   tests: boolean;
+  loadCases?: (signal: AbortSignal) => Promise<readonly PracticeCase[]>;
   source: string;
   stdin: string;
   cases: readonly PracticeCase[];
@@ -300,8 +355,10 @@ type StartRunOptions = {
 };
 
 async function startPracticeRun({
+  setCaseSignature,
   runnerOrigin,
   tests,
+  loadCases,
   source,
   stdin,
   cases,
@@ -331,10 +388,14 @@ async function startPracticeRun({
     setMessage,
   });
   try {
+    const selectedCases =
+      tests && loadCases ? await loadCases(run.controller.signal) : cases;
+    if (run.controller.signal.aborted) return;
+    setCaseSignature(JSON.stringify(selectedCases));
     const result = await executePracticeRun({
       client: run.client,
       tests,
-      cases,
+      cases: selectedCases,
       language,
       source,
       stdin,

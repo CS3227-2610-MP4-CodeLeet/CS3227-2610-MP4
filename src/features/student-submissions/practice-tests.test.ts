@@ -21,6 +21,15 @@ const cases = [
   { id: 'one', name: 'One', stdin: '2 3\n', expected_stdout: '5' },
   { id: 'two', name: 'Two', stdin: '-2 3\n', expected_stdout: '1' },
 ];
+it('accepts 120 Unicode name characters from authored cases but rejects 121', () => {
+  expect(() =>
+    validateCases([{ ...cases[0], name: '😀'.repeat(120) }]),
+  ).not.toThrow();
+  expect(() =>
+    validateCases([{ ...cases[0], name: '😀'.repeat(121) }]),
+  ).toThrow();
+});
+
 describe('practice output contract', () => {
   it('normalizes line endings and exactly one terminal newline', () => {
     expect(normalizeOutput('a\r\nb\r')).toBe('a\nb');

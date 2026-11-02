@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide describes the merged app at `0a26127` (2 November 2026). Local synthetic tests and linked CI records support these features. A verified public address, hosted email delivery and complete hosted student/instructor checks are still pending in repository evidence. Ask your team for its current test address and accounts.
+This guide describes the current local implementation. The [practice-test summary](../logs/2026-11-02-published-practice-tests.md) records its latest verification and migration status; the earlier cross-feature audit used merged commit `0a26127` (2 November 2026). A verified public address, hosted email delivery and complete hosted student/instructor checks are still pending in repository evidence. Ask your team for its current test address and accounts.
 
 ## Start locally
 
@@ -53,7 +53,11 @@ Input is limited to 4,096 UTF-8 bytes and combined output to 8,192 bytes per cas
 
 ### Test cases
 
-Instructor-authored case creation/publication is not connected yet. Local developers can enable explicitly labelled examples, absent in production. **Use example test cases** supplies three examples for reading two integers and printing their sum; these are not your instructor's tests. Select **Run tests** and expand a case for input, expected/actual output and verdict. Results distinguish passed, wrong output, compilation/runtime errors and timeouts. Comparison ignores line-ending differences and one final newline; other spaces and capitalization matter. Passing examples does not prove general correctness. Developer-only fixture setup is in the [Developer Guide](DeveloperGuide.md).
+Your instructor can publish up to five cases for an assignment. Under **Published test cases**, expand a case to read its input and expected output. Select **Run published tests** to run your current source against the latest published set. Results distinguish **Passed**, **Wrong output**, compilation/runtime errors and timeouts, with actual output and diagnostics. Comparisons ignore line-ending differences and one final newline; other spaces and capitalization matter. Passing public cases does not prove correctness for every input or change your grade.
+
+Use **Refresh tests** to reload the cases. Changed cases hide old verdicts and ask you to run again; your code remains in the editor. A failed load shows a retry message, while **No published test cases** means the assignment has no published cases. Test runs do not submit a revision. Leaving the page ends active loading/running.
+
+Only in explicit local development configuration, an assignment with no published cases may offer **Use example test cases**. These standalone sum examples are not your instructor's tests and never appear in production or replace a failed real-data request. Developer fixture setup is in the [Developer Guide](DeveloperGuide.md).
 
 ### Submit revision
 
@@ -96,6 +100,14 @@ Choose **My grades** in the sidebar/Menu for published grades, newest first. Exp
 
 Instructors can review submissions/private rubrics only for owned assignments. AI cannot publish grades. Both roles can visit `/ai/usage` for their own recent usage; instructors also have an **AI usage** link. Counts may be estimates when provider counts are absent. Instructor context comparison uses authorized contexts; two uncached reviews can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
 
+### Publish practice tests
+
+Choose **Practice tests** on an assignment in your instructor list or from its edit page. Select **Add test case**, then enter **Name**, **Input** and **Expected output**. Use a complete stdin/stdout example: returning a value from a function does not print it. Empty input/output is allowed. Names allow 120 characters; each case allows 4,096 UTF-8 input bytes and 8,192 expected-output bytes. Whitespace in input/output is kept.
+
+**Save draft** keeps edits private. **Publish tests** saves and releases the edited set. Later draft edits leave the previous published cases available to students until you publish again. **Unpublish tests** removes student-visible cases but keeps your saved draft. A draft assignment remains hidden even if its test set is published. Publishing requires at least one case; you may save an empty draft. Use **Remove** to delete a case from the edited set.
+
+Only the owning instructor can manage these cases. Failed saves retain your inputs; if another edit changed the set, reload before saving again. Publishing tests does not grade student code.
+
 ## Forums
 
 Choose **Forums** from the student sidebar/Menu or instructor header. Both roles share discussions. Select **New discussion**, enter title/message, then **Create discussion**. In a discussion, use **Your reply → Post reply**.
@@ -110,7 +122,7 @@ Admins also have instructor access and an **Admin panel** link to manage roles. 
 
 ## Current limits and test coverage
 
-- No uploads, achievement badges, XP/leaderboard or instructor-authored published-case workflow is available.
+- No uploads, achievement badges, XP/leaderboard, hidden tests or automatic grading from browser runs is available.
 - Use synthetic accounts/code for testing. A verified hosted address, public tester accounts and complete supported-browser matrix are not recorded yet.
 - Automated UI tests may mock AI or skip missing prerequisites. They do not establish live-model quality, hosted email delivery or deployed runner security.
 - Reproduction commands, historical evidence and release checks are in the [security evidence report](../workflow/evidence/2026-11-02-security-testing.md).

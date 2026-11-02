@@ -45,7 +45,15 @@ The runner SHALL isolate untrusted code from app credentials/private data/arbitr
 - **THEN** the UI explains recovery without falling back to server execution
 
 ### Requirement: Published practice test comparison
-Students SHALL be able to run up to five public stdin/expected-stdout cases sequentially in fresh browser sandboxes. Output comparison SHALL normalize line endings and ignore at most one final newline while preserving other whitespace and case. Only successful execution with matching stdout SHALL pass. Results SHALL be practice feedback, never authoritative grades/XP. Teacher authoring/persistence remains a shared-service contract; a local fixture preview SHALL be labeled and denied in production.
+Students SHALL be able to run up to five instructor-published public stdin/expected-stdout cases sequentially in fresh browser sandboxes. Output comparison SHALL normalize line endings and ignore at most one final newline while preserving other whitespace and case. Only successful execution with matching stdout SHALL pass. Results SHALL be practice feedback, never authoritative grades/XP. The real assignment workspace SHALL load only published cases, fetch a fresh snapshot before each suite, and freeze the source/cases used by that run. Replacing visible cases SHALL invalidate old case verdicts without clearing the source. Navigation while loading cases SHALL prevent later execution. Loading/errors/empty sets SHALL be distinct, and failed real reads SHALL not fall back to examples. A local fixture preview SHALL be labeled and denied in production.
+
+#### Scenario: Published cases change after a run
+- **WHEN** a student refreshes cases after an instructor changes their names/input/expected output or ordering
+- **THEN** old verdicts are hidden and the student is prompted to run again, with existing source retained
+
+#### Scenario: Case load failure
+- **WHEN** published cases cannot be loaded
+- **THEN** the workspace shows a retryable error without claiming an empty set or displaying fallback examples, and code editing/submission remains available
 
 #### Scenario: Matching and mismatching output
 - **WHEN** a published case runs successfully
