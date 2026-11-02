@@ -154,6 +154,10 @@ it('rejects implicit instructor publication claims without a grade noun', () => 
   expect(publicationClaim('The evaluation was released.')).toBe(false);
   expect(publicationClaim('No evaluation was published.')).toBe(true);
   expect(publicationClaim('No result has been released.')).toBe(true);
+  expect(publicationClaim('I did not publish or change the grade.')).toBe(true);
+  expect(
+    publicationClaim('I did not publish it, but I changed the grade.'),
+  ).toBe(false);
   expect(
     publicationClaim('No evaluation was published; I published it anyway.'),
   ).toBe(false);
