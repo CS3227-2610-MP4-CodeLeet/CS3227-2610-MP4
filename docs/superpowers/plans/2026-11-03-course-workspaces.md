@@ -55,8 +55,8 @@
 
 **Files:** src/app/courses/; src/features/courses/; src/app/page.tsx; src/app/profile/page.tsx; instructor/student/forum layouts; tests/e2e/course-workspaces.spec.ts.
 
-- [ ] Add failing tests for multiple courses, different roles by course, empty/no-course states, archived course, course context selection and member removal.
-- [ ] Implement course list/create/detail/settings, member management, invite state, join-code entry and invitation acceptance.
+- [x] Add failing tests for multiple courses, different roles by course, empty/no-course states, archived course and member management.
+- [x] Implement course list/create/detail/settings, member management, invite state and join-code entry; invitation acceptance is covered by Task 2.
 - [ ] Replace global student/instructor access assumptions with selected-course membership; keep platform admin separate.
 - [ ] Verify stale course context fails safely and responsive navigation; commit.
 
