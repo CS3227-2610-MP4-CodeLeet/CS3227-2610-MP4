@@ -5,8 +5,8 @@
 - AI tools/models: Codex; exact coordinator model/resource measurements unavailable
 - GitHub issue: [#84](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/84)
 - OpenSpec change: `openspec/changes/build-programming-platform/`
-- Branch and commits: `feat/username-sign-in` from develop `0aca647`; milestones `d41e7d6`, `65e6282`, `6184c4d`; loading/evidence continuation uncommitted
-- Pull request: not created
+- Branch and commits: `feat/username-sign-in` from develop `0aca647`; milestones `d41e7d6`, `65e6282`, `6184c4d`; loading/evidence milestone `4343339`; fixture scan correction follows
+- Pull request: [#86](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/86)
 - Human verification: pending
 - Verifier/date: pending
 
@@ -38,6 +38,9 @@
 21. Final current-source checks passed: 619 units/108 files with coverage 84.05% statements, 79.03% branches, 85.61% functions and 86.13% lines; production app and documentation-site builds; lint/types/format; 39 browser JavaScript files contained neither configured server-only value. Secrets were read only in memory and never printed. Restored the original user next-env dev imports and excluded them from staging. Final source checklist/CI closeout follows separately.
 
 22. Final runtime distribution build first failed its online fetch. Retried with Node's Windows system certificate store enabled (NODE_USE_SYSTEM_CA=1); the pinned size/SHA-256 integrity build passed without changing assets or weakening checks. Branch CI will exercise the normal Linux build. Final app/site/lint/types/format/spec/scaffold checks are complete; original next-env user edit is preserved.
+
+23. Committed/pushed loading and evidence milestone 4343339. Branch workflow 41603528676 passed application/database checks, including 619 unit passes and 29 browser passes/74 prerequisite skips. Created PR #86 to develop; mergeability confirmed. Teammate Promptfoo changes are tested through PR integration CI. Hosted Vercel build success is a deployment check, not hosted account/provider acceptance; Supabase Preview is skipped.
+24. PR CodeQL reported a high insecure-randomness flow from the existing Math.random fixture suffix into the newly unique synthetic username. Read the exact annotation and review guidance, verified the flow, and replaced the suffix with Node crypto.randomUUID without dismissing the alert. The actual local real-runtime MVP journey passed again (one test, 29.1 seconds), covering registration, Python execution, saves, mocked AI and published grades. This is a test-fixture correction; no product source changed after the broad loading run. One guessed CI job-ID lookup returned 404; queried PR/run status directly instead. Final-head scans remain pending after push.
 
 ## Work and verification
 

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   expect,
   test,
@@ -32,7 +33,7 @@ test('student and instructor complete the CodeLeet MVP journey', async ({
     !localServicesAvailable,
     'Needs a running local Supabase stack and test-only admin key.',
   );
-  const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const suffix = randomUUID();
   const fixture = {
     instructorId: '',
     assignmentId: '',
