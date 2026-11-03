@@ -103,6 +103,18 @@ Choose **My XP** in the sidebar/Menu to see your total and assignment awards. Yo
 
 Corrected or withdrawn grades and changes to an assignment's maximum XP can increase or decrease your total. Draft grades, AI suggestions, running code and forum activity do not earn XP. **Next**/**Previous** browse up to 25 awards per page. An unavailable assignment keeps its award without showing its hidden title. Loading failures offer **Try again**.
 
+## Student: My progress
+
+Choose **My progress** in the sidebar or mobile **Menu** for an overview of your work:
+
+- **Submitted assignments** counts published assignments with at least one saved revision, including late submissions. Saving several revisions of one assignment still counts once.
+- **Outstanding assignments** have no saved revision from you. **Overdue assignments** are the outstanding assignments whose deadline has passed. Assignments without deadlines still count as outstanding.
+- **Total XP** shows your current awarded XP. Select it to open your XP breakdown.
+- **Coming up** shows up to five outstanding assignments with upcoming deadlines, earliest first. Dates and times use SGT. Open an assignment to continue working.
+- **Recent submissions** and **Recent grades** show up to five of your latest saved revisions and published grades. **View all** opens the corresponding full list.
+
+The progress bar tracks saved submissions, rather than passing tests or receiving grades. Browser drafts and code runs do not count as submitted. An assignment removed from publication leaves the current assignment totals. If a section cannot load, it shows an unavailable message and **Try again**; other sections can still be used. Refresh the page to see newer submissions, grades or deadline changes.
+
 ## Leaderboard
 
 Choose **Leaderboard** from the student sidebar/Menu or instructor header. Students with positive total XP appear highest first, with **Rank**, **Username** and **XP**. Equal XP shares a rank: two students in first place are followed by rank 3. Within a tie, usernames sort ignoring capitalization; duplicate usernames have a consistent order.

@@ -1,5 +1,17 @@
 # Developer Guide
 
+## Student personal progress (issue #89)
+
+`/student/progress` verifies the student role in its dynamic layout and page, then starts independent section reads concurrently using the session's existing RLS-protected Supabase client. `src/features/student-progress/` separates assignment counts/upcoming queries, recent activity queries, validated contracts, presentation and a pending retry control. The existing workspace links to My progress on desktop and mobile; Assignments stays the landing page.
+
+Assignment totals use exact HEAD counts of visible published assignments. Own outstanding work uses an empty `submissions()` embed filtered to the verified student and `submissions=is.null` (a PostgREST anti-join). Submitted is total minus outstanding, with revisions counted per assignment; overdue is outstanding with due_at strictly before the captured server time. Independent count reads are not a transaction snapshot: inconsistent combinations fail closed with retry. Upcoming work uses due_at at or after the same time, ordered by deadline/ID and limited to five. No page-length-derived counts or assignment-source retrieval.
+
+Recent submissions and published grades use timestamp/ID descending order and a five-row limit. Their projections omit source, feedback, criterion scores, private rubrics and peer identity. Hidden titles use the existing unavailable-title behavior. XP reuses the authoritative own-total RPC without writing awards. Section failures stay distinct from zero, and source-bearing destination links disable prefetch. Section retries refresh data; the route error fallback invokes Next.js 16's supplied boundary retry callback inside a pending transition. No new migration, dependency, key or environment flag.
+
+Focused unit tests cover actual SDK request filters/projections, exact counts, deadline boundaries, validation/failures, safe rendering, parallel reads and real React boundary recovery. `tests/e2e/student-progress.spec.ts` uses local-only synthetic actors to check over 1,000 assignments, repeated revisions, withdrawal, late submissions, private grades, forged URL identity, access denial and mobile/theme/keyboard navigation. It skips without explicit local fixture credentials; a CI skip is not hosted acceptance. See the [approved design](../workflow/plans/2026-11-03-student-progress-design.md), [plan](../workflow/plans/2026-11-03-student-progress.md) and [summary](../logs/2026-11-03-student-progress.md) for actual checks and limitations. The anti-join follows [official PostgREST resource embedding guidance](https://docs.postgrest.org/en/stable/references/api/resource_embedding.html#null-filtering-on-embedded-resources).
+
+## Asynchronous application actions
+
 Account forms and asynchronous application actions use the shared client
 `PendingButton` for a decorative spinner, disabled duplicate clicks and
 `aria-busy`. Next Form searches/comparison use its `FormSubmitButton` wrapper

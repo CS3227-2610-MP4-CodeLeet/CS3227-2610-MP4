@@ -28,28 +28,28 @@ Execute inline using the executing-plans and test-driven-development skills. The
 Files: `src/features/student-progress/assignments.server.ts`, `activity.server.ts`, `contracts.ts`, corresponding unit tests.
 Interfaces: `loadAssignmentProgress(client, studentId, now)` returns `{total,submitted,outstanding,overdue}` or null; `loadUpcomingAssignments(client,studentId,now)` returns at most five visible outstanding assignments or null. `loadRecentSubmissions` and `loadRecentGrades` return five scoped metadata rows or null. No caller-controlled identity from search parameters.
 
-- [ ] Write and run failing HTTP-client tests for exact HEAD counts, own filtered anti-joins, due boundaries, deterministic five-row activity, safe projections and backend failures.
-- [ ] Implement loaders and response validation, using exact counts rather than paginated list lengths. Reject inconsistent counts rather than showing impossible progress during concurrent changes.
-- [ ] Verify queries against local synthetic records under real RLS, including duplicate revisions and assignments above the REST row limit; no reset or migration.
-- [ ] Run focused unit tests and commit verified data milestone.
+- [x] Write and run failing HTTP-client tests for exact HEAD counts, own filtered anti-joins, due boundaries, deterministic five-row activity, safe projections and backend failures.
+- [x] Implement loaders and response validation, using exact counts rather than paginated list lengths. Reject inconsistent counts rather than showing impossible progress during concurrent changes.
+- [x] Verify queries against local synthetic records under real RLS, including duplicate revisions and assignments above the REST row limit; no reset or migration.
+- [x] Run focused unit tests and commit verified data milestone.
 
 ## Task 2: Private dashboard page and navigation
 
 Files: `src/features/student-progress/components.tsx`, `retry-button.tsx`, tests; `src/app/student/progress/{page,layout,loading,error}.tsx` and page tests; existing workspace shell and its tests.
 Interfaces: server page calls `requireRole('student')`, captures one now, and starts five independently handled loaders concurrently. `ProgressOverview` consumes nullable section values; no query parameter can change identity. Retry refreshes the page using a visible pending state.
 
-- [ ] Write/run failing component/page tests for totals/zero/empty/error, each independent failure, private user selection, and safe title/link rendering.
-- [ ] Implement restrained cards, a labelled native progress indicator, future deadlines and five recent own activity rows with View all links; add My progress to authenticated navigation only.
-- [ ] Add loading/error/retry UI with visible pending state and existing theme classes, retaining Assignments landing behavior.
-- [ ] Run focused and full unit/type/lint/format checks; commit verified UI milestone.
+- [x] Write/run failing component/page tests for totals/zero/empty/error, each independent failure, private user selection, and safe title/link rendering.
+- [x] Implement restrained cards, a labelled native progress indicator, future deadlines and five recent own activity rows with View all links; add My progress to authenticated navigation only.
+- [x] Add loading/error/retry UI with visible pending state and existing theme classes, retaining Assignments landing behavior.
+- [x] Run focused and full unit/type/lint/format checks; commit verified UI milestone.
 
 ## Task 3: Acceptance, documentation and review
 
 Files: `tests/e2e/student-progress.spec.ts`, optional feature-specific fixture helper; guides, dated summary and OpenSpec artifacts.
 
-- [ ] Verify real synthetic student/peer/instructor/signed-out paths, exact total beyond row limit, late/hidden/publication states, recent ordering, responsive/theme/navigation behavior and no source/rubric/private-grade leakage.
-- [ ] Update User Guide only for verified behavior and Developer Guide with module/data/testing details. Record real checks, failed attempts and limitations; human review pending.
-- [ ] Run applicable coverage/build/browser/database/site/scaffold/spec checks and a bounded independent read-only whole-branch review; fix material findings.
+- [x] Verify real synthetic student/peer/instructor/signed-out paths, exact total beyond row limit, late/hidden/publication states, recent ordering, responsive/theme/navigation behavior and no source/rubric/private-grade leakage.
+- [x] Update User Guide only for verified behavior and Developer Guide with module/data/testing details. Record real checks, failed attempts and limitations; human review pending.
+- [x] Run applicable coverage/build/browser/database/site/scaffold/spec checks and a bounded independent read-only whole-branch review; fix material findings.
 - [ ] Commit/push, wait branch CI, create issue-linked PR to develop, and verify all final-head checks. Do not merge or claim deployment.
 
 ## Execution ledger
