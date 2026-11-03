@@ -63,4 +63,4 @@ Files: `tests/e2e/username-sign-in.spec.ts`, existing student suites, dated acce
 - [x] Exercise actual email/username/case login, duplicate/rename/legacy paths, safe failures/limits/grants, both languages and student draft/history/comparison/grade journeys with synthetic local fixtures.
 - [x] Rerun relevant database, unit/coverage, full authenticated browser suite with real Python/Java runtime, app/site build, lint/types/format/spec/scaffold; record exact commit/environment/counts/skips and mocked AI limits.
 - [x] Fresh bounded security reviewer; reproduce/fix material findings with tests; update only verified guide behavior and evidence.
-- [ ] Push, pass branch CI, create linked PR to develop closing #84, then confirm final-head checks. No coordinator merge/manual deploy.
+- [x] Push, pass branch CI, create PR #86 to develop closing #84, and confirm required checks at f681aef. Final metadata closeout is checked again and its actual final-head status is recorded on the PR. No coordinator merge/manual deploy.

@@ -29,6 +29,15 @@ Issue [#84](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/8
 
 ## Loading-feedback continuation results
 
+Source/test head `f681aef` passed required PR application/database/coverage,
+scaffold, CodeQL analyses/alert gate and Vercel checks. The database job passed
+on attempt 2 of [run 41604412398](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/41604412398)
+after the first runner hit a registry rate limit and occupied port during stack
+startup. Supabase Preview was skipped. Branch CI had passed before PR creation.
+The final documentation/checklist commit triggers checks again; its exact head
+and results are recorded on [PR #86](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/86).
+Successful builds do not establish hosted account, email or live-provider acceptance.
+
 The requester subsequently asked for visible progress throughout account and
 application actions. New source adds shared spinners/disabled busy state,
 action-specific account labels, a ten-second account notice, transition-aware

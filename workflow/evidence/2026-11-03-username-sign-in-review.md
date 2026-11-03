@@ -31,6 +31,13 @@ Actual token, hidden reasoning, cache-hit and cost measurements were unavailable
 
 ## Limits and references
 
+Closeout: coordinator verified the loading review's successful delayed-navigation
+scenario in the full browser run. The separate CodeQL finding in the synthetic
+MVP identity nonce was corrected to Node `crypto.randomUUID`, and its actual
+MVP browser rerun passed. Required PR checks passed at f681aef, including CodeQL;
+the database startup-only infrastructure failure passed on a fresh-runner retry.
+Supabase Preview was skipped. Final metadata-head checks are recorded on PR #86.
+
 Loading-feedback continuation: read-only reviewer `/root/pending_action_review`
 reviewed the uncommitted delta against `6184c4d` with a requested four-minute
 budget. It found no material correctness/accessibility issue, but identified
