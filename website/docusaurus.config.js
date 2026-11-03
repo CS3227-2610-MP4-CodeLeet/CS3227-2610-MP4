@@ -1,12 +1,12 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'CS3227 MP4',
+  title: 'CodeLeet',
   tagline: 'Programming assignments with browser-based practice',
   url: 'https://cs3227-2610-mp4-codeleet.github.io',
   baseUrl: '/CS3227-2610-MP4/',
   organizationName: 'CS3227-2610-MP4-CodeLeet',
   projectName: 'CS3227-2610-MP4',
-  trailingSlash: false,
+  trailingSlash: true,
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
@@ -22,9 +22,16 @@ const config = {
       'classic',
       {
         docs: {
+          routeBasePath: '/',
           sidebarPath: './sidebars.js',
-          editUrl:
-            'https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/tree/develop/website/',
+          editUrl: ({ docPath }) => {
+            const directory = ['UserGuide.md', 'DeveloperGuide.md'].includes(
+              docPath,
+            )
+              ? 'docs'
+              : 'website/docs';
+            return `https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/edit/develop/${directory}/${docPath}`;
+          },
         },
         blog: false,
         theme: {
@@ -35,13 +42,17 @@ const config = {
   ],
   themeConfig: {
     navbar: {
-      title: 'CS3227 MP4',
+      title: 'CodeLeet',
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          to: '/docs/UserGuide/',
           position: 'left',
-          label: 'Project status',
+          label: 'User Guide',
+        },
+        {
+          to: '/docs/DeveloperGuide/',
+          label: 'Developer Guide',
+          position: 'left',
         },
         {
           href: 'https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4',
@@ -54,6 +65,13 @@ const config = {
       style: 'dark',
       links: [
         {
+          title: 'Documentation',
+          items: [
+            { label: 'User Guide', to: '/docs/UserGuide/' },
+            { label: 'Developer Guide', to: '/docs/DeveloperGuide/' },
+          ],
+        },
+        {
           title: 'Project',
           items: [
             {
@@ -61,8 +79,8 @@ const config = {
               href: 'https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4',
             },
             {
-              label: 'Development guide',
-              href: 'https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/blob/develop/docs/DeveloperGuide.md',
+              label: 'Reflections',
+              href: 'https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/blob/develop/docs/Reflections.md',
             },
           ],
         },
