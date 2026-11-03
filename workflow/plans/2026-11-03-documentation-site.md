@@ -21,4 +21,4 @@ Execute inline with TDD, verification and one bounded independent review. This c
 - [x] Add failing-first generator tests covering guide synchronization, internal links and external repository references.
 - [x] Implement first-party guide preparation, documentation routes/navigation/overview/styles and develop Pages publication; update contributor/site instructions and acknowledgements. Subsequent user steering removes all prior-project references from public guide/site copy.
 - [x] Verify units, production site build, real local desktop/mobile/theme/deep-link navigation, links/format/spec/workflow structure and independent review.
-- [ ] Update log and linked issue/PR, commit/push and verify final-head CI; record publication gate accurately.
+- [x] Update log and linked issue/PR, commit/push and verify final-head CI; record publication gate accurately. Source head 49f3741 passed all executed PR checks; final metadata-head results are recorded on PR #88. Live Pages publication remains pending merge to develop.

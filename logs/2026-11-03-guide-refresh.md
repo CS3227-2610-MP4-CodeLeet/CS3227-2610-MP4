@@ -37,6 +37,8 @@
 
 ## Verification and handoff
 
-- Completed local checks: guide command/path audit, local Markdown links/scaffold, strict OpenSpec, formatting and documentation-site build; existing product tests remain historical until CI runs.
-- No runtime/schema behavior changed; no new tests that mirror documentation.
+17. Requester asked to retry. Rechecked public guides/site sources: no prior-project names or links found. Authenticated GitHub inspection confirmed source head 49f3741 passed application, database, coverage, scaffold, both CodeQL analyses and gate, and Vercel checks; Supabase Preview was skipped. Updated closeout artifacts and PR scope. Publication remains pending the separate merge to develop and actual Pages/live-route verification; no environment restrictions were relaxed. Final metadata-head checks are recorded externally on PR #88 to avoid a self-referential commit loop.
+
+- Completed local checks: guide command/path audit, local Markdown links/scaffold, strict OpenSpec, formatting, documentation-site build, 649 unit tests and actual static-site Chromium navigation/theme/mobile checks. Source-head application/database/coverage/security CI passed at 49f3741 (run 41613024345).
+- No application runtime/schema behavior changed. Three new guide-generation tests cover synchronization and link handling.
 - Unverified: hosted role/email/AI acceptance, course integration, final human verification and release/master.
