@@ -52,7 +52,7 @@ select results_eq(
 );
 select is(public.owns_assignment('94000000-0000-4000-8000-000000000001'), true, 'admin inherits instructor assignment ownership');
 select is((select count(*)::integer from public.assignments where id = '94000000-0000-4000-8000-000000000001'), 1, 'admin can read an owned instructor assignment');
-select lives_ok($$select public.save_grade('97000000-0000-4000-8000-000000000002', '{"97000000-0000-4000-8000-000000000004":8}', 'Admin grading', 8, false, 0)$$, 'admin can grade an owned submission');
+select throws_ok($$select public.save_grade('97000000-0000-4000-8000-000000000002', '{"97000000-0000-4000-8000-000000000004":8}', 'Admin grading', 8, false, 0)$$,'42501','submission_not_owned','archived Legacy course is read-only even to its historical platform admin');
 select lives_ok($$select public.admin_set_user_role('93000000-0000-4000-8000-000000000004', 'instructor')$$, 'admin can assign an allowed role');
 select is((
   select role from public.admin_list_users(null, 100)

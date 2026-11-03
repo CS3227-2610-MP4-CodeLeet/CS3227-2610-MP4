@@ -39,7 +39,16 @@ export function CourseWorkspace({
       <Link href="/courses" className="text-sm underline">
         ← All courses
       </Link>
-      <CourseHeading course={course} role={role} />
+      <CourseHeading
+        course={course}
+        role={role}
+        assessmentsEnabled={features.some(
+          (feature) => feature.feature === 'assessments' && feature.enabled,
+        )}
+        aiEnabled={features.some(
+          (feature) => feature.feature === 'ai' && feature.enabled,
+        )}
+      />
       {canManage && (
         <ManagementPanels
           course={course}
@@ -63,9 +72,13 @@ export function CourseWorkspace({
 function CourseHeading({
   course,
   role,
+  assessmentsEnabled,
+  aiEnabled,
 }: {
   course: CourseWorkspaceRecord;
   role: CourseMemberRole;
+  assessmentsEnabled: boolean;
+  aiEnabled: boolean;
 }) {
   return (
     <header className="space-y-3">
@@ -83,6 +96,12 @@ function CourseHeading({
       {course.description && (
         <p className="max-w-3xl text-muted-foreground">{course.description}</p>
       )}
+      <CourseFeatureLinks
+        course={course}
+        role={role}
+        assessmentsEnabled={assessmentsEnabled}
+        aiEnabled={aiEnabled}
+      />
       {course.lifecycle === 'archived' && (
         <p className="rounded-md border p-3 text-sm">
           This course is read-only. Members can still review its history.
@@ -128,5 +147,52 @@ function ManagementPanels({
         />
       </section>
     </>
+  );
+}
+
+function CourseFeatureLinks({
+  course,
+  role,
+  assessmentsEnabled,
+  aiEnabled,
+}: {
+  course: CourseWorkspaceRecord;
+  role: CourseMemberRole;
+  assessmentsEnabled: boolean;
+  aiEnabled: boolean;
+}) {
+  const assignmentsHref =
+    role === 'student'
+      ? `/student/assignments?courseId=${course.id}`
+      : `/instructor?courseId=${course.id}`;
+  return (
+    <nav aria-label="Course activities" className="flex flex-wrap gap-3">
+      {(course.lifecycle === 'archived' || assessmentsEnabled) && (
+        <Link
+          href={assignmentsHref}
+          className="rounded-md border px-3 py-2 text-sm underline"
+        >
+          Assignments
+        </Link>
+      )}
+      {(course.lifecycle === 'archived' || aiEnabled) && (
+        <Link
+          href={`/ai/usage?courseId=${course.id}`}
+          className="rounded-md border px-3 py-2 text-sm underline"
+        >
+          AI usage
+        </Link>
+      )}
+      {role === 'instructor' &&
+        course.lifecycle === 'active' &&
+        assessmentsEnabled && (
+          <Link
+            href={`/instructor/assignments/new?courseId=${course.id}`}
+            className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground"
+          >
+            New assignment
+          </Link>
+        )}
+    </nav>
   );
 }

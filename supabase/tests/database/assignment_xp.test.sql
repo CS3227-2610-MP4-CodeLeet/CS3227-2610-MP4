@@ -6,7 +6,12 @@ insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,r
  ('c1000000-0000-4000-8000-000000000002','authenticated','authenticated','xp-student@example.test','',now(),'{}','{}',now(),now()),
  ('c1000000-0000-4000-8000-000000000003','authenticated','authenticated','xp-peer@example.test','',now(),'{}','{}',now(),now());
 update public.user_roles set role='instructor' where user_id='c1000000-0000-4000-8000-000000000001';
-insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('c2000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','XP example','Synthetic','python','published',100,(select id from public.courses where is_legacy));
+insert into public.courses(id,owner_id,created_by,title,description) values ('cc000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','Scoped fixture','');
+insert into public.course_memberships(course_id,user_id,role) values ('cc000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','instructor');
+insert into public.course_memberships(course_id,user_id,role) values ('cc000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000002','student');
+insert into public.course_memberships(course_id,user_id,role) values ('cc000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000003','student');
+insert into public.course_features(course_id,feature,enabled) select 'cc000000-0000-4000-8000-000000000001',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('c2000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','XP example','Synthetic','python','published',100,'cc000000-0000-4000-8000-000000000001'::uuid);
 insert into public.assignment_rubrics(assignment_id,criteria) values ('c2000000-0000-4000-8000-000000000001','[{"id":"c5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]');
 insert into public.submissions(id,assignment_id,student_id,source,revision,request_id) values
  ('c4000000-0000-4000-8000-000000000001','c2000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000002','print(1)',1,'c3000000-0000-4000-8000-000000000001'),
@@ -96,8 +101,8 @@ select throws_ok($$select public.get_my_xp(0)$$,'22023','invalid_page','total RP
 reset role;
 update public.assignments set publication_status='published' where id='c2000000-0000-4000-8000-000000000001';
 -- Existing validators accept fractional maxima/totals beyond two decimal places.
-insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('c2000000-0000-4000-8000-000000000003','c1000000-0000-4000-8000-000000000001','Fraction A','Synthetic','python','published',100,(select id from public.courses where is_legacy)),
- ('c2000000-0000-4000-8000-000000000004','c1000000-0000-4000-8000-000000000001','Fraction B','Synthetic','java','published',100,(select id from public.courses where is_legacy));
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('c2000000-0000-4000-8000-000000000003','c1000000-0000-4000-8000-000000000001','Fraction A','Synthetic','python','published',100,'cc000000-0000-4000-8000-000000000001'::uuid),
+ ('c2000000-0000-4000-8000-000000000004','c1000000-0000-4000-8000-000000000001','Fraction B','Synthetic','java','published',100,'cc000000-0000-4000-8000-000000000001'::uuid);
 insert into public.assignment_rubrics(assignment_id,criteria) values
  ('c2000000-0000-4000-8000-000000000003','[{"id":"c5000000-0000-4000-8000-000000000001","title":"Fraction","description":"Synthetic","maxScore":1.234}]'),
  ('c2000000-0000-4000-8000-000000000004','[{"id":"c5000000-0000-4000-8000-000000000001","title":"Fraction","description":"Synthetic","maxScore":1.236}]');
@@ -142,7 +147,7 @@ select set_config('request.jwt.claim.sub','c1000000-0000-4000-8000-000000000003'
 select is(public.get_my_xp(1)->>'total_xp','0','peer sees own total only');
 select is((select count(*)::integer from public.xp_awards),0,'peer cannot read awards');
 select is((select count(*)::integer from public.xp_ledger),0,'peer cannot read ledger');
-select throws_ok($$select public.save_grade('c4000000-0000-4000-8000-000000000001','{}','Forge',10,true,4)$$,'42501','instructor_required','wrong role cannot mutate grades or XP');
+select throws_ok($$select public.save_grade('c4000000-0000-4000-8000-000000000001','{}','Forge',10,true,4)$$,'42501','submission_not_owned','non-member cannot mutate grades or XP');
 reset role;
 select ok(not has_function_privilege('anon','public.get_my_xp(integer)','EXECUTE'),'anonymous total RPC denied');
 select * from finish();

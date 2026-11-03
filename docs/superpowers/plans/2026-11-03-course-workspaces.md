@@ -64,9 +64,9 @@
 
 **Files:** src/app/api/assignments/, src/app/api/student/assignments/, src/app/api/submissions/, src/app/api/grades/, src/app/api/ai/; related instructor/student pages; src/features/codementor/, student assignment/submission/grade, deadline and practice-test modules; database policies/tests.
 
-- [ ] Add failing tests for enrolled student access, course instructor grading, private rubric/grade isolation and cross-course denial.
-- [ ] Carry course context through assignment CRUD/publication, submissions, grades, practice tests, deadlines, AI authorization/cache and history.
-- [ ] Verify both Python and Java remain browser-only; commit.
+- [x] Add failing tests for enrolled student access, course instructor grading, private rubric/grade isolation and cross-course denial.
+- [x] Carry course context through assignment CRUD/publication, submissions, grades, practice tests, deadlines, AI authorization/cache and history.
+- [x] Verify both Python and Java remain browser-only; commit.
 
 ### Task 5: Forums, XP and leaderboard
 

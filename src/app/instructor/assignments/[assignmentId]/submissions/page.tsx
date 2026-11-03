@@ -1,24 +1,41 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import {
   AssignmentDueDate,
   SubmissionTiming,
 } from '@/features/assignment-deadlines/components';
 
+// eslint-disable-next-line max-lines-per-function -- page markup stays with its server-side course context.
 export default async function InstructorSubmissionsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ assignmentId: string }>;
+  searchParams: Promise<{ courseId?: string }>;
 }) {
   const { assignmentId } = await params;
-  const { supabase } = await requireRole('instructor');
+  const requestedCourseId = (await searchParams).courseId;
+  const { supabase, user } = await requireMember();
   const { data: assignment } = await supabase
     .from('assignments')
-    .select('id,title,due_at')
+    .select('id,course_id,title,due_at')
     .eq('id', assignmentId)
     .maybeSingle();
-  if (!assignment) notFound();
+  if (!assignment || assignment.course_id !== requestedCourseId) notFound();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  )
+    notFound();
   const { data: submissions, error } = await supabase
     .from('submissions')
     .select('id,student_id,revision,created_at,is_late,due_at_submission')
@@ -27,7 +44,10 @@ export default async function InstructorSubmissionsPage({
   if (error) throw new Error('Submissions could not be loaded');
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
-      <Link className="text-sm underline" href="/instructor">
+      <Link
+        className="text-sm underline"
+        href={`/instructor?courseId=${assignment.course_id}`}
+      >
         Back to assignments
       </Link>
       <div>
@@ -63,7 +83,7 @@ export default async function InstructorSubmissionsPage({
               </time>
               <Link
                 className="underline"
-                href={`/instructor/submissions/${submission.id}`}
+                href={`/instructor/submissions/${submission.id}?courseId=${assignment.course_id}`}
               >
                 Review
               </Link>

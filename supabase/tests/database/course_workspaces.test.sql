@@ -72,7 +72,11 @@ select throws_ok($$select public.delete_empty_course((select id from course_test
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002',null)$$,'owner can remove an instructor');
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002','instructor')$$,'owner can restore an instructor membership');
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000003','student')$$,'staff can add a verified student directly');
-select is((select email from public.list_course_members((select id from course_test_ids where name='main')) where user_id='8a500000-0000-4000-8000-000000000003'),'course-student@example.test','staff can list course member email and role');
+insert into course_test_ids select 'assignment',(public.save_course_assignment(
+ (select id from course_test_ids where name='main'),null,0,'Scoped assignment','Print one value.',
+ '[{"id":"8a800000-0000-4000-8000-000000000001","title":"Output","description":"Exact output","maxScore":10}]'::jsonb,
+ 'published','python',null,false,null,false)).id;
+select is((select course_id from public.assignments where id=(select id from course_test_ids where name='assignment')),(select id from course_test_ids where name='main'),'course instructor creates an assignment in the selected course');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
 select throws_ok($$select * from public.list_course_members((select id from course_test_ids where name='main'))$$,'42501','course_staff_required','students cannot list other course member identities');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);

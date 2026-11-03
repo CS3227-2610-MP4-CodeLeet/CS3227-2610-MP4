@@ -1,6 +1,7 @@
 import { type NextRequest } from 'next/server';
 import { submissionInputSchema } from '@/features/codementor/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson } from '@/lib/http/responses';
 
@@ -40,55 +41,7 @@ function submissionError(error: { code: string }) {
   );
 }
 
-async function saveSubmission(request: NextRequest) {
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || role !== 'student')
-    return {
-      response: privateJson(
-        {
-          error: {
-            code: user ? 'forbidden' : 'unauthorized',
-            message: 'Student access required.',
-          },
-        },
-        user ? 403 : 401,
-      ),
-    };
-  const body = await readJsonBody(request, 34_000);
-  if (!body.ok)
-    return {
-      response: privateJson(
-        {
-          error: {
-            code: 'invalid_body',
-            message: 'Request must be bounded JSON.',
-          },
-        },
-        400,
-      ),
-    };
-  const parsed = submissionInputSchema.safeParse(body.value);
-  if (!parsed.success)
-    return {
-      response: privateJson(
-        {
-          error: {
-            code: 'invalid_submission',
-            message: 'Python source must be 1 to 8,000 characters.',
-          },
-        },
-        400,
-      ),
-    };
-  const { data, error } = await supabase.rpc('submit_code', {
-    p_assignment_id: parsed.data.assignmentId,
-    p_source: parsed.data.source,
-    p_request_id: parsed.data.requestId,
-  });
-  if (error) return { response: submissionError(error) };
-  return { submission: data };
-}
-
+// eslint-disable-next-line complexity -- authorization and assignment validation are intentionally fail-closed in order.
 export async function POST(request: NextRequest) {
   if (!sameOriginRequest(request))
     return privateJson(
@@ -100,7 +53,58 @@ export async function POST(request: NextRequest) {
       },
       403,
     );
-  const result = await saveSubmission(request);
-  if ('response' in result) return result.response;
-  return privateJson({ submission: result.submission }, 201);
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user)
+    return privateJson(
+      { error: { code: 'unauthorized', message: 'Sign in required.' } },
+      401,
+    );
+  const body = await readJsonBody(request, 34_000);
+  if (!body.ok)
+    return privateJson(
+      {
+        error: {
+          code: 'invalid_body',
+          message: 'Request must be bounded JSON.',
+        },
+      },
+      400,
+    );
+  const parsed = submissionInputSchema.safeParse(body.value);
+  if (!parsed.success)
+    return privateJson(
+      {
+        error: {
+          code: 'invalid_submission',
+          message: 'Submission details are invalid.',
+        },
+      },
+      400,
+    );
+  const { data: assignment, error: assignmentError } = await supabase
+    .from('assignments')
+    .select('course_id')
+    .eq('id', parsed.data.assignmentId)
+    .maybeSingle();
+  if (assignmentError || !assignment) return submissionError({ code: 'P0002' });
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'student' ||
+    access.lifecycle !== 'active' ||
+    !access.featureEnabled
+  )
+    return submissionError({ code: 'P0002' });
+  const { data, error } = await supabase.rpc('submit_code', {
+    p_assignment_id: parsed.data.assignmentId,
+    p_source: parsed.data.source,
+    p_request_id: parsed.data.requestId,
+  });
+  if (error) return submissionError(error);
+  return privateJson({ submission: data }, 201);
 }

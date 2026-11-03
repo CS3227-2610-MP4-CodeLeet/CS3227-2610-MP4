@@ -1,5 +1,5 @@
 begin;
-select plan(26);
+select plan(27);
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -10,9 +10,19 @@ values
 
 update public.user_roles set role = 'instructor' where user_id = '20000000-0000-4000-8000-000000000001';
 update public.user_roles set role = 'instructor' where user_id = '20000000-0000-4000-8000-000000000004';
-insert into public.assignments (id, instructor_id, title, instructions, publication_status,course_id) values ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Published', 'Write a loop.', 'published',(select id from public.courses where is_legacy)),
-  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'Draft', 'Private draft.', 'draft',(select id from public.courses where is_legacy)),
-  ('30000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', 'Other owner', 'Not accessible.', 'published',(select id from public.courses where is_legacy));
+insert into public.courses(id,owner_id,created_by,title,description) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Scoped fixture','');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','instructor');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000002','student');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000003','student');
+insert into public.course_features(course_id,feature,enabled) select '22000000-0000-4000-8000-000000000001',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
+insert into public.courses(id,owner_id,created_by,title,description) values ('22000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000004','20000000-0000-4000-8000-000000000004','Other course','');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000004','instructor');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','student');
+insert into public.course_features(course_id,feature,enabled) select '22000000-0000-4000-8000-000000000002',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
+insert into public.assignments (id, instructor_id, title, instructions, publication_status,course_id) values ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Published', 'Write a loop.', 'published','22000000-0000-4000-8000-000000000001'::uuid),
+  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'Draft', 'Private draft.', 'draft','22000000-0000-4000-8000-000000000001'::uuid),
+  ('30000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', 'Other owner', 'Not accessible.', 'published','22000000-0000-4000-8000-000000000002'::uuid),
+  ('30000000-0000-4000-8000-000000000004', '20000000-0000-4000-8000-000000000004', 'Second course', 'Separate AI quota.', 'published','22000000-0000-4000-8000-000000000002'::uuid);
 insert into public.assignment_rubrics (assignment_id, criteria)
 values
   ('30000000-0000-4000-8000-000000000001', '[{"id":"40000000-0000-4000-8000-000000000001","title":"Correctness","description":"Works","maxScore":10}]'),
@@ -20,7 +30,8 @@ values
 insert into public.submissions (id, assignment_id, student_id, source, revision, request_id)
 values
   ('50000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'print(1)', 1, '60000000-0000-4000-8000-000000000001'),
-  ('50000000-0000-4000-8000-000000000002', '30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'print(2)', 1, '60000000-0000-4000-8000-000000000002');
+  ('50000000-0000-4000-8000-000000000002', '30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'print(2)', 1, '60000000-0000-4000-8000-000000000002'),
+  ('50000000-0000-4000-8000-000000000003', '30000000-0000-4000-8000-000000000004', '20000000-0000-4000-8000-000000000002', 'print(3)', 1, '60000000-0000-4000-8000-000000000004');
 insert into public.grades (submission_id, instructor_id, scores, feedback, total_score, published_at)
 values
   ('50000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '{}', 'Draft', 0, null),
@@ -34,7 +45,7 @@ select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002
 select is((select count(id)::integer from public.assignments where id = '30000000-0000-4000-8000-000000000001'), 1, 'student sees the published fixture assignment');
 select is((select count(id)::integer from public.assignments where id = '30000000-0000-4000-8000-000000000002'), 0, 'student cannot see the draft fixture assignment');
 select is((select count(*)::integer from public.assignment_rubrics), 0, 'student cannot read private rubrics');
-select is((select count(*)::integer from public.submissions), 1, 'student sees only own submissions');
+select is((select count(*)::integer from public.submissions where assignment_id='30000000-0000-4000-8000-000000000001'), 1, 'student sees only own submissions for this assignment');
 select is((select count(*)::integer from public.grades), 0, 'student cannot see unpublished or other student grades');
 select is((public.submit_code('30000000-0000-4000-8000-000000000001', 'print(3)', '60000000-0000-4000-8000-000000000003')).revision, 2, 'submission revision is assigned atomically');
 select is((public.submit_code('30000000-0000-4000-8000-000000000001', 'print(3)', '60000000-0000-4000-8000-000000000003')).id, (select id from public.submissions where request_id = '60000000-0000-4000-8000-000000000003'), 'identical retries return the original submission');
@@ -53,6 +64,7 @@ select public.reserve_ai_request('student_feedback', '50000000-0000-4000-8000-00
 select public.record_ai_cache_hit('student_feedback', '50000000-0000-4000-8000-000000000001', 12, 20);
 select is((select count(*)::integer from public.ai_usage where requester_id = auth.uid() and status = 'cache_hit'), 1, 'cache hits are recorded separately from successful quota usage');
 select throws_ok($$select public.reserve_ai_request('student_feedback', '50000000-0000-4000-8000-000000000001')$$, 'P0001', 'daily_quota_exceeded', 'daily successful request quota is reserved atomically');
+select ok(public.reserve_ai_request('student_feedback', '50000000-0000-4000-8000-000000000003') is not null, 'daily AI quota is independent for each course');
 
 reset role;
 set local role authenticated;

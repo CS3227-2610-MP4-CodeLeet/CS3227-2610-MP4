@@ -21,10 +21,41 @@ select ('d1000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'authenticated',
  'leaderboard-'||n||'@example.test','',now(),'{}','{}',now(),now() from generate_series(1,32) n;
 update public.user_roles set role='instructor' where user_id='d1000000-0000-4000-8000-000000000031';
 update public.user_roles set role='admin' where user_id='d1000000-0000-4000-8000-000000000032';
+insert into public.courses(id,owner_id,created_by,title,description) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','d1000000-0000-4000-8000-000000000031','Scoped fixture','');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','instructor');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000001','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000002','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000003','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000004','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000005','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000006','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000007','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000008','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000009','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000010','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000011','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000012','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000013','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000014','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000015','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000016','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000017','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000018','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000019','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000020','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000021','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000022','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000023','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000024','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000025','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000026','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000027','student');
+insert into public.course_memberships(course_id,user_id,role) values ('d3000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000028','student');
+insert into public.course_features(course_id,feature,enabled) select 'd3000000-0000-4000-8000-000000000001',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
 delete from public.user_roles where user_id='d1000000-0000-4000-8000-000000000030';
 update public.profiles set display_name='Leaderboard '||right(id::text,2) where id in (select ('d1000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid from generate_series(1,32) n);
 update public.profiles set display_name='Same' where id in ('d1000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000002');
-insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('d2000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','Ranking fixture','Synthetic','python','published',100000,(select id from public.courses where is_legacy));
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('d2000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','Ranking fixture','Synthetic','python','published',100000,'d3000000-0000-4000-8000-000000000001'::uuid);
 insert into public.assignment_rubrics(assignment_id,criteria) values('d2000000-0000-4000-8000-000000000001','[{"id":"d5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]');
 insert into public.submissions(id,assignment_id,student_id,source,revision,request_id)
 select ('d4000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'d2000000-0000-4000-8000-000000000001',
@@ -99,7 +130,7 @@ select ok(not has_function_privilege('anon','public.get_leaderboard(integer)','E
 select ok(not has_schema_privilege('authenticated','leaderboard_private','CREATE'),'client cannot create/replace private objects');
 select is((select count(*) from public.xp_awards),(select awards from lb_before),'reads never create awards');
 select is((select count(*) from public.xp_ledger),(select ledger+1 from lb_before),'only grade correction adds a ledger delta');
-insert into public.assignments (id,instructor_id,title,instructions,publication_status,max_xp,course_id) values ('d2000000-0000-4000-8000-000000000002','d1000000-0000-4000-8000-000000000031','Second XP fixture','Synthetic','published',10000,(select id from public.courses where is_legacy));
+insert into public.assignments (id,instructor_id,title,instructions,publication_status,max_xp,course_id) values ('d2000000-0000-4000-8000-000000000002','d1000000-0000-4000-8000-000000000031','Second XP fixture','Synthetic','published',10000,'d3000000-0000-4000-8000-000000000001'::uuid);
 insert into public.assignment_rubrics(assignment_id,criteria) values('d2000000-0000-4000-8000-000000000002','[{"id":"d5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]');
 insert into public.submissions(id,assignment_id,student_id,source,revision,request_id) values
 ('d6000000-0000-4000-8000-000000000028','d2000000-0000-4000-8000-000000000002','d1000000-0000-4000-8000-000000000028','print(1)',1,gen_random_uuid()),

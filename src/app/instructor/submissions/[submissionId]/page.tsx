@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
 import { GradeForm } from '@/features/codementor/grade-form';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
@@ -37,13 +38,17 @@ function SubmissionCodeRunner({
   );
 }
 
+// eslint-disable-next-line max-lines-per-function, complexity -- load, authorize, and render this one course-scoped review page together.
 export default async function InstructorSubmissionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ submissionId: string }>;
+  searchParams: Promise<{ courseId?: string }>;
 }) {
   const { submissionId } = await params;
-  const { supabase } = await requireRole('instructor');
+  const requestedCourseId = (await searchParams).courseId;
+  const { supabase, user } = await requireMember();
   const { data: submission } = await supabase
     .from('submissions')
     .select(
@@ -56,7 +61,7 @@ export default async function InstructorSubmissionPage({
     await Promise.all([
       supabase
         .from('assignments')
-        .select('id,title')
+        .select('id,course_id,title')
         .eq('id', submission.assignment_id)
         .maybeSingle(),
       supabase
@@ -71,13 +76,26 @@ export default async function InstructorSubmissionPage({
         .maybeSingle(),
     ]);
   if (!assignment || !rubric) notFound();
+  if (assignment.course_id !== requestedCourseId) notFound();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  )
+    notFound();
   const criteria = rubric.criteria as Criterion[];
   const language = assignmentLanguageSchema.parse(submission.language);
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
         className="text-sm underline"
-        href={`/instructor/assignments/${assignment.id}/submissions`}
+        href={`/instructor/assignments/${assignment.id}/submissions?courseId=${assignment.course_id}`}
       >
         Back to submissions
       </Link>
@@ -99,16 +117,24 @@ export default async function InstructorSubmissionPage({
         language={language}
         source={submission.source}
       />
-      <ReviewButton role="instructor" submissionId={submission.id} />
-      <GradeForm
-        submissionId={submission.id}
-        criteria={criteria}
-        grade={
-          grade
-            ? { ...grade, scores: grade.scores as Record<string, number> }
-            : null
-        }
-      />
+      {access.lifecycle === 'active' ? (
+        <>
+          <ReviewButton role="instructor" submissionId={submission.id} />
+          <GradeForm
+            submissionId={submission.id}
+            criteria={criteria}
+            grade={
+              grade
+                ? { ...grade, scores: grade.scores as Record<string, number> }
+                : null
+            }
+          />
+        </>
+      ) : (
+        <p className="rounded-md border p-4 text-sm">
+          Archived courses are read-only.
+        </p>
+      )}
     </main>
   );
 }

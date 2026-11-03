@@ -5,7 +5,8 @@ import {
   requireAssignmentPreview,
 } from '@/features/student-assignments/preview.server';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import { notFound } from 'next/navigation';
 import {
   matchesListFilters,
@@ -13,12 +14,14 @@ import {
   type ListSearchParams,
 } from '@/features/student-lists/filters';
 
+// eslint-disable-next-line complexity -- preview mode and authenticated course mode intentionally remain separate.
 export default async function AssignmentListPage({
   searchParams,
 }: {
   searchParams: Promise<ListSearchParams>;
 }) {
   const params = await searchParams;
+  const courseId = typeof params.courseId === 'string' ? params.courseId : '';
   const { preview } = params;
   const filters = parseListFilters(params);
   if (!filters) notFound();
@@ -45,10 +48,23 @@ export default async function AssignmentListPage({
       />
     );
   }
-  const { supabase, user } = await requireRole('student');
+  const { supabase, user } = await requireMember();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    courseId,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'student' ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  )
+    notFound();
   const assignments = await loadPublishedAssignments(
     supabase,
     user.id,
+    courseId,
     filters,
   );
   if (!assignments)

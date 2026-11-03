@@ -4,8 +4,7 @@ import {
   performReview,
   ReviewServiceError,
 } from '@/features/codementor/review-service';
-import { getVerifiedUserRole, type AppRole } from '@/lib/auth/verified-user';
-import { canAccessRole } from '@/lib/auth/roles';
+import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 
 function response(body: unknown, status: number) {
@@ -53,7 +52,7 @@ function failure(error: unknown, requestId: string) {
 
 export async function handleReview(
   request: NextRequest,
-  requiredRole: Extract<AppRole, 'student' | 'instructor'>,
+  requiredRole: 'student' | 'instructor',
 ) {
   const requestId = crypto.randomUUID();
   if (!sameOriginRequest(request))
@@ -68,7 +67,7 @@ export async function handleReview(
       403,
     );
   const context = await getVerifiedUserRole();
-  if (!context.user || !context.role)
+  if (!context.user || !context.supabase)
     return response(
       {
         error: {
@@ -79,17 +78,7 @@ export async function handleReview(
       },
       401,
     );
-  if (!canAccessRole(requiredRole, context.role))
-    return response(
-      {
-        error: {
-          code: 'forbidden',
-          message: 'Account role cannot use this review.',
-          requestId,
-        },
-      },
-      403,
-    );
+
   const body = await readJsonBody(request, 1_024);
   if (!body.ok)
     return response(

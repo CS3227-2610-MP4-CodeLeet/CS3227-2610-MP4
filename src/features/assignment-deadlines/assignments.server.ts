@@ -25,6 +25,7 @@ const assignmentSchema = z.object({
 export async function loadPublishedAssignments(
   client: SupabaseClient,
   studentId: string,
+  courseId: string,
   filters: ListFilters = emptyListFilters,
 ) {
   try {
@@ -34,6 +35,7 @@ export async function loadPublishedAssignments(
         'id,title,language,publication_status,due_at,submissions(revision,is_late)',
       )
       .eq('publication_status', 'published')
+      .eq('course_id', courseId)
       .eq('submissions.student_id', studentId)
       .order('revision', { referencedTable: 'submissions', ascending: false })
       .limit(1, { referencedTable: 'submissions' });

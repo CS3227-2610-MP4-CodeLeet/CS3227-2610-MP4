@@ -1,4 +1,3 @@
-import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import type { ReactNode } from 'react';
 import {
   listPreviewAssignments,
@@ -6,7 +5,7 @@ import {
 } from '@/features/student-assignments/preview.server';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { WorkspaceShell } from '@/features/student-assignments/workspace-shell';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,20 +27,9 @@ export default async function AssignmentLayout({
       </WorkspaceShell>
     );
   }
-  const { supabase } = await requireRole('student');
-  const { data, error } = await supabase
-    .from('assignments')
-    .select('id,title,language,publication_status')
-    .eq('publication_status', 'published')
-    .order('created_at', { ascending: false });
-  if (error) throw new Error('Assignments could not be loaded.');
-  const assignments = (data ?? []).map((assignment) => ({
-    ...assignment,
-    language: assignmentLanguageSchema.parse(assignment.language),
-    publication_status: 'published' as const,
-  }));
+  await requireMember();
   return (
-    <WorkspaceShell assignments={assignments} authenticated>
+    <WorkspaceShell assignments={[]} authenticated>
       {children}
     </WorkspaceShell>
   );

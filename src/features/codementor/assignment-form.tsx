@@ -36,6 +36,7 @@ type AssignmentFieldsData = Omit<AssignmentDraft, 'criteria'> & {
   criteria: Criterion[];
 };
 type Payload = {
+  courseId: string;
   title: string;
   instructions: string;
   language: string;
@@ -45,6 +46,7 @@ type Payload = {
   maxXp: number;
   expectedVersion?: number;
 };
+type AssignmentPayloadFields = Omit<Payload, 'courseId'>;
 const defaultCriterion: Criterion = {
   id: '',
   title: 'Correctness',
@@ -91,8 +93,11 @@ function criteriaFor(form: FormData): Criterion[] {
     maxScore: Number(scores[index]),
   }));
 }
-function buildPayload(form: FormData, assignment?: AssignmentDraft): Payload {
-  const payload: Payload = {
+function buildPayload(
+  form: FormData,
+  assignment?: AssignmentDraft,
+): AssignmentPayloadFields {
+  const payload: AssignmentPayloadFields = {
     title: readText(form, 'title'),
     instructions: readText(form, 'instructions'),
     language: readText(form, 'language'),
@@ -136,8 +141,10 @@ function readDeadline(form: FormData, assignment?: AssignmentDraft) {
     : deadlineFromInput(value);
 }
 
+// eslint-disable-next-line max-params -- the submit handler receives its form state and navigation dependencies.
 function makeSubmit(
   assignment: AssignmentDraft | undefined,
+  courseId: string,
   setBusy: (busy: boolean) => void,
   setMessage: (message: string) => void,
   router: ReturnType<typeof useRouter>,
@@ -147,11 +154,11 @@ function makeSubmit(
     setBusy(true);
     setMessage('');
     try {
-      await sendAssignment(
-        assignment,
-        buildPayload(new FormData(event.currentTarget), assignment),
-      );
-      router.push('/instructor');
+      await sendAssignment(assignment, {
+        ...buildPayload(new FormData(event.currentTarget), assignment),
+        courseId,
+      });
+      router.push(`/instructor?courseId=${courseId}`);
       router.refresh();
     } catch (error) {
       setMessage(
@@ -167,15 +174,17 @@ function makeSubmit(
 
 export function AssignmentForm({
   assignment,
+  courseId,
 }: {
   assignment?: AssignmentDraft;
+  courseId: string;
 }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const router = useRouter();
   return (
     <form
-      onSubmit={makeSubmit(assignment, setBusy, setMessage, router)}
+      onSubmit={makeSubmit(assignment, courseId, setBusy, setMessage, router)}
       className="max-w-3xl space-y-5 rounded-xl border bg-card p-6"
     >
       <AssignmentFields assignment={assignmentFieldsData(assignment)} />

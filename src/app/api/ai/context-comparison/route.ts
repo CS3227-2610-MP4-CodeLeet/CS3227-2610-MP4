@@ -5,7 +5,6 @@ import {
   ReviewServiceError,
 } from '@/features/codementor/review-service';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
-import { hasInstructorAccess } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 
 const response = (body: unknown, status = 200) =>
@@ -63,8 +62,8 @@ export async function POST(request: NextRequest) {
       },
       403,
     );
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || !role)
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user || !supabase)
     return response(
       {
         error: {
@@ -75,17 +74,7 @@ export async function POST(request: NextRequest) {
       },
       401,
     );
-  if (!hasInstructorAccess(role))
-    return response(
-      {
-        error: {
-          code: 'forbidden',
-          message: 'Instructor access required.',
-          requestId,
-        },
-      },
-      403,
-    );
+
   const body = await readJsonBody(request, 1_024);
   if (!body.ok)
     return response(

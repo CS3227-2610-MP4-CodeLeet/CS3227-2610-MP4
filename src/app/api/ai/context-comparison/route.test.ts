@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 describe('context comparison API', () => {
-  it('rejects origin, authentication, role, and body failures with private responses', async () => {
+  it('rejects origin and authentication failures and delegates course authorization to the service', async () => {
     expect(
       (await POST(request({ submissionId }, 'https://attacker.test') as never))
         .status,
@@ -39,14 +39,21 @@ describe('context comparison API', () => {
       role: null,
     });
     expect((await POST(request({ submissionId }) as never)).status).toBe(401);
+    const supabase = {};
     mocks.getUser.mockResolvedValueOnce({
-      supabase: {},
-      user: { id: 'student' },
+      supabase,
+      user: { id: 'course-instructor' },
       role: 'student',
     });
-    expect((await POST(request({ submissionId }) as never)).status).toBe(403);
+    mocks.compare.mockResolvedValueOnce({ authorized: true });
+    expect((await POST(request({ submissionId }) as never)).status).toBe(200);
+    expect(mocks.compare).toHaveBeenCalledWith(
+      supabase,
+      'course-instructor',
+      submissionId,
+    );
     mocks.getUser.mockResolvedValueOnce({
-      supabase: {},
+      supabase,
       user: { id: 'teacher' },
       role: 'instructor',
     });

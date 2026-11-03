@@ -7,8 +7,14 @@ insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,r
  ('b1000000-0000-4000-8000-000000000002','authenticated','authenticated','case-student@example.test','',now(),'{}','{}',now(),now()),
  ('b1000000-0000-4000-8000-000000000003','authenticated','authenticated','case-other@example.test','',now(),'{}','{}',now(),now());
 update public.user_roles set role='instructor' where user_id in ('b1000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000003');
-insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,course_id) values ('b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Cases Python','Synthetic','python','published',(select id from public.courses where is_legacy)),
- ('b2000000-0000-4000-8000-000000000002','b1000000-0000-4000-8000-000000000001','Cases Java','Synthetic','java','draft',(select id from public.courses where is_legacy));
+insert into public.courses(id,owner_id,created_by,title,description) values ('b4000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Practice test fixture','');
+insert into public.course_memberships(course_id,user_id,role) values
+ ('b4000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','instructor'),
+ ('b4000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000002','student');
+insert into public.course_features(course_id,feature,enabled) values
+ ('b4000000-0000-4000-8000-000000000001','assessments',true);
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,course_id) values ('b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Cases Python','Synthetic','python','published','b4000000-0000-4000-8000-000000000001'),
+ ('b2000000-0000-4000-8000-000000000002','b1000000-0000-4000-8000-000000000001','Cases Java','Synthetic','java','draft','b4000000-0000-4000-8000-000000000001');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
 select is((public.save_practice_tests('b2000000-0000-4000-8000-000000000001',0,'save','[{"id":"b3000000-0000-4000-8000-000000000001","name":"Sum","stdin":" 2 3\n","expected_stdout":"5\n"}]')->>'version')::integer,1,'owner saves a private draft');

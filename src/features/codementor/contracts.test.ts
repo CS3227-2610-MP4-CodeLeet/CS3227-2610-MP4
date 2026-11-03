@@ -13,6 +13,7 @@ it.each(['python', 'java'])(
   'accepts an explicit %s assignment language',
   (language) => {
     const result = assignmentInputSchema.safeParse({
+      courseId: '00000000-0000-4000-8000-000000000003',
       title: 'Loops',
       instructions: 'Read input.',
       language,
@@ -34,6 +35,7 @@ it.each(['python', 'java'])(
 it('rejects unsupported assignment languages and forged submission language', () => {
   expect(
     assignmentInputSchema.safeParse({
+      courseId: '00000000-0000-4000-8000-000000000003',
       title: 'Loops',
       instructions: 'Read input.',
       language: 'javascript',
