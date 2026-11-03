@@ -1,5 +1,21 @@
 ## ADDED Requirements
 
+### Requirement: Private student progress overview
+The system SHALL provide a verified student with a My progress page showing exact published-assignment submission totals, outstanding/overdue counts, authoritative own total XP, up to five upcoming outstanding deadlines, five recent own revisions and five recent own published grades. Submitted means at least one saved revision, not passing tests or receiving a grade.
+
+#### Scenario: Exact counts and upcoming work
+- **WHEN** a student has multiple revisions, more assignments than a REST page, hidden assignments, undated work or late submissions
+- **THEN** each visible published assignment counts once; outstanding has no own revision, overdue is outstanding with deadline strictly before server time, and upcoming includes outstanding deadlines at or after that time ordered by deadline then ID
+- **AND** local drafts/runs do not count, late submissions count as submitted, hidden assignments leave current totals and an empty collection shows no invented completion percentage
+
+#### Scenario: Private bounded activity
+- **WHEN** a verified student opens the overview or supplies forged identity parameters
+- **THEN** only their own recent metadata and published grades appear in stable timestamp/ID order; no peer records, source code, rubric or unpublished-grade content is retrieved, and signed-out/other-role access is denied
+
+#### Scenario: Independent failure and accessible navigation
+- **WHEN** a section is unavailable, empty or loading on desktop/mobile in either theme
+- **THEN** healthy sections remain visible, failure is distinct from zero, a retry shows pending feedback, and My progress links to existing assignment/submission/grade/XP pages without changing the assignment landing page
+
 ### Requirement: Browser draft recovery
 The student editor SHALL preserve unfinished source on the same browser/device with explicit recovery and account/context isolation.
 

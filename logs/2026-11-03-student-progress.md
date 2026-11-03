@@ -1,0 +1,29 @@
+# Session: 2026-11-03 student personal progress overview
+
+- Timezone: Asia/Singapore
+- Participants/actual agent IDs: requester and primary Codex agent `/root`; no specialist execution in this design step.
+- AI tools/models, where known: Codex; model/usage measurements unavailable.
+- GitHub issue: [#89](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/89)
+- OpenSpec change: `build-programming-platform`, assignments-and-grading; implementation scenarios/tasks pending design approval.
+- Branch and commits: `feature/student-progress-dashboard`, from develop `dfe5936`; incremental verified milestones recorded below.
+- Pull request: pending implementation and verification.
+- Human verification: pending
+- Verifier/date: pending
+
+## Prompt and interaction summaries
+
+1. Requester selected a personal progress dashboard as the next feature. Read the project brief/process, brainstorming guidance and current assignment/deadline, XP, own-history/grade and navigation contracts. Existing documentation PR #88 remains open and unrelated; preserved the user's uncommitted generated-file edit.
+2. Asked the main scope choice; requester selected a simple overview over activity charts. Proposed submitted/outstanding/overdue assignment counts, future deadlines, total XP and recent own submissions/published grades. Counts must distinguish saved submissions from successful tests or grades and avoid first-page truncation.
+3. Fetched develop and created the feature branch from `dfe5936`; created issue #89 and wrote the concrete design for approval. No product code, dependencies, database records or schema changed. One guessed spec path was absent; discovered the actual assignments-and-grading capability path instead. No delegation, provider request or deployment.
+4. Requester first selected revise, then explicitly selected Approve and implement; used the latest reply. Created an inline implementation plan and OpenSpec group 32. Read installed Next.js page/loading/error guidance and official PostgREST anti-join documentation. Exact HEAD counts and scoped five-row metadata queries need no new schema or dependency. Source links disable prefetch. Kept the existing dedicated branch and preserved the unrelated generated-file edit.
+5. Data and UI tests failed initially because implementation modules did not exist, then passed after implementation. One thrown-fetch test timed out because the SDK retries network failures; replaced its transport with a directly throwing client stub to isolate the loader's catch behavior. Split long dashboard/test functions to satisfy existing lint limits. Initial whole-suite run passed 673 tests/115 files with coverage 84.42% statements, 79.40% branches, 86.17% functions and 86.49% lines; this precedes the final recovery regression.
+6. The network runtime build first failed fetching, then stalled on retry with Windows system CA enabled; stopped only the verified task-owned process. Built the local runtime from existing reviewed cached bytes through the builder's fetch adapter with unchanged manifest/size/SHA checks. Next production build passed. An abandoned generated staging directory polluted lint; moved that exact verified task path into the ignored cache and lint passed, without changing any lint/integrity rule. These local checks do not claim a successful fresh network download.
+7. Actual local Supabase browser tests used temporary synthetic actors and cleaned their own records. Exact counts with 1,002 additional published assignments, 27 own revisions, peer data and assignment withdrawal passed. Signed-out/instructor denial passed. Privacy/upcoming/grade checks reached mobile theme verification, where a broad locator matched both existing theme wrappers; scoped it to the student workspace without changing product behavior. Complete rerun follows final build.
+8. Per requesting-code-review/executing-plans, fresh read-only reviewer `/root/student_progress_review` received the approved design, narrow paths and a requested five-minute budget. It found one material boundary-retry defect and no other material findings. It ran no tests/services/network/providers, read no secrets and did not delegate. Verified its finding against installed Next.js source/docs: refresh alone retains the route boundary error. Added a real React boundary test, observed failure, then passed after wiring the supplied retry callback through the pending button. This is actual review evidence; requested budget is not measured efficiency.
+
+## Work and verification
+
+- Design: `workflow/plans/2026-11-03-student-progress-design.md`.
+- Current checks: data/query tests, component/page/navigation tests, real boundary recovery and retry tests; production build and strict OpenSpec (11 items). Final complete reruns and CI follow below.
+- Decisions: overview and written design approved; no schema/API/dependency or course-membership change.
+- Limitations and next owner: hosted acceptance and human verification pending. Shared course contracts remain a separate dependency to recheck before integration. Exact counts are independent server reads; inconsistent combinations show retry rather than a false result.
