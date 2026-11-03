@@ -30,6 +30,12 @@ The system SHALL use team-managed deployment automation with separate developmen
 - **WHEN** a release is prepared
 - **THEN** guides match verified deployed behavior and explicitly state unresolved limitations
 
+#### Scenario: Published documentation navigation
+- **WHEN** a visitor opens the GitHub Pages product website
+- **THEN** overview, User Guide and Developer Guide are available through documentation navigation, with guide content generated from the canonical MP4 Markdown files
+- **AND** guide anchors and repository references resolve under the configured project base path without copying prior MPs' implementation or content
+- **AND** Pages publication uses the environment-approved integration branch; a build is not represented as a successful deployment
+
 ### Requirement: Reproducible repository agent skills
 The repository SHALL keep reviewed agent skills in `.agents/skills` and record each installed external skill's source and content hash in `skills-lock.json`. Skill guidance SHALL preserve project security boundaries, including keeping credentials private and code execution in the browser.
 

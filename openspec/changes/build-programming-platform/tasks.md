@@ -1,3 +1,13 @@
+## 31. Issue #87 current user and developer guides
+
+- [x] 31.5 Add canonical guide generation and a documentation-style CodeLeet Pages overview/navigation, without prior-project references in public copy; preserve the existing develop-only Pages environment restriction and align publication triggers.
+- [x] 31.6 Verify generation, built desktop/mobile/theme/deep-link behavior, unit/build/spec/link checks and independent review; update PR #88 and confirm final-head CI. Source head 49f3741 passed all executed checks; metadata-head evidence is recorded on PR #88. Live publication follows the separate human merge to develop.
+
+- [x] 31.1 Audit merged source/configuration and identify outdated or contradictory guide instructions; link issue, branch and dated plan/log.
+- [x] 31.2 Refresh user journeys and current contributor setup/architecture/security/testing/deployment documentation without changing product behavior or inventing hosted evidence.
+- [x] 31.3 Verify paths/commands/links, formatting, strict specs and site build; record actual independent review and remaining gates.
+- [x] 31.4 Publish PR #88 to develop after branch CI 41607783180. Required application/database/coverage/scaffold/CodeQL/Vercel checks passed at b484e16 (integration run 41608358532); Supabase Preview skipped. Documentation closeout triggers checks again; final-head evidence is recorded on the PR. Human verification remains separate.
+
 ## 28. Issue #80 trusted XP leaderboard
 
 - [x] 28.1 Review/approve ranking, visibility and narrow privacy design; write implementation plan after approval and ensure XP dependency is available.
