@@ -3,6 +3,7 @@ import {
   test,
   historyPassword,
   hideFixtureAssignment,
+  coursePath,
 } from './helpers/history-fixtures';
 
 const listName = 'My submissions';
@@ -24,32 +25,32 @@ test('My submissions pages only own revisions, links feedback/grades and protect
   historyFixture: data,
 }) => {
   test.setTimeout(120_000);
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await expect(page).toHaveURL(/\/sign-in$/);
   await signIn(page, data.users[1].email);
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await checkFirstPage(page, data);
   await checkPagination(
     page,
     data.rows.map((row) => row.id),
   );
-  await checkDetails(page, data.rows[0], true);
-  await checkDetails(page, data.rows[1], false);
+  await checkDetails(page, data, data.rows[0], true);
+  await checkDetails(page, data, data.rows[1], false);
   await hideFixtureAssignment(data);
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await expect(
     page
       .getByRole('table', { name: tableName })
       .getByText('Assignment unavailable')
       .first(),
   ).toBeVisible();
-  await page.goto(`${listPath}?page=10000`);
+  await page.goto(coursePath(data, `${listPath}?page=10000`));
   await expect(
     page.getByRole('heading', { name: 'No submissions on this page' }),
   ).toBeVisible();
-  await page.goto(`${listPath}?page=0`);
+  await page.goto(coursePath(data, `${listPath}?page=0`));
   await expect(page.getByText('This page could not be found.')).toBeVisible();
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await checkOtherAccounts(page, data);
 });
 
@@ -62,11 +63,10 @@ async function checkFirstPage(page: Page, data: Fixture) {
   const nav = page.getByRole('navigation', { name: 'Student navigation' });
   await expect(nav.getByRole('link')).toHaveText([
     'Assignments',
+    'Courses',
+    'My progress',
     listName,
     'My grades',
-    'My XP',
-    'Leaderboard',
-    'Forums',
   ]);
   await expect(nav.getByRole('link', { name: listName })).toHaveAttribute(
     'aria-current',
@@ -96,11 +96,10 @@ async function checkFirstPage(page: Page, data: Fixture) {
       .getByRole('link'),
   ).toHaveText([
     'Assignments',
+    'Courses',
+    'My progress',
     listName,
     'My grades',
-    'My XP',
-    'Leaderboard',
-    'Forums',
   ]);
   await page.getByLabel('Workspace menu', { exact: true }).click();
   await page.screenshot({
@@ -108,9 +107,13 @@ async function checkFirstPage(page: Page, data: Fixture) {
     fullPage: true,
   });
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(`${listPath}?student_id=${data.users[2].id}`);
+  await page.goto(
+    coursePath(data, `${listPath}?student_id=${data.users[2].id}`),
+  );
   await expect(
-    page.locator(`a[href="${listPath}/${data.peerRow.id}"]`),
+    page.locator(
+      `a[href="${coursePath(data, `${listPath}/${data.peerRow.id}`)}"]`,
+    ),
   ).toHaveCount(0);
 }
 
@@ -144,10 +147,11 @@ async function checkPagination(page: Page, ids: string[]) {
 
 async function checkDetails(
   page: Page,
+  data: Fixture,
   row: Fixture['rows'][number],
   published: boolean,
 ) {
-  await page.goto(`${listPath}/${row.id}`);
+  await page.goto(coursePath(data, `${listPath}/${row.id}`));
   await expect(page.locator('pre code')).toHaveText(row.source);
   await expect(
     page.getByRole('heading', { name: 'Learning feedback' }),
@@ -164,41 +168,49 @@ async function checkDetails(
   await page
     .getByRole('link', { name: 'All submissions', exact: true })
     .click();
-  await expect(page).toHaveURL(new RegExp(listPath + '$'));
+  await expect(page).toHaveURL(coursePath(data, listPath));
 }
 
 async function checkOtherAccounts(page: Page, data: Fixture) {
   await signOut(page);
   await signIn(page, data.users[2].email);
-  await page.goto(`${listPath}?student_id=${data.users[1].id}`);
+  await page.goto(
+    coursePath(data, `${listPath}?student_id=${data.users[1].id}`),
+  );
   await expect(
     page.getByRole('table', { name: tableName }).locator('tbody tr'),
   ).toHaveCount(1);
   await expect(
-    page.locator(`a[href="${listPath}/${data.rows[0].id}"]`),
+    page.locator(
+      `a[href="${coursePath(data, `${listPath}/${data.rows[0].id}`)}"]`,
+    ),
   ).toHaveCount(0);
-  await page.goto(`${listPath}/${data.rows[0].id}`);
+  await page.goto(coursePath(data, `${listPath}/${data.rows[0].id}`));
   await expect(page.getByText('This page could not be found.')).toBeVisible();
   await expect(page.locator('pre code')).toHaveCount(0);
   expect(
-    (await page.request.get(`/api/submissions/${data.rows[0].id}`)).status(),
+    (
+      await page.request.get(
+        `/api/submissions/${data.rows[0].id}?courseId=${data.courseId}`,
+      )
+    ).status(),
   ).toBe(404);
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await signOut(page);
   await signIn(page, data.users[3].email);
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await expect(
     page.getByRole('heading', { name: 'No submissions yet' }),
   ).toBeVisible();
   await signOut(page);
   await signIn(page, data.users[0].email);
-  await page.goto(listPath);
+  await page.goto(coursePath(data, listPath));
   await expect(page).toHaveURL(/\/unauthorized$/);
 }
 
 async function signIn(page: Page, email: string) {
   await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Email or username').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(historyPassword);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page).not.toHaveURL(/\/sign-in$/);

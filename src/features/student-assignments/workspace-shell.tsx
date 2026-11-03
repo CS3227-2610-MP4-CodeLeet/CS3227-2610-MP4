@@ -9,6 +9,7 @@ import {
   FileCode2,
   Menu,
   Terminal,
+  ChartNoAxesCombined,
 } from 'lucide-react';
 import { createContext, useContext, type ReactNode } from 'react';
 import { SignOutButton } from '@/features/auth/sign-out-button';
@@ -22,6 +23,11 @@ const AuthenticatedWorkspace = createContext(false);
 const workspaceDestinations = [
   { href: '/student/assignments', label: 'Assignments', icon: BookOpen },
   { href: '/courses', label: 'Courses', icon: BookOpen },
+  {
+    href: '/student/progress',
+    label: 'My progress',
+    icon: ChartNoAxesCombined,
+  },
   { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
   { href: gradesPath, label: 'My grades', icon: ClipboardList },
 ];

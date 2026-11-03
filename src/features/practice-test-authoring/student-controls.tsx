@@ -1,4 +1,6 @@
 'use client';
+import { useState } from 'react';
+import { PendingButton } from '@/components/ui/pending-button';
 import type { usePublishedCases } from './use-published-cases';
 export function PublishedCasesControls({
   state,
@@ -7,18 +9,32 @@ export function PublishedCasesControls({
   state: ReturnType<typeof usePublishedCases>;
   busy: boolean;
 }) {
+  const [refreshing, setRefreshing] = useState(false);
+  async function refresh() {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await state.refresh();
+    } catch {
+      // The published-cases hook supplies the user-facing failure message.
+    } finally {
+      setRefreshing(false);
+    }
+  }
   return (
     <div className="space-y-2 text-sm">
       {state.error && <p role="alert">{state.error}</p>}
       {!state.ready && <p role="status">Loading published tests…</p>}
-      <button
+      <PendingButton
+        pending={refreshing}
+        pendingLabel="Refreshing…"
         type="button"
         disabled={busy || !state.ready}
         className="rounded-md border px-3 py-2 text-xs disabled:opacity-50"
-        onClick={() => void state.refresh().catch(() => {})}
+        onClick={() => void refresh()}
       >
         Refresh tests
-      </button>
+      </PendingButton>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { FormSubmitButton } from '@/components/ui/pending-button';
 import Form from 'next/form';
 import Link from 'next/link';
 
@@ -30,12 +31,13 @@ export function ForumSearchControls({
           className="w-full rounded-md border bg-background px-3 py-2 text-sm text-foreground"
         />
       </div>
-      <button
+      <FormSubmitButton
+        pendingLabel="Searching…"
         type="submit"
         className="rounded-md bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800"
       >
         Search
-      </button>
+      </FormSubmitButton>
       {query && (
         <Link
           href={`/forums?courseId=${courseId}`}

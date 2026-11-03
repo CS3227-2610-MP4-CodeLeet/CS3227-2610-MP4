@@ -1,16 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { PendingButton } from '@/components/ui/pending-button';
+import { usePendingNavigation } from './pending-navigation';
+import { SlowRequestNotice } from './slow-request-notice';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { confirmUnsavedNavigation } from '@/features/student-submissions/unsaved-code-guard';
 import { clearBrowserDrafts } from '@/features/student-submissions/draft-storage';
 
 export function SignOutButton() {
-  const router = useRouter();
+  const { navigating, navigate } = usePendingNavigation();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   async function signOut() {
+    if (busy || navigating) return;
     if (!confirmUnsavedNavigation()) return;
     setBusy(true);
     setError('');
@@ -20,8 +23,7 @@ export function SignOutButton() {
       });
       if (result.error) throw result.error;
       await clearBrowserDrafts();
-      router.replace('/sign-in');
-      router.refresh();
+      navigate('/sign-in');
     } catch {
       setError('Sign-out failed. Try again.');
     } finally {
@@ -30,14 +32,17 @@ export function SignOutButton() {
   }
   return (
     <div className="text-sm">
-      <button
+      <PendingButton
+        pending={busy || navigating}
+        pendingLabel="Signing out…"
         type="button"
         disabled={busy}
         onClick={() => void signOut()}
         className="rounded-md border bg-background px-3 py-2 text-foreground hover:bg-accent disabled:opacity-60"
       >
-        {busy ? 'Signing out…' : 'Sign out'}
-      </button>
+        Sign out
+      </PendingButton>
+      {(busy || navigating) && <SlowRequestNotice />}
       {error && (
         <p role="alert" className="mt-1 text-destructive">
           {error}

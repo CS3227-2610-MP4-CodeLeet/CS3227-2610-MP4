@@ -2,11 +2,25 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide describes the current local implementation. The [XP summary](../logs/2026-11-02-assignment-xp.md) and [practice-test summary](../logs/2026-11-02-published-practice-tests.md) record their verification and migration status; the earlier cross-feature audit used merged commit `0a26127` (2 November 2026). A verified public address, hosted email delivery and complete hosted student/instructor checks are still pending in repository evidence. Ask your team for its current test address and accounts.
+This guide matches merged develop `dfe5936` (3 November 2026). Use the application address supplied by the team; a verified public test address and complete hosted account/email/AI checks are not yet recorded. Local setup is below. Course workspaces are not included in this version.
+
+## Choose where to start
+
+| Your task                                            | Where to go                                                    |
+| ---------------------------------------------------- | -------------------------------------------------------------- |
+| Start an assignment                                  | **Assignments** → assignment title                             |
+| Find saved code or request learning feedback         | **My submissions** → saved revision                            |
+| Read released feedback and scores                    | **My grades**                                                  |
+| See assignment XP and rank                           | **My XP** or **Leaderboard**                                   |
+| Ask or answer a question                             | **Forums**                                                     |
+| Change your username                                 | Student **Menu → Profile settings**, or instructor **Profile** |
+| Create an assignment or manage practice tests/grades | Instructor workspace; instructor access must be provisioned    |
+
+On smaller screens, use **Menu** to open student navigation. New public registrations are student accounts. You do not need instructor access to practise or submit published assignments.
 
 ## Start locally
 
-Follow the [README](../README.md) and [database setup](../supabase/README.md) to install the pinned Node 24/pnpm versions, start Supabase, apply migrations and configure ignored `.env.local`. Then run:
+Follow [Local setup in the Developer Guide](DeveloperGuide.md#1-local-setup) to install pinned Node 24/pnpm, start Docker/Supabase, apply migrations and configure sign-in. Then run:
 
 ```powershell
 npx.cmd --yes pnpm@12.15.0 dev
@@ -16,11 +30,15 @@ Open the address printed by Next.js, normally http://localhost:3000. This comman
 
 ## Account and appearance
 
-Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. Sign in with email and password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. Use **Sign out** when finished; a failure lets you retry.
+Account buttons show a spinner and progress such as **Signing in…** or **Sending reset link…** while working. A slow request shows a message asking you to keep the page open. Wait for the result; if an error appears, you can try again. Saves, posts, reviews, code runs and searches also show progress while they finish.
+
+Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Usernames must be unique regardless of capitalization, contain 1–80 characters and exclude @ or line breaks. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. In **Email or username**, enter either identifier with your password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. Use **Sign out** when finished; a failure lets you retry.
 
 For a forgotten password, choose **Forgot password?**, enter your email and select **Send reset link**. The acknowledgement does not reveal whether an account exists. Open the newest email link in the same browser, enter matching passwords of at least eight characters and choose **Update password**. Then sign in again. Invalid/expired/reused links offer **Request a new link**. Resend delays or provider limits may require a wait. Local emails appear in [Mailpit](http://localhost:54324); hosted delivery is unverified.
 
-Students open **Menu → Profile settings**; instructors choose **Profile**. Edit **Username** and select **Save changes**. Usernames allow 1–80 characters after trimming. Email and role are read-only here. Failed saves retain your typed username.
+Students open **Menu → Profile settings**; instructors choose **Profile**. Edit **Username** and select **Save changes**. Leading/trailing spaces are removed. A taken name asks you to choose another; failed saves retain your typed username. After a successful change, use the new username to sign in; your email still works. Email and role are read-only here.
+
+If an older account's username is shared or unavailable for sign-in, use your email, then choose and save an available username in Profile settings. Existing accounts are not renamed automatically. If sign-in reports too many attempts, wait before trying again.
 
 The moon/sun control changes light/dark mode across account pages and the workspace. Your browser remembers the choice; without one, the app follows your device preference. Switching themes preserves your code/results.
 
@@ -40,12 +58,12 @@ Choose a course, then select **Assignments** in its activity links. Only publish
 
 Due dates use Singapore time (SGT). An assignment without one shows **No deadline**.
 
-| Status | Meaning |
-| --- | --- |
-| Not submitted | You have not saved a revision. |
-| Overdue | The deadline passed and you have not submitted. You can still submit. |
-| Submitted | Your latest revision was saved on time or without a deadline. |
-| Submitted late | Your latest revision was saved after its deadline. |
+| Status         | Meaning                                                               |
+| -------------- | --------------------------------------------------------------------- |
+| Not submitted  | You have not saved a revision.                                        |
+| Overdue        | The deadline passed and you have not submitted. You can still submit. |
+| Submitted      | Your latest revision was saved on time or without a deadline.         |
+| Submitted late | Your latest revision was saved after its deadline.                    |
 
 Late submissions are accepted without an automatic grade penalty. Revisions retain the deadline that applied when saved and show **Late**, **On time**, or **Submitted** without a deadline. Later deadline edits do not rewrite old timing. Status updates when you open/refresh the page or save a revision.
 
@@ -59,7 +77,19 @@ Enter a complete Python program or Java program with one public `Main` class. En
 
 Java supports the documented basic `Scanner` and `BufferedReader` input methods, but not all standard library features. `Thread.start()`, examples waiting with `join()`, and `Thread.sleep()` currently fail compilation. Calling a `Runnable` with `.run()` can work sequentially. Recognized compatibility errors explain the unsupported feature; ordinary compiler errors retain their details.
 
-Input is limited to 4,096 UTF-8 bytes and combined output to 8,192 bytes per case. Execution has a five-second limit per case, with a separate Java preparation/compilation deadline. Timing depends on your device. Chromium has local runtime evidence; other browsers and hosted instructor execution still need verification. Vercel builds support the same-project runner when runtime assets are prepared; this does not establish that a particular deployment was tested.
+Input is limited to 4,096 UTF-8 bytes and combined output to 8,192 bytes per case. Execution has a five-second limit per case, with a separate Java preparation/compilation deadline. Timing depends on your device. Local Chromium has runtime evidence; other browsers and hosted role journeys still need verification. If a hosted Run action is unavailable, contact the team with the visible error rather than assuming your solution is incorrect.
+
+For a quick runner check, Python `print("Hello, CodeLeet!")` should print `Hello, CodeLeet!`. A Java assignment needs a complete program, for example:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, CodeLeet!");
+    }
+}
+```
+
+These checks exercise printing only; follow the assignment's instructions and published cases for your actual solution.
 
 ### Test cases
 
@@ -87,7 +117,7 @@ From an assignment in the selected course, choose **My submissions** in the side
 
 Open an assignment title in a row for saved code, learning-feedback controls and any published grade. **All submissions** returns to the list; **Back to assignment** opens an available problem. An unavailable assignment's own revisions remain accessible under **Assignment unavailable** without searchable hidden titles. Empty accounts show **No submissions yet**; failed requests offer **Try again**. Other students' code, private rubrics and unpublished grades remain hidden.
 
-Choose **Continue editing** from a revision or **Your revisions** to load saved source. **Editing revision N** identifies the starting point. Edit and submit a new revision; the original stays unchanged. Switching revisions with unsaved edits asks for confirmation. Ordinary assignment visits start with an empty editor.
+Choose **Continue editing** from a revision or **Your revisions** to load saved source. **Editing revision N** identifies the starting point. Edit and submit a new revision; the original stays unchanged. Switching revisions with unsaved edits asks for confirmation. Ordinary assignment visits start with an empty editor unless you restore an available browser draft.
 
 ### Compare revisions
 
@@ -97,7 +127,7 @@ The default compares with the previous revision; revision 1 compares with your l
 
 ### Learning feedback
 
-On a saved submission, select **Request review** under **Learning feedback** for a summary, strengths, next steps and questions. Check hints against your code: AI can be wrong and does not change grades. Requesting feedback sends saved code and assignment context to the configured SoCLaaS service; student context excludes private rubrics. Disabled/unavailable AI or exhausted usage shows an error while keeping the submission accessible. Retry later as appropriate. Historical live evaluation used synthetic Python examples, not all programs or Java assignments.
+On a saved submission, select **Request review** under **Learning feedback** for a summary, strengths, next steps and questions. Check hints against your code: AI can be wrong and does not change grades. Requesting feedback sends saved code and assignment context to the configured SoCLaaS service; student context excludes private rubrics. Disabled/unavailable AI or exhausted usage shows an error while keeping the submission accessible. Retry later as appropriate. Recorded AI evaluations use a small synthetic sample and do not guarantee feedback quality for every program.
 
 ### My grades
 
@@ -108,6 +138,18 @@ From an assignment in the selected course, choose **My grades** in the sidebar/M
 Open **My XP** from a course's activity links to see your total and assignment awards in that course. Your best currently published result for each assignment counts. XP is your score divided by that grade's rubric maximum, multiplied by the assignment's maximum XP and rounded down. For example, 8 out of 10 on a 100-XP assignment earns 80 XP. Saving more revisions does not add duplicate awards.
 
 Corrected or withdrawn grades and changes to an assignment's maximum XP can increase or decrease your total. Draft grades, AI suggestions, running code and forum activity do not earn XP. **Next**/**Previous** browse up to 25 awards per page. An unavailable assignment keeps its award without showing its hidden title. Loading failures offer **Try again**.
+
+## Student: My progress
+
+Choose **My progress** in the sidebar or mobile **Menu** for an overview of your work:
+
+- **Submitted assignments** counts published assignments with at least one saved revision, including late submissions. Saving several revisions of one assignment still counts once.
+- **Outstanding assignments** have no saved revision from you. **Overdue assignments** are the outstanding assignments whose deadline has passed. Assignments without deadlines still count as outstanding.
+- **Total XP** shows your current awarded XP. Select it to open your XP breakdown.
+- **Coming up** shows up to five outstanding assignments with upcoming deadlines, earliest first. Dates and times use SGT. Open an assignment to continue working.
+- **Recent submissions** and **Recent grades** show up to five of your latest saved revisions and published grades. **View all** opens the corresponding full list.
+
+The progress bar tracks saved submissions, rather than passing tests or receiving grades. Browser drafts and code runs do not count as submitted. An assignment removed from publication leaves the current assignment totals. If a section cannot load, it shows an unavailable message and **Try again**; other sections can still be used. Refresh the page to see newer submissions, grades or deadline changes.
 
 ## Leaderboard
 
@@ -148,7 +190,33 @@ Threads/replies appear newest first, 25 per page, with author username/role at p
 
 ## Admin accounts
 
-Admins also have instructor access and an **Admin panel** link to manage roles. Signup cannot create admins. Trusted admin access is required; the app prevents removing the last admin. Self-role changes ask for confirmation and may return you to another workspace. Unit/database checks cover this interface; a complete authenticated admin browser journey is pending. First-admin provisioning is in [database setup](../supabase/README.md).
+Admins also have instructor access and an **Admin panel** link to manage roles. Signup cannot create admins. Trusted admin access is required; the app prevents removing the last admin. Self-role changes ask for confirmation and may return you to another workspace. First-admin provisioning is an operator task described in [database setup](../supabase/README.md).
+
+## Troubleshooting
+
+| What you see                                  | What to do                                                                                                                          |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| No assignments                                | Check with your instructor that an assignment has been published                                                                    |
+| Signing in or another action is still loading | Keep the page open for its result. If an error appears, retry; avoid submitting the same action in several tabs                     |
+| Username cannot be used                       | Sign in with your email, then choose and save an available username in Profile settings                                             |
+| Reset email is missing                        | Check your email/spam folder and use the newest link in the same browser. Local testers use Mailpit                                 |
+| No printed output                             | Check that your code prints an answer and that any requested Standard input is supplied                                             |
+| Wrong output on a test                        | Compare expected and actual output, including spaces and capitalization; a matching result does not save or grade the code          |
+| No grade or XP                                | Wait for instructor publication; running code and requesting AI feedback do not award either                                        |
+| Browser draft is unavailable                  | It may belong to another device, have expired, been cleared on sign-out, or failed to save. Check saved revisions in My submissions |
+
+## Suggested student acceptance check
+
+With a synthetic student account and an instructor-provided published assignment:
+
+1. Sign in using email, then repeat using your username. Check sign-out and the light/dark control.
+2. Open an assignment, enter code, run it and run any published tests. Repeat on a separate assignment for the other language.
+3. Submit a revision and open it in **My submissions**. Continue editing, save a second revision and compare the two.
+4. Leave an unfinished edit, refresh, and use **Restore draft** if offered. A recovered draft still needs submission.
+5. Request learning feedback if AI is enabled. Check **My grades** and **My XP** after an instructor publishes a grade.
+6. Create or reply to a discussion and search for its title. Check navigation on a narrow screen.
+
+Use the separate [developer verification/release checks](DeveloperGuide.md#8-verification-commands-and-evidence-scope) for privacy denials, configuration, mail delivery and hosted acceptance. This checklist is a test procedure, not a claim that every hosted check has passed.
 
 ## Current limits and test coverage
 

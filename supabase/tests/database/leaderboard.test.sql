@@ -50,8 +50,13 @@ insert into public.course_memberships(course_id,user_id,role) values ('d3000000-
 insert into public.course_features(course_id,feature,enabled) select 'd3000000-0000-4000-8000-000000000001',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
 delete from public.user_roles where user_id='d1000000-0000-4000-8000-000000000030';
 update public.profiles set display_name='Leaderboard '||right(id::text,2) where id in (select ('d1000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid from generate_series(1,32) n);
-update public.profiles set display_name='Same' where id in ('d1000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000002');
-insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('d2000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','Ranking fixture','Synthetic','python','published',100000,'d3000000-0000-4000-8000-000000000001'::uuid);
+-- These duplicate names represent preserved legacy accounts, not new claims.
+alter table public.profiles disable trigger claim_username;
+update public.profiles set display_name='Same',username_key='same',login_username=null
+ where id in ('d1000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000002');
+alter table public.profiles enable trigger claim_username;
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id)
+values ('d2000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','Ranking fixture','Synthetic','python','published',100000,'d3000000-0000-4000-8000-000000000001'::uuid);
 insert into public.assignment_rubrics(assignment_id,criteria) values('d2000000-0000-4000-8000-000000000001','[{"id":"d5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]');
 insert into public.submissions(id,assignment_id,student_id,source,revision,request_id)
 select ('d4000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'d2000000-0000-4000-8000-000000000001',

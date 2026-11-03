@@ -2,9 +2,13 @@
 
 import { useState, type FormEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { PendingButton } from '@/components/ui/pending-button';
+import { usePendingNavigation } from './pending-navigation';
+import { SlowRequestNotice } from './slow-request-notice';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { PasswordField } from './password-field';
+import { claimableUsername } from '@/features/profile/contracts';
+import { synchronizeSession } from './synchronize-session';
 export { SignOutButton } from './sign-out-button';
 
 const supabaseReady = Boolean(
@@ -28,12 +32,13 @@ function AccountFields({ displayName = false }: { displayName?: boolean }) {
         </label>
       )}
       <label className="block space-y-2 text-sm">
-        Email
+        {displayName ? 'Email' : 'Email or username'}
         <input
-          name="email"
-          type="email"
+          name={displayName ? 'email' : 'identifier'}
+          type={displayName ? 'email' : 'text'}
           required
-          autoComplete="email"
+          maxLength={254}
+          autoComplete={displayName ? 'email' : 'username'}
           className="w-full rounded-md border bg-background px-3 py-2"
         />
       </label>
@@ -44,11 +49,12 @@ function AccountFields({ displayName = false }: { displayName?: boolean }) {
 }
 
 function SignInForm() {
-  const router = useRouter();
+  const { navigating, navigate } = usePendingNavigation();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || navigating) return;
     setBusy(true);
     setMessage('');
     if (!supabaseReady) {
@@ -57,24 +63,32 @@ function SignInForm() {
       return;
     }
     const form = new FormData(event.currentTarget);
-    const { error } =
-      await createSupabaseBrowserClient().auth.signInWithPassword({
-        email: String(form.get('email') ?? '').trim(),
-        password: String(form.get('password') ?? ''),
+    try {
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: String(form.get('identifier') ?? '').trim(),
+          password: String(form.get('password') ?? ''),
+        }),
       });
-    setBusy(false);
-    if (error) {
-      setMessage('Sign-in failed. Check your details and try again.');
-      return;
+      if (!response.ok) return setMessage(signInFailure(response.status));
+      const result = await response.json();
+      if (result?.ok !== true) throw new Error('Invalid sign-in response');
+      await synchronizeSession();
+      navigate('/');
+    } catch {
+      setMessage('Sign-in is unavailable. Please try again later.');
+    } finally {
+      setBusy(false);
     }
-    router.replace('/');
-    router.refresh();
   }
   return (
     <AuthCard
       title="Sign in"
       description="Use your CodeLeet account."
-      busy={busy}
+      busy={busy || navigating}
+      pendingLabel="Signing in…"
       message={message}
       onSubmit={submit}
     >
@@ -95,43 +109,48 @@ function SignInForm() {
 }
 
 function SignUpForm() {
-  const router = useRouter();
+  const { navigating, navigate } = usePendingNavigation();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || navigating) return;
     const form = new FormData(event.currentTarget);
     const validationError = getSignupError(form);
     if (validationError) return setMessage(validationError);
     setBusy(true);
     setMessage('');
-    const { data, error } = await createSupabaseBrowserClient().auth.signUp({
-      email: String(form.get('email') ?? '').trim(),
-      password: String(form.get('password') ?? ''),
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: { display_name: String(form.get('username') ?? '').trim() },
-      },
-    });
-    setBusy(false);
-    if (error) {
-      setMessage('Account creation failed. Check your details and try again.');
-      return;
-    }
-    if (!data.session) {
+    try {
+      const { data, error } = await createSupabaseBrowserClient().auth.signUp({
+        email: String(form.get('email') ?? '').trim(),
+        password: String(form.get('password') ?? ''),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: { display_name: String(form.get('username') ?? '').trim() },
+        },
+      });
+      if (error) throw error;
+      if (!data.session) {
+        setMessage(
+          'Check your email to confirm your account, then sign in. New accounts are students.',
+        );
+        return;
+      }
+      navigate('/');
+    } catch {
       setMessage(
-        'Check your email to confirm your account, then sign in. New accounts are students.',
+        'Account creation failed. Try a different username or check your details.',
       );
-      return;
+    } finally {
+      setBusy(false);
     }
-    router.replace('/');
-    router.refresh();
   }
   return (
     <AuthCard
       title="Create student account"
       description="Registration creates a student account."
-      busy={busy}
+      busy={busy || navigating}
+      pendingLabel="Creating account…"
       message={message}
       onSubmit={submit}
     >
@@ -149,9 +168,18 @@ function SignUpForm() {
 function getSignupError(form: FormData) {
   if (!supabaseReady)
     return 'Account access is unavailable. Please try again later.';
+  if (!claimableUsername.safeParse(String(form.get('username') ?? '')).success)
+    return 'Enter a username of 1–80 characters without @ or line breaks.';
   return form.get('password') !== form.get('confirmPassword')
     ? 'Passwords do not match.'
     : '';
+}
+
+function signInFailure(status: number) {
+  if (status === 429)
+    return 'Too many attempts. Please wait a minute and try again.';
+  if (status >= 500) return 'Sign-in is unavailable. Please try again later.';
+  return 'Sign-in failed. Check your details and try again.';
 }
 
 export function AuthCard({
@@ -163,6 +191,7 @@ export function AuthCard({
   children,
   submitLabel = title,
   disabled = false,
+  pendingLabel = 'Please wait…',
 }: {
   title: string;
   description: string;
@@ -172,6 +201,7 @@ export function AuthCard({
   children: ReactNode;
   submitLabel?: string;
   disabled?: boolean;
+  pendingLabel?: string;
 }) {
   return (
     <form
@@ -188,12 +218,15 @@ export function AuthCard({
           {message}
         </p>
       )}
-      <button
+      <PendingButton
+        pending={busy}
+        pendingLabel={pendingLabel}
         disabled={busy || !supabaseReady || disabled}
         className="w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-60"
       >
-        {busy ? 'Please wait…' : submitLabel}
-      </button>
+        {submitLabel}
+      </PendingButton>
+      {busy && <SlowRequestNotice />}
       {!supabaseReady && (
         <p className="text-sm text-muted-foreground">
           Account access is unavailable. Please try again later.

@@ -110,7 +110,7 @@ async function createCohort(request: APIRequestContext): Promise<Cohort> {
 
 async function signIn(page: Page, user: User) {
   await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(user.email);
+  await page.getByLabel('Email or username').fill(user.email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page).not.toHaveURL(/\/sign-in$/);

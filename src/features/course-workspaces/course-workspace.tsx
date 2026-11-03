@@ -169,7 +169,6 @@ function ManagementPanels({
   );
 }
 
-// eslint-disable-next-line complexity -- explicit role and feature gates keep each course destination auditable.
 function CourseFeatureLinks({
   course,
   role,
@@ -200,18 +199,12 @@ function CourseFeatureLinks({
       >
         Assignments
       </CourseActivityLink>
-      <CourseActivityLink
-        enabled={archived || aiEnabled}
-        href={`/ai/usage?courseId=${course.id}`}
-      >
-        AI usage
-      </CourseActivityLink>
-      <CourseActivityLink
-        enabled={role === 'instructor' && !archived && aiEnabled}
-        href={`/instructor/ai-context?courseId=${course.id}`}
-      >
-        Context comparison
-      </CourseActivityLink>
+      <CourseAiLinks
+        course={course}
+        role={role}
+        archived={archived}
+        aiEnabled={aiEnabled}
+      />
       <CourseActivityLink
         enabled={archived || discussionsEnabled}
         href={`/forums?courseId=${course.id}`}
@@ -224,6 +217,13 @@ function CourseFeatureLinks({
       >
         My XP
       </CourseActivityLink>
+      <CourseProgressLink
+        course={course}
+        role={role}
+        archived={archived}
+        assessmentsEnabled={assessmentsEnabled}
+        xpEnabled={xpEnabled}
+      />
       <CourseActivityLink
         enabled={archived || leaderboardEnabled}
         href={`/leaderboard?courseId=${course.id}`}
@@ -238,6 +238,60 @@ function CourseFeatureLinks({
         New assignment
       </CourseActivityLink>
     </nav>
+  );
+}
+
+function CourseAiLinks({
+  course,
+  role,
+  archived,
+  aiEnabled,
+}: {
+  course: CourseWorkspaceRecord;
+  role: CourseMemberRole;
+  archived: boolean;
+  aiEnabled: boolean;
+}) {
+  return (
+    <>
+      <CourseActivityLink
+        enabled={archived || aiEnabled}
+        href={`/ai/usage?courseId=${course.id}`}
+      >
+        AI usage
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={role === 'instructor' && !archived && aiEnabled}
+        href={`/instructor/ai-context?courseId=${course.id}`}
+      >
+        Context comparison
+      </CourseActivityLink>
+    </>
+  );
+}
+
+function CourseProgressLink({
+  course,
+  role,
+  archived,
+  assessmentsEnabled,
+  xpEnabled,
+}: {
+  course: CourseWorkspaceRecord;
+  role: CourseMemberRole;
+  archived: boolean;
+  assessmentsEnabled: boolean;
+  xpEnabled: boolean;
+}) {
+  const enabled =
+    role === 'student' && (archived || assessmentsEnabled || xpEnabled);
+  return (
+    <CourseActivityLink
+      enabled={enabled}
+      href={`/student/progress?courseId=${course.id}`}
+    >
+      My progress
+    </CourseActivityLink>
   );
 }
 

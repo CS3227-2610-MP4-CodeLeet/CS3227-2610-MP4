@@ -1,4 +1,7 @@
 'use client';
+
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useState } from 'react';
 import {
   practiceUpdateSchema,
@@ -101,37 +104,45 @@ export function PracticeTestEditor({ initial }: { initial: OwnerTestSet }) {
         per case.
       </p>
       <div className="flex flex-wrap gap-3">
-        <button
+        <PendingButton
+          pending={state.busy}
           type="button"
           className={buttonStyle}
           disabled={state.busy}
           onClick={() => void state.save('save')}
         >
           Save draft
-        </button>
-        <button
+        </PendingButton>
+        <PendingButton
+          pending={state.busy}
           type="button"
           className={buttonStyle + ' bg-primary text-primary-foreground'}
           disabled={state.busy || !state.cases.length}
           onClick={() => void state.save('publish')}
         >
           Publish tests
-        </button>
+        </PendingButton>
         {state.published && (
-          <button
+          <PendingButton
+            pending={state.busy}
             type="button"
             className={buttonStyle}
             disabled={state.busy}
             onClick={() => void state.save('unpublish')}
           >
             Unpublish tests
-          </button>
+          </PendingButton>
         )}
       </div>
-      <p role="status" className="text-sm">
-        {state.busy ? 'Saving…' : state.message}
-      </p>
+      <SaveStatus busy={state.busy} message={state.message} />
     </section>
+  );
+}
+function SaveStatus({ busy, message }: { busy: boolean; message: string }) {
+  return (
+    <p role="status" className="text-sm">
+      {busy ? 'Saving…' : message}
+    </p>
   );
 }
 function blankCase(): AuthoredCase {

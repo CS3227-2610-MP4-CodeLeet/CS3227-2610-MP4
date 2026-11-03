@@ -7,6 +7,20 @@ function failure(code: string, message: string, status: number) {
   return privateJson({ error: { code, message } }, status);
 }
 
+function saveFailure(error: { code?: string }) {
+  return error.code === '23505'
+    ? failure(
+        'username_unavailable',
+        'Username is unavailable. Choose another.',
+        409,
+      )
+    : failure(
+        'save_failed',
+        'Your profile could not be saved. Try again.',
+        503,
+      );
+}
+
 async function updateProfile(request: Request) {
   const { user, role, supabase } = await getVerifiedUserRole();
   if (!user || !supabase)
@@ -21,19 +35,18 @@ async function updateProfile(request: Request) {
     );
   const parsed = profileInput.safeParse(body.value);
   if (!parsed.success)
-    return failure('invalid_profile', 'Username must be 1–80 characters.', 400);
+    return failure(
+      'invalid_profile',
+      'Enter a username of 1–80 characters without @ or line breaks.',
+      400,
+    );
   const { data, error } = await supabase
     .from('profiles')
     .update({ display_name: parsed.data.username })
     .eq('id', user.id)
     .select('display_name')
     .maybeSingle();
-  if (error)
-    return failure(
-      'save_failed',
-      'Your profile could not be saved. Try again.',
-      503,
-    );
+  if (error) return saveFailure(error);
   if (!data)
     return failure(
       'unavailable',

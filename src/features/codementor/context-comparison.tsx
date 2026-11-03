@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useState } from 'react';
 
 type Result = {
@@ -51,13 +53,14 @@ export function ContextComparison({ submissionId }: { submissionId: string }) {
             model run uses one instructor quota slot.
           </p>
         </div>
-        <button
+        <PendingButton
+          pending={busy}
           disabled={busy}
           onClick={compare}
           className="rounded-md border px-3 py-2 text-sm disabled:opacity-60"
         >
           {busy ? 'Comparing…' : 'Compare contexts'}
-        </button>
+        </PendingButton>
       </div>
       {message && (
         <p role="status" className="text-sm text-muted-foreground">

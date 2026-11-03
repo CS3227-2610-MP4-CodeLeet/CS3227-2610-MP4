@@ -9,12 +9,13 @@ export async function loadProfileSettings() {
   if (!role) redirect('/unauthorized');
   const { data, error } = await supabase
     .from('profiles')
-    .select('display_name')
+    .select('display_name,login_username')
     .eq('id', user.id)
     .maybeSingle();
   if (error || !data) throw new Error('Profile is unavailable.');
   return {
     username: usernameValue.parse(data.display_name),
+    usernameLoginEnabled: typeof data.login_username === 'string',
     email: user.email ?? '',
     role,
   };

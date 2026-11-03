@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Email or unique username password sign-in
+The system SHALL authenticate by email or a case-insensitive unique username without exposing username-to-email lookup results.
+
+#### Scenario: Real username authentication
+- **WHEN** a visitor submits the Email or username text field and password
+- **THEN** a bounded same-origin server route SHALL reserve an attempt, resolve a claimed username privately and authenticate with the ordinary Supabase password/session client; no privileged client SHALL create the session, assign a role or disclose resolved email
+
+#### Scenario: Unique names and legacy conflicts
+- **WHEN** signup or profile changes claim a trimmed 1–80-character username without @/control/NUL
+- **THEN** database-owned normalization and transactional uniqueness SHALL protect case-insensitive claims even through direct allowed profile writes; legacy duplicates/ineligible names SHALL retain email access without silent renames, and a sole remaining legacy owner SHALL explicitly claim while an abandoned reservation SHALL be released
+
+#### Scenario: Bounded private lookup
+- **WHEN** a login is unknown, wrong, unconfirmed, repeated or unavailable
+- **THEN** generic credential failures and no-store responses SHALL avoid email disclosure, atomic HMAC-keyed windows SHALL limit accepted attempts to ten per normalized identifier/minute and sixty globally/minute with Retry-After, missing services SHALL fail closed, and unknown/dummy users SHALL never receive authenticated cookies
+
 ### Requirement: User-facing product copy
 Product screens SHALL use concise, plain wording that helps students and instructors complete their tasks. Internal setup and execution architecture SHALL remain in developer documentation unless needed for an actionable user decision. The landing page SHALL omit the technical paragraph about Python-only submissions, trusted instructors and server execution.
 
@@ -35,7 +50,7 @@ The visible product name SHALL be CodeLeet and the registration profile-name fie
 
 #### Scenario: Required constraints for consistent account controls
 - **WHEN** this capability is used
-- **THEN** The label change SHALL preserve existing profile storage and email-based authentication.
+- **THEN** The label change SHALL preserve existing profile storage and email sign-in, alongside the separately specified unique username sign-in path.
 
 The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
 
@@ -106,3 +121,8 @@ Every protected student operation SHALL use a request-scoped cookie-based Supaba
 #### Scenario: Profile save failure
 - **WHEN** a profile update fails
 - **THEN** the draft remains available for retry and the UI does not claim success; a confirmed update persists across reload and renders as safe text
+
+#### Scenario: Pending account and application actions
+- **WHEN** an account request or an asynchronous save, post, review, practice run or form search is pending
+- **THEN** its action button exposes a disabled busy state and visible spinner; account buttons use action-specific progress text, retain progress during destination navigation, and display a slow-request notice after ten seconds
+- **AND** a failed request restores retry controls with a safe message without automatically repeating the mutation

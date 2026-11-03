@@ -19,7 +19,7 @@ test('production denies fixture routes even when the preview flag is true', asyn
     ).toHaveCount(0);
     await expect(page).toHaveURL(/\/sign-in$/);
     await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
-    await expect(page.getByLabel('Email')).toBeVisible();
+    await expect(page.getByLabel('Email or username')).toBeVisible();
     await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   }
 });

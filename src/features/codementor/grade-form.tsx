@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useState, type FormEvent } from 'react';
 
 type Criterion = { id: string; title: string; maxScore: number };
@@ -112,12 +114,13 @@ function SaveGradeButton({
   publish: boolean;
 }) {
   return (
-    <button
+    <PendingButton
+      pending={busy}
       disabled={busy}
       className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-60"
     >
       {busy ? 'Saving…' : publish ? 'Save and publish' : 'Save draft'}
-    </button>
+    </PendingButton>
   );
 }
 

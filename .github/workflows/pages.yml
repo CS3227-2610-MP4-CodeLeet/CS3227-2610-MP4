@@ -1,6 +1,18 @@
 name: Publish product website
 on:
   workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - 'website/**'
+      - 'docs/UserGuide.md'
+      - 'docs/DeveloperGuide.md'
+      - 'workflow/scripts/prepare-site-docs.*'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.node-version'
+      - '.github/workflows/pages.yml'
 permissions:
   contents: read
 concurrency:
@@ -8,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:
       contents: read

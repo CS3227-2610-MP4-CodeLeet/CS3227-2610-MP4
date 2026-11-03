@@ -3,6 +3,7 @@ import {
   test,
   historyPassword,
   hideFixtureAssignment,
+  coursePath,
 } from './helpers/history-fixtures';
 import {
   addFilterRevisions,
@@ -36,7 +37,7 @@ test('assignment filters combine literal titles and languages, clear, restore hi
   historyFixture: data,
 }) => {
   test.setTimeout(120_000);
-  await signIn(page, data.users[1].email);
+  await signIn(page, data.users[1].email, data);
   await applyFilters(page, 'hIsToRy', 'java');
   await expect(page.getByRole('table')).toContainText('History Java');
   await expect(page.getByRole('table')).not.toContainText(data.title);
@@ -52,7 +53,7 @@ test('assignment filters combine literal titles and languages, clear, restore hi
   );
   await expect(page.getByRole('table')).toContainText('History Java');
   await page.getByRole('link', { name: clearName }).click();
-  await expect(page).toHaveURL(assignmentPath);
+  await expect(page).toHaveURL(coursePath(data, assignmentPath));
   await checkLiteralSearches(page, data);
   await hideFixtureAssignment(data);
   await applyFilters(page, literalFilterTitle, 'python');
@@ -68,8 +69,8 @@ test('history filters run before pagination and preserve own-only hidden-title b
 }) => {
   test.setTimeout(120_000);
   await addFilterRevisions(data);
-  await signIn(page, data.users[1].email);
-  await page.goto(historyPath);
+  await signIn(page, data.users[1].email, data);
+  await page.goto(coursePath(data, historyPath));
   await applyFilters(page, '<IMG', 'python');
   await expect(
     page.getByRole('table', { name: historyTable }).locator('tbody tr'),
@@ -85,10 +86,12 @@ test('history filters run before pagination and preserve own-only hidden-title b
     page.getByRole('table', { name: historyTable }).locator('tbody tr'),
   ).toHaveCount(2);
   await expect(
-    page.locator(`a[href="${historyPath}/${data.peerRow.id}"]`),
+    page.locator(
+      `a[href="${coursePath(data, `${historyPath}/${data.peerRow.id}`)}"]`,
+    ),
   ).toHaveCount(0);
   await checkHiddenHistory(page, data);
-  await checkInvalidFilters(page);
+  await checkInvalidFilters(page, data);
 });
 
 async function applyFilters(page: Page, query: string, language: string) {
@@ -112,7 +115,9 @@ async function checkLiteralSearches(page: Page, data: FilterFixture) {
     await applyFilters(page, query, 'python');
     await expect(page.getByRole('table')).toContainText(literalFilterTitle);
     await expect(
-      page.locator(`a[href="${assignmentPath}/${data.assignments[1]}"]`),
+      page.locator(
+        `a[href="${coursePath(data, `${assignmentPath}/${data.assignments[1]}`)}"]`,
+      ),
     ).toHaveCount(0);
   }
   await applyFilters(page, '.*', '');
@@ -135,29 +140,34 @@ async function checkHiddenHistory(page: Page, data: FilterFixture) {
   ).toHaveCount(25);
   await expect(page.getByRole('table')).toContainText('Assignment unavailable');
   await page.goto(
-    `${historyPath}?q=History&language=java&student_id=${data.users[2].id}`,
+    coursePath(
+      data,
+      `${historyPath}?q=History&language=java&student_id=${data.users[2].id}`,
+    ),
   );
   await expect(
     page.getByRole('table', { name: historyTable }).locator('tbody tr'),
   ).toHaveCount(2);
   await expect(
-    page.locator(`a[href="${historyPath}/${data.peerRow.id}"]`),
+    page.locator(
+      `a[href="${coursePath(data, `${historyPath}/${data.peerRow.id}`)}"]`,
+    ),
   ).toHaveCount(0);
   expect(await page.locator('main').innerText()).not.toMatch(
     /HISTORY_SOURCE_SENTINEL|HISTORY_RUBRIC_SECRET|HISTORY_UNPUBLISHED_SECRET/,
   );
   await page.getByRole('link', { name: clearName }).click();
-  await expect(page).toHaveURL(historyPath);
+  await expect(page).toHaveURL(coursePath(data, historyPath));
 }
 
-async function checkInvalidFilters(page: Page) {
+async function checkInvalidFilters(page: Page, data: FilterFixture) {
   for (const query of [
     'language=javascript',
     'q=a&q=b',
     'language=python&language=java',
     'q=' + 'x'.repeat(161),
   ]) {
-    await page.goto(`${historyPath}?${query}`);
+    await page.goto(coursePath(data, `${historyPath}?${query}`));
     await expect(page.getByText('This page could not be found.')).toBeVisible();
   }
 }
@@ -177,10 +187,11 @@ async function checkMobileFilters(page: Page) {
   });
 }
 
-async function signIn(page: Page, email: string) {
+async function signIn(page: Page, email: string, data: FilterFixture) {
   await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Email or username').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(historyPassword);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page).toHaveURL(assignmentPath);
+  await page.goto(coursePath(data, assignmentPath));
+  await expect(page).toHaveURL(coursePath(data, assignmentPath));
 }

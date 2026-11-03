@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import {
   useEffect,
   useRef,
@@ -92,7 +94,9 @@ const runButtonStyle =
 
 function RunCodeButton({ busy, onRun }: { busy: boolean; onRun: () => void }) {
   return (
-    <button
+    <PendingButton
+      pending={busy}
+      pendingLabel="Running…"
       type="button"
       className={runButtonStyle + ' bg-cyan-700 text-white hover:bg-cyan-800'}
       disabled={busy}
@@ -100,7 +104,7 @@ function RunCodeButton({ busy, onRun }: { busy: boolean; onRun: () => void }) {
     >
       <Play aria-hidden="true" className="size-3.5" />
       Run code
-    </button>
+    </PendingButton>
   );
 }
 
@@ -114,7 +118,9 @@ function TestCasesAction({
   onRun: () => void;
 }) {
   return (
-    <button
+    <PendingButton
+      pending={busy}
+      pendingLabel="Running…"
       type="button"
       className={
         runButtonStyle + ' border bg-background text-foreground hover:bg-accent'
@@ -124,7 +130,7 @@ function TestCasesAction({
     >
       <TestTubes aria-hidden="true" className="size-3.5" />
       {kind === 'examples' ? 'Run tests' : 'Run published tests'}
-    </button>
+    </PendingButton>
   );
 }
 

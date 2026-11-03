@@ -52,6 +52,7 @@ export function ForgotPasswordForm({
       title="Forgot password"
       description="Enter your email and we’ll send you a reset link. Open it in this browser."
       busy={busy}
+      pendingLabel="Sending reset link…"
       disabled={retryIn > 0}
       submitLabel={retryIn ? `Send again in ${retryIn}s` : 'Send reset link'}
       message={message}

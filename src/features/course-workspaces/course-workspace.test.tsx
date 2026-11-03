@@ -183,6 +183,9 @@ describe('course feature navigation', () => {
     expect(
       screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
     ).toBe(`/student/assignments?courseId=${course.id}`);
+    expect(
+      screen.getByRole('link', { name: 'My progress' }).getAttribute('href'),
+    ).toBe(`/student/progress?courseId=${course.id}`);
     expect(screen.queryByRole('link', { name: 'AI usage' })).toBeNull();
     expect(
       screen.queryByRole('link', { name: 'Context comparison' }),

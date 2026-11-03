@@ -15,7 +15,7 @@ describe('account form behavior', () => {
   it('shows the mode-specific account fields and navigation', () => {
     const { rerender } = render(<AuthForm mode="sign-in" />);
     expect(screen.getByRole('heading', { name: 'Sign in' })).toBeTruthy();
-    expect(screen.getByLabelText('Email')).toBeTruthy();
+    expect(screen.getByLabelText('Email or username')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Forgot password?' })).toBeTruthy();
     expect(screen.queryByLabelText('Username')).toBeNull();
 
