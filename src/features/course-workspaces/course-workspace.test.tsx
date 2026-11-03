@@ -155,3 +155,53 @@ describe('course workspace management', () => {
     expect(screen.getByText(/read-only/i)).toBeTruthy();
   });
 });
+
+describe('course feature navigation', () => {
+  it('shows only enabled course activities with explicit course context', () => {
+    renderWorkspace({
+      features: [
+        { feature: 'assessments', enabled: true },
+        { feature: 'ai', enabled: false },
+        { feature: 'discussions', enabled: false },
+        { feature: 'xp', enabled: false },
+        { feature: 'leaderboard', enabled: false },
+      ],
+    });
+    expect(
+      screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
+    ).toBe(`/student/assignments?courseId=${course.id}`);
+    expect(screen.queryByRole('link', { name: 'AI usage' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Discussions' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'My XP' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Leaderboard' })).toBeNull();
+  });
+});
+
+describe('empty course deletion', () => {
+  it('requires confirmation before deleting an empty course', () => {
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
+    renderWorkspace({
+      role: 'instructor',
+      currentUserId: 'owner-1',
+      initialMembers: [members[0]],
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Delete empty course' }),
+    );
+    expect(confirm).toHaveBeenCalledWith(
+      'Permanently delete this empty course? This cannot be undone.',
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('hides permanent deletion while another course member remains', () => {
+    renderWorkspace({
+      role: 'instructor',
+      currentUserId: 'owner-1',
+      initialMembers: [members[0], members[2]],
+    });
+    expect(
+      screen.queryByRole('button', { name: 'Delete empty course' }),
+    ).toBeNull();
+  });
+});

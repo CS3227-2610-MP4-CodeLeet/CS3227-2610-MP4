@@ -80,10 +80,10 @@
 
 **Files:** src/features/courses/, src/app/courses/, feature layouts/routes/APIs/RPCs; tests/e2e/course-workspaces.spec.ts.
 
-- [ ] Add failing tests that disabled features deny direct actions while preserving records.
-- [ ] Expose switches for shipped features only: assessments, AI, discussions, XP and leaderboard.
-- [ ] Implement owner-only archive and confirmatory empty-course deletion; verify archived read-only behavior and lifecycle races.
-- [ ] Verify and commit this stage.
+- [x] Add failing tests that disabled features deny direct actions while preserving records.
+- [x] Expose switches for shipped features only: assessments, AI, discussions, XP and leaderboard.
+- [x] Implement owner-only archive and confirmatory empty-course deletion; verify archived read-only behavior and lifecycle races through row-lock review and database/API coverage.
+- [x] Verify and commit this stage.
 
 ### Task 7: Closeout
 
