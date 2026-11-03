@@ -50,7 +50,7 @@ Files: `tests/e2e/student-progress.spec.ts`, optional feature-specific fixture h
 - [x] Verify real synthetic student/peer/instructor/signed-out paths, exact total beyond row limit, late/hidden/publication states, recent ordering, responsive/theme/navigation behavior and no source/rubric/private-grade leakage.
 - [x] Update User Guide only for verified behavior and Developer Guide with module/data/testing details. Record real checks, failed attempts and limitations; human review pending.
 - [x] Run applicable coverage/build/browser/database/site/scaffold/spec checks and a bounded independent read-only whole-branch review; fix material findings.
-- [ ] Commit/push, wait branch CI, create issue-linked PR to develop, and verify all final-head checks. Do not merge or claim deployment.
+- [x] Commit/push, wait branch CI, create issue-linked PR to develop, and verify all final-head checks. PR #90 follows successful source-head branch workflows 41646811365 / 41646817571; final metadata-head evidence is recorded externally before handoff. Do not merge or claim deployment.
 
 ## Execution ledger
 
