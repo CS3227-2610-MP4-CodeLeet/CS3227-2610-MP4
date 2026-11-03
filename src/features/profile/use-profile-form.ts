@@ -18,7 +18,7 @@ export function useProfileForm(initialUsername: string) {
     const parsed = profileInput.safeParse({ username });
     setSaved(false);
     if (!parsed.success) {
-      setError('Enter a username of 1–80 characters.');
+      setError('Enter a username of 1–80 characters without @ or line breaks.');
       return;
     }
     setBusy(true);

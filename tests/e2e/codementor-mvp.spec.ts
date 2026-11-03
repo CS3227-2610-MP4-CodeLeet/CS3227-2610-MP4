@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   expect,
   test,
@@ -32,24 +33,41 @@ test('student and instructor complete the CodeLeet MVP journey', async ({
     !localServicesAvailable,
     'Needs a running local Supabase stack and test-only admin key.',
   );
-  const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  const instructor = await createInstructor(
-    request,
-    `instructor-${suffix}@example.test`,
-  );
-  const assignment = await createPublishedAssignment(
-    page,
-    instructor.email,
-    suffix,
-  );
-  const studentEmail = `student-${suffix}@example.test`;
-  await studentSubmitsAndRequestsFeedback(page, studentEmail, suffix);
-  await instructorPublishesGrade(
-    page,
-    instructor.email,
-    assignment.criterionIds,
-  );
-  await studentSeesPublishedGrade(page, studentEmail, assignment.assignmentId);
+  const suffix = randomUUID();
+  const fixture = {
+    instructorId: '',
+    assignmentId: '',
+    username: `MVP Test Student ${suffix}`,
+  };
+  try {
+    const instructor = await createInstructor(
+      request,
+      `instructor-${suffix}@example.test`,
+      (id) => {
+        fixture.instructorId = id;
+      },
+    );
+    const assignment = await createPublishedAssignment(
+      page,
+      instructor.email,
+      suffix,
+    );
+    fixture.assignmentId = assignment.assignmentId;
+    const studentEmail = `student-${suffix}@example.test`;
+    await studentSubmitsAndRequestsFeedback(page, studentEmail, suffix);
+    await instructorPublishesGrade(
+      page,
+      instructor.email,
+      assignment.criterionIds,
+    );
+    await studentSeesPublishedGrade(
+      page,
+      studentEmail,
+      assignment.assignmentId,
+    );
+  } finally {
+    await cleanMvpFixture(request, fixture);
+  }
 });
 
 async function createPublishedAssignment(
@@ -117,7 +135,7 @@ async function studentSubmitsAndRequestsFeedback(
   suffix: string,
 ) {
   await page.goto('/sign-up');
-  await page.getByLabel('Username').fill('MVP Test Student');
+  await page.getByLabel('Username').fill(`MVP Test Student ${suffix}`);
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByLabel('Confirm password', { exact: true }).fill(password);
@@ -129,7 +147,7 @@ async function studentSubmitsAndRequestsFeedback(
     .click();
   await page.getByLabel(sourceLabel).fill(firstRevisionSource);
   await verifyAuthenticatedPractice(page);
-  await page.getByRole('button', { name: 'Submit revision' }).click();
+  await submitAndWaitForHistory(page);
   await verifySavedSource(page);
   await mockStudentFeedback(page);
   await page.getByRole('link', { name: revisionLinkName, exact: true }).click();
@@ -190,6 +208,21 @@ async function verifySavedSource(page: Page) {
   await expect(
     page.getByTestId('source-highlight').locator('.token.builtin').first(),
   ).toBeVisible();
+}
+
+async function submitAndWaitForHistory(page: Page) {
+  const path = new URL(page.url()).pathname;
+  const refreshed = page.waitForResponse((response) => {
+    const request = response.request();
+    return (
+      new URL(response.url()).pathname === path &&
+      request.method() === 'GET' &&
+      request.headers().rsc === '1' &&
+      request.headers()['next-router-prefetch'] !== '1'
+    );
+  });
+  await page.getByRole('button', { name: 'Submit revision' }).click();
+  expect((await refreshed).ok()).toBeTruthy();
 }
 
 async function verifySignOutRecovery(page: Page) {
@@ -298,12 +331,16 @@ async function studentSeesPublishedGrade(
 }
 
 async function signIn(page: Page, email: string) {
-  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Email or username').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
-async function createInstructor(request: APIRequestContext, email: string) {
+async function createInstructor(
+  request: APIRequestContext,
+  email: string,
+  createdUser: (id: string) => void,
+) {
   const headers = {
     apikey: serviceKey!,
     authorization: `Bearer ${serviceKey!}`,
@@ -318,6 +355,7 @@ async function createInstructor(request: APIRequestContext, email: string) {
   );
   expect(createResponse.ok()).toBeTruthy();
   const created = (await createResponse.json()) as { id: string };
+  createdUser(created.id);
   const roleResponse = await request.patch(
     `${supabaseUrl}/rest/v1/user_roles?user_id=eq.${created.id}`,
     {
@@ -327,4 +365,49 @@ async function createInstructor(request: APIRequestContext, email: string) {
   );
   expect(roleResponse.ok()).toBeTruthy();
   return { email };
+}
+
+async function cleanMvpFixture(
+  request: APIRequestContext,
+  data: { instructorId: string; assignmentId: string; username: string },
+) {
+  const headers = {
+    apikey: serviceKey!,
+    authorization: `Bearer ${serviceKey!}`,
+  };
+  const found = await request.get(
+    `${supabaseUrl}/rest/v1/profiles?select=id&login_username=eq.${encodeURIComponent(data.username.toLowerCase())}`,
+    { headers },
+  );
+  expect(found.ok()).toBeTruthy();
+  const students = (await found.json()) as Array<{ id: string }>;
+  if (data.assignmentId) {
+    expect(
+      (
+        await request.delete(
+          `${supabaseUrl}/rest/v1/submissions?assignment_id=eq.${data.assignmentId}`,
+          { headers },
+        )
+      ).ok(),
+    ).toBeTruthy();
+    expect(
+      (
+        await request.delete(
+          `${supabaseUrl}/rest/v1/assignments?id=eq.${data.assignmentId}`,
+          { headers },
+        )
+      ).ok(),
+    ).toBeTruthy();
+  }
+  for (const id of [
+    ...students.map((student) => student.id),
+    data.instructorId,
+  ].filter(Boolean))
+    expect(
+      (
+        await request.delete(`${supabaseUrl}/auth/v1/admin/users/${id}`, {
+          headers,
+        })
+      ).ok(),
+    ).toBeTruthy();
 }

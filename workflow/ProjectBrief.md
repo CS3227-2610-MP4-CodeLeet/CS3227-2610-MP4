@@ -14,6 +14,8 @@ Two members cover student and instructor roles. Responsibility notes below ident
 
 Student: register/sign in, edit text profile, browse assignments, enter a single Python or Java source file, recover unfinished same-device browser drafts, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in discussions, and view XP/rank.
 
+Issue #84 adds email-or-unique-username sign-in with database-owned claims, protected server lookup, attempt limits and legacy email fallback. Its student acceptance evidence separates actual local browser/database checks from mocked AI and pending hosted/provider verification. Course workspaces are a separate teammate task; this change does not alter membership or course ownership contracts.
+
 Instructor: sign in with a trusted provisioned role, edit text profile, create assignments and grading rubrics, review authorized submissions, request AI rubric evaluation, edit and publish grades, and participate in discussions.
 
 Use one shared course/assignment collection initially. Instructor access is limited to owned assignments; do not implement multi-course administration in the initial scope.

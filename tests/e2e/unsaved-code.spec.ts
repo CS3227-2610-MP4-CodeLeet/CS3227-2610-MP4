@@ -227,7 +227,7 @@ async function signIn(
   data: { users: Array<{ email: string }>; password: string },
 ) {
   await page.goto('/sign-in');
-  await page.getByLabel('Email').fill(data.users[1].email);
+  await page.getByLabel('Email or username').fill(data.users[1].email);
   await page.getByLabel('Password', { exact: true }).fill(data.password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page).toHaveURL(/\/student\/assignments$/);

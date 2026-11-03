@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { AssignmentPractice } from '@/features/student-submissions/assignment-practice';
@@ -80,13 +82,14 @@ function SubmissionFooter({
 }) {
   return (
     <footer className="space-y-3 border-t pt-5">
-      <button
+      <PendingButton
+        pending={busy}
         type="submit"
         disabled={disabled}
         className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
       >
         {busy ? 'Saving…' : 'Submit revision'}
-      </button>
+      </PendingButton>
       {message && (
         <p role="status" className="text-sm text-muted-foreground">
           {message}

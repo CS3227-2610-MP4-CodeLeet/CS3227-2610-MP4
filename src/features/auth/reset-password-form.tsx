@@ -75,6 +75,7 @@ export function ResetPasswordForm() {
       description="Choose a new password with at least 8 characters."
       submitLabel="Update password"
       busy={busy}
+      pendingLabel="Updating password…"
       message={message}
       onSubmit={submit}
     >

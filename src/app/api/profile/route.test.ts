@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function -- grouped profile API boundary scenarios. */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
@@ -97,6 +98,17 @@ describe('own profile PATCH', () => {
   it('does not claim success for a missing profile', async () => {
     mocks.single.mockResolvedValue({ data: null, error: null });
     expect((await PATCH(request())).status).toBe(404);
+  });
+  it('reports a safe username conflict without exposing database diagnostics', async () => {
+    mocks.single.mockResolvedValue({
+      data: null,
+      error: { code: '23505', message: 'private details' },
+    });
+    const response = await PATCH(request());
+    expect(response.status).toBe(409);
+    expect((await response.json()).error.message).toBe(
+      'Username is unavailable. Choose another.',
+    );
   });
   it('sanitizes database and verification failures', async () => {
     mocks.single.mockResolvedValue({

@@ -16,11 +16,15 @@ Open the address printed by Next.js, normally http://localhost:3000. This comman
 
 ## Account and appearance
 
-Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. Sign in with email and password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. Use **Sign out** when finished; a failure lets you retry.
+Account buttons show a spinner and progress such as **Signing in…** or **Sending reset link…** while working. A slow request shows a message asking you to keep the page open. Wait for the result; if an error appears, you can try again. Saves, posts, reviews, code runs and searches also show progress while they finish.
+
+Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Usernames must be unique regardless of capitalization, contain 1–80 characters and exclude @ or line breaks. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. In **Email or username**, enter either identifier with your password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. Use **Sign out** when finished; a failure lets you retry.
 
 For a forgotten password, choose **Forgot password?**, enter your email and select **Send reset link**. The acknowledgement does not reveal whether an account exists. Open the newest email link in the same browser, enter matching passwords of at least eight characters and choose **Update password**. Then sign in again. Invalid/expired/reused links offer **Request a new link**. Resend delays or provider limits may require a wait. Local emails appear in [Mailpit](http://localhost:54324); hosted delivery is unverified.
 
-Students open **Menu → Profile settings**; instructors choose **Profile**. Edit **Username** and select **Save changes**. Usernames allow 1–80 characters after trimming. Email and role are read-only here. Failed saves retain your typed username.
+Students open **Menu → Profile settings**; instructors choose **Profile**. Edit **Username** and select **Save changes**. Leading/trailing spaces are removed. A taken name asks you to choose another; failed saves retain your typed username. After a successful change, use the new username to sign in; your email still works. Email and role are read-only here.
+
+If an older account's username is shared or unavailable for sign-in, use your email, then choose and save an available username in Profile settings. Existing accounts are not renamed automatically. If sign-in reports too many attempts, wait before trying again.
 
 The moon/sun control changes light/dark mode across account pages and the workspace. Your browser remembers the choice; without one, the app follows your device preference. Switching themes preserves your code/results.
 

@@ -1,10 +1,32 @@
 # Developer Guide
 
+Account forms and asynchronous application actions use the shared client
+`PendingButton` for a decorative spinner, disabled duplicate clicks and
+`aria-busy`. Next Form searches/comparison use its `FormSubmitButton` wrapper
+with `useFormStatus`; authentication navigation uses a React transition so
+progress remains visible until the destination commits. Account requests show
+a slow-request notice after ten seconds. Registration catches thrown failures
+and restores retry controls. These indicators do not establish the cause of a
+hosted delay or automatically retry a potentially completed mutation. See the
+[acceptance record](../workflow/evidence/2026-11-03-student-acceptance.md).
+
 Status: CodeLeet student/instructor MVP routes, assignment/submission/grade flows, SoCLaaS integration, context comparison, usage views, and additive Supabase RLS/RPC migrations are implemented. Local schema and security tests are available. A bounded live synthetic SoCLaaS comparison is recorded separately; hosted application acceptance remains an external gate.
 
 For current security coverage, exact evidence scope, reproduction commands and unverified release gates, see the [2 November security evidence audit](../workflow/evidence/2026-11-02-security-testing.md). Its threat-to-test map distinguishes mocked/unit checks, database assertions, historical live experiments and hosted verification. The [User Guide](UserGuide.md) covers current user journeys; early preview sections elsewhere in this document describe development fixtures, not the default user experience. The [per-change plan](../workflow/plans/2026-11-02-user-guide-security-evidence.md) and [session summary](../logs/2026-11-02-user-guide-security-evidence.md) record this documentation audit.
 
 The [reflection index](Reflections.md) links individual MP4 drafts for Paul and John. Both require member verification of attribution, wording and conclusions. Earlier team observations are preserved as a [shared evidence note](../workflow/evidence/2026-11-02-reflection-observations.md), rather than presented as either member's completed personal reflection.
+
+## Email or username authentication
+
+[Issue #84](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/84) implements the [approved username design](../workflow/plans/2026-11-03-username-sign-in-design.md) and [plan](../workflow/plans/2026-11-03-username-sign-in.md). Apply `supabase/migrations/20261103030047_username_sign_in.sql` before deploying the application. This additive migration preserves names/data and own-profile RLS. Configure `SUPABASE_SERVER_SECRET_KEY` and an independent random `AUTH_RATE_LIMIT_SECRET` of at least 32 characters separately per environment. Both are server-only; never prefix them with NEXT_PUBLIC_, send them to browsers, commit them or place their values in evidence. Missing configuration fails sign-in safely; configure and verify it before rollout. Retain the uniqueness guard if rolling back application code; never reset an existing database for this feature.
+
+Profiles retain `display_name`; protected `username_key` reserves legacy names and nullable `login_username` identifies a claimed name. Only display_name remains client-writable. A private definer trigger normalizes/locks claims and a unique index resolves races. Legacy duplicates have no arbitrary winner: email works until an explicit available claim; the last owner may explicitly save a reserved name, and fully abandoned names become available. Missing-name provisioned/default Student profiles remain unclaimed. Own-profile loading returns only the name and a login-enabled boolean, never a directory.
+
+`POST /api/auth/sign-in` enforces same origin, strict bounded JSON and no-store responses. A server-only metadata client calls narrowly granted service-role-only normalization, attempt reservation and current-Auth-email lookup RPCs. No public lookup grant or widened profile access exists. Ordinary publishable-key SSR password authentication creates cookies; the metadata client never creates a session or assigns roles. The JSON success is only `{ok:true}`. Browser code consumes this response, invalidates old draft writers across tabs without deleting drafts, then refreshes the server-issued browser session before navigating. These notifications only stop editors; protected server code still verifies getUser/roles independently.
+
+Attempt counters store HMAC fingerprints, not raw identifiers/passwords. Database windows allow ten accepted attempts per normalized identifier/minute and sixty globally/minute, with bounded Retry-After and expiry pruning. Supabase's own provider limits also apply; the global budget can be consumed by hostile traffic, so this is not a complete availability defense. Unknown usernames use a stateless dummy password request; unexpected dummy success cannot set app cookies. Known/dummy 429 and 5xx errors use the same safe classifier to avoid a status-based lookup oracle. No perfect timing-equivalence claim is made. SQL/auth unit, real browser and independent source checks are distinguished in the [acceptance matrix](../workflow/evidence/2026-11-03-student-acceptance.md), [review evidence](../workflow/evidence/2026-11-03-username-sign-in-review.md) and [session summary](../logs/2026-11-03-username-sign-in.md).
+
+This is fresh MP4 implementation, informed by official [Supabase password sign-in](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), [server-only key](https://supabase.com/docs/guides/api/api-keys), [SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client) and [session refresh](https://supabase.com/docs/reference/javascript/auth-refreshsession) documentation. No previous MP implementation or external implementation was copied.
 
 ## Browser draft recovery
 
@@ -268,7 +290,7 @@ Plan separate development and production Supabase projects/credentials, correspo
 
 ## Private profile settings
 
-[Issue #38](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/38) adds the independent `/profile` page and `PATCH /api/profile`. The server loader verifies identity and trusted role, scopes the profile read to the verified user ID and selects only display_name. Verified Auth supplies the readonly email; protected user_roles supplies the readonly role. Username maps to the existing display_name field, without changing uniqueness or email-based sign-in. No schema migration, public profile read grant or privileged application key is required.
+[Issue #38](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/38) initially added `/profile` and `PATCH /api/profile`. The loader verifies identity/trusted role and scopes display_name plus login-enabled status to the verified owner. Verified Auth supplies the readonly email; protected user_roles supplies the readonly role. Username still maps to display_name. Issue #84 adds the uniqueness migration and private sign-in metadata client described above; the original profile-only delivery required neither. No public profile directory/read grant is introduced.
 
 PATCH checks same Origin, caps strict JSON at 1,024 bytes, accepts only a trimmed username of 1–80 characters, and derives the update target from the session. It updates only display_name and returns only the saved name using private/no-store JSON. RLS and existing column grants remain the database ownership/field boundary. Missing profiles are unavailable rather than upserted. Backend errors are sanitized and client input is retained. No email, role, owner, account metadata, AI or grade changes occur. Concurrent saves use the existing last-write behavior; no new profile version field is introduced.
 

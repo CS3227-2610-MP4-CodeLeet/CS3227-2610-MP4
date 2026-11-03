@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useState } from 'react';
 
 type Feedback = {
@@ -65,13 +67,14 @@ export function ReviewButton({
               : 'Suggestions require instructor review and explicit grade publication.'}
           </p>
         </div>
-        <button
+        <PendingButton
+          pending={busy}
           onClick={requestReview}
           disabled={busy}
           className="rounded-md border px-3 py-2 text-sm disabled:opacity-60"
         >
           {busy ? 'Reviewing…' : 'Request review'}
-        </button>
+        </PendingButton>
       </div>
       {message && (
         <p role="status" className="text-sm text-muted-foreground">

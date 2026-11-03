@@ -23,7 +23,11 @@ update public.user_roles set role='instructor' where user_id='d1000000-0000-4000
 update public.user_roles set role='admin' where user_id='d1000000-0000-4000-8000-000000000032';
 delete from public.user_roles where user_id='d1000000-0000-4000-8000-000000000030';
 update public.profiles set display_name='Leaderboard '||right(id::text,2) where id in (select ('d1000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid from generate_series(1,32) n);
-update public.profiles set display_name='Same' where id in ('d1000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000002');
+-- These duplicate names represent preserved legacy accounts, not new claims.
+alter table public.profiles disable trigger claim_username;
+update public.profiles set display_name='Same',username_key='same',login_username=null
+ where id in ('d1000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000002');
+alter table public.profiles enable trigger claim_username;
 insert into public.assignments(id,instructor_id,title,instructions,language,publication_status,max_xp)
 values('d2000000-0000-4000-8000-000000000001','d1000000-0000-4000-8000-000000000031','Ranking fixture','Synthetic','python','published',100000);
 insert into public.assignment_rubrics(assignment_id,criteria) values('d2000000-0000-4000-8000-000000000001','[{"id":"d5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]');

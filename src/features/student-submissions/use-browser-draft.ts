@@ -26,6 +26,7 @@ function subscribeAuth(controller: DraftController, studentId: string) {
 }
 
 function attachBrowser(controller: DraftController, context: DraftContext) {
+  const closeChannel = listenForAccountChange(controller);
   const onHide = () => {
     if (document.visibilityState === 'hidden') void controller.flush();
   };
@@ -36,11 +37,24 @@ function attachBrowser(controller: DraftController, context: DraftContext) {
   const unsubscribe = subscribeAuth(controller, context.studentId);
   return () => {
     unsubscribe();
+    closeChannel();
     window.removeEventListener('storage', controller.externalChange);
     window.removeEventListener(DRAFT_INVALIDATED, controller.stop);
     window.removeEventListener('pagehide', controller.flush);
     document.removeEventListener('visibilitychange', onHide);
   };
+}
+
+function listenForAccountChange(controller: DraftController) {
+  try {
+    const channel = new window.BroadcastChannel(DRAFT_INVALIDATED);
+    channel.onmessage = (event) => {
+      if (event.data === 'signed-in') controller.stop();
+    };
+    return () => channel.close();
+  } catch {
+    return () => undefined;
+  }
 }
 
 export function useBrowserDraft(initialSource: string, context?: DraftContext) {

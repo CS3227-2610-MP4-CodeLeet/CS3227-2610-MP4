@@ -140,7 +140,7 @@ async function changePassword(page: Page) {
 }
 
 async function verifyNewPasswordLogin(page: Page, email: string) {
-  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Email or username').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(oldPassword);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('status')).toHaveText(
