@@ -27,6 +27,7 @@ beforeEach(() => {
 
 describe('student workspace shell', () => {
   it.each([
+    ['/student/progress', 'My progress'],
     ['/student/xp', 'My XP'],
     ['/leaderboard', 'Leaderboard'],
   ])('uses the matching breadcrumb for %s', (path, label) => {
@@ -58,6 +59,7 @@ describe('student workspace shell', () => {
     expect(html).toContain('aria-current="page"');
     expect(html).toContain('Skip to content');
     expect(html).not.toContain('Profile settings');
+    expect(html).not.toContain('My progress');
     expect(html).not.toContain('>Sign out<');
   });
 
