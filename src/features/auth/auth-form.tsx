@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { PasswordField } from './password-field';
+import { claimableUsername } from '@/features/profile/contracts';
+import { synchronizeSession } from './synchronize-session';
 export { SignOutButton } from './sign-out-button';
 
 const supabaseReady = Boolean(
@@ -28,12 +30,13 @@ function AccountFields({ displayName = false }: { displayName?: boolean }) {
         </label>
       )}
       <label className="block space-y-2 text-sm">
-        Email
+        {displayName ? 'Email' : 'Email or username'}
         <input
-          name="email"
-          type="email"
+          name={displayName ? 'email' : 'identifier'}
+          type={displayName ? 'email' : 'text'}
           required
-          autoComplete="email"
+          maxLength={254}
+          autoComplete={displayName ? 'email' : 'username'}
           className="w-full rounded-md border bg-background px-3 py-2"
         />
       </label>
@@ -49,6 +52,7 @@ function SignInForm() {
   const [message, setMessage] = useState('');
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     setBusy(true);
     setMessage('');
     if (!supabaseReady) {
@@ -57,18 +61,26 @@ function SignInForm() {
       return;
     }
     const form = new FormData(event.currentTarget);
-    const { error } =
-      await createSupabaseBrowserClient().auth.signInWithPassword({
-        email: String(form.get('email') ?? '').trim(),
-        password: String(form.get('password') ?? ''),
+    try {
+      const response = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: String(form.get('identifier') ?? '').trim(),
+          password: String(form.get('password') ?? ''),
+        }),
       });
-    setBusy(false);
-    if (error) {
-      setMessage('Sign-in failed. Check your details and try again.');
-      return;
+      if (!response.ok) return setMessage(signInFailure(response.status));
+      const result = await response.json();
+      if (result?.ok !== true) throw new Error('Invalid sign-in response');
+      await synchronizeSession();
+      router.replace('/');
+      router.refresh();
+    } catch {
+      setMessage('Sign-in is unavailable. Please try again later.');
+    } finally {
+      setBusy(false);
     }
-    router.replace('/');
-    router.refresh();
   }
   return (
     <AuthCard
@@ -115,7 +127,9 @@ function SignUpForm() {
     });
     setBusy(false);
     if (error) {
-      setMessage('Account creation failed. Check your details and try again.');
+      setMessage(
+        'Account creation failed. Try a different username or check your details.',
+      );
       return;
     }
     if (!data.session) {
@@ -149,9 +163,18 @@ function SignUpForm() {
 function getSignupError(form: FormData) {
   if (!supabaseReady)
     return 'Account access is unavailable. Please try again later.';
+  if (!claimableUsername.safeParse(String(form.get('username') ?? '')).success)
+    return 'Enter a username of 1–80 characters without @ or line breaks.';
   return form.get('password') !== form.get('confirmPassword')
     ? 'Passwords do not match.'
     : '';
+}
+
+function signInFailure(status: number) {
+  if (status === 429)
+    return 'Too many attempts. Please wait a minute and try again.';
+  if (status >= 500) return 'Sign-in is unavailable. Please try again later.';
+  return 'Sign-in failed. Check your details and try again.';
 }
 
 export function AuthCard({

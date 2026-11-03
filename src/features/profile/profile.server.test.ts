@@ -23,7 +23,7 @@ beforeEach(() => {
   mocks.select.mockReturnValue({ eq: mocks.eq });
   mocks.eq.mockReturnValue({ maybeSingle: mocks.single });
   mocks.single.mockResolvedValue({
-    data: { display_name: 'My username' },
+    data: { display_name: 'My username', login_username: 'my username' },
     error: null,
   });
   mocks.auth.mockResolvedValue({
@@ -40,12 +40,13 @@ describe('own profile settings loader', () => {
   it('projects only own username and uses verified email/trusted role', async () => {
     expect(await loadProfileSettings()).toEqual({
       username: 'My username',
+      usernameLoginEnabled: true,
       email: 'verified@example.test',
       role: 'student',
     });
     expect(mocks.from).toHaveBeenCalledWith('profiles');
     expect(mocks.eq).toHaveBeenCalledWith('id', id);
-    expect(mocks.select).toHaveBeenCalledWith('display_name');
+    expect(mocks.select).toHaveBeenCalledWith('display_name,login_username');
   });
   it('requires sign-in', async () => {
     mocks.auth.mockResolvedValue({ user: null, role: null, supabase: null });

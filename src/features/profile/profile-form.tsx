@@ -6,10 +6,12 @@ export function ProfileForm({
   username: initialUsername,
   email,
   role,
+  usernameLoginEnabled = true,
 }: {
   username: string;
   email: string;
   role: string;
+  usernameLoginEnabled?: boolean;
 }) {
   const { username, edited, busy, error, saved, save } =
     useProfileForm(initialUsername);
@@ -41,14 +43,16 @@ export function ProfileForm({
           id="username-help"
           className="block text-xs font-normal text-muted-foreground"
         >
-          Your name in CodeLeet. Up to 80 characters.
+          Your unique name in CodeLeet. Up to 80 characters, without @.
         </span>
       </div>
-      <ReadOnlyField label="Email" value={email} />
-      <ReadOnlyField label="Role" value={role} />
-      <p className="text-xs text-muted-foreground">
-        Sign-in uses your email. Your email and role can’t be changed here.
-      </p>
+      <ProfileIdentity email={email} role={role} />
+      {!usernameLoginEnabled && !saved && (
+        <p className="text-sm text-muted-foreground">
+          Choose an available username and save it to enable username sign-in.
+          You can keep signing in with your email.
+        </p>
+      )}
       {error && (
         <p role="alert" className="text-sm text-red-700 dark:text-red-300">
           {error}
@@ -69,6 +73,19 @@ export function ProfileForm({
         {busy ? 'Saving…' : 'Save changes'}
       </button>
     </form>
+  );
+}
+
+function ProfileIdentity({ email, role }: { email: string; role: string }) {
+  return (
+    <>
+      <ReadOnlyField label="Email" value={email} />
+      <ReadOnlyField label="Role" value={role} />
+      <p className="text-xs text-muted-foreground">
+        Sign in with your email or username. Your email and role can’t be
+        changed here.
+      </p>
+    </>
   );
 }
 
