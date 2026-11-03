@@ -157,6 +157,19 @@ describe('course workspace management', () => {
 });
 
 describe('course feature navigation', () => {
+  it('offers context comparison only inside an active AI-enabled instructor course', () => {
+    renderWorkspace({
+      role: 'instructor',
+      currentUserId: 'owner-1',
+      initialMembers: [members[0]],
+    });
+    expect(
+      screen
+        .getByRole('link', { name: 'Context comparison' })
+        .getAttribute('href'),
+    ).toBe(`/instructor/ai-context?courseId=${course.id}`);
+  });
+
   it('shows only enabled course activities with explicit course context', () => {
     renderWorkspace({
       features: [
@@ -171,6 +184,9 @@ describe('course feature navigation', () => {
       screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
     ).toBe(`/student/assignments?courseId=${course.id}`);
     expect(screen.queryByRole('link', { name: 'AI usage' })).toBeNull();
+    expect(
+      screen.queryByRole('link', { name: 'Context comparison' }),
+    ).toBeNull();
     expect(screen.queryByRole('link', { name: 'Discussions' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'My XP' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Leaderboard' })).toBeNull();

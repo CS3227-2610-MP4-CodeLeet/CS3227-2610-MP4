@@ -22,12 +22,13 @@ describe('submission history presentation', () => {
       <SubmissionHistoryList
         history={{ rows: [row], hasNext: true }}
         page={2}
+        courseId="course-a"
       />,
     );
     expect(html).toContain('aria-label="My submitted revisions"');
     expect(html).toContain('Loops &amp; arrays');
     expect(html).toContain(
-      '/student/submissions/00000000-0000-4000-8000-000000000001',
+      '/student/submissions/00000000-0000-4000-8000-000000000001?courseId=course-a',
     );
     expect(html).toContain('Python');
     expect(html).toMatch(/(?:>3<\/td>|>3<\/p>)/);
@@ -37,23 +38,32 @@ describe('submission history presentation', () => {
 
   it('distinguishes an unfiltered first page from later pages and filtered emptiness', () => {
     const first = renderToStaticMarkup(
-      <SubmissionHistoryList history={{ rows: [], hasNext: false }} page={1} />,
+      <SubmissionHistoryList
+        history={{ rows: [], hasNext: false }}
+        page={1}
+        courseId="course-a"
+      />,
     );
     expect(first).toContain('No submissions yet');
-    expect(first).toContain('/student/assignments');
+    expect(first).toContain('/student/assignments?courseId=course-a');
 
     const later = renderToStaticMarkup(
-      <SubmissionHistoryList history={{ rows: [], hasNext: false }} page={2} />,
+      <SubmissionHistoryList
+        history={{ rows: [], hasNext: false }}
+        page={2}
+        courseId="course-a"
+      />,
     );
     expect(later).toContain('No submissions on this page');
     expect(later).toContain('Latest submissions');
-    expect(later).toContain('href="/student/submissions"');
+    expect(later).toContain('href="/student/submissions?courseId=course-a"');
 
     const filtered = renderToStaticMarkup(
       <SubmissionHistoryList
         history={{ rows: [], hasNext: false }}
         page={1}
         filters={{ ...emptyListFilters, q: 'missing' }}
+        courseId="course-a"
       />,
     );
     expect(filtered).toContain('No matching submissions');

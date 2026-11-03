@@ -5,11 +5,13 @@ import { WorkspaceShell } from './workspace-shell';
 
 const mocks = vi.hoisted(() => ({
   pathname: '/student/assignments',
+  searchParams: new URLSearchParams(),
   replace: vi.fn(),
   refresh: vi.fn(),
 }));
 vi.mock('next/navigation', () => ({
   usePathname: () => mocks.pathname,
+  useSearchParams: () => mocks.searchParams,
   useRouter: () => ({ replace: mocks.replace, refresh: mocks.refresh }),
 }));
 
@@ -23,6 +25,7 @@ const assignments = [
 ];
 beforeEach(() => {
   mocks.pathname = '/student/assignments';
+  mocks.searchParams = new URLSearchParams();
 });
 
 describe('student workspace shell', () => {
@@ -69,5 +72,17 @@ describe('student workspace shell', () => {
     expect(html).toContain('href="/student/grades"');
     expect(html).toContain('>Grades</p>');
     expect(html).not.toContain('Loop practice');
+  });
+
+  it('keeps the selected course on assignment and course navigation', () => {
+    mocks.pathname = '/student/assignments/loops';
+    mocks.searchParams = new URLSearchParams('courseId=course-a');
+    const html = renderToStaticMarkup(
+      <WorkspaceShell assignments={assignments} authenticated>
+        <p>Assignment</p>
+      </WorkspaceShell>,
+    );
+    expect(html).toContain('href="/student/assignments?courseId=course-a"');
+    expect(html).toContain('href="/courses"');
   });
 });

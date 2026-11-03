@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import { hasStudentAssessmentAccess } from '@/features/student-submissions/course-access.server';
 import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
@@ -12,31 +13,86 @@ import { comparisonPath } from '@/features/student-submissions/comparison-select
 
 export default async function SubmissionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ submissionId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { submissionId } = await params;
-  const { supabase, user } = await requireRole('student');
-  const { data: submission, error } = await supabase
+  const [{ submissionId }, query] = await Promise.all([params, searchParams]);
+  const { supabase, user } = await requireMember();
+  const submission = await loadOwnedSubmission(supabase, user.id, submissionId);
+  if (!submission) notFound();
+  const assignment = Array.isArray(submission.assignments)
+    ? submission.assignments[0]
+    : submission.assignments;
+  const courseId =
+    typeof query.courseId === 'string' ? query.courseId : assignment?.course_id;
+  if (!courseId || courseId !== assignment?.course_id) notFound();
+  if (!(await hasStudentAssessmentAccess(supabase, user.id, courseId)))
+    notFound();
+  const grade = await loadPublishedGrade(supabase, submissionId);
+  return (
+    <SubmissionContent
+      submission={submission}
+      courseId={courseId}
+      grade={grade}
+    />
+  );
+}
+
+async function loadOwnedSubmission(
+  supabase: Awaited<ReturnType<typeof requireMember>>['supabase'],
+  studentId: string,
+  submissionId: string,
+) {
+  const { data, error } = await supabase
     .from('submissions')
     .select(
-      'id,assignment_id,source,language,revision,created_at,is_late,due_at_submission,assignments(title,publication_status,language)',
+      'id,assignment_id,source,language,revision,created_at,is_late,due_at_submission,assignments!inner(title,publication_status,language,course_id)',
     )
     .eq('id', submissionId)
-    .eq('student_id', user.id)
+    .eq('student_id', studentId)
     .maybeSingle();
-  if (error || !submission) notFound();
-  const languageLabel =
-    languageLabels[assignmentLanguageSchema.parse(submission.language)];
-  const { data: grade } = await supabase
+  return error ? null : data;
+}
+
+async function loadPublishedGrade(
+  supabase: Awaited<ReturnType<typeof requireMember>>['supabase'],
+  submissionId: string,
+) {
+  const { data } = await supabase
     .from('grades')
     .select('scores,feedback,total_score,published_at')
     .eq('submission_id', submissionId)
     .not('published_at', 'is', null)
     .maybeSingle();
+  return data;
+}
+
+type SubmissionRecord = NonNullable<
+  Awaited<ReturnType<typeof loadOwnedSubmission>>
+>;
+type PublishedGrade = NonNullable<
+  Awaited<ReturnType<typeof loadPublishedGrade>>
+>;
+
+function SubmissionContent({
+  submission,
+  courseId,
+  grade,
+}: {
+  submission: SubmissionRecord;
+  courseId: string;
+  grade: PublishedGrade | null;
+}) {
+  const languageLabel =
+    languageLabels[assignmentLanguageSchema.parse(submission.language)];
   return (
     <section className="space-y-6">
-      <SubmissionNavigation assignmentId={submission.assignment_id} />
+      <SubmissionNavigation
+        assignmentId={submission.assignment_id}
+        courseId={courseId}
+      />
       <div>
         <p className="text-sm text-muted-foreground">
           {assignmentTitle(submission.assignments)}
@@ -48,9 +104,9 @@ export default async function SubmissionPage({
         <SubmissionTimingDetails submission={submission} />
       </div>
       <div className="flex flex-wrap gap-3">
-        <ContinueEditing submission={submission} />
+        <ContinueEditing submission={submission} courseId={courseId} />
         <Link
-          href={comparisonPath(submission.id)}
+          href={comparisonPath(submission.id, courseId)}
           prefetch={false}
           className="inline-flex rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
         >
@@ -88,6 +144,7 @@ export default async function SubmissionPage({
 
 function ContinueEditing({
   submission,
+  courseId,
 }: {
   submission: {
     id: string;
@@ -98,6 +155,7 @@ function ContinueEditing({
       | { publication_status: string; language: string }
       | null;
   };
+  courseId: string;
 }) {
   const assignment = Array.isArray(submission.assignments)
     ? submission.assignments[0]
@@ -109,7 +167,11 @@ function ContinueEditing({
     return null;
   return (
     <Link
-      href={revisionEditorPath(submission.assignment_id, submission.id)}
+      href={revisionEditorPath(
+        submission.assignment_id,
+        submission.id,
+        courseId,
+      )}
       className="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
     >
       Continue editing
@@ -117,16 +179,28 @@ function ContinueEditing({
   );
 }
 
-function SubmissionNavigation({ assignmentId }: { assignmentId: string }) {
+function SubmissionNavigation({
+  assignmentId,
+  courseId,
+}: {
+  assignmentId: string;
+  courseId: string;
+}) {
   return (
     <nav
       aria-label="Submission navigation"
       className="flex flex-wrap gap-4 text-sm"
     >
-      <Link href="/student/submissions" className="underline">
+      <Link
+        href={`/student/submissions?courseId=${encodeURIComponent(courseId)}`}
+        className="underline"
+      >
         All submissions
       </Link>
-      <Link href={`/student/assignments/${assignmentId}`} className="underline">
+      <Link
+        href={`/student/assignments/${assignmentId}?courseId=${encodeURIComponent(courseId)}`}
+        className="underline"
+      >
         Back to assignment
       </Link>
     </nav>

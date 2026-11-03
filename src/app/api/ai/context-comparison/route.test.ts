@@ -3,9 +3,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReviewServiceError } from '@/features/codementor/review-service';
 import { POST } from './route';
 
-const mocks = vi.hoisted(() => ({ getUser: vi.fn(), compare: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  getUser: vi.fn(),
+  compare: vi.fn(),
+  readCourseAccess: vi.fn(),
+}));
 vi.mock('@/lib/auth/verified-user', () => ({
   getVerifiedUserRole: mocks.getUser,
+}));
+vi.mock('@/lib/courses/access', () => ({
+  readCourseAccess: mocks.readCourseAccess,
 }));
 vi.mock('@/features/codementor/review-service', async (importOriginal) => ({
   ...(await importOriginal<
@@ -14,6 +21,7 @@ vi.mock('@/features/codementor/review-service', async (importOriginal) => ({
   performContextComparison: mocks.compare,
 }));
 const submissionId = '00000000-0000-4000-8000-000000000001';
+const courseInstructorId = 'course-instructor';
 function request(body: unknown, origin = 'http://localhost') {
   return new Request('http://localhost/api/ai/context-comparison', {
     method: 'POST',
@@ -25,9 +33,45 @@ beforeEach(() => {
   vi.stubEnv('APP_SITE_URL', '');
   mocks.getUser.mockReset();
   mocks.compare.mockReset();
+  mocks.readCourseAccess.mockReset().mockResolvedValue({
+    role: 'instructor',
+    lifecycle: 'active',
+    featureEnabled: true,
+  });
 });
 
+function authorizedSupabase() {
+  const query = {
+    select: vi.fn(),
+    eq: vi.fn(),
+    maybeSingle: vi.fn().mockResolvedValue({
+      data: { assignments: { course_id: 'course-a' } },
+      error: null,
+    }),
+  };
+  query.select.mockReturnValue(query);
+  query.eq.mockReturnValue(query);
+  const supabase = { from: vi.fn().mockReturnValue(query) };
+  return { query, supabase };
+}
+
 describe('context comparison API', () => {
+  it('requires instructor membership and the course AI feature before comparison', async () => {
+    const { supabase } = authorizedSupabase();
+    mocks.getUser.mockResolvedValue({
+      supabase,
+      user: { id: 'course-student' },
+      role: 'instructor',
+    });
+    mocks.readCourseAccess.mockResolvedValue({
+      role: 'student',
+      lifecycle: 'active',
+      featureEnabled: true,
+    });
+    expect((await POST(request({ submissionId }) as never)).status).toBe(404);
+    expect(mocks.compare).not.toHaveBeenCalled();
+  });
+
   it('rejects origin and authentication failures and delegates course authorization to the service', async () => {
     expect(
       (await POST(request({ submissionId }, 'https://attacker.test') as never))
@@ -39,18 +83,24 @@ describe('context comparison API', () => {
       role: null,
     });
     expect((await POST(request({ submissionId }) as never)).status).toBe(401);
-    const supabase = {};
+    const { supabase } = authorizedSupabase();
     mocks.getUser.mockResolvedValueOnce({
       supabase,
-      user: { id: 'course-instructor' },
+      user: { id: courseInstructorId },
       role: 'student',
     });
     mocks.compare.mockResolvedValueOnce({ authorized: true });
     expect((await POST(request({ submissionId }) as never)).status).toBe(200);
     expect(mocks.compare).toHaveBeenCalledWith(
       supabase,
-      'course-instructor',
+      courseInstructorId,
       submissionId,
+    );
+    expect(mocks.readCourseAccess).toHaveBeenCalledWith(
+      supabase,
+      courseInstructorId,
+      'course-a',
+      'ai',
     );
     mocks.getUser.mockResolvedValueOnce({
       supabase,
@@ -61,7 +111,7 @@ describe('context comparison API', () => {
   });
 
   it('returns comparison output for the authenticated instructor', async () => {
-    const supabase = {};
+    const { query, supabase } = authorizedSupabase();
     mocks.getUser.mockResolvedValue({
       supabase,
       user: { id: 'teacher' },
@@ -77,6 +127,7 @@ describe('context comparison API', () => {
     expect(json.comparison.optimized.inputTokens).toBe(10);
     expect(json.requestId).toMatch(/^[0-9a-f-]{36}$/i);
     expect(response.headers.get('cache-control')).toBe('private, no-store');
+    expect(query.eq).toHaveBeenCalledWith('id', submissionId);
     expect(mocks.compare).toHaveBeenCalledWith(
       supabase,
       'teacher',
@@ -98,8 +149,9 @@ describe('context comparison API', () => {
   ] as const)(
     'maps service error %s to a safe response',
     async (code, status, message) => {
+      const { supabase } = authorizedSupabase();
       mocks.getUser.mockResolvedValue({
-        supabase: {},
+        supabase,
         user: { id: 'teacher' },
         role: 'instructor',
       });
@@ -111,8 +163,9 @@ describe('context comparison API', () => {
   );
 
   it('hides unexpected provider details behind a stable server error', async () => {
+    const { supabase } = authorizedSupabase();
     mocks.getUser.mockResolvedValue({
-      supabase: {},
+      supabase,
       user: { id: 'teacher' },
       role: 'instructor',
     });

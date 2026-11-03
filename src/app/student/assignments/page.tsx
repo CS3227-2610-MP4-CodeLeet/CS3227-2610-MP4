@@ -71,7 +71,11 @@ export default async function AssignmentListPage({
     throw new Error('Published assignments could not be loaded');
   return (
     <div>
-      <AssignmentList assignments={assignments} filters={filters} />
+      <AssignmentList
+        assignments={assignments}
+        filters={filters}
+        courseId={courseId}
+      />
     </div>
   );
 }

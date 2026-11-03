@@ -1,9 +1,19 @@
 import { beforeEach, expect, it, vi } from 'vitest';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import {
+  courseIdForStudentSubmission,
+  hasStudentAssessmentAccess,
+} from '@/features/student-submissions/course-access.server';
 import { loadRevisionComparison } from '@/features/student-submissions/revision-comparison.server';
 import CompareRevisionsPage from './page';
 
-vi.mock('@/lib/auth/verified-user', () => ({ requireRole: vi.fn() }));
+const studentId = 'verified-student';
+
+vi.mock('@/lib/auth/verified-user', () => ({ requireMember: vi.fn() }));
+vi.mock('@/features/student-submissions/course-access.server', () => ({
+  courseIdForStudentSubmission: vi.fn(),
+  hasStudentAssessmentAccess: vi.fn(),
+}));
 vi.mock('@/features/student-submissions/revision-comparison.server', () => ({
   loadRevisionComparison: vi.fn(),
 }));
@@ -15,10 +25,12 @@ vi.mock('next/navigation', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(requireRole).mockResolvedValue({
+  vi.mocked(requireMember).mockResolvedValue({
     supabase: {},
-    user: { id: 'verified-student' },
+    user: { id: studentId },
   } as never);
+  vi.mocked(courseIdForStudentSubmission).mockResolvedValue('course-a');
+  vi.mocked(hasStudentAssessmentAccess).mockResolvedValue(true);
   vi.mocked(loadRevisionComparison).mockResolvedValue(null);
 });
 
@@ -30,10 +42,21 @@ it('uses verified identity and validated revision numbers rather than URL identi
         before: '2',
         after: '1',
         student_id: 'peer',
+        courseId: 'course-a',
       }),
     }),
   ).rejects.toThrow('not-found');
-  expect(requireRole).toHaveBeenCalledWith('student');
+  expect(requireMember).toHaveBeenCalled();
+  expect(courseIdForStudentSubmission).toHaveBeenCalledWith(
+    {},
+    studentId,
+    'anchor-id',
+  );
+  expect(hasStudentAssessmentAccess).toHaveBeenCalledWith(
+    {},
+    studentId,
+    'course-a',
+  );
   expect(loadRevisionComparison).toHaveBeenCalledWith(
     {},
     'verified-student',

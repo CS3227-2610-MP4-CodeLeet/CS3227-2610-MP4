@@ -59,4 +59,10 @@ it('preserves encoded filters across pages and omits page one on apply/reset', (
   expect(buildListUrl(historyPath, { q: 'Loops', language: '' })).toBe(
     '/student/submissions?q=Loops',
   );
+  expect(
+    buildListUrl(`${historyPath}?courseId=course-a`, {
+      q: 'Loops',
+      language: 'java',
+    }),
+  ).toBe('/student/submissions?courseId=course-a&q=Loops&language=java');
 });

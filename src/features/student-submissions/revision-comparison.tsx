@@ -8,8 +8,10 @@ import type { RevisionComparison } from './revision-comparison.server';
 
 export function RevisionComparisonView({
   comparison,
+  courseId,
 }: {
   comparison: RevisionComparison;
+  courseId: string;
 }) {
   const { anchor, latestRevision, before, after } = comparison;
   return (
@@ -18,10 +20,16 @@ export function RevisionComparisonView({
         aria-label="Comparison navigation"
         className="flex flex-wrap gap-4 text-sm"
       >
-        <Link href={`/student/submissions/${anchor.id}`} className="underline">
+        <Link
+          href={`/student/submissions/${anchor.id}?courseId=${encodeURIComponent(courseId)}`}
+          className="underline"
+        >
           Back to revision {anchor.revision}
         </Link>
-        <Link href="/student/submissions" className="underline">
+        <Link
+          href={`/student/submissions?courseId=${encodeURIComponent(courseId)}`}
+          className="underline"
+        >
           All submissions
         </Link>
       </nav>
@@ -40,7 +48,7 @@ export function RevisionComparisonView({
         <>
           <ComparisonControls
             key={`${before.revision}:${after.revision}`}
-            path={comparisonPath(anchor.id)}
+            path={comparisonPath(anchor.id, courseId)}
             latest={latestRevision}
             before={before.revision}
             after={after.revision}

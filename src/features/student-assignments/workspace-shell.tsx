@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   BookOpen,
   ClipboardList,
@@ -28,6 +28,7 @@ const workspaceDestinations = [
 function WorkspaceNavigation() {
   const authenticated = useContext(AuthenticatedWorkspace);
   const pathname = usePathname();
+  const courseId = useSearchParams().get('courseId');
   const items = authenticated
     ? workspaceDestinations
     : workspaceDestinations.slice(0, 1);
@@ -36,7 +37,7 @@ function WorkspaceNavigation() {
       {items.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
-          href={href}
+          href={withCourseContext(href, courseId)}
           aria-current={pathname.startsWith(href) ? 'page' : undefined}
           className={navigationLinkStyle(pathname.startsWith(href))}
         >
@@ -52,14 +53,20 @@ function navigationLinkStyle(active: boolean) {
   return `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${active ? 'bg-cyan-50 dark:bg-cyan-950/60 font-semibold text-cyan-800 dark:text-cyan-300' : 'text-muted-foreground hover:bg-muted'}`;
 }
 
+function withCourseContext(href: string, courseId: string | null) {
+  if (!courseId || href === '/courses') return href;
+  return `${href}?courseId=${encodeURIComponent(courseId)}`;
+}
+
 function WorkspaceSidebar() {
+  const courseId = useSearchParams().get('courseId');
   return (
     <aside
       aria-label="Workspace sidebar"
       className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-slate-200 dark:border-slate-700 bg-[#f6f8fa] dark:bg-[#111b2b] lg:flex"
     >
       <Link
-        href="/student/assignments"
+        href={withCourseContext('/student/assignments', courseId)}
         className="flex min-h-24 shrink-0 items-center gap-2.5 border-b border-slate-200 dark:border-slate-700 px-6 py-7 text-lg font-semibold tracking-tight"
       >
         <span className="rounded-lg bg-cyan-700 p-1.5 text-white">
@@ -112,6 +119,7 @@ function WorkspaceHeader({
   current?: AssignmentSummary;
   theme: 'light' | 'dark';
 }) {
+  const courseId = useSearchParams().get('courseId');
   const section =
     workspaceDestinations.find((item) => pathname.startsWith(item.href)) ??
     workspaceDestinations[0];
@@ -119,7 +127,7 @@ function WorkspaceHeader({
     <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background px-4 sm:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground sm:text-sm">
         <Link
-          href={section.href}
+          href={withCourseContext(section.href, courseId)}
           className="shrink-0 text-cyan-800 dark:text-cyan-300 hover:underline"
         >
           {section.label}

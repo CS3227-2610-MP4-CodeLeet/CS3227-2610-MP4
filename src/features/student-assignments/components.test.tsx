@@ -23,6 +23,16 @@ describe('student assignment components', () => {
     expect(html).toContain('aria-label="View assignment: Loops &amp; arrays"');
   });
 
+  it('keeps course context on assignment and filter destinations', () => {
+    const html = renderToStaticMarkup(
+      <AssignmentList assignments={[assignment]} courseId="course-a" />,
+    );
+    expect(html).toContain(
+      'href="/student/assignments/loops?courseId=course-a"',
+    );
+    expect(html).toContain('action="/student/assignments?courseId=course-a"');
+  });
+
   it('distinguishes empty library from an empty filtered result', () => {
     const empty = renderToStaticMarkup(<AssignmentList assignments={[]} />);
     expect(empty).toContain('No assignments yet');
@@ -47,5 +57,11 @@ describe('student assignment components', () => {
     expect(html).toContain('Python assignment');
     expect(html).toContain('Read a number.\nPrint its square.');
     expect(html).toContain('href="/student/assignments"');
+    const courseHtml = renderToStaticMarkup(
+      <AssignmentInstructions assignment={detail} courseId="course-a" />,
+    );
+    expect(courseHtml).toContain(
+      'href="/student/assignments?courseId=course-a"',
+    );
   });
 });

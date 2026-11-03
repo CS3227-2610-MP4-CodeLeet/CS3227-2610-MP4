@@ -169,6 +169,7 @@ function ManagementPanels({
   );
 }
 
+// eslint-disable-next-line complexity -- explicit role and feature gates keep each course destination auditable.
 function CourseFeatureLinks({
   course,
   role,
@@ -204,6 +205,12 @@ function CourseFeatureLinks({
         href={`/ai/usage?courseId=${course.id}`}
       >
         AI usage
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={role === 'instructor' && !archived && aiEnabled}
+        href={`/instructor/ai-context?courseId=${course.id}`}
+      >
+        Context comparison
       </CourseActivityLink>
       <CourseActivityLink
         enabled={archived || discussionsEnabled}

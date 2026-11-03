@@ -11,17 +11,18 @@ import {
 } from '@/features/student-lists/filters';
 import type { GradeItem, GradesPage } from './grades';
 
-const listPath = '/student/grades';
-
 export function StudentGradesList({
   grades,
   page,
   filters,
+  courseId,
 }: {
   grades: GradesPage;
   page: number;
   filters: ListFilters;
+  courseId: string;
 }) {
+  const listPath = `/student/grades?courseId=${encodeURIComponent(courseId)}`;
   return (
     <section className="space-y-6" aria-labelledby="my-grades-heading">
       <header className="space-y-2">
@@ -40,14 +41,14 @@ export function StudentGradesList({
         <ol aria-label="Published grades" className="space-y-4">
           {grades.rows.map((row) => (
             <li key={row.id}>
-              <GradeCard row={row} />
+              <GradeCard row={row} courseId={courseId} />
             </li>
           ))}
         </ol>
       ) : hasListFilters(filters) ? (
         <FilteredListEmpty kind="grades" page={page} />
       ) : (
-        <GradesEmpty page={page} />
+        <GradesEmpty page={page} courseId={courseId} />
       )}
       <ListPagination
         path={listPath}
@@ -60,7 +61,7 @@ export function StudentGradesList({
   );
 }
 
-function GradeCard({ row }: { row: GradeItem }) {
+function GradeCard({ row, courseId }: { row: GradeItem; courseId: string }) {
   return (
     <article
       aria-labelledby={`grade-${row.id}`}
@@ -100,7 +101,7 @@ function GradeCard({ row }: { row: GradeItem }) {
       </details>
       <Link
         prefetch={false}
-        href={`/student/submissions/${row.submissionId}`}
+        href={`/student/submissions/${row.submissionId}?courseId=${encodeURIComponent(courseId)}`}
         className="inline-flex rounded-md border px-3 py-2 text-sm font-medium hover:bg-accent"
         aria-label={`View ${row.title}, revision ${row.revision}`}
       >
@@ -110,7 +111,7 @@ function GradeCard({ row }: { row: GradeItem }) {
   );
 }
 
-function GradesEmpty({ page }: { page: number }) {
+function GradesEmpty({ page, courseId }: { page: number; courseId: string }) {
   return (
     <div className="space-y-3 rounded-xl border bg-card p-8">
       <h2 className="text-lg font-semibold">
@@ -122,7 +123,11 @@ function GradesEmpty({ page }: { page: number }) {
           : 'Return to your latest grades to continue browsing.'}
       </p>
       <Link
-        href={page === 1 ? '/student/assignments' : listPath}
+        href={
+          page === 1
+            ? `/student/assignments?courseId=${encodeURIComponent(courseId)}`
+            : `/student/grades?courseId=${encodeURIComponent(courseId)}`
+        }
         className="inline-flex text-sm font-medium underline underline-offset-4"
       >
         {page === 1 ? 'Browse assignments' : 'Latest grades'}

@@ -32,10 +32,13 @@ type SubmissionSummary = {
 function SubmissionHistory({
   submissions,
   assignmentId,
+  courseId,
 }: {
   submissions: SubmissionSummary[];
   assignmentId: string;
+  courseId: string;
 }) {
+  const courseQuery = `?courseId=${encodeURIComponent(courseId)}`;
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Your revisions</h2>
@@ -50,14 +53,14 @@ function SubmissionHistory({
             >
               <Link
                 className="underline"
-                href={`/student/submissions/${submission.id}`}
+                href={`/student/submissions/${submission.id}${courseQuery}`}
               >
                 Revision {submission.revision}
               </Link>
               <Link
                 className="underline"
                 aria-label={`Continue editing revision ${submission.revision}`}
-                href={revisionEditorPath(assignmentId, submission.id)}
+                href={revisionEditorPath(assignmentId, submission.id, courseId)}
               >
                 Continue editing
               </Link>
@@ -85,7 +88,10 @@ export default async function AssignmentDetailPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { assignmentId } = await params;
-  const selection = revisionSelection((await searchParams).fromRevision);
+  const query = await searchParams;
+  const requestedCourseId =
+    typeof query.courseId === 'string' ? query.courseId : undefined;
+  const selection = revisionSelection(query.fromRevision);
   if (!selection.success) notFound();
   if (
     isAssignmentPreviewEnabled(
@@ -100,11 +106,11 @@ export default async function AssignmentDetailPage({
       />
     );
   }
-  const { detail, draft, submissions, studentId, archived } =
-    await loadWorkspace(assignmentId, selection.data);
+  const { detail, courseId, draft, submissions, studentId, archived } =
+    await loadWorkspace(assignmentId, selection.data, requestedCourseId);
   return (
     <div className="space-y-8">
-      <AssignmentInstructions assignment={detail} />
+      <AssignmentInstructions assignment={detail} courseId={courseId} />
       {archived ? (
         <p className="rounded-md border p-4 text-sm">
           This course is archived. Assignment history is read-only.
@@ -131,6 +137,7 @@ export default async function AssignmentDetailPage({
       )}
       <SubmissionHistory
         assignmentId={assignmentId}
+        courseId={courseId}
         submissions={submissions ?? []}
       />
     </div>
@@ -161,7 +168,11 @@ function PreviewAssignment({
 }
 
 // eslint-disable-next-line complexity -- explicit checks preserve private 404s for invalid course and assignment access.
-async function loadWorkspace(assignmentId: string, revisionId?: string) {
+async function loadWorkspace(
+  assignmentId: string,
+  revisionId?: string,
+  requestedCourseId?: string,
+) {
   const { supabase, user } = await requireMember();
   const { data: assignment, error } = await supabase
     .from('assignments')
@@ -172,6 +183,8 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
     .eq('publication_status', 'published')
     .maybeSingle();
   if (error || !assignment) notFound();
+  if (requestedCourseId && requestedCourseId !== assignment.course_id)
+    notFound();
   const access = await readCourseAccess(
     supabase,
     user.id,
@@ -212,6 +225,7 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
   };
   return {
     detail,
+    courseId: assignment.course_id,
     draft,
     submissions,
     studentId: user.id,

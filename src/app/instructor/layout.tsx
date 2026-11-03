@@ -24,9 +24,6 @@ export default async function InstructorLayout({
           <Link className="text-sm underline" href="/courses">
             Courses
           </Link>
-          <Link className="text-sm underline" href="/instructor/ai-context">
-            Context comparison
-          </Link>
           {role === 'admin' && (
             <Link className="text-sm underline" href="/admin">
               Admin panel
