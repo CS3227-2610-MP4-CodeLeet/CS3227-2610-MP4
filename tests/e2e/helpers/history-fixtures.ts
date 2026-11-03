@@ -47,13 +47,11 @@ async function createFixture(admin: APIRequestContext): Promise<Fixture> {
   const assignments = [crypto.randomUUID(), crypto.randomUUID()];
   const title = 'History <img src=x onerror=alert(1)>';
   const courseId = await createCourse(admin, users);
-  const { rows, peerRow } = await seedHistory(
-    admin,
-    users,
+  const { rows, peerRow } = await seedHistory(admin, users, {
     courseId,
     assignments,
     title,
-  );
+  });
   return { admin, users, courseId, assignments, rows, peerRow, title };
 }
 
@@ -114,10 +112,9 @@ async function createCourse(
 async function seedHistory(
   admin: APIRequestContext,
   users: User[],
-  courseId: string,
-  assignments: string[],
-  title: string,
+  fixture: Pick<Fixture, 'courseId' | 'assignments' | 'title'>,
 ) {
+  const { courseId, assignments, title } = fixture;
   await write(
     admin,
     'assignments',
