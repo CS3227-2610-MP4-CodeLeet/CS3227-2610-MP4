@@ -5,7 +5,7 @@
 - AI tools/models, where known: Codex; model/resource measurements unavailable
 - GitHub issue: #85 https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/85
 - OpenSpec change: build-programming-platform
-- Branch and commits: feat/85-course-workspaces from develop at f5db8c8; foundation commit pending final review
+- Branch and commits: feat/85-course-workspaces from develop at f5db8c8; 6f90df6 (schema/Legacy), 2de0305 (APIs), 5b69d6e (API log), 61bbb46 (course UI), 395b0c2 (UI log), 61160f9 (assignment/AI scope)
 - Pull request: none
 - Human verification: pending
 - Verifier/date: pending
@@ -39,3 +39,4 @@
 
 15. Resumed with “continue” and implemented Task 30.4. Added a course-access helper and enforced membership, lifecycle and feature checks in assignment CRUD, submissions, grading, practice-test authoring, AI review/comparison and usage history. Added `courseId` to assignment authoring and student assignment queries, course-specific navigation, read-only archived submission/review views, and per-course AI quotas. Legacy compatibility wrappers now derive existing assignment context only for updates and reject context-free creation. Updated database fixtures to use explicit memberships and added a pgTAP assertion proving the same student receives an independent AI quota in another enrolled course. Browser execution code was unchanged; Python and Java remain on the established browser runner path.
 16. Task 30.4 verification: full Vitest 645/645 across 113 files; pgTAP 352 assertions across 11 files; `pnpm run typecheck`, `pnpm run lint`, `pnpm run format:check`, strict `pnpm run spec:validate`, `pnpm exec supabase db reset --local --no-seed`, and `git diff --check` passed. `pnpm exec supabase db lint --local` exited 0 with one existing unrelated warning in `public.valid_practice_cases`; a newly introduced unused local in `record_ai_cache_hit` was removed before the final lint. A first pgTAP run exposed a fixture that now correctly saw the student’s second-course submission; narrowing the assertion to the selected assignment restored the intended check, and the final suite passed. No browser E2E, production build, hosted check, independent teammate review or human verification is claimed.
+17. Committed Task 30.4 as `61160f9` (`feat(courses): scope assignments and AI by course`). Branch remains local and unpushed; later course stages and final branch CI/PR closeout are outstanding.
