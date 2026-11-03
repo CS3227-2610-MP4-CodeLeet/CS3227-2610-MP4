@@ -37,6 +37,8 @@ select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001'
 insert into course_test_ids select 'main',public.create_course('Algorithms','Fall section');
 select is((select role from public.course_memberships m join course_test_ids c on c.id=m.course_id where c.name='main' and m.user_id=auth.uid()),'instructor','creator becomes course owner and instructor');
 select is((select count(*)::integer from public.course_features f join course_test_ids c on c.id=f.course_id where c.name='main' and enabled),5,'new course starts with shipped features enabled');
+select is(public.update_course((select id from course_test_ids where name='main'),'Advanced Algorithms',null)->>'title','Advanced Algorithms','course staff can update validated course title');
+select throws_ok($$select public.update_course((select id from course_test_ids where name='main'),'','bad')$$,'22023','invalid_course','course update rejects an empty title');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000005',true);
 select throws_ok($$select public.create_course('Unverified','')$$,'42501','verified_account_required','only verified instructors can create courses');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
@@ -44,6 +46,14 @@ select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001'
 select lives_ok($$select public.create_course_invitation((select id from course_test_ids where name='main'),' COURSE-CO-INSTRUCTOR@EXAMPLE.TEST ','instructor','synthetic-invite-token-2-xxxxxxxx',clock_timestamp()+interval '1 day')$$,'owner can invite an instructor by normalized email');
 insert into course_test_invites select 'student',public.create_course_invitation((select id from course_test_ids where name='main'),'course-student@example.test','student','synthetic-invite-token-student-xxxxxxxx',clock_timestamp()+interval '1 day');
 select is((select id is not null from course_test_invites where name='student'),true,'owner can invite a student by email');
+select is((select count(*)::integer from public.list_course_invitations((select id from course_test_ids where name='main'))),2,'course staff can list pending invitations without exposing token hashes');
+insert into course_test_invites select 'expired',public.create_course_invitation((select id from course_test_ids where name='main'),'course-outsider@example.test','student','synthetic-invite-token-expired-xxxxxxxx',clock_timestamp()+interval '1 day');
+reset role;
+update public.course_invitations set created_at=clock_timestamp()-interval '2 days',expires_at=clock_timestamp()-interval '1 second' where id=(select id from course_test_invites where name='expired');
+set local role authenticated;
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000004',true);
+select throws_ok($$select public.accept_course_invitation('synthetic-invite-token-expired-xxxxxxxx')$$,'42501','invitation_unavailable','expired invitation cannot grant membership');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 select lives_ok($$select public.revoke_course_invitation((select id from course_test_invites where name='student'))$$,'staff can revoke a pending invitation');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000005',true);
 select throws_ok($$select public.accept_course_invitation('synthetic-invite-token-2-xxxxxxxx')$$,'42501','invitation_unavailable','unverified accounts cannot accept invitations');
@@ -62,6 +72,10 @@ select throws_ok($$select public.delete_empty_course((select id from course_test
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002',null)$$,'owner can remove an instructor');
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002','instructor')$$,'owner can restore an instructor membership');
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000003','student')$$,'staff can add a verified student directly');
+select is((select email from public.list_course_members((select id from course_test_ids where name='main')) where user_id='8a500000-0000-4000-8000-000000000003'),'course-student@example.test','staff can list course member email and role');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
+select throws_ok($$select * from public.list_course_members((select id from course_test_ids where name='main'))$$,'42501','course_staff_required','students cannot list other course member identities');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 select throws_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000001',null)$$,'42501','transfer_owner_first','owner cannot remove self before transfer');
 select lives_ok($$select public.rotate_course_join_code((select id from course_test_ids where name='main'),'synthetic-join-code-8a5xxxxxxxxxxxx')$$,'course instructor can set a student join code');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000004',true);
@@ -88,6 +102,7 @@ select lives_ok($$select public.archive_course((select id from course_test_ids w
 select is((select lifecycle from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'archived','archived course retains its lifecycle state');
 select is(course_private.can_use_feature((select id from course_test_ids where name='main'),'assessments'),false,'archived course denies activity');
 select throws_ok($$select public.set_course_feature((select id from course_test_ids where name='main'),'ai',true)$$,'42501','course_staff_required','archived course settings are read-only');
+select throws_ok($$select public.update_course((select id from course_test_ids where name='main'),'No longer editable',null)$$,'42501','course_staff_required','archived course details are read-only');
 
 insert into course_test_ids select 'empty',public.create_course('Empty course','');
 select throws_ok($$select public.delete_empty_course((select id from course_test_ids where name='empty'),false)$$,'42501','course_delete_confirmation_required','empty course deletion requires explicit confirmation');

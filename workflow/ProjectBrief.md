@@ -1,6 +1,6 @@
 # Project brief
 
-Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services, instructor-authored public practice cases and instructor-configured assignment XP and signed-in leaderboard are implemented with synthetic local evidence. Course workspaces are approved and tracked in issue #85 but are not implemented. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. Complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. Leaderboard rollout/checks are tracked in issue #80 and XP in issue #77; authored cases in issue #74.
+Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services, instructor-authored public practice cases and instructor-configured assignment XP and signed-in leaderboard are implemented with synthetic local evidence. The course workspace schema foundation and management APIs are implemented on the issue #85 feature branch. Course UI and assignment, AI, forum, XP, leaderboard and feature-gate integration remain staged in the active change; no PR has been published yet. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. Complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. Leaderboard rollout/checks are tracked in issue #80 and XP in issue #77; authored cases in issue #74.
 
 ## Sources and precedence
 

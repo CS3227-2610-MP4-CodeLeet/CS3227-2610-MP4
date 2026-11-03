@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   exchange: vi.fn(),
   getUser: vi.fn(),
   role: vi.fn(),
+  rpc: vi.fn(),
 }));
 vi.mock('@/lib/supabase/server', () => ({
   createSupabaseServerClient: vi.fn(async () => ({
@@ -12,6 +13,7 @@ vi.mock('@/lib/supabase/server', () => ({
     from: () => ({
       select: () => ({ eq: () => ({ maybeSingle: mocks.role }) }),
     }),
+    rpc: mocks.rpc,
   })),
 }));
 import { GET } from './route';
@@ -24,6 +26,10 @@ beforeEach(() => {
     error: null,
   });
   mocks.role.mockResolvedValue({ data: { role: 'student' }, error: null });
+  mocks.rpc.mockResolvedValue({
+    data: '00000000-0000-4000-8000-000000000002',
+    error: null,
+  });
 });
 afterEach(() => vi.clearAllMocks());
 
@@ -119,6 +125,48 @@ describe('callback failure and redirect handling', () => {
     );
     expect(response.headers.get('location')).toBe(
       `${base}/student/assignments`,
+    );
+  });
+});
+
+describe('course invitation callback', () => {
+  it('grants membership only after exchanging the verified sign-in link', async () => {
+    const response = await GET(
+      new NextRequest(
+        `${base}/auth/callback?code=synthetic&course_invite=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN`,
+      ),
+    );
+    expect(response.headers.get('location')).toBe(
+      `${base}/courses/00000000-0000-4000-8000-000000000002`,
+    );
+    expect(mocks.rpc).toHaveBeenCalledWith('accept_course_invitation', {
+      p_token: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN',
+    });
+    expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+  });
+  it('does not call the acceptance RPC without a valid token or verified session', async () => {
+    const invalid = await GET(
+      new NextRequest(
+        `${base}/auth/callback?code=synthetic&course_invite=short`,
+      ),
+    );
+    expect(invalid.headers.get('location')).toBe(
+      `${base}/sign-in?confirmed=error`,
+    );
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+  it('fails closed when the invite is revoked, expired or belongs to another email', async () => {
+    mocks.rpc.mockResolvedValueOnce({
+      data: null,
+      error: new Error('invitation_unavailable'),
+    });
+    const response = await GET(
+      new NextRequest(
+        `${base}/auth/callback?code=synthetic&course_invite=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN`,
+      ),
+    );
+    expect(response.headers.get('location')).toBe(
+      `${base}/sign-in?confirmed=error`,
     );
   });
 });

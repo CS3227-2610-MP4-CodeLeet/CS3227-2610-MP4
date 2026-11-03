@@ -45,10 +45,10 @@
 
 **Files:** src/features/courses/contracts.ts and server modules/tests; src/app/api/courses/; src/app/auth/callback/route.ts and tests; local Supabase Auth configuration as needed.
 
-- [ ] Add failing tests for create/list/update, per-role member management, email invite acceptance, verified-email match, join-code rotate/revoke, ownership transfer, archive and empty-only deletion.
-- [ ] Implement bounded same-origin server routes authorized by verified identity and current course membership; never trust client actor/role/email verification.
-- [ ] Use Supabase Auth email sign-in links for existing and new addresses; keep invitations pending until the verified account accepts. Avoid account enumeration and log no email/token content.
-- [ ] Test local delivery in Supabase's local SMTP inbox; note hosted SMTP configuration remains a deployment prerequisite.
+- [x] Add failing tests for create/list/update, per-role member management, email invite acceptance, verified-email match, join-code rotate/revoke, ownership transfer, archive and empty-only deletion.
+- [x] Implement bounded same-origin server routes authorized by verified identity and current course membership; never trust client actor/role/email verification.
+- [x] Use Supabase Auth email sign-in links for existing and new addresses; keep invitations pending until the verified account accepts. Avoid account enumeration and log no email/token content.
+- [x] Test local delivery and verified callback acceptance in Supabase's local SMTP inbox; hosted SMTP remains an unverified deployment prerequisite.
 - [ ] Commit the verified API/enrollment stage.
 
 ### Task 3: Course discovery and navigation
