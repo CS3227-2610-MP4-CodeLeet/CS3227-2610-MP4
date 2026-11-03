@@ -187,6 +187,13 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
 - [x] 15.4 Resolve PR #39 mobile-menu CI race by awaiting committed assignment navigation; reproduce the failure and verify repeated mobile checks plus the browser suite before updating the PR.
 
+## 30. Issue #84 email or unique username sign-in and student acceptance
+
+- [x] 30.1 Implement database-owned username claims/legacy reservation transitions and private rate/lookup RPCs; 321 assertions/eleven files passed, actual parallel case-variant claim produced one winner, advisors found no issues. Applied local additive migration without reset; existing unrelated practice-case lint warning remains.
+- [ ] 30.2 Integrate bounded same-origin email/username password authentication, server-only metadata keys/HMAC limits, safe cookie/error behavior and signup/profile uniqueness UI with failing-first tests.
+- [ ] 30.3 Run fresh synthetic student/runtime/ownership/AI-boundary acceptance, bounded independent security review and accurate guides/evidence; distinguish mocked/local/hosted results.
+- [ ] 30.4 Commit/push, pass branch CI, create linked PR to develop and verify final-head checks; preserve unrelated edits and leave human/hosted release gates separate.
+
 ## 29. Issue #82 browser draft autosave and recovery
 
 - [x] 29.1 Implement bounded account/assignment/language/revision-scoped browser storage, validation, retention, conflict tokens and invalidation with failing-first tests.

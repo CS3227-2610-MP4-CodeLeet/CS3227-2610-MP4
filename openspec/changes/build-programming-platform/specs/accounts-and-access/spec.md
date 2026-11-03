@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Email or unique username password sign-in
+The system SHALL authenticate by email or a case-insensitive unique username without exposing username-to-email lookup results.
+
+#### Scenario: Real username authentication
+- **WHEN** a visitor submits the Email or username text field and password
+- **THEN** a bounded same-origin server route SHALL reserve an attempt, resolve a claimed username privately and authenticate with the ordinary Supabase password/session client; no privileged client SHALL create the session, assign a role or disclose resolved email
+
+#### Scenario: Unique names and legacy conflicts
+- **WHEN** signup or profile changes claim a trimmed 1–80-character username without @/control/NUL
+- **THEN** database-owned normalization and transactional uniqueness SHALL protect case-insensitive claims even through direct allowed profile writes; legacy duplicates/ineligible names SHALL retain email access without silent renames, and a sole remaining legacy owner SHALL explicitly claim while an abandoned reservation SHALL be released
+
+#### Scenario: Bounded private lookup
+- **WHEN** a login is unknown, wrong, unconfirmed, repeated or unavailable
+- **THEN** generic credential failures and no-store responses SHALL avoid email disclosure, atomic HMAC-keyed windows SHALL limit accepted attempts to ten per normalized identifier/minute and sixty globally/minute with Retry-After, missing services SHALL fail closed, and unknown/dummy users SHALL never receive authenticated cookies
+
 ### Requirement: User-facing product copy
 Product screens SHALL use concise, plain wording that helps students and instructors complete their tasks. Internal setup and execution architecture SHALL remain in developer documentation unless needed for an actionable user decision. The landing page SHALL omit the technical paragraph about Python-only submissions, trusted instructors and server execution.
 

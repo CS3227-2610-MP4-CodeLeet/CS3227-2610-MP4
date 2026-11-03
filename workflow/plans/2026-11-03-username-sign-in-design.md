@@ -1,6 +1,6 @@
 # Email or username sign-in and student acceptance
 
-Status: proposed; requester selected case-insensitive unique usernames on 3 November 2026. Approval of this complete design is pending. Defaults below are coordinator proposals, not additional decisions attributed to the requester.
+Status: requester approved the complete design and requested implementation on 3 November 2026, including the proposed legacy lifecycle, reviewed server-only lookup and attempt limits.
 
 Issue [#84](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/84). Branch `feat/username-sign-in` from merged develop `0aca647`. Active OpenSpec: `build-programming-platform`, accounts-and-access and engineering-and-delivery. Summary: `logs/2026-11-03-username-sign-in.md`.
 
