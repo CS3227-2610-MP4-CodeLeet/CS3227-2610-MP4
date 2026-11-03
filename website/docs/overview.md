@@ -13,13 +13,13 @@ CodeLeet helps students practise Python and Java, save and revisit solutions, an
 
 Learn how to sign in, work on assignments, run code, save revisions, request feedback and participate in discussions.
 
-[Read the User Guide](./UserGuide.md)
+[Read the User Guide](/docs/UserGuide/)
 
 ## Developer Guide
 
 Set up the project, understand its architecture and security boundaries, and follow its testing and development workflow.
 
-[Read the Developer Guide](./DeveloperGuide.md)
+[Read the Developer Guide](/docs/DeveloperGuide/)
 
 ## Reflections and project evidence
 

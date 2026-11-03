@@ -33,6 +33,8 @@
 
 15. Final site build and repeated browser checks passed after the wording cleanup; fresh lint/types/format, all eleven strict OpenSpec items, local Markdown targets and diff whitespace checks passed. No dependency/lockfile changes were made by frozen installation. The site is concrete and reviewable locally; publication is still gated by the existing develop-only Pages environment and human merge. Updated PR scope/evidence after pushing; final CI is recorded separately.
 
+16. Pushed site milestone 9eca03f. Fresh-checkout scaffold CI failed because the overview linked directly to ignored generated Markdown files; local checks had those files present. Changed only overview navigation to public guide routes, removed the two known generated files to reproduce fresh-checkout conditions, and verified scaffold checks passed before regenerating. Docusaurus production build/link validation and the actual browser navigation check passed again under the project base path. No checker was weakened; application/security/database checks are separate from the failed scaffold check. Final CI follows the correction push.
+
 ## Verification and handoff
 
 - Completed local checks: guide command/path audit, local Markdown links/scaffold, strict OpenSpec, formatting and documentation-site build; existing product tests remain historical until CI runs.

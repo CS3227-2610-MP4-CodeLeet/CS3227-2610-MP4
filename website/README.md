@@ -10,4 +10,6 @@ The Pages workflow publishes relevant merged changes on `develop`, matching the 
 
 The guide converter supports the current simple inline Markdown link syntax. Add converter coverage before introducing reference-style links, link titles or parenthesized local destinations; do not hand-edit generated pages to work around unsupported syntax.
 
+Overview links use public guide routes so fresh-checkout artifact checks do not depend on generated Markdown. Docusaurus build/link validation and the browser check verify those routes under the project base path.
+
 After building, run `pnpm site:serve --host 127.0.0.1 --port 3200` and, in a second terminal, `node workflow/scripts/verify-documentation-site.mjs`. Install the pinned Playwright Chromium first if needed. The check covers overview/guide navigation, anchors, source/edit links, reload, dark mode, mobile navigation and project-only copy. `DOCS_SITE_URL` can select the published project URL for a later live check. The documentation build/check needs no application credentials or live AI calls.
