@@ -23,6 +23,7 @@ const AuthenticatedWorkspace = createContext(false);
 
 const workspaceDestinations = [
   { href: '/student/assignments', label: 'Assignments', icon: BookOpen },
+  { href: '/courses', label: 'Courses', icon: BookOpen },
   { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
   { href: gradesPath, label: 'My grades', icon: ClipboardList },
   { href: xpPath, label: 'My XP', icon: ClipboardList },

@@ -24,9 +24,11 @@ async function roleDestination(
     .select('role')
     .eq('user_id', userId)
     .maybeSingle();
-  if (data?.role === 'instructor' || data?.role === 'admin')
-    return '/instructor';
-  return data?.role === 'student' ? '/student/assignments' : '/sign-in';
+  return data?.role === 'instructor' ||
+    data?.role === 'admin' ||
+    data?.role === 'student'
+    ? '/courses'
+    : '/sign-in';
 }
 
 async function acceptCourseInvitation(

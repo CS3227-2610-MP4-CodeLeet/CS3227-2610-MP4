@@ -34,19 +34,26 @@ beforeEach(() => {
 afterEach(() => vi.clearAllMocks());
 
 describe('recovery callback boundary', () => {
-  it('preserves the normal instructor callback destination', async () => {
+  it('routes instructors through course discovery after sign-in', async () => {
     mocks.role.mockResolvedValue({ data: { role: 'instructor' }, error: null });
     const response = await GET(
       new NextRequest(`${base}/auth/callback?code=synthetic`),
     );
-    expect(response.headers.get('location')).toBe(`${base}/instructor`);
+    expect(response.headers.get('location')).toBe(`${base}/courses`);
   });
-  it('routes admins to the instructor workspace after sign-in', async () => {
+  it('routes admins through course discovery after sign-in', async () => {
     mocks.role.mockResolvedValue({ data: { role: 'admin' }, error: null });
     const response = await GET(
       new NextRequest(`${base}/auth/callback?code=synthetic`),
     );
-    expect(response.headers.get('location')).toBe(`${base}/instructor`);
+    expect(response.headers.get('location')).toBe(`${base}/courses`);
+  });
+  it('routes students through course discovery after sign-in', async () => {
+    mocks.role.mockResolvedValue({ data: { role: 'student' }, error: null });
+    const response = await GET(
+      new NextRequest(`${base}/auth/callback?code=synthetic`),
+    );
+    expect(response.headers.get('location')).toBe(`${base}/courses`);
   });
   it('preserves the normal callback without a code', async () => {
     const response = await GET(new NextRequest(`${base}/auth/callback`));
@@ -123,9 +130,7 @@ describe('callback failure and redirect handling', () => {
         `${base}/auth/callback?code=synthetic&next=${encodeURIComponent(next)}`,
       ),
     );
-    expect(response.headers.get('location')).toBe(
-      `${base}/student/assignments`,
-    );
+    expect(response.headers.get('location')).toBe(`${base}/courses`);
   });
 });
 

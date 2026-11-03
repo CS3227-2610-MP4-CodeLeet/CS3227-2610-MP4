@@ -19,6 +19,9 @@ export default async function InstructorLayout({
           <Link href="/instructor" className="font-semibold">
             CodeLeet · Instructor
           </Link>
+          <Link className="text-sm underline" href="/courses">
+            Courses
+          </Link>
           <Link className="text-sm underline" href="/ai/usage">
             AI usage
           </Link>
