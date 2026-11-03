@@ -49,7 +49,7 @@
 - [x] Implement bounded same-origin server routes authorized by verified identity and current course membership; never trust client actor/role/email verification.
 - [x] Use Supabase Auth email sign-in links for existing and new addresses; keep invitations pending until the verified account accepts. Avoid account enumeration and log no email/token content.
 - [x] Test local delivery and verified callback acceptance in Supabase's local SMTP inbox; hosted SMTP remains an unverified deployment prerequisite.
-- [ ] Commit the verified API/enrollment stage.
+- [x] Commit the verified API/enrollment stage (`2de0305`).
 
 ### Task 3: Course discovery and navigation
 
