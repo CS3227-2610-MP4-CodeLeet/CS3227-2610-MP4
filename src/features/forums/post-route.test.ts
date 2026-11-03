@@ -1,12 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), rpc: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  auth: vi.fn(),
+  rpc: vi.fn(),
+  from: vi.fn(),
+  courseRole: 'student' as string | null,
+}));
 vi.mock('@/lib/auth/verified-user', () => ({
   getVerifiedUserRole: mocks.auth,
 }));
 import { postForum } from './post-route';
 
 const id = 'f0300000-0000-4000-8000-000000000001';
-const input = { title: 'Question', body: 'Message', requestId: id };
+const courseId = 'f0300000-0000-4000-8000-000000000020';
+const input = { title: 'Question', body: 'Message', requestId: id, courseId };
 function request(value: unknown = input, origin = 'http://localhost:3000') {
   return new Request('http://localhost:3000/api/forums/posts', {
     method: 'POST',
@@ -18,10 +24,26 @@ beforeEach(() => {
   vi.stubEnv('APP_SITE_URL', 'http://localhost:3000');
   mocks.auth.mockReset();
   mocks.rpc.mockReset();
+  mocks.from.mockReset();
+  mocks.courseRole = 'student';
+  mocks.from.mockImplementation((table: string) => {
+    const query = {
+      select: vi.fn(() => query),
+      eq: vi.fn(() => query),
+      maybeSingle: vi.fn(async () => {
+        if (table === 'course_memberships')
+          return { data: mocks.courseRole ? { role: mocks.courseRole } : null };
+        if (table === 'courses') return { data: { lifecycle: 'active' } };
+        if (table === 'course_features') return { data: { enabled: true } };
+        return { data: null };
+      }),
+    };
+    return query;
+  });
   mocks.auth.mockResolvedValue({
     user: { id },
     role: 'student',
-    supabase: { rpc: mocks.rpc },
+    supabase: { rpc: mocks.rpc, from: mocks.from },
   });
   mocks.rpc.mockResolvedValue({
     data: { threadId: id, postId: id },
@@ -40,10 +62,11 @@ describe('forum posting boundary', () => {
     async (role) => {
       mocks.auth.mockResolvedValue({
         user: role ? { id } : null,
-        role: null,
-        supabase: role ? { rpc: mocks.rpc } : null,
+        role: role ? 'student' : null,
+        supabase: role ? { rpc: mocks.rpc, from: mocks.from } : null,
       });
-      expect((await postForum(request())).status).toBe(role ? 403 : 401);
+      if (role) mocks.courseRole = null;
+      expect((await postForum(request())).status).toBe(role ? 404 : 401);
       expect(mocks.rpc).not.toHaveBeenCalled();
     },
   );
@@ -65,12 +88,13 @@ describe('forum posting boundary', () => {
       mocks.auth.mockResolvedValue({
         user: { id },
         role,
-        supabase: { rpc: mocks.rpc },
+        supabase: { rpc: mocks.rpc, from: mocks.from },
       });
       const response = await postForum(request());
       expect(response.status).toBe(201);
       expect(response.headers.get('cache-control')).toBe('private, no-store');
       expect(mocks.rpc).toHaveBeenCalledWith('create_forum_post', {
+        p_course_id: courseId,
         p_thread_id: null,
         p_title: 'Question',
         p_body: 'Message',
@@ -97,5 +121,18 @@ describe('forum posting boundary', () => {
     const response = await postForum(request());
     expect(response.status).toBe(429);
     expect(response.headers.get('retry-after')).toBe('60');
+  });
+});
+
+describe('forum account provisioning', () => {
+  it('requires a provisioned account before checking course enrollment', async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id },
+      role: null,
+      supabase: { rpc: mocks.rpc, from: mocks.from },
+    });
+    expect((await postForum(request())).status).toBe(403);
+    expect(mocks.from).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });

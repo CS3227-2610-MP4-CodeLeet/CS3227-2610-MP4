@@ -1,9 +1,10 @@
 import type { NextRequest } from 'next/server';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { isAppRole } from '@/lib/auth/roles';
-import { parseHistoryPage } from '@/features/student-submissions/history';
 import { loadLeaderboard } from '@/features/leaderboard/queries.server';
 import { privateJson } from '@/lib/http/responses';
+import { readCourseAccess } from '@/lib/courses/access';
+import { parseCourseActivityQuery } from '@/lib/courses/activity-query';
 export async function GET(request: NextRequest) {
   const { user, role, supabase } = await getVerifiedUserRole();
   if (!user)
@@ -16,15 +17,38 @@ export async function GET(request: NextRequest) {
       { error: { code: 'forbidden', message: 'Account access required.' } },
       403,
     );
-  const query = request.nextUrl.searchParams;
-  const pages = query.getAll('page');
-  const page = parseHistoryPage(pages.length > 1 ? pages : pages[0]);
-  if (page === null || [...query.keys()].some((key) => key !== 'page'))
+  const context = parseCourseActivityQuery(request.nextUrl.searchParams);
+  if (!context)
     return privateJson(
-      { error: { code: 'invalid_query', message: 'Choose a valid page.' } },
+      {
+        error: {
+          code: 'invalid_query',
+          message: 'Choose a valid course and page.',
+        },
+      },
       400,
     );
-  const data = await loadLeaderboard(supabase, page);
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    context.courseId,
+    'leaderboard',
+  );
+  if (
+    !access ||
+    !['student', 'instructor'].includes(access.role) ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  )
+    return privateJson(
+      {
+        error: {
+          code: 'not_found',
+          message: 'Course leaderboard is unavailable.',
+        },
+      },
+      404,
+    );
+  const data = await loadLeaderboard(supabase, context.courseId, context.page);
   return data
     ? privateJson({ data })
     : privateJson(

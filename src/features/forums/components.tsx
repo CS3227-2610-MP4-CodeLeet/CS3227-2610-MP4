@@ -26,11 +26,13 @@ export function ForumPager({
   hasNext,
   path,
   query = '',
+  courseId = '',
 }: {
   page: number;
   hasNext: boolean;
   path: string;
   query?: string;
+  courseId?: string;
 }) {
   if (page === 1 && !hasNext) return null;
   return (
@@ -41,7 +43,7 @@ export function ForumPager({
       {page > 1 && (
         <Link
           className="underline"
-          href={forumSearchUrl(path, page - 1, query)}
+          href={forumSearchUrl(path, page - 1, query, courseId)}
         >
           Previous
         </Link>
@@ -50,7 +52,7 @@ export function ForumPager({
       {hasNext && (
         <Link
           className="underline"
-          href={forumSearchUrl(path, page + 1, query)}
+          href={forumSearchUrl(path, page + 1, query, courseId)}
         >
           Next
         </Link>

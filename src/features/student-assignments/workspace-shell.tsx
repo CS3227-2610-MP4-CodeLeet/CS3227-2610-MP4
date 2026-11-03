@@ -7,7 +7,6 @@ import {
   ClipboardList,
   ChevronRight,
   FileCode2,
-  MessageSquare,
   Menu,
   Terminal,
 } from 'lucide-react';
@@ -18,7 +17,6 @@ import { ThemeButton, useWorkspaceTheme } from './workspace-theme';
 
 const submissionsPath = '/student/submissions';
 const gradesPath = '/student/grades';
-const xpPath = '/student/xp';
 const AuthenticatedWorkspace = createContext(false);
 
 const workspaceDestinations = [
@@ -26,9 +24,6 @@ const workspaceDestinations = [
   { href: '/courses', label: 'Courses', icon: BookOpen },
   { href: submissionsPath, label: 'My submissions', icon: FileCode2 },
   { href: gradesPath, label: 'My grades', icon: ClipboardList },
-  { href: xpPath, label: 'My XP', icon: ClipboardList },
-  { href: '/leaderboard', label: 'Leaderboard', icon: ClipboardList },
-  { href: '/forums', label: 'Forums', icon: MessageSquare },
 ];
 function WorkspaceNavigation() {
   const authenticated = useContext(AuthenticatedWorkspace);

@@ -21,7 +21,7 @@ insert into public.grades(submission_id,instructor_id,scores,feedback,total_scor
  ('c4000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','{"c5000000-0000-4000-8000-000000000001":8}','Legacy',8,now());
 set local role authenticated;
 select set_config('request.jwt.claim.sub','c1000000-0000-4000-8000-000000000002',true);
-select is(public.get_my_xp(1)->>'total_xp','0','legacy publication does not invent an XP basis');
+select is(public.get_my_xp('cc000000-0000-4000-8000-000000000001',1)->>'total_xp','0','legacy publication does not invent an XP basis');
 select throws_ok($$update public.assignments set max_xp=100000$$,'42501',null,'student cannot configure XP');
 select throws_ok($$insert into public.xp_awards(student_id,assignment_id,amount) values('c1000000-0000-4000-8000-000000000002','c2000000-0000-4000-8000-000000000001',100)$$,'42501',null,'student cannot forge awards');
 select throws_ok($$select * from xp_private.grade_basis$$,'42501',null,'publication score basis stays private');
@@ -75,7 +75,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','c1000000-0000-4000-8000-000000000001',true);
 select lives_ok($$select public.save_grade('c4000000-0000-4000-8000-000000000001','{"c5000000-0000-4000-8000-000000000001":6.67}','Fraction',6.67,true,4)$$,'fractional earned score can publish');
 select throws_ok($$select xp_private.save_grade_core('c4000000-0000-4000-8000-000000000001','{}','Bypass',20,true,5)$$,'42501',null,'even owner cannot bypass XP wrapper');
-select throws_ok($$select public.get_my_xp(1)$$,'42501','student_required','instructor cannot invoke student total endpoint');
+select throws_ok($$select public.get_my_xp('cc000000-0000-4000-8000-000000000001',1)$$,'42501','course_member_required','instructor cannot invoke student total endpoint');
 reset role;
 select is((select amount from public.xp_awards where assignment_id='c2000000-0000-4000-8000-000000000001'),33,'fractional result floors rather than rounds');
 update public.assignments set max_xp=0 where id='c2000000-0000-4000-8000-000000000001';
@@ -93,11 +93,11 @@ select is((select amount from public.xp_awards where assignment_id='c2000000-000
 update public.assignments set publication_status='draft' where id='c2000000-0000-4000-8000-000000000001';
 set local role authenticated;
 select set_config('request.jwt.claim.sub','c1000000-0000-4000-8000-000000000002',true);
-select is((public.get_my_xp(1)->'awards'->0->>'assignment_title'),null::text,'unpublished assignment title stays hidden in own awards');
-select is(public.get_my_xp(1)->>'total_xp','33','own earned XP remains after assignment becomes hidden');
+select is((public.get_my_xp('cc000000-0000-4000-8000-000000000001',1)->'awards'->0->>'assignment_title'),null::text,'unpublished assignment title stays hidden in own awards');
+select is(public.get_my_xp('cc000000-0000-4000-8000-000000000001',1)->>'total_xp','33','own earned XP remains after assignment becomes hidden');
 select throws_ok($$update public.xp_ledger set delta=100$$,'42501',null,'ledger adjustments cannot be forged');
 select throws_ok($$select actor_id from public.xp_ledger$$,'42501',null,'private actor identifiers are excluded from student projection');
-select throws_ok($$select public.get_my_xp(0)$$,'22023','invalid_page','total RPC bounds pagination');
+select throws_ok($$select public.get_my_xp('cc000000-0000-4000-8000-000000000001',0)$$,'22023','invalid_page','total RPC bounds pagination');
 reset role;
 update public.assignments set publication_status='published' where id='c2000000-0000-4000-8000-000000000001';
 -- Existing validators accept fractional maxima/totals beyond two decimal places.
@@ -144,11 +144,11 @@ select is((select amount from public.xp_awards where assignment_id='c2000000-000
 select is((select total_score from public.grades where submission_id='c4000000-0000-4000-8000-000000000003'),2::numeric,'canonical total uses rubric-validated entries only');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','c1000000-0000-4000-8000-000000000003',true);
-select is(public.get_my_xp(1)->>'total_xp','0','peer sees own total only');
+select is(public.get_my_xp('cc000000-0000-4000-8000-000000000001',1)->>'total_xp','0','peer sees own total only');
 select is((select count(*)::integer from public.xp_awards),0,'peer cannot read awards');
 select is((select count(*)::integer from public.xp_ledger),0,'peer cannot read ledger');
 select throws_ok($$select public.save_grade('c4000000-0000-4000-8000-000000000001','{}','Forge',10,true,4)$$,'42501','submission_not_owned','non-member cannot mutate grades or XP');
 reset role;
-select ok(not has_function_privilege('anon','public.get_my_xp(integer)','EXECUTE'),'anonymous total RPC denied');
+select ok(not has_function_privilege('anon','public.get_my_xp(uuid,integer)','EXECUTE'),'anonymous total RPC denied');
 select * from finish();
 rollback;

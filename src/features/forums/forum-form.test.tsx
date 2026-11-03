@@ -25,7 +25,7 @@ describe('forum post form', () => {
       }),
     );
     vi.stubGlobal('fetch', fetch);
-    render(<ForumForm />);
+    render(<ForumForm courseId="f0300000-0000-4000-8000-000000000020" />);
     fireEvent.change(screen.getByLabelText('Title'), {
       target: { value: 'A useful question' },
     });
@@ -38,9 +38,12 @@ describe('forum post form', () => {
     expect(payload).toMatchObject({
       title: 'A useful question',
       body: 'How does this loop behave?',
+      courseId: 'f0300000-0000-4000-8000-000000000020',
     });
     expect(payload.requestId).toMatch(/^[0-9a-f-]{36}$/i);
-    expect(router.push).toHaveBeenCalledWith('/forums/thread-1');
+    expect(router.push).toHaveBeenCalledWith(
+      '/forums/thread-1?courseId=f0300000-0000-4000-8000-000000000020',
+    );
     expect(router.refresh).toHaveBeenCalledOnce();
     expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('');
   });
@@ -54,7 +57,12 @@ describe('forum post form', () => {
         }),
       ),
     );
-    render(<ForumForm threadId="00000000-0000-4000-8000-000000000002" />);
+    render(
+      <ForumForm
+        courseId="f0300000-0000-4000-8000-000000000020"
+        threadId="00000000-0000-4000-8000-000000000002"
+      />,
+    );
     expect(screen.queryByLabelText('Title')).toBeNull();
     fireEvent.change(screen.getByLabelText('Your reply'), {
       target: { value: 'I have an answer.' },
@@ -68,6 +76,7 @@ describe('forum post form', () => {
     );
     expect(payload).toMatchObject({
       threadId: '00000000-0000-4000-8000-000000000002',
+      courseId: 'f0300000-0000-4000-8000-000000000020',
       body: 'I have an answer.',
     });
     expect(router.push).not.toHaveBeenCalled();

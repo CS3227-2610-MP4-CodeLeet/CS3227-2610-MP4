@@ -1,5 +1,5 @@
 begin;
-select plan(32);
+select no_plan();
 select has_table('public', 'forum_threads', 'threads persist');
 select has_table('public', 'forum_replies', 'replies persist');
 insert into auth.users (id,email,email_confirmed_at,raw_user_meta_data) values
@@ -15,9 +15,14 @@ insert into public.courses(id,owner_id,created_by,title,description) values('f04
 insert into public.courses(id,owner_id,created_by,title,description) values('f0400000-0000-4000-8000-000000000003','f0300000-0000-4000-8000-000000000002','f0300000-0000-4000-8000-000000000002','Student course','Synthetic isolated course');
 insert into public.course_memberships(course_id,user_id,role) values('f0400000-0000-4000-8000-000000000002','f0300000-0000-4000-8000-000000000002','instructor'),('f0400000-0000-4000-8000-000000000003','f0300000-0000-4000-8000-000000000002','instructor'),('f0400000-0000-4000-8000-000000000003','f0300000-0000-4000-8000-000000000003','student');
 insert into public.course_features(course_id,feature,enabled) values('f0400000-0000-4000-8000-000000000002','discussions',true),('f0400000-0000-4000-8000-000000000003','discussions',true);
+insert into public.forum_threads(id,course_id,author_id,author_name,author_role,title,body,request_id)
+values('f0500000-0000-4000-8000-000000000001','f0400000-0000-4000-8000-000000000003','f0300000-0000-4000-8000-000000000002','Forum Teacher','instructor','Other course thread','Synthetic','f0300000-0000-4000-8000-000000000030');
+update public.course_features set enabled=false where course_id='f0400000-0000-4000-8000-000000000003' and feature='discussions';
 set local role authenticated;
 select set_config('request.jwt.claim.sub','f0300000-0000-4000-8000-000000000001',true);
 select lives_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000001',null,'Thread','<script>plain text</script>','f0300000-0000-4000-8000-000000000010')$$,'student posts');
+select throws_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000003',null,'Cross course','Denied',gen_random_uuid())$$,'42501','forum_member_required','student cannot post into another course');
+select is((select count(*)::int from public.forum_threads where course_id='f0400000-0000-4000-8000-000000000003'),0,'direct forum reads cannot cross course membership');
 select is((select author_role from public.forum_threads where title='Thread'),'student','ignores forged signup role');
 select is((select author_name from public.forum_threads where title='Thread'),'Forum Student','trusted profile snapshot');
 select is((select body from public.forum_threads where title='Thread'),'<script>plain text</script>','stores plain text');
@@ -49,7 +54,7 @@ end; $quota$;
 select throws_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000001',null,'Over quota','Body',gen_random_uuid())$$,'P0001','forum_rate_limited','combined posting quota enforced');
 select lives_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000001',null,'Thread','<script>plain text</script>','f0300000-0000-4000-8000-000000000010')$$,'identical retry bypasses exhausted quota');
 select set_config('request.jwt.claim.sub','f0300000-0000-4000-8000-000000000003',true);
-select is((select count(*)::int from public.forum_threads),0,'unprovisioned cannot read');
+select is((select count(*)::int from public.forum_threads),0,'disabled course discussions are hidden');
 select throws_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000001',null,'Title','Body',gen_random_uuid())$$,'42501','forum_member_required','unprovisioned cannot post');
 set local role anon;
 select is(has_function_privilege('anon','public.create_forum_post(uuid,uuid,text,text,uuid)','EXECUTE'),false,'anonymous RPC denied');

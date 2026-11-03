@@ -1,7 +1,13 @@
 import Link from 'next/link';
 import { formatXp } from '@/features/assignment-xp/contracts';
 import type { Leaderboard } from './contracts';
-export function LeaderboardView({ data }: { data: Leaderboard }) {
+export function LeaderboardView({
+  data,
+  courseId,
+}: {
+  data: Leaderboard;
+  courseId: string;
+}) {
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-semibold">Leaderboard</h1>
@@ -38,7 +44,7 @@ export function LeaderboardView({ data }: { data: Leaderboard }) {
         {data.page > 1 ? (
           <Link
             className="underline"
-            href={`/leaderboard?page=${data.page - 1}`}
+            href={`/leaderboard?courseId=${courseId}&page=${data.page - 1}`}
           >
             Previous
           </Link>
@@ -48,7 +54,7 @@ export function LeaderboardView({ data }: { data: Leaderboard }) {
         {data.has_more && (
           <Link
             className="underline"
-            href={`/leaderboard?page=${data.page + 1}`}
+            href={`/leaderboard?courseId=${courseId}&page=${data.page + 1}`}
           >
             Next
           </Link>

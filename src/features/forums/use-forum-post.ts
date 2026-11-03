@@ -4,7 +4,13 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { forumInput } from './contracts';
 
-export function useForumPost({ threadId }: { threadId?: string }) {
+export function useForumPost({
+  courseId,
+  threadId,
+}: {
+  courseId: string;
+  threadId?: string;
+}) {
   const router = useRouter();
   const requestId = useRef<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -17,6 +23,7 @@ export function useForumPost({ threadId }: { threadId?: string }) {
     const fields = new FormData(form);
     requestId.current ??= crypto.randomUUID();
     const input = forumInput.safeParse({
+      courseId,
       ...(threadId ? { threadId } : { title: fields.get('title') }),
       body: fields.get('body'),
       requestId: requestId.current,
@@ -45,7 +52,7 @@ export function useForumPost({ threadId }: { threadId?: string }) {
       }
       requestId.current = null;
       form.reset();
-      router.push(`/forums/${result.post.threadId}`);
+      router.push(`/forums/${result.post.threadId}?courseId=${courseId}`);
       router.refresh();
     } catch {
       setError(

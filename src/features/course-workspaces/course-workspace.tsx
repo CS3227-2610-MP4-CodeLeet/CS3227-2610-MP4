@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type {
   CourseFeatureSetting,
   CourseInvitation,
@@ -48,6 +49,15 @@ export function CourseWorkspace({
         aiEnabled={features.some(
           (feature) => feature.feature === 'ai' && feature.enabled,
         )}
+        discussionsEnabled={features.some(
+          (feature) => feature.feature === 'discussions' && feature.enabled,
+        )}
+        xpEnabled={features.some(
+          (feature) => feature.feature === 'xp' && feature.enabled,
+        )}
+        leaderboardEnabled={features.some(
+          (feature) => feature.feature === 'leaderboard' && feature.enabled,
+        )}
       />
       {canManage && (
         <ManagementPanels
@@ -74,11 +84,17 @@ function CourseHeading({
   role,
   assessmentsEnabled,
   aiEnabled,
+  discussionsEnabled,
+  xpEnabled,
+  leaderboardEnabled,
 }: {
   course: CourseWorkspaceRecord;
   role: CourseMemberRole;
   assessmentsEnabled: boolean;
   aiEnabled: boolean;
+  discussionsEnabled: boolean;
+  xpEnabled: boolean;
+  leaderboardEnabled: boolean;
 }) {
   return (
     <header className="space-y-3">
@@ -101,6 +117,9 @@ function CourseHeading({
         role={role}
         assessmentsEnabled={assessmentsEnabled}
         aiEnabled={aiEnabled}
+        discussionsEnabled={discussionsEnabled}
+        xpEnabled={xpEnabled}
+        leaderboardEnabled={leaderboardEnabled}
       />
       {course.lifecycle === 'archived' && (
         <p className="rounded-md border p-3 text-sm">
@@ -155,44 +174,88 @@ function CourseFeatureLinks({
   role,
   assessmentsEnabled,
   aiEnabled,
+  discussionsEnabled,
+  xpEnabled,
+  leaderboardEnabled,
 }: {
   course: CourseWorkspaceRecord;
   role: CourseMemberRole;
   assessmentsEnabled: boolean;
   aiEnabled: boolean;
+  discussionsEnabled: boolean;
+  xpEnabled: boolean;
+  leaderboardEnabled: boolean;
 }) {
   const assignmentsHref =
     role === 'student'
       ? `/student/assignments?courseId=${course.id}`
       : `/instructor?courseId=${course.id}`;
+  const archived = course.lifecycle === 'archived';
   return (
     <nav aria-label="Course activities" className="flex flex-wrap gap-3">
-      {(course.lifecycle === 'archived' || assessmentsEnabled) && (
-        <Link
-          href={assignmentsHref}
-          className="rounded-md border px-3 py-2 text-sm underline"
-        >
-          Assignments
-        </Link>
-      )}
-      {(course.lifecycle === 'archived' || aiEnabled) && (
-        <Link
-          href={`/ai/usage?courseId=${course.id}`}
-          className="rounded-md border px-3 py-2 text-sm underline"
-        >
-          AI usage
-        </Link>
-      )}
-      {role === 'instructor' &&
-        course.lifecycle === 'active' &&
-        assessmentsEnabled && (
-          <Link
-            href={`/instructor/assignments/new?courseId=${course.id}`}
-            className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground"
-          >
-            New assignment
-          </Link>
-        )}
+      <CourseActivityLink
+        enabled={archived || assessmentsEnabled}
+        href={assignmentsHref}
+      >
+        Assignments
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={archived || aiEnabled}
+        href={`/ai/usage?courseId=${course.id}`}
+      >
+        AI usage
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={archived || discussionsEnabled}
+        href={`/forums?courseId=${course.id}`}
+      >
+        Discussions
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={role === 'student' && (archived || xpEnabled)}
+        href={`/student/xp?courseId=${course.id}`}
+      >
+        My XP
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={archived || leaderboardEnabled}
+        href={`/leaderboard?courseId=${course.id}`}
+      >
+        Leaderboard
+      </CourseActivityLink>
+      <CourseActivityLink
+        enabled={role === 'instructor' && !archived && assessmentsEnabled}
+        href={`/instructor/assignments/new?courseId=${course.id}`}
+        primary
+      >
+        New assignment
+      </CourseActivityLink>
     </nav>
+  );
+}
+
+function CourseActivityLink({
+  enabled,
+  href,
+  primary = false,
+  children,
+}: {
+  enabled: boolean;
+  href: string;
+  primary?: boolean;
+  children: ReactNode;
+}) {
+  if (!enabled) return null;
+  return (
+    <Link
+      href={href}
+      className={
+        primary
+          ? 'rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground'
+          : 'rounded-md border px-3 py-2 text-sm underline'
+      }
+    >
+      {children}
+    </Link>
   );
 }

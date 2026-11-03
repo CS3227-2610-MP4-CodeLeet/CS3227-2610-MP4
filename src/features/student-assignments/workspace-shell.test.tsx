@@ -26,24 +26,6 @@ beforeEach(() => {
 });
 
 describe('student workspace shell', () => {
-  it.each([
-    ['/student/xp', 'My XP'],
-    ['/leaderboard', 'Leaderboard'],
-  ])('uses the matching breadcrumb for %s', (path, label) => {
-    mocks.pathname = path;
-    const html = renderToStaticMarkup(
-      <WorkspaceShell assignments={[]} authenticated>
-        <p>XP overview</p>
-      </WorkspaceShell>,
-    );
-    const header = html.slice(
-      html.indexOf('<header'),
-      html.indexOf('</header>'),
-    );
-    const breadcrumb = header.slice(0, header.indexOf('</a>'));
-    expect(breadcrumb).toContain(`href="${path}"`);
-    expect(breadcrumb).toContain(label);
-  });
   it('shows a local preview with assignment navigation and the current assignment title', () => {
     mocks.pathname = '/student/assignments/loops';
     const html = renderToStaticMarkup(
@@ -71,10 +53,9 @@ describe('student workspace shell', () => {
     expect(html).not.toContain('Preview with sample assignments.');
     expect(html).toContain('My submissions');
     expect(html).toContain('My grades');
-    expect(html).toContain('Forums');
     expect(html).toContain('Profile settings');
     expect(html).toContain('Sign out');
-    expect(html).toContain('href="/forums"');
+    expect(html).not.toContain('href="/forums"');
     expect(html).toContain('Thread');
   });
 

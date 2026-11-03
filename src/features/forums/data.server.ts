@@ -8,11 +8,15 @@ const threadFields = `${postFields},title`;
 
 export async function loadThreads(
   client: SupabaseClient,
+  courseId: string,
   page: number,
   query = '',
 ) {
   const offset = (page - 1) * FORUM_PAGE_SIZE;
-  let request = client.from('forum_threads').select(threadFields);
+  let request = client
+    .from('forum_threads')
+    .select(threadFields)
+    .eq('course_id', courseId);
   if (query) request = request.or(forumSearchExpression(query));
   const { data, error } = await request
     .order('created_at', { ascending: false })
@@ -26,10 +30,15 @@ export async function loadThreads(
   };
 }
 
-export async function loadThread(client: SupabaseClient, id: string) {
+export async function loadThread(
+  client: SupabaseClient,
+  courseId: string,
+  id: string,
+) {
   const { data, error } = await client
     .from('forum_threads')
     .select(threadFields)
+    .eq('course_id', courseId)
     .eq('id', id)
     .maybeSingle();
   if (error) throw new Error('Unable to load discussion.');

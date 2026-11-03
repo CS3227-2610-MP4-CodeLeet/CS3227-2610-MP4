@@ -72,9 +72,9 @@
 
 **Files:** src/features/forums/, assignment-xp/, leaderboard/; src/app/forums/, leaderboard/, student/xp/, api/forums/, api/leaderboard/, api/student/xp/; related migrations/tests.
 
-- [ ] Add failing database/service tests for per-course forum access, XP totals and ranks, plus direct cross-course denial.
-- [ ] Scope threads by course and replies via thread; scope XP/leaderboard reads through assignment/course. Preserve legacy access and prevent duplicate XP backfill.
-- [ ] Verify and commit this stage.
+- [x] Add failing database/service tests for per-course forum access, XP totals and ranks, plus direct cross-course denial.
+- [x] Scope threads by course and replies via thread; scope XP/leaderboard reads through assignment/course. Preserve legacy access and prevent duplicate XP backfill.
+- [x] Verify and commit this stage.
 
 ### Task 6: Feature settings and lifecycle UX
 

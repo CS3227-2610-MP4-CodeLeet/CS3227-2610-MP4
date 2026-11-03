@@ -6,12 +6,20 @@ const requestId = z.uuid();
 export const forumInput = z.union([
   z
     .object({
+      courseId: z.uuid(),
       title: z.string().trim().min(1).max(160),
       body: message,
       requestId,
     })
     .strict(),
-  z.object({ threadId: z.uuid(), body: message, requestId }).strict(),
+  z
+    .object({
+      courseId: z.uuid(),
+      threadId: z.uuid(),
+      body: message,
+      requestId,
+    })
+    .strict(),
 ]);
 
 export function forumPage(value: string | string[] | undefined): number | null {
