@@ -22,4 +22,4 @@ Execute inline using executing-plans and verification-before-completion. This is
 - [x] Update the User Guide with clear entry points, tested workflows, concise troubleshooting and acceptance steps.
 - [x] Replace obsolete scaffold/history sections in the Developer Guide with current setup, architecture/contracts, security/resource workflow and rollout guidance; retain acknowledgements and deep evidence links.
 - [x] Verify command/path references, Markdown links, strict OpenSpec, formatting and site build; obtain a bounded independent documentation review and resolve material findings.
-- [ ] Finalize log, commit/push, pass branch CI, create linked PR to develop and confirm final-head checks. Record skips and hosted/human verification separately.
+- [x] Finalize log, commit/push, pass branch CI and create PR #88 to develop. Required integration checks passed at b484e16; final metadata-head checks are recorded externally on the PR after execution. Supabase Preview skipped; hosted/human verification remains separate.
