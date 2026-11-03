@@ -1,6 +1,6 @@
 # CodeLeet Developer Guide
 
-This guide describes merged develop `dfe5936` (3 November 2026). It is a contributor reference, not proof of a production release. The [User Guide](UserGuide.md) describes user journeys; the [acceptance record](../workflow/evidence/2026-11-03-student-acceptance.md) distinguishes actual local tests, mocked AI, CI and unverified hosted checks. Course workspaces are separate pending work and are not part of this baseline.
+This guide describes the CodeLeet implementation and documentation tooling. Product behavior was audited against develop `dfe5936` on 3 November 2026. It is a contributor reference, not proof of a production release. The [User Guide](UserGuide.md) describes user journeys; the [acceptance record](../workflow/evidence/2026-11-03-student-acceptance.md) distinguishes actual local tests, mocked AI, CI and unverified hosted checks. Course workspaces are separate pending work and are not part of this baseline.
 
 ## 1. Local setup
 
@@ -185,13 +185,14 @@ Delegate only when authorized and useful. Give specialists narrow context, allow
 
 Keep development/preview and production Supabase data, credentials, origins and AI resources separate. `develop` is integration; `master` is the grading/release branch. A localhost Supabase URL cannot serve hosted Vercel users. Configure matching public settings and server-only login/AI secrets per environment, apply reviewed migrations, configure Auth Site URL/allowed callbacks and mail delivery, then deploy through team-controlled automation. Build public environment values into the matching deployment.
 
-This baseline has application/scaffold CI and [.github/workflows/pages.yml](../.github/workflows/pages.yml). Pages publication is manually dispatched from `master` and builds/uploads `website/build`; a successful local site build does not publish it. The configured Pages address is not proof of a verified published site. No dedicated GitHub Actions Vercel deployment workflow exists in this baseline; repository Vercel checks/builds must not be described as completed team-managed Actions deployment automation.
+The product website has an overview, on-site User Guide and Developer Guide, top navigation, a sidebar and on-page contents. `workflow/scripts/prepare-site-docs.mjs` generates the two website guide pages from the canonical files in `docs/` before website development/build. Edit the canonical files; generated copies are ignored. Relative references outside those guides become GitHub repository links. Restart `pnpm site:dev` after editing canonical guide content to regenerate it; normal builds always regenerate both pages.
+
+[.github/workflows/pages.yml](../.github/workflows/pages.yml) builds/uploads `website/build` and publishes on relevant pushes to `develop`, or manual dispatch from `develop`, matching the existing github-pages environment branch restriction. Pull requests run build checks without publishing; merge into develop is a separate human decision. A successful local build is not publication: verify the Pages deployment and live URLs afterward. No dedicated GitHub Actions Vercel deployment workflow exists in this baseline; repository Vercel checks/builds must not be described as completed team-managed Actions deployment automation.
 
 Before release, record the deployed commit/address, migration/configuration state, development/production separation, both role journeys, password email flow, actual Python/Java runs, published cases, privacy denials and live-AI/provider-limit checks. Keep licensing/provenance and browser compatibility limits visible. Use [AssignmentChecklist](../workflow/AssignmentChecklist.md) and the [security evidence map](../workflow/evidence/2026-11-02-security-testing.md). A green PR or preview build is not full production acceptance. Do not seed/reset hosted data or expose production secrets to untrusted PR jobs.
 
 ## 11. Acknowledgements
 
-- MP4 code/configuration/workflow was built fresh. The prior MP3 repository informed technology selection only; its implementation was not reused.
 - [Coursemology's public guide](https://coursemology.github.io/coursemology-help/) and user-provided screenshots informed assignment/grading/discussion journeys and problem-above-editor presentation. No course identity/content/assets or implementation were copied.
 - The user-provided brainstorming PDF informed feature/security ideas; explicit user requirements determine browser-only execution and current scope.
 - [Next.js](https://nextjs.org/), React, Tailwind, shadcn/ui, Lucide, Zod, Supabase, Vitest, Playwright and Docusaurus provide the pinned application/tooling dependencies. Consult the lockfile and package notices for exact versions/licenses.

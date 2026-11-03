@@ -1,5 +1,8 @@
 ## 31. Issue #87 current user and developer guides
 
+- [x] 31.5 Add canonical guide generation and a documentation-style CodeLeet Pages overview/navigation, without prior-project references in public copy; preserve the existing develop-only Pages environment restriction and align publication triggers.
+- [ ] 31.6 Verify generation, built desktop/mobile/theme/deep-link behavior, unit/build/spec/link checks and independent review; update PR #88 and confirm final-head CI. Live publication follows the separate human merge to develop.
+
 - [x] 31.1 Audit merged source/configuration and identify outdated or contradictory guide instructions; link issue, branch and dated plan/log.
 - [x] 31.2 Refresh user journeys and current contributor setup/architecture/security/testing/deployment documentation without changing product behavior or inventing hosted evidence.
 - [x] 31.3 Verify paths/commands/links, formatting, strict specs and site build; record actual independent review and remaining gates.

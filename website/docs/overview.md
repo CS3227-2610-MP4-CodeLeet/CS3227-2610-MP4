@@ -1,11 +1,29 @@
 ---
-title: Project status
-description: Verified implementation status for the CS3227 MP4 project.
+title: CodeLeet
+sidebar_label: Overview
+slug: /
+description: Programming practice and assignment workflows for students and instructors.
 ---
 
-# Project status
+# CodeLeet
 
-CS3227 MP4 is a Coursemology-inspired programming assignment platform under development.
+CodeLeet helps students practise Python and Java, save and revisit solutions, and learn from feedback. Instructors create assignments, publish practice cases and review students' work.
+
+## User Guide
+
+Learn how to sign in, work on assignments, run code, save revisions, request feedback and participate in discussions.
+
+[Read the User Guide](./UserGuide.md)
+
+## Developer Guide
+
+Set up the project, understand its architecture and security boundaries, and follow its testing and development workflow.
+
+[Read the Developer Guide](./DeveloperGuide.md)
+
+## Reflections and project evidence
+
+Explore the team's [individual reflections](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/blob/develop/docs/Reflections.md), [development summaries](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/tree/develop/logs) and [verification evidence](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/tree/develop/workflow/evidence).
 
 ## Available in the repository
 

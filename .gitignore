@@ -17,6 +17,8 @@ test-results/
 supabase/.temp/
 supabase/.branches/
 website/build/
+website/docs/UserGuide.md
+website/docs/DeveloperGuide.md
 website/.docusaurus/
 *.tsbuildinfo
 *.log
