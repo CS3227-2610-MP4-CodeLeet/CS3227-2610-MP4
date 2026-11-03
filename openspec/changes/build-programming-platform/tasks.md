@@ -1,3 +1,10 @@
+## 31. Issue #87 current user and developer guides
+
+- [x] 31.1 Audit merged source/configuration and identify outdated or contradictory guide instructions; link issue, branch and dated plan/log.
+- [x] 31.2 Refresh user journeys and current contributor setup/architecture/security/testing/deployment documentation without changing product behavior or inventing hosted evidence.
+- [x] 31.3 Verify paths/commands/links, formatting, strict specs and site build; record actual independent review and remaining gates.
+- [ ] 31.4 Commit/push, pass branch CI, create linked PR to develop and confirm final-head checks; human verification remains separate.
+
 ## 28. Issue #80 trusted XP leaderboard
 
 - [x] 28.1 Review/approve ranking, visibility and narrow privacy design; write implementation plan after approval and ensure XP dependency is available.
