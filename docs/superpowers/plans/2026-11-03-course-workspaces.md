@@ -57,8 +57,8 @@
 
 - [x] Add failing tests for multiple courses, different roles by course, empty/no-course states, archived course and member management.
 - [x] Implement course list/create/detail/settings, member management, invite state and join-code entry; invitation acceptance is covered by Task 2.
-- [ ] Replace global student/instructor access assumptions with selected-course membership; keep platform admin separate.
-- [ ] Verify stale course context fails safely and responsive navigation; commit.
+- [x] Replace global student/instructor access assumptions with selected-course membership; keep platform admin separate.
+- [x] Verify stale course context fails safely and responsive navigation; commit. The mobile course E2E covered 375px layout, course-scoped activity links, assignment course context, and access denial after membership removal.
 
 ### Task 4: Assignments, grading and AI
 
@@ -89,7 +89,7 @@
 
 **Files:** docs/UserGuide.md only for verified behavior; OpenSpec tasks; logs/2026-11-03-course-workspaces.md; E2E tests.
 
-- [ ] Run focused unit/database/browser checks per stage, then applicable lint, types, format, build, strict OpenSpec and scaffold checks.
-- [ ] Verify multiple isolated courses, mixed roles, email/code enrollment, ownership transfer, feature gates, archive/delete and legacy access.
-- [ ] Record exact commit, commands, skips, hosted SMTP/acceptance limits and absence of independent review.
+- [x] Run focused unit/database/browser checks per stage, then applicable lint, types, format, build, strict OpenSpec and scaffold checks. The standard `pnpm run build` packaging step hit the documented Windows staging rename `EPERM`; standalone `pnpm exec next build` and the focused course browser E2E passed.
+- [x] Verify multiple isolated courses, mixed roles, email/code enrollment, ownership transfer, feature gates, archive/delete and legacy access through course UI/API tests, 373 pgTAP assertions, local verified-email invitation smoke, and browser E2E.
+- [x] Record exact implementation commit, commands, skips, hosted SMTP/acceptance limits and absence of independent review. Source commit: `c8f6021`; full Vitest and database totals and build limitations are in the dated session summary.
 - [ ] Update only verified guide behavior. Push after applicable CI passes; create/update a PR to develop linking issue #85, OpenSpec, plan and log.
