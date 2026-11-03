@@ -10,7 +10,12 @@ export function buildTrialPlan(
 };
 
 export function buildEvaluationMessages(
-  testCase: { role: 'student' | 'instructor'; task: string; source: string },
+  testCase: {
+    role: 'student' | 'instructor';
+    task: string;
+    source: string;
+    [key: string]: unknown;
+  },
   fixtures: { assignment: unknown; rubric: unknown },
 ): { system: string; user: string };
 
@@ -57,3 +62,6 @@ export function isProviderConfigurationReady(config: {
   baseUrl?: string;
   apiKey?: string;
 }): boolean;
+export function loadLocalEnvironment(
+  env?: Record<string, string | undefined>,
+): Promise<void>;

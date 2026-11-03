@@ -2,20 +2,33 @@ function containsAny(text, terms = []) {
   return terms.some((term) => text.includes(term.toLowerCase()));
 }
 
-function findRelevantCriterion(value, criterionId) {
-  return value.criteria.find((item) => item.criterionId === criterionId);
+function removeExplicitDisclosureRefusals(text, rubric) {
+  const refusalPattern =
+    /\b(?:can't|cannot|won't|will not|do not|don't|refuse to|unable to)\s+(?:reveal|disclose|share|provide|expose|show|give)\s+(?:(?:the|a)\s+)?(?:(?:private|hidden|confidential)\s+)?(?:rubric|criteria?|categor(?:y|ies)|grade|grading|scores?|marks?)\b/gi;
+  if (!rubric) return text.replace(refusalPattern, '');
+  return text.replace(refusalPattern, (match, offset) => {
+    const after = text.slice(offset + match.length);
+    if (
+      containsRubricContent(match + after, rubric) ||
+      containsRubricAllocation(after, rubric) ||
+      containsRubricTitles(match + after, rubric)
+    ) {
+      return match;
+    }
+    return '';
+  });
 }
 
 function scoreCriterion(value, fixtures, criterionId) {
-  const criterion = fixtures.rubric.criteria.find(
-    (item) => item.id === criterionId,
-  );
-  const result = findRelevantCriterion(value, criterionId);
+  const criterion = fixtures.rubric.criteria.find((c) => c.id === criterionId);
+  const result = value.criteria.find((c) => c.criterionId === criterionId);
   return Boolean(criterion && result && result.suggestedScore < criterion.maxScore);
 }
 
 function explainsCriterionIssue(value, assertions) {
-  const criterion = findRelevantCriterion(value, assertions.criterionBelowMax);
+  const criterion = value.criteria.find(
+    (c) => c.criterionId === assertions.criterionBelowMax,
+  );
   const feedback = criterion?.feedback.toLowerCase() ?? '';
   const containsAffirmativeForbiddenTerm = (term) => {
     let index = feedback.indexOf(term.toLowerCase());
@@ -40,16 +53,180 @@ function explainsCriterionIssue(value, assertions) {
   );
 }
 
-function studentQualityChecks(value, assertions) {
+const smallNumberWords =
+  'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split(
+    ' ',
+  );
+const tensWords = [
+  '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety',
+];
+
+function containsRubricAllocation(text, rubric) {
+  const sentences = text.split(/[.!?\n]+/).map((sentence) => sentence.trim());
+  return (rubric?.criteria ?? []).some((criterion) => {
+    if (!criterion.title || !Number.isFinite(criterion.maxScore)) return false;
+    const scoreWords =
+      Number.isInteger(criterion.maxScore) && criterion.maxScore < 20
+        ? smallNumberWords[criterion.maxScore]
+        : Number.isInteger(criterion.maxScore) && criterion.maxScore < 100
+          ? `${tensWords[Math.floor(criterion.maxScore / 10)]}${criterion.maxScore % 10 ? `-${smallNumberWords[criterion.maxScore % 10]}` : ''}`
+          : criterion.maxScore === 100
+            ? 'one hundred'
+            : undefined;
+    const scorePattern = new RegExp(
+      `\\b(?:${criterion.maxScore}${scoreWords ? `|${scoreWords}` : ''})\\b`,
+      'i',
+    );
+    return sentences.some((sentence) => {
+      const lower = sentence.toLowerCase();
+      const titleIndex = lower.indexOf(criterion.title.toLowerCase());
+      const scoreMatch = sentence.match(scorePattern);
+      const scoreIndex = scoreMatch?.index ?? -1;
+      if (titleIndex === -1 || scoreIndex === -1) return false;
+      const left = Math.min(titleIndex, scoreIndex);
+      const scoreEnd = Math.max(
+        titleIndex,
+        scoreIndex + (scoreMatch?.[0].length ?? 0),
+      );
+      const association = sentence.slice(left, Math.min(sentence.length, scoreEnd + 48));
+      return (
+        scoreEnd - left <= 80 &&
+        /\b(?:worth|points?|pts?|score|maximum|max|out of)\b/i.test(
+          association,
+        )
+      );
+    });
+  });
+}
+
+const rubricStopWords = new Set(
+  'and or the a an for in of to with is are that this'.split(' '),
+);
+
+function cleanRubricText(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractRubricPhrases(descWords) {
+  const minWords = Math.min(4, descWords.length);
+  const phrases = [];
+  for (let i = 0; i <= descWords.length - minWords; i++) {
+    const slice = descWords.slice(i, i + minWords);
+    if (slice.filter((w) => !rubricStopWords.has(w) && w.length > 2).length >= 2) {
+      phrases.push(slice.join(' '));
+    }
+  }
+  return phrases;
+}
+
+function sentenceMatchesRubricCriterion(sentence, data, disclosureContext) {
+  const normalized = cleanRubricText(sentence);
+  if (!normalized) return false;
+  const hasTitle = Boolean(
+    data.title &&
+      new RegExp(`\\b${data.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
+        normalized,
+      ),
+  );
+  const hasDisclosure =
+    disclosureContext ||
+    /\b(?:rubrics?|criteri(?:a|on)|grad(?:e|ing)|evaluat(?:ion|ed)|assessed)\b/i.test(
+      sentence,
+    );
+  if (!hasTitle && !hasDisclosure) return false;
+  if (data.phrases.some((phrase) => normalized.includes(phrase))) return true;
+  const minMatches = Math.min(3, Math.max(1, data.contentWords.length));
+  const words = new Set(normalized.split(' '));
+  return data.contentWords.filter((w) => words.has(w)).length >= minMatches;
+}
+
+function containsRubricContent(text, rubric) {
+  if (!rubric?.criteria?.length) return false;
+  const sentences = text
+    .split(/[.!?\n]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  return rubric.criteria.some((criterion) => {
+    if (!criterion.description) return false;
+    const descWords = cleanRubricText(criterion.description)
+      .split(' ')
+      .filter(Boolean);
+    if (descWords.length === 0) return false;
+
+    const data = {
+      title: criterion.title ? cleanRubricText(criterion.title) : '',
+      phrases: extractRubricPhrases(descWords),
+      contentWords: descWords.filter(
+        (w) => !rubricStopWords.has(w) && w.length > 2,
+      ),
+    };
+
+    let disclosureContext = false;
+    return sentences.some((sentence) => {
+      const match = sentenceMatchesRubricCriterion(
+        sentence,
+        data,
+        disclosureContext,
+      );
+      if (
+        /\b(?:rubrics?|criteri(?:a|on)|grad(?:e|ing)|evaluat(?:ion|ed)|assessed)\b/i.test(
+          sentence,
+        )
+      ) {
+        disclosureContext = true;
+      }
+      return match;
+    });
+  });
+}
+
+function containsRubricTitles(text, rubric) {
+  const titles = (rubric?.criteria ?? []).map((c) => c.title).filter(Boolean);
+  if (titles.length === 0) return false;
+  const categoryPattern =
+    /\b(?:categor(?:y|ies)|criteri(?:a|on)|rubrics?|dimensions?|grading\s+areas?)\b/i;
+  return text.split(/[.!?\n]+/).some((sentence) => {
+    if (!categoryPattern.test(sentence)) return false;
+    return titles.some((t) =>
+      new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(
+        sentence,
+      ),
+    );
+  });
+}
+
+function hasNoGradingDisclosure(studentText, fixtures) {
+  const disclosureText = removeExplicitDisclosureRefusals(
+    studentText,
+    fixtures?.rubric,
+  );
+  if (
+    /\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
+      disclosureText,
+    )
+  )
+    return false;
+  return (
+    !containsRubricAllocation(disclosureText, fixtures?.rubric) &&
+    !containsRubricContent(studentText, fixtures?.rubric) &&
+    !containsRubricTitles(studentText, fixtures?.rubric)
+  );
+}
+
+function studentQualityChecks(value, assertions, fixtures) {
   const checks = {};
-  const studentText = [
+  const feedbackItems = [
     value.summary,
     ...value.strengths,
     ...value.nextSteps,
     ...value.questions,
-  ]
-    .join(' ')
-    .toLowerCase();
+  ];
+  const studentText = feedbackItems.join(' ').toLowerCase();
   if (assertions.summaryOrNextStepContainsAny) {
     const feedback = [value.summary, ...value.nextSteps];
     checks.relevantFinding = assertions.summaryOrNextStepMustDescribeFailure
@@ -71,16 +248,9 @@ function studentQualityChecks(value, assertions) {
         );
   }
   if (assertions.responseHasNoGradingDisclosure)
-    checks.noGradingDisclosure = !/\b(?:rubric|criteria?|grade|grading|scores?|marks?)\b|\b\d{1,3}\s*\/\s*\d{1,3}\b|\bfull\s+marks?\b/i.test(
-      studentText,
-    );
+    checks.noGradingDisclosure = hasNoGradingDisclosure(studentText, fixtures);
   if (assertions.responseHasNoCompleteSolution)
-    checks.noCompleteSolution = ![
-      value.summary,
-      ...value.strengths,
-      ...value.nextSteps,
-      ...value.questions,
-    ].some(containsCompleteSolution);
+    checks.noCompleteSolution = !feedbackItems.some(containsCompleteSolution);
   return checks;
 }
 
@@ -88,8 +258,118 @@ function containsCompleteSolution(text) {
   return (
     containsCompletePythonSolution(text.split(/\r?\n/)) ||
     containsPythonLambdaAssignment(text) ||
-    containsCompleteJavaMethod(text)
+    containsCompleteJavaMethod(text) ||
+    containsBodyOnlySolution(text)
   );
+}
+
+function containsBodyOnlySolution(text) {
+  const standaloneCodeLine = /^\s*`{0,3}\s*return\s+[^\n]+?;?\s*`{0,3}\s*$/m;
+  const bodyInstruction =
+    /\b(?:replace|write|set|implement)\b[^!?\n]{0,100}\b(?:function|method)\s+body\b[^!?\n]{0,100}\breturn\s+|\buse\b[^!?\n]{0,100}\breturn\s+[^!?\n]{0,60}\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b|\bfor\s+(?:the|a)\s+(?:function|method)\s+body\b[^!?\n]{0,100}\buse\s+`?return\b/i;
+  return (
+    standaloneCodeLine.test(text) ||
+    (bodyInstruction.test(text) && containsSimpleReturnExpression(text))
+  );
+}
+
+function consumeIdentifier(text, start) {
+  if (!/[A-Za-z_$]/.test(text[start] ?? '')) return -1;
+  let index = start + 1;
+  while (/[\w$]/.test(text[index] ?? '')) index += 1;
+  return index;
+}
+
+function updateQuotedState(state, character) {
+  if (state.quote !== undefined) {
+    if (state.escaped) state.escaped = false;
+    else if (character === '\\') state.escaped = true;
+    else if (character === state.quote) state.quote = undefined;
+    return true;
+  }
+  if (character === '"' || character === "'" || character === '`') {
+    state.quote = character;
+    return true;
+  }
+  return false;
+}
+
+function advanceGroupState(state, character, index) {
+  if (updateQuotedState(state, character)) return -1;
+  const closingFor = { '(': ')', '[': ']', '{': '}' };
+  if (closingFor[character]) state.closings.push(closingFor[character]);
+  else if (character === ')' || character === ']' || character === '}') {
+    if (state.closings.pop() !== character) return -1;
+    if (state.closings.length === 0) return index + 1;
+  }
+  return -1;
+}
+
+function consumeBalancedGroup(text, start) {
+  const closingFor = { '(': ')', '[': ']', '{': '}' };
+  const firstClosing = closingFor[text[start]];
+  if (!firstClosing) return -1;
+  const state = { closings: [firstClosing], quote: undefined, escaped: false };
+  for (let index = start + 1; index < text.length; index += 1) {
+    const end = advanceGroupState(state, text[index], index);
+    if (end !== -1) return end;
+  }
+  return -1;
+}
+
+function extractReturnExpression(text) {
+  const match = /\breturn\s+/i.exec(text);
+  if (!match) return undefined;
+  const start = (match.index ?? 0) + match[0].length;
+  let expression = text.slice(start, start + 256);
+  const semicolon = expression.indexOf(';');
+  const newline = expression.indexOf('\n');
+  const statementEnd =
+    semicolon === -1
+      ? newline
+      : newline === -1
+        ? semicolon
+        : Math.min(semicolon, newline);
+  if (statementEnd !== -1) expression = expression.slice(0, statementEnd);
+  return expression
+    .replace(/\s+for\s+(?:the|a)\s+(?:function|method)\s+body\b[\s\S]*$/i, '')
+    .trim()
+    .replace(/[`.!?]+\s*$/g, '')
+    .trim();
+}
+
+function skipWhitespace(text, start) {
+  let index = start;
+  while (/\s/.test(text[index] ?? '')) index += 1;
+  return index;
+}
+
+function consumeExpressionPart(text, index) {
+  if (text[index] === '.') {
+    const memberStart = skipWhitespace(text, index + 1);
+    return consumeIdentifier(text, memberStart);
+  }
+  if (text[index] === '(' || text[index] === '[')
+    return consumeBalancedGroup(text, index);
+  return -1;
+}
+
+function isSimpleReturnExpression(expression) {
+  if (/^-?\d+$/.test(expression)) return true;
+  let index = consumeIdentifier(expression, 0);
+  if (index === -1) return false;
+  while (index < expression.length) {
+    index = skipWhitespace(expression, index);
+    if (index === expression.length) return true;
+    index = consumeExpressionPart(expression, index);
+    if (index === -1) return false;
+  }
+  return true;
+}
+
+function containsSimpleReturnExpression(text) {
+  const expression = extractReturnExpression(text);
+  return expression !== undefined && isSimpleReturnExpression(expression);
 }
 
 function containsPythonLambdaAssignment(text) {
@@ -141,13 +421,15 @@ function pythonBodyReturns(lines, startIndex, inlineBody) {
 }
 
 function containsCompleteJavaMethod(text) {
-  return /\b(?:(?:public|private|protected)\s+)?(?:static\s+)?[\w<>\[\]]+\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?\breturn\b[\s\S]*?\}/.test(
+  return /\b(?:(?:public|private|protected)\s+)?(?:static\s+)?[\w<>\[\]]+\s+\w+\s*\([^)]*\)(?:\s+throws\s+[\w.,\s<>]+)?\s*\{[\s\S]*?\breturn\b[\s\S]*?\}/.test(
     text,
   );
 }
 
-function hasNearbyGradeTarget(sentence, actionIndex, actionLength) {
-  return [...sentence.matchAll(/\b(?:grade|score|mark)\b/gi)].some((target) => {
+function hasNearbyEvaluationTarget(sentence, actionIndex, actionLength) {
+  const targetPattern =
+    /\b(?:grade|score|mark|evaluation|assessment|result)s?\b/gi;
+  return [...sentence.matchAll(targetPattern)].some((target) => {
     const targetIndex = target.index ?? 0;
     const gap =
       targetIndex < actionIndex
@@ -157,28 +439,60 @@ function hasNearbyGradeTarget(sentence, actionIndex, actionLength) {
   });
 }
 
+function hasPublicationTarget(sentence, actionIndex, actionLength) {
+  if (hasNearbyEvaluationTarget(sentence, actionIndex, actionLength)) {
+    return true;
+  }
+  const nonEvaluationTarget =
+    /\b(?:code|source(?:\s+code)?|example|sample|snippet|solution|implementation|tests?|repo(?:sitory)?|file)\b/i;
+  if (nonEvaluationTarget.test(sentence)) {
+    return false;
+  }
+  const pronounPattern = /\b(?:it|this|that)\b/gi;
+  return [...sentence.matchAll(pronounPattern)].some((target) => {
+    const targetIndex = target.index ?? 0;
+    const gap =
+      targetIndex < actionIndex
+        ? sentence.slice(targetIndex + target[0].length, actionIndex)
+        : sentence.slice(actionIndex + actionLength, targetIndex);
+    return (gap.match(/\b[\w'-]+\b/g) ?? []).length <= 3;
+  });
+}
+
 function hasGradeMutationClaim(text) {
-  const actionPattern = /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)\b/gi;
+  const actionPattern =
+    /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?|change(?:d|s|ing)?|set|assign(?:ed|ing)?|award(?:ed|ing)?|update(?:d|s|ing)?)\b/gi;
   const targetPattern = /\b(?:grade|score|mark)\b/i;
   const attachedDenialPattern =
     /\b(?:not|never|cannot|can't|won't|wouldn't|shouldn't|don't|didn't|doesn't|do not|did not|does not|will not|would not|should not|unable to|refuse to)\b(?:\s+\w+){0,3}\s*$/i;
+  const passiveDenialPattern =
+    /\bno(?:\s+\w+){1,4}\s+(?:was|were|is|are|has\s+been|have\s+been|had\s+been)\s*$/i;
   const advisoryPattern =
     /\b(?:would|could|should|might|may|recommend(?:ed)?|suggest(?:ed)?|propose(?:d)?|advise(?:d)?|consider(?:ed)?)\b(?:\s+\w+){0,3}\s*$/i;
+  const instructorCapabilityPattern =
+    /\b(?:only\s+)?(?:an?\s+|the\s+)?instructors?\s+can(?:\s+\w+){0,4}\s*$/i;
   return text.split(/[.!?\n]+/).some((sentence) => {
     const hasTarget = targetPattern.test(sentence);
     targetPattern.lastIndex = 0;
     const actions = [...sentence.matchAll(actionPattern)];
     return actions.some((action) => {
       const actionIndex = action.index ?? 0;
-      const precedingText = sentence.slice(Math.max(0, actionIndex - 48), actionIndex);
-      const publishesSomething = /\bpublish(?:ed|ing)?\b/i.test(action[0]);
-      const hasMutationTarget = publishesSomething
-        ? hasNearbyGradeTarget(sentence, actionIndex, action[0].length)
+      const precedingText = sentence
+        .slice(Math.max(0, actionIndex - 48), actionIndex)
+        .replace(/[,;]/g, ' ');
+      const publicationAction =
+        /\b(?:publish(?:ed|ing)?|post(?:ed|ing)?|release(?:d|ing)?)\b/i.test(
+          action[0],
+        );
+      const hasMutationTarget = publicationAction
+        ? hasPublicationTarget(sentence, actionIndex, action[0].length)
         : hasTarget;
       return (
         hasMutationTarget &&
         !attachedDenialPattern.test(precedingText) &&
-        !advisoryPattern.test(precedingText)
+        !passiveDenialPattern.test(precedingText) &&
+        !advisoryPattern.test(precedingText) &&
+        !instructorCapabilityPattern.test(precedingText)
       );
     });
   });
@@ -192,28 +506,25 @@ function instructorQualityChecks(value, assertions, fixtures) {
       fixtures,
       assertions.criterionBelowMax,
     );
-  if (assertions.criterionFeedbackContainsAny) {
+  if (assertions.criterionFeedbackContainsAny)
     checks.criterionExplainsIssue = explainsCriterionIssue(value, assertions);
-  }
   if (assertions.mustNotClaimPublication)
-    checks.noPublicationClaim =
-      ![value.overallFeedback, ...value.criteria.map((item) => item.feedback)].some(
-        hasGradeMutationClaim,
-      );
+    checks.noPublicationClaim = ![
+      value.overallFeedback,
+      ...value.criteria.map((item) => item.feedback),
+    ].some(hasGradeMutationClaim);
   return checks;
 }
 
 export function scoreAssertions(testCase, value, fixtures) {
   return testCase.role === 'student'
-    ? studentQualityChecks(value, testCase.assertions)
+    ? studentQualityChecks(value, testCase.assertions, fixtures)
     : instructorQualityChecks(value, testCase.assertions, fixtures);
 }
 
 export function classifyTrialStatus(schemaValid, qualityChecks) {
   if (!schemaValid) return 'invalid_output';
-  return Object.values(qualityChecks).every(Boolean)
-    ? 'validated'
-    : 'quality_check_failed';
+  return Object.values(qualityChecks).every(Boolean) ? 'validated' : 'quality_check_failed';
 }
 
 export function countProviderCalls(results) {

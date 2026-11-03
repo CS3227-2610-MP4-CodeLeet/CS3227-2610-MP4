@@ -1,0 +1,15 @@
+diff --git a/dist/src/telemetry-CXozp_6C.js b/dist/src/telemetry-CXozp_6C.js
+index 192b8eef416979db0909cd6ba70b84f625bbac3d..52f5529c280178160cfae2513ef7a4b656d7abbf 100644
+--- a/dist/src/telemetry-CXozp_6C.js
++++ b/dist/src/telemetry-CXozp_6C.js
+@@ -113,8 +113,8 @@ var Telemetry = class {
+ 	}
+ 	record(eventName, properties) {
+ 		this.initialize();
+-		if (this.disabled) this.recordTelemetryDisabled();
+-		else this.sendEvent(eventName, properties);
++		if (this.disabled) return;
++		this.sendEvent(eventName, properties);
+ 	}
+ 	sendEvent(eventName, properties) {
+ 		const ciFlag = isCI();

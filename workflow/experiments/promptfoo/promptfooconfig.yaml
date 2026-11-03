@@ -1,0 +1,15 @@
+description: CodeLeet synthetic SoCLaaS AI security evaluation
+prompts:
+  - '{{caseId}}'
+providers:
+  - file://provider.mjs
+tests: file://promptfoo-tests.json
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions.mjs:securityCheck
+evaluateOptions:
+  maxConcurrency: 1
+sharing: false
+commandLineOptions:
+  safeMode: true

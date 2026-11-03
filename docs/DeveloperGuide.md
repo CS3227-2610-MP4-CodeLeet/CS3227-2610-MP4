@@ -173,6 +173,12 @@ The server stores submissions independently of practice-run results. Grade publi
 
 The AI gateway queries authorized fields, constructs role-specific bounded context, checks a scoped response cache, reserves quotas atomically, invokes SoCLaaS, validates structured output, and records sanitized usage metadata. Instructor-only rubric/grade data lives in protected tables, rather than columns exposed by student-readable queries. AI has no database tools or publication authority.
 
+### Promptfoo security evaluation
+
+Promptfoo is pinned as a development-only, MIT-licensed dependency with a small local patch for version 0.125.1: when telemetry is disabled, the patch suppresses Promptfoo's opt-out acknowledgement instead of sending it. The runner also disables Promptfoo's separate update check, hosted generation and sharing. Both modes pass a checked-in comment-only `--env-file`, preventing Promptfoo from discovering and reloading repository `.env` files. Run `pnpm ai:promptfoo` for the deterministic local fixture evaluation; it uses ten reviewed synthetic cases, makes no model calls and removes SoCLaaS credentials from the child process. The fixed local config uses only checked-in code and fixtures; these controls are not a general network sandbox for arbitrary future Promptfoo plugins/configs. CI runs this offline command. Run `pnpm ai:promptfoo:live` only when you want a live check against the configured free SoCLaaS service; the parent runner explicitly loads ignored `.env.local`, then uses only the fixed synthetic cases, runs sequentially, and rejects more than ten provider calls. Both modes disable report writes and cache; live evaluation is excluded from CI. No Promptfoo Cloud, remote grader, generated attack service, or paid model provider is configured. Results display locally; do not enable sharing or commit raw outputs.
+
+The offline pass proves only that fixtures satisfy deterministic schemas and quality assertions and that the evaluation wiring works. Three live runs used one configured model: the first two had historical failures, and the post-review run passed 10/10. This small sample is not proof of broad prompt-injection resistance, grading correctness, Java semantics or deployed behavior. See the [dated evaluation evidence](../workflow/evidence/2026-11-02-promptfoo-ai-security.md) for each outcome and its limits.
+
 ## Browser runtime feasibility lab
 
 ### Java compatibility diagnostics

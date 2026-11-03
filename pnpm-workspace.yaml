@@ -14,3 +14,5 @@ allowBuilds:
   unrs-resolver: false
   # Only prints a donation banner and writes a temporary banner cache.
   core-js: false
+patchedDependencies:
+  promptfoo@0.125.1: patches/promptfoo@0.125.1.patch
