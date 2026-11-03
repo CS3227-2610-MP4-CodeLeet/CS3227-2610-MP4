@@ -19,8 +19,8 @@ The system SHALL allow authorized users to create scoped threads/replies with te
 - **THEN** the rendered reply does not execute it
 
 #### Scenario: Shared signed-in forum
-- **WHEN** a verified student or instructor opens Forums
-- **THEN** they can browse threads/replies and create plain-text posts with a trusted username/role and server timestamp, while signed-out and unprovisioned accounts cannot access discussions
+- **WHEN** a verified member opens the forum for an active course where they are enrolled and the forum feature is enabled
+- **THEN** they can browse threads/replies and create plain-text posts with a trusted username/course-role and server timestamp, while signed-out, non-member, archived-course and feature-disabled access cannot create new discussions
 
 #### Scenario: Forged author and direct writes
 - **WHEN** a client supplies author/role/time fields or bypasses the posting RPC
@@ -74,7 +74,7 @@ The system SHALL show display names/XP with documented deterministic ties, witho
 
 #### Scenario: Own position and zero XP
 - **WHEN** a student browses any page
-- **THEN** their exact total and global rank are available even outside that page, and their displayed row is marked You; zero XP is unranked and excluded from the table
+- **THEN** their exact total and rank within the selected course are available even outside that page, and their displayed row is marked You; zero XP is unranked and excluded from the table
 - **AND** instructors/admins can browse but are not ranked and receive no student summary
 
 #### Scenario: Corrected awards and narrow access

@@ -16,8 +16,7 @@ update public.user_roles set role = 'instructor'
 where role = 'admin'
   and user_id not in ('93000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000002');
 
-insert into public.assignments (id, instructor_id, title, instructions, publication_status)
-values ('94000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000001', 'Admin assignment', 'Test ownership.', 'draft');
+insert into public.assignments (id, instructor_id, title, instructions, publication_status,course_id) values ('94000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000001', 'Admin assignment', 'Test ownership.', 'draft',(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics (assignment_id, criteria)
 values ('94000000-0000-4000-8000-000000000001', '[{"id":"97000000-0000-4000-8000-000000000004","title":"Correctness","description":"Works","maxScore":10}]');
 insert into public.submissions (id, assignment_id, student_id, source, revision, request_id)

@@ -6,8 +6,7 @@ insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,r
  ('c1000000-0000-4000-8000-000000000002','authenticated','authenticated','xp-student@example.test','',now(),'{}','{}',now(),now()),
  ('c1000000-0000-4000-8000-000000000003','authenticated','authenticated','xp-peer@example.test','',now(),'{}','{}',now(),now());
 update public.user_roles set role='instructor' where user_id='c1000000-0000-4000-8000-000000000001';
-insert into public.assignments(id,instructor_id,title,instructions,language,publication_status,max_xp) values
- ('c2000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','XP example','Synthetic','python','published',100);
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('c2000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000001','XP example','Synthetic','python','published',100,(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics(assignment_id,criteria) values ('c2000000-0000-4000-8000-000000000001','[{"id":"c5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]');
 insert into public.submissions(id,assignment_id,student_id,source,revision,request_id) values
  ('c4000000-0000-4000-8000-000000000001','c2000000-0000-4000-8000-000000000001','c1000000-0000-4000-8000-000000000002','print(1)',1,'c3000000-0000-4000-8000-000000000001'),
@@ -97,9 +96,8 @@ select throws_ok($$select public.get_my_xp(0)$$,'22023','invalid_page','total RP
 reset role;
 update public.assignments set publication_status='published' where id='c2000000-0000-4000-8000-000000000001';
 -- Existing validators accept fractional maxima/totals beyond two decimal places.
-insert into public.assignments(id,instructor_id,title,instructions,language,publication_status,max_xp) values
- ('c2000000-0000-4000-8000-000000000003','c1000000-0000-4000-8000-000000000001','Fraction A','Synthetic','python','published',100),
- ('c2000000-0000-4000-8000-000000000004','c1000000-0000-4000-8000-000000000001','Fraction B','Synthetic','java','published',100);
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,max_xp,course_id) values ('c2000000-0000-4000-8000-000000000003','c1000000-0000-4000-8000-000000000001','Fraction A','Synthetic','python','published',100,(select id from public.courses where is_legacy)),
+ ('c2000000-0000-4000-8000-000000000004','c1000000-0000-4000-8000-000000000001','Fraction B','Synthetic','java','published',100,(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics(assignment_id,criteria) values
  ('c2000000-0000-4000-8000-000000000003','[{"id":"c5000000-0000-4000-8000-000000000001","title":"Fraction","description":"Synthetic","maxScore":1.234}]'),
  ('c2000000-0000-4000-8000-000000000004','[{"id":"c5000000-0000-4000-8000-000000000001","title":"Fraction","description":"Synthetic","maxScore":1.236}]');

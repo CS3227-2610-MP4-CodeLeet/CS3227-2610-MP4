@@ -1,6 +1,6 @@
 # Project brief
 
-Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services, instructor-authored public practice cases and instructor-configured assignment XP and signed-in leaderboard are implemented with synthetic local evidence. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. Complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. Leaderboard rollout/checks are tracked in issue #80 and XP in issue #77; authored cases in issue #74.
+Status: Shared forums, CodeLeet student/instructor routes, local Supabase-backed services, instructor-authored public practice cases and instructor-configured assignment XP and signed-in leaderboard are implemented with synthetic local evidence. Course workspaces are approved and tracked in issue #85 but are not implemented. A bounded live SoCLaaS model comparison is recorded separately from mocked product tests. Complete hosted acceptance, live provider-limit verification and runtime distribution/licensing review remain pending. Leaderboard rollout/checks are tracked in issue #80 and XP in issue #77; authored cases in issue #74.
 
 ## Sources and precedence
 
@@ -12,11 +12,11 @@ Coursemology's public guide is a reference for user journeys, not a requirement 
 
 Two members cover student and instructor roles. Responsibility notes below identify primary accountability, not exclusive implementation rights: either member may implement any task. Coordinate changes to shared contracts, schemas, lockfiles and common services, and record the actual implementer and reviewer. Personal names and coordination budgets are not yet recorded.
 
-Student: register/sign in, edit text profile, browse assignments, enter a single Python or Java source file, recover unfinished same-device browser drafts, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in discussions, and view XP/rank.
+Student: register/sign in, edit text profile, join or accept an invitation to courses, browse assignments within enrolled courses, enter a single Python or Java source file, recover unfinished same-device browser drafts, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in course discussions, and view course XP/rank.
 
-Instructor: sign in with a trusted provisioned role, edit text profile, create assignments and grading rubrics, review authorized submissions, request AI rubric evaluation, edit and publish grades, and participate in discussions.
+Instructor: sign in, edit text profile, create and manage multiple courses, invite instructors/students, manage course membership, configure supported course features, create assignments and grading rubrics within courses, review authorized submissions, request AI rubric evaluation, edit and publish grades, and participate in course discussions.
 
-Use one shared course/assignment collection initially. Instructor access is limited to owned assignments; do not implement multi-course administration in the initial scope.
+Each course is an independent workspace with one owner, instructor and student memberships, assignments, discussions, and course-scoped feature data. A user may have different roles across courses. Email invitations and student join codes require verified sign-in before membership is granted. Non-empty courses are archived; permanent deletion is restricted to empty courses. Existing shared content migrates into one archived Legacy course with owner Unassigned until a platform admin assigns an instructor owner. See issue #85 and the course-workspaces OpenSpec requirement for staged implementation.
 
 ## Boundaries
 
@@ -61,4 +61,5 @@ See the [issue #5 implementation plan](../openspec/changes/build-programming-pla
 - Brainstorming: user-provided `Brainstorm AI App Ideas.pdf`, 26 pages; recommendations are not measured project results.
 - [MP3 repository](https://github.com/CS3227-2610-MP3-ConnectTalent/CS3227-2610-MP3): technology metadata inspected; no implementation copied.
 - [Coursemology Help](https://coursemology.github.io/coursemology-help/): assignment, grading, feedback, and forum inspiration.
+- Course workspace references: [create a course](https://coursemology.github.io/coursemology-help/course/create-course), [manage users](https://coursemology.github.io/coursemology-help/course/add-manage-users), and [course components](https://coursemology.github.io/coursemology-help/course/components).
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec): SDD tooling.

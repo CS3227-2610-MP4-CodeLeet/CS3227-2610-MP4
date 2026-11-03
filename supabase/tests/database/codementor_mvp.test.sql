@@ -10,11 +10,9 @@ values
 
 update public.user_roles set role = 'instructor' where user_id = '20000000-0000-4000-8000-000000000001';
 update public.user_roles set role = 'instructor' where user_id = '20000000-0000-4000-8000-000000000004';
-insert into public.assignments (id, instructor_id, title, instructions, publication_status)
-values
-  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Published', 'Write a loop.', 'published'),
-  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'Draft', 'Private draft.', 'draft'),
-  ('30000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', 'Other owner', 'Not accessible.', 'published');
+insert into public.assignments (id, instructor_id, title, instructions, publication_status,course_id) values ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Published', 'Write a loop.', 'published',(select id from public.courses where is_legacy)),
+  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'Draft', 'Private draft.', 'draft',(select id from public.courses where is_legacy)),
+  ('30000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', 'Other owner', 'Not accessible.', 'published',(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics (assignment_id, criteria)
 values
   ('30000000-0000-4000-8000-000000000001', '[{"id":"40000000-0000-4000-8000-000000000001","title":"Correctness","description":"Works","maxScore":10}]'),

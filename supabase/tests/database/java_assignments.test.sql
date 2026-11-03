@@ -9,10 +9,9 @@ values
  ('71000000-0000-4000-8000-000000000003','authenticated','authenticated','java-student-b@example.test','',now(),'{}','{}',now(),now()),
  ('71000000-0000-4000-8000-000000000004','authenticated','authenticated','java-other-owner@example.test','',now(),'{}','{}',now(),now());
 update public.user_roles set role='instructor' where user_id in ('71000000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000004');
-insert into public.assignments(id,instructor_id,title,instructions,language,publication_status) values
- ('72000000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','Python fixture','Print one.','python','published'),
- ('72000000-0000-4000-8000-000000000002','71000000-0000-4000-8000-000000000001','Java fixture','Use Main.','java','published'),
- ('72000000-0000-4000-8000-000000000003','71000000-0000-4000-8000-000000000001','Draft Java fixture','Unpublished.','java','draft');
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,course_id) values ('72000000-0000-4000-8000-000000000001','71000000-0000-4000-8000-000000000001','Python fixture','Print one.','python','published',(select id from public.courses where is_legacy)),
+ ('72000000-0000-4000-8000-000000000002','71000000-0000-4000-8000-000000000001','Java fixture','Use Main.','java','published',(select id from public.courses where is_legacy)),
+ ('72000000-0000-4000-8000-000000000003','71000000-0000-4000-8000-000000000001','Draft Java fixture','Unpublished.','java','draft',(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics(assignment_id,criteria) values
  ('72000000-0000-4000-8000-000000000002','[{"id":"75000000-0000-4000-8000-000000000001","title":"Private criterion","description":"Synthetic private rubric","maxScore":10}]');
 insert into public.submissions(assignment_id,student_id,source,revision,request_id,language) values
@@ -48,8 +47,8 @@ select set_config('request.jwt.claim.sub','71000000-0000-4000-8000-000000000001'
 select throws_ok($$select public.save_assignment('72000000-0000-4000-8000-000000000002',1,'Changed','New instructions.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'published','python')$$,'22023','assignment_language_locked','instructor cannot relabel existing Java revisions');
 select is((select version from public.assignments where id='72000000-0000-4000-8000-000000000002'),1,'failed relabel rolls back the whole save');
 select is((select version from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),1,'failed relabel also rolls back rubric changes');
-select is((public.save_assignment(null,0,'Created Java fixture','Use Main.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'published','java')).language,'java','instructor creates Java through guarded RPC');
-select is((public.save_assignment(null,0,'Legacy Python fixture','Print one.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'draft')).language,'python','old six-argument caller still creates Python');
+select throws_ok($$select public.save_assignment(null,0,'Created Java fixture','Use Main.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'published','java')$$,'22023','course_context_required','new assignment creation requires explicit course context');
+select throws_ok($$select public.save_assignment(null,0,'Legacy Python fixture','Print one.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'draft')$$,'22023','course_context_required','legacy assignment creation cannot default into Legacy');
 select throws_ok($$select public.save_assignment(null,0,'Invalid','No JS.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'draft','javascript')$$,'22023','invalid_language','RPC rejects unsupported languages');
 select is((public.save_assignment('72000000-0000-4000-8000-000000000003',1,'Draft changed','No revisions yet.',(select criteria from public.assignment_rubrics where assignment_id='72000000-0000-4000-8000-000000000002'),'draft','python')).language,'python','language may change before submissions');
 

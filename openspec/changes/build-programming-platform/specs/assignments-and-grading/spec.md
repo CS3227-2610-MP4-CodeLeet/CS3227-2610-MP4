@@ -292,8 +292,8 @@ The development preview SHALL present compact published-assignment rows, working
 - **THEN** Menu is visible with the theme action immediately to its right at the far edge of the top bar
 - **AND** the practice toolbar has no visible Stop button while automatic deadlines and leaving-page cleanup remain active
 
-### Requirement: Owned assignments and private rubrics
-The system SHALL let instructors manage owned assignments/rubrics and expose only published student-visible fields to students.
+### Requirement: Course assignments and private rubrics
+For active courses, the system SHALL let course instructors manage assignments/rubrics and expose published assignments only to enrolled students. The archived Legacy course SHALL preserve the previous per-assignment instructor ownership and student-visible policy.
 
 Student-visible assignment data SHALL include ID, title, instructions, language and publication status. Student list/detail access SHALL exclude unpublished assignments and private grading data.
 

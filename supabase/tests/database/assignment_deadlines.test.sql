@@ -10,10 +10,9 @@ insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,r
  ('a1000000-0000-4000-8000-000000000003','authenticated','authenticated','deadline-peer@example.test','',now(),'{}','{}',now(),now()),
  ('a1000000-0000-4000-8000-000000000004','authenticated','authenticated','deadline-other-owner@example.test','',now(),'{}','{}',now(),now());
 update public.user_roles set role='instructor' where user_id in ('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000004');
-insert into public.assignments(id,instructor_id,title,instructions,language,publication_status,due_at) values
- ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000001','Past Python','Synthetic deadline test.','python','published','2000-01-01T00:00:00Z'),
- ('a2000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000001','Future Java','Synthetic deadline test.','java','published','2999-01-01T00:00:00Z'),
- ('a2000000-0000-4000-8000-000000000003','a1000000-0000-4000-8000-000000000001','No deadline','Synthetic deadline test.','python','published',null);
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,due_at,course_id) values ('a2000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000001','Past Python','Synthetic deadline test.','python','published','2000-01-01T00:00:00Z',(select id from public.courses where is_legacy)),
+ ('a2000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000001','Future Java','Synthetic deadline test.','java','published','2999-01-01T00:00:00Z',(select id from public.courses where is_legacy)),
+ ('a2000000-0000-4000-8000-000000000003','a1000000-0000-4000-8000-000000000001','No deadline','Synthetic deadline test.','python','published',null,(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics(assignment_id,criteria)
 select id,'[{"id":"a5000000-0000-4000-8000-000000000001","title":"Output","description":"Synthetic criterion","maxScore":10}]'::jsonb
 from public.assignments where id in ('a2000000-0000-4000-8000-000000000001','a2000000-0000-4000-8000-000000000002','a2000000-0000-4000-8000-000000000003');

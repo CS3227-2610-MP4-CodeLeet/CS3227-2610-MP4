@@ -245,3 +245,14 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 20.2 Integrate revision actions and revision-keyed initial source/baseline into the existing workspace; preserve unsaved warnings and immutable submissions.
 - [x] 20.3 Verify both languages, runs/new saves/original preservation, retries/refresh/newer edits, canceled replacement and private/unpublished/invalid targets using synthetic fixtures.
 - [x] 20.4 Update verified guides/log/specs, run checks, author-review, push and create linked PR #51 to develop; leave AI PR #49 unmerged. Verification: 267 unit tests, 124 database assertions, 54 full-suite browser passes/seven skips, six focused feature checks including Python/Java runs, build/types/lint/format/spec/scaffold checks passed. Independent teammate review remains pending.
+
+
+## 30. Issue #85 course-scoped workspaces
+
+- [x] 30.1 Add course, membership, feature, invitation and join-code schema with RLS/RPC authorization; backfill one archived Legacy course with pending owner and preserve existing per-record access. Verified 61 course pgTAP assertions, 344 full-suite assertions, synthetic pre-migration backfill, seed reset, strict OpenSpec validation and database lint (one existing unrelated warning).
+- [ ] 30.2 Add course creation/list/update, verified email invitation acceptance, student join-code enrollment, owner transfer/claim, member management, archive and empty-only deletion APIs. Verify bounded inputs, identity/email checks, retries, expiry, revocation and local Auth email delivery.
+- [ ] 30.3 Add course discovery, course context navigation, settings and membership UI. Verify different user roles across multiple courses and no-course/archived states.
+- [ ] 30.4 Scope assignments, submissions, grades, rubrics, practice cases, deadlines and SoCLaaS operations/cache to course membership and feature state. Verify Python/Java remain browser-only and cross-course access is denied.
+- [ ] 30.5 Scope forums, XP totals and leaderboard rank to course; preserve Legacy history and prevent duplicate awards. Verify database, service and direct API access.
+- [ ] 30.6 Add supported feature switches with server/data enforcement, read-only archive UI and explicit empty-course delete confirmation; verify direct access and lifecycle races.
+- [ ] 30.7 Complete focused/full applicable checks, update verified guide/log, pass branch CI, and create a PR to develop linking issue #85, this change, plan and summary. Keep hosted SMTP, independent teammate review, human acceptance and release separate.

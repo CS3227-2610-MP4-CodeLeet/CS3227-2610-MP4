@@ -8,7 +8,7 @@ The system SHALL provide SoCLaaS hints/explanations for the student's authorized
 - **THEN** no such data exists in student context and only validated feedback or a safe error is returned
 
 ### Requirement: Advisory instructor evaluation
-The system SHALL provide SoCLaaS rubric-based suggestions for an owner's selected submission revision. Results SHALL remain editable advisory data without grade publication authority.
+The system SHALL provide SoCLaaS rubric-based suggestions for an authorized instructor member's selected submission revision in a course where AI is enabled. Results SHALL remain editable advisory data without grade publication authority.
 
 #### Scenario: Evaluation requested
 - **WHEN** an authorized owner requests an evaluation
