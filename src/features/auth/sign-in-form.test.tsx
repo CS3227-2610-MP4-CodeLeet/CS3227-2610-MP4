@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -21,6 +22,7 @@ vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'http://127.0.0.1:54321');
 vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'synthetic-publishable');
 const { AuthForm } = await import('./auth-form');
 const identifierLabel = 'Email or username';
+const password = 'Password!123';
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -71,7 +73,7 @@ it('shows a safe retry message when sign-in is unavailable', async () => {
     target: { value: 'paul' },
   });
   fireEvent.change(screen.getByLabelText('Password'), {
-    target: { value: 'Password!123' },
+    target: { value: password },
   });
   fireEvent.submit(
     screen.getByRole('button', { name: 'Sign in' }).closest('form')!,
@@ -94,7 +96,7 @@ it('waits for and validates the successful response body before navigating', asy
     target: { value: 'paul' },
   });
   fireEvent.change(screen.getByLabelText('Password'), {
-    target: { value: 'Password!123' },
+    target: { value: password },
   });
   fireEvent.submit(
     screen.getByRole('button', { name: 'Sign in' }).closest('form')!,
@@ -103,4 +105,77 @@ it('waits for and validates the successful response body before navigating', asy
   expect(mocks.replace).not.toHaveBeenCalled();
   finish({ ok: true });
   await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith('/'));
+});
+
+it('shows signing-in progress during a slow request and restores retry after failure', async () => {
+  let finish!: (response: Response) => void;
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          finish = resolve;
+        }),
+    ),
+  );
+  render(<AuthForm mode="sign-in" />);
+  fireEvent.submit(
+    screen.getByRole('button', { name: 'Sign in' }).closest('form')!,
+  );
+  const button = screen.getByRole('button', { name: 'Signing in…' });
+  expect(button.getAttribute('aria-busy')).toBe('true');
+  expect((button as HTMLButtonElement).disabled).toBe(true);
+  await act(async () => {
+    finish(new Response(null, { status: 503 }));
+  });
+  expect(
+    (screen.getByRole('button', { name: 'Sign in' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(false);
+});
+
+it('recovers registration controls when the account service throws', async () => {
+  let fail!: (error: Error) => void;
+  mocks.signUp.mockImplementation(
+    () =>
+      new Promise((_resolve, reject) => {
+        fail = reject;
+      }),
+  );
+  render(<AuthForm mode="sign-up" />);
+  fireEvent.change(screen.getByLabelText('Username'), {
+    target: { value: 'New Student' },
+  });
+  fireEvent.change(screen.getByLabelText('Email'), {
+    target: { value: 'new@example.test' },
+  });
+  for (const label of ['Password', 'Confirm password']) {
+    fireEvent.change(screen.getByLabelText(label), {
+      target: { value: password },
+    });
+  }
+  fireEvent.submit(
+    screen
+      .getByRole('button', { name: 'Create student account' })
+      .closest('form')!,
+  );
+  expect(
+    screen
+      .getByRole('button', { name: 'Creating account…' })
+      .getAttribute('aria-busy'),
+  ).toBe('true');
+  await act(async () => {
+    fail(new Error('private diagnostic'));
+  });
+  expect(screen.getByRole('status').textContent).toContain(
+    'Account creation failed',
+  );
+  expect(
+    (
+      screen.getByRole('button', {
+        name: 'Create student account',
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(false);
+  expect(screen.queryByText('private diagnostic')).toBeNull();
 });

@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useProfileForm } from './use-profile-form';
 
 export function ProfileForm({
@@ -66,12 +68,13 @@ export function ProfileForm({
           Profile saved.
         </p>
       )}
-      <button
+      <PendingButton
+        pending={busy}
         disabled={busy}
         className="rounded-md bg-cyan-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800 disabled:opacity-60"
       >
         {busy ? 'Saving…' : 'Save changes'}
-      </button>
+      </PendingButton>
     </form>
   );
 }

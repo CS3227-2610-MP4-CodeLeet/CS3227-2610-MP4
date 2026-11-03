@@ -56,6 +56,40 @@ async function logout(page: Page) {
   await expect(page).toHaveURL(/\/sign-in$/);
 }
 
+test('successful sign-in stays busy until delayed destination navigation completes', async ({
+  page,
+  draftFixture: data,
+}) => {
+  await page.goto('/sign-in');
+  let release!: () => void;
+  let arrived!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const requested = new Promise<void>((resolve) => {
+    arrived = resolve;
+  });
+  await page.route('**/?_rsc=*', async (route) => {
+    if (route.request().headers()['next-router-prefetch'] === '1')
+      return route.continue();
+    arrived();
+    await held;
+    await route.continue();
+  });
+  await page.getByLabel(identifierLabel).fill(data.users[1].email);
+  await page.getByLabel('Password', { exact: true }).fill(data.password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await requested;
+  const pending = page.getByRole('button', { name: 'Signing in…' });
+  await expect(pending).toBeDisabled();
+  await expect(pending).toHaveAttribute('aria-busy', 'true');
+  release();
+  await expect(page).toHaveURL(/\/student\/assignments$/);
+  await expect(
+    page.getByRole('heading', { name: 'Your assignments', exact: true }),
+  ).toBeVisible();
+});
+
 async function addPeer(request: APIRequestContext, data: Fixture) {
   const email = `switch84-${crypto.randomUUID()}@example.test`;
   const response = await request.post(`${service}/auth/v1/admin/users`, {

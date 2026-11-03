@@ -10,7 +10,7 @@ CS3227 MP4 is a Coursemology-inspired programming assignment platform under deve
 ## Available in the repository
 
 - A Next.js App Router foundation using TypeScript, React, Tailwind CSS, and pnpm.
-- Student/instructor sign-in, profiles, published assignments, browser draft recovery, immutable submissions, revision comparisons and deadlines.
+- Student/instructor email or unique username sign-in, profiles, published assignments, browser draft recovery, immutable submissions, revision comparisons and deadlines.
 - Browser-only Python execution and supported Java compilation/execution, with instructor-published practice cases.
 - SoCLaaS learning feedback and instructor rubric suggestions, with explicit instructor grade publication.
 - Published grades, text discussion threads/replies and search, instructor-configured XP with private student totals, and a signed-in leaderboard with shared ranks.

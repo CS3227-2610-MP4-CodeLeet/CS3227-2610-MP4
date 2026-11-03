@@ -20,16 +20,26 @@ The whole-branch review found no remaining material SQL/claim/grant/HMAC/config 
 
 Actual token, hidden reasoning, cache-hit and cost measurements were unavailable. Budgets above are requested limits, not measured durations. No matched single-agent experiment or claimed efficiency gain.
 
-## Coordinator evidence so far
+## Coordinator evidence before loading-feedback continuation
 
 - Additive local migration; 321 pgTAP assertions across eleven files passed, including 39 username/attempt checks. Existing leaderboard duplicate names are now explicitly legacy transaction fixtures. No reset or hosted migration.
 - Actual two concurrent profile transactions yielded one successful case-variant claim and one uniqueness rejection; exactly one claimed owner verified and both known synthetic users removed. Initial multi-command CLI harness failed before writes; corrected to one DO block per prepared query. This is a concurrency check, not a throughput benchmark.
 - Advisors: no issues. Database lint: existing unrelated `public.valid_practice_cases` UUID-array initialization warning only; no new username helper issue.
 - Final full units: 613 tests/106 files passed. Coverage: 83.54% statements, 78.52% branches, 84.98% functions, 85.47% lines.
 - Production app/runtime build passed; Node 24.22.1 and actual Chromium 156.0.8078.4 recorded. A configured-value scan of 39 generated browser JavaScript files found neither server-only key nor HMAC secret. Values were not printed; this checks the current build only.
-- Feature journeys passed across focused runs after correcting response ordering and an ambiguous Next route-announcer test selector. Cross-tab regression passed separately after its fix. A partial full-suite run (18 passes recorded) was intentionally stopped to investigate that boundary; it is not counted as a complete acceptance run. Final full authenticated suite is in progress; update the acceptance matrix only from its completed output.
+- Feature journeys passed across focused runs after correcting response ordering and an ambiguous Next route-announcer test selector. Cross-tab regression passed separately after its fix. A partial full-suite run (18 passes recorded) was intentionally stopped to investigate that boundary; it is not counted as a complete acceptance run. That full run completed with 91 passes, one fixed-name MVP fixture failure and seven skips. The corrected targeted real-runtime MVP rerun passed; exact history is preserved in the acceptance record. The later loading delta has its own fresh full run.
 
 ## Limits and references
+
+Loading-feedback continuation: read-only reviewer `/root/pending_action_review`
+reviewed the uncommitted delta against `6184c4d` with a requested four-minute
+budget. It found no material correctness/accessibility issue, but identified
+that successful delayed navigation was not tested. The coordinator added an
+actual local Auth browser journey holding the destination RSC request. The
+initial run passed the busy assertions and failed only on an incorrect expected
+heading; corrected to the existing “Your assignments” text for the full rerun.
+The reviewer ran no tests/services and accessed no secrets. Final browser results
+are recorded separately after execution; source review alone does not prove them.
 
 Hosted key/migration configuration, provider behavior and actual browser API denial/suspension are not established by source review. Fully denied browser storage and unavailable messaging can limit persistent/cross-tab notification; normal server authorization remains separate. Signup/profile availability messages do not establish a public email directory. Same browser profile/same-origin scripts remain outside plaintext draft confidentiality guarantees.
 

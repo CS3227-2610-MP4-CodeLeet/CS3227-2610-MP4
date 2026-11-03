@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useForumPost } from './use-forum-post';
 
 export function ForumForm({ threadId }: { threadId?: string }) {
@@ -43,12 +45,13 @@ export function ForumForm({ threadId }: { threadId?: string }) {
           {error}
         </p>
       )}
-      <button
+      <PendingButton
+        pending={busy}
         disabled={busy}
         className="rounded-md bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800 disabled:opacity-60"
       >
         {busy ? 'Posting…' : threadId ? 'Post reply' : 'Create discussion'}
-      </button>
+      </PendingButton>
     </form>
   );
 }

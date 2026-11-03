@@ -15,6 +15,15 @@ Never publish an unauthenticated username-to-email lookup. Preserve existing own
 
 ## Proposed user behavior and name policy
 
+3 November continuation: the requester asked for loading feedback on sign-in,
+registration, recovery and other asynchronous buttons. A shared indicator reuses
+each action's real pending state, with decorative spinner, disabled/aria-busy
+semantics and action-specific account labels. Account requests show a friendly
+notice after ten seconds and keep pending through navigation. Thrown signup
+failures restore retry. Existing Next Form searches use `useFormStatus` per the
+installed framework guide. This does not diagnose the hosted delay or automatically
+retry requests; network deadlines and provider/deployment behavior remain separate.
+
 - Sign-in shows **Email or username**, uses a text field and username autocomplete, and accepts the same password for either identifier. Signup and forgot-password still require an email. Password visibility, theme support and role-aware destinations remain.
 - Keep the current trimmed 1–80-character username length rather than imposing a new short ASCII-only handle. New/changed usernames must exclude `@`, NUL and control characters so email-shaped identifiers cannot be ambiguous. Canonical login comparison is the database's lowercased, trimmed username under one fixed normalization rule; application code must not implement a competing case-folding algorithm. Preserve the user's preferred visible capitalization. Do not claim visual-confusable or full Unicode-equivalence detection.
 - Newly registered or renamed usernames must be unique without regard to case; concurrent claims have one winner enforced in the database. A username edit takes effect for login immediately after its committed profile save. Old handles stop resolving; account email/password remain unchanged.

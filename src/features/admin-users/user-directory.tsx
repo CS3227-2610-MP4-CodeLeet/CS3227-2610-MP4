@@ -1,5 +1,7 @@
 'use client';
 
+import { PendingButton } from '@/components/ui/pending-button';
+
 import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminUser, AppRole } from './contracts';
@@ -276,14 +278,15 @@ export function UserDirectory({
         changeRole={changeRole}
       />
       {directory.nextAfter && (
-        <button
+        <PendingButton
+          pending={directory.isLoadingMore}
           className="rounded-md border px-4 py-2 text-sm"
           type="button"
           disabled={directory.isLoadingMore}
           onClick={() => void directory.loadMore()}
         >
           {directory.isLoadingMore ? 'Loading users…' : 'Load more users'}
-        </button>
+        </PendingButton>
       )}
     </section>
   );

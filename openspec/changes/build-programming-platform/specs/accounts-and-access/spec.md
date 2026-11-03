@@ -50,7 +50,7 @@ The visible product name SHALL be CodeLeet and the registration profile-name fie
 
 #### Scenario: Required constraints for consistent account controls
 - **WHEN** this capability is used
-- **THEN** The label change SHALL preserve existing profile storage and email-based authentication.
+- **THEN** The label change SHALL preserve existing profile storage and email sign-in, alongside the separately specified unique username sign-in path.
 
 The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
 
@@ -121,3 +121,8 @@ Every protected student operation SHALL use a request-scoped cookie-based Supaba
 #### Scenario: Profile save failure
 - **WHEN** a profile update fails
 - **THEN** the draft remains available for retry and the UI does not claim success; a confirmed update persists across reload and renders as safe text
+
+#### Scenario: Pending account and application actions
+- **WHEN** an account request or an asynchronous save, post, review, practice run or form search is pending
+- **THEN** its action button exposes a disabled busy state and visible spinner; account buttons use action-specific progress text, retain progress during destination navigation, and display a slow-request notice after ten seconds
+- **AND** a failed request restores retry controls with a safe message without automatically repeating the mutation

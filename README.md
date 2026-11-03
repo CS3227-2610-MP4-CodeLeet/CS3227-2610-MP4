@@ -8,7 +8,7 @@ Status: authenticated student/instructor workflows, browser-only Python/Java pra
 
 - Students enter, run, and submit single-file Python or Java programs, recover unfinished browser drafts, receive AI hints, and view published grades.
 - Instructors create assignments and rubrics, review submissions, request AI grading suggestions, and approve grades for publication.
-- Both roles have profiles and access to discussion threads and leaderboard. Students can view their own XP and rank.
+- Both roles sign in with email or a unique username, have profiles, and access discussion threads and leaderboard. Students can view their own XP and rank.
 - Python execution and Java source compilation/execution happen in the browser. Local and same-project runtime builds are available; hosted acceptance, browser coverage and distribution/provenance review remain separate gates.
 - No file uploads, badges, package installation, or server-side code execution.
 
