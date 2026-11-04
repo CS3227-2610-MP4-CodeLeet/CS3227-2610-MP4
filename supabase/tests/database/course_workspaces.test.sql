@@ -113,18 +113,22 @@ select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001'
 select lives_ok($$select public.set_course_feature((select id from course_test_ids where name='main'),'ai',false)$$,'staff can change shipped feature setting');
 select is((select enabled from public.course_features f join course_test_ids i on i.id=f.course_id where i.name='main' and f.feature='ai'),false,'feature setting is persisted');
 select is(course_private.can_use_feature((select id from course_test_ids where name='main'),'ai'),false,'disabled feature gate denies use');
-select lives_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002')$$,'owner can transfer ownership');
-select is((select owner_id from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'8a500000-0000-4000-8000-000000000002'::uuid,'transfer updates course owner atomically');
+select throws_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000006')$$,'42501','course_member_required','owner cannot transfer a course to a verified non-member');
+select is((select count(*)::integer from public.course_memberships where course_id=(select id from course_test_ids where name='main') and user_id='8a500000-0000-4000-8000-000000000006'),0,'failed ownership transfer does not enroll a new member');
+select lives_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000004')$$,'owner can transfer ownership to an enrolled student');
+select is((select owner_id from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'8a500000-0000-4000-8000-000000000004'::uuid,'transfer updates course owner atomically');
+select is((select role from public.course_memberships m join course_test_ids i on i.id=m.course_id where i.name='main' and user_id='8a500000-0000-4000-8000-000000000004'),'instructor','ownership transfer promotes an existing student member');
 select is((select role from public.course_memberships m join course_test_ids i on i.id=m.course_id where i.name='main' and user_id='8a500000-0000-4000-8000-000000000001'),'instructor','former owner remains instructor');
 select throws_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000004')$$,'42501','course_owner_required','former owner cannot transfer ownership again');
 
-select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000004',true);
 select lives_ok($$select public.archive_course((select id from course_test_ids where name='main'))$$,'new owner can archive course');
 select is((select lifecycle from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'archived','archived course retains its lifecycle state');
 select is(course_private.can_use_feature((select id from course_test_ids where name='main'),'assessments'),false,'archived course denies activity');
 select throws_ok($$select public.set_course_feature((select id from course_test_ids where name='main'),'ai',true)$$,'42501','course_staff_required','archived course settings are read-only');
 select throws_ok($$select public.update_course((select id from course_test_ids where name='main'),'No longer editable',null)$$,'42501','course_staff_required','archived course details are read-only');
 
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 insert into course_test_ids select 'empty',public.create_course('Empty course','');
 select throws_ok($$select public.delete_empty_course((select id from course_test_ids where name='empty'),false)$$,'42501','course_delete_confirmation_required','empty course deletion requires explicit confirmation');
 select lives_ok($$select public.delete_empty_course((select id from course_test_ids where name='empty'),true)$$,'confirmed empty course can be permanently deleted');

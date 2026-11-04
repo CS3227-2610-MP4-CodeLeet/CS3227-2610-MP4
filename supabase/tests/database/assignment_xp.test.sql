@@ -1,5 +1,11 @@
 begin;
 select no_plan();
+with function_source as (
+  select lower(pg_get_functiondef('public.save_grade(uuid,jsonb,text,numeric,boolean,integer)'::regprocedure)) as source
+)
+select ok(position('for share' in source)>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'grade writer holds the course share lock while rechecking lifecycle and feature access') from function_source;
 select has_column('public','assignments','max_xp','assignment XP configuration exists');
 insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) values
  ('c1000000-0000-4000-8000-000000000001','authenticated','authenticated','xp-owner@example.test','',now(),'{}','{}',now(),now()),

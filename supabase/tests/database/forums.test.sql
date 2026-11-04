@@ -1,5 +1,11 @@
 begin;
 select no_plan();
+with function_source as (
+  select lower(pg_get_functiondef('forum_private.create_post(uuid,uuid,text,text,uuid)'::regprocedure)) as source
+)
+select ok(position('for share' in source)>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'forum writer holds the course share lock while rechecking feature access') from function_source;
 select has_table('public', 'forum_threads', 'threads persist');
 select has_table('public', 'forum_replies', 'replies persist');
 insert into auth.users (id,email,email_confirmed_at,raw_user_meta_data) values
