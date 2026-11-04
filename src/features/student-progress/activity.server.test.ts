@@ -26,7 +26,7 @@ it('limits recent revision metadata to five with verified identity and determini
   expect(await loadRecentSubmissions(client, studentId, courseId)).toEqual([]);
   const query = requests[0].searchParams;
   expect(query.get('student_id')).toBe(`eq.${studentId}`);
-  expect(query.get('assignments.course_id')).toBe(`eq.${courseId}`);
+  expect(query.get('course_id')).toBe(`eq.${courseId}`);
   expect(query.get('limit')).toBe('5');
   expect(query.get('order')).toBe('created_at.desc,id.desc');
   expect(query.get('select')).not.toMatch(/source|feedback|rubric|grades/);
@@ -54,7 +54,7 @@ it('queries only five own published grades without retrieving private scores/rub
   ]);
   const query = requests[0].searchParams;
   expect(query.get('submissions.student_id')).toBe(`eq.${studentId}`);
-  expect(query.get('submissions.assignments.course_id')).toBe(`eq.${courseId}`);
+  expect(query.get('submissions.course_id')).toBe(`eq.${courseId}`);
   expect(query.get('published_at')).toBe('not.is.null');
   expect(query.get('limit')).toBe('5');
   expect(query.get('order')).toBe('published_at.desc,id.desc');

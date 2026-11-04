@@ -55,10 +55,10 @@ it('filters ownership/publication/language/literal title before bounded determin
   const query = data.request().searchParams;
   expect(data.request().pathname).toBe('/rest/v1/grades');
   expect(query.get('select')).toBe(
-    'id,submission_id,total_score,feedback,published_at,submissions!inner(language,revision,assignments!inner(title))',
+    'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
   );
   expect(query.get('submissions.student_id')).toBe('eq.verified-student');
-  expect(query.get('submissions.assignments.course_id')).toBe(`eq.${courseId}`);
+  expect(query.get('submissions.course_id')).toBe(`eq.${courseId}`);
   expect(query.get('published_at')).toBe('not.is.null');
   expect(query.get('submissions.language')).toBe('eq.java');
   expect(query.get('submissions.assignments.title')).toBe(
@@ -96,7 +96,7 @@ it('keeps hidden-assignment grades, projects only safe DTO fields and accepts nu
     hasNext: false,
   });
   expect(data.request().searchParams.get('select')).toBe(
-    'id,submission_id,total_score,feedback,published_at,submissions!inner(language,revision,assignments!inner(title))',
+    'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
   );
 });
 

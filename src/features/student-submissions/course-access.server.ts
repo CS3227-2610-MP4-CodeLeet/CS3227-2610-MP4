@@ -11,15 +11,12 @@ export async function courseIdForStudentSubmission(
 ) {
   const { data, error } = await supabase
     .from('submissions')
-    .select('assignments!inner(course_id)')
+    .select('course_id')
     .eq('id', submissionId)
     .eq('student_id', studentId)
     .maybeSingle();
   if (error || !data) return null;
-  const assignment = Array.isArray(data.assignments)
-    ? data.assignments[0]
-    : data.assignments;
-  return assignment?.course_id ?? null;
+  return data.course_id;
 }
 
 export async function hasStudentAssessmentAccess(

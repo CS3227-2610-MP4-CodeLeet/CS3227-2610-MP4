@@ -29,8 +29,8 @@ export default async function SubmissionPage({
     ? submission.assignments[0]
     : submission.assignments;
   const courseId =
-    typeof query.courseId === 'string' ? query.courseId : assignment?.course_id;
-  if (!courseId || courseId !== assignment?.course_id) notFound();
+    typeof query.courseId === 'string' ? query.courseId : submission.course_id;
+  if (!courseId || courseId !== submission.course_id) notFound();
   if (!(await hasStudentAssessmentAccess(supabase, user.id, courseId)))
     notFound();
   const [grade, canRequestReview] = await Promise.all([
@@ -41,6 +41,7 @@ export default async function SubmissionPage({
     <SubmissionContent
       submission={submission}
       courseId={courseId}
+      assignmentAvailable={Boolean(assignment)}
       grade={grade}
       canRequestReview={canRequestReview}
     />
@@ -55,7 +56,7 @@ async function loadOwnedSubmission(
   const { data, error } = await supabase
     .from('submissions')
     .select(
-      'id,assignment_id,source,language,revision,created_at,is_late,due_at_submission,assignments!inner(title,publication_status,language,course_id)',
+      'id,assignment_id,course_id,source,language,revision,created_at,is_late,due_at_submission,assignments(title,publication_status,language)',
     )
     .eq('id', submissionId)
     .eq('student_id', studentId)
@@ -86,11 +87,13 @@ type PublishedGrade = NonNullable<
 function SubmissionContent({
   submission,
   courseId,
+  assignmentAvailable,
   grade,
   canRequestReview,
 }: {
   submission: SubmissionRecord;
   courseId: string;
+  assignmentAvailable: boolean;
   grade: PublishedGrade | null;
   canRequestReview: boolean;
 }) {
@@ -101,6 +104,7 @@ function SubmissionContent({
       <SubmissionNavigation
         assignmentId={submission.assignment_id}
         courseId={courseId}
+        assignmentAvailable={assignmentAvailable}
       />
       <div>
         <p className="text-sm text-muted-foreground">
@@ -193,9 +197,11 @@ function ContinueEditing({
 function SubmissionNavigation({
   assignmentId,
   courseId,
+  assignmentAvailable,
 }: {
   assignmentId: string;
   courseId: string;
+  assignmentAvailable: boolean;
 }) {
   return (
     <nav
@@ -208,12 +214,14 @@ function SubmissionNavigation({
       >
         All submissions
       </Link>
-      <Link
-        href={`/student/assignments/${assignmentId}?courseId=${encodeURIComponent(courseId)}`}
-        className="underline"
-      >
-        Back to assignment
-      </Link>
+      {assignmentAvailable && (
+        <Link
+          href={`/student/assignments/${assignmentId}?courseId=${encodeURIComponent(courseId)}`}
+          className="underline"
+        >
+          Back to assignment
+        </Link>
+      )}
     </nav>
   );
 }

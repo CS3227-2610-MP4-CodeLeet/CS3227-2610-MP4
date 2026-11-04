@@ -30,10 +30,10 @@ export async function loadSubmissionHistory(
     let query = client
       .from('submissions')
       .select(
-        'id,assignment_id,language,revision,created_at,is_late,due_at_submission,assignments!inner(title)',
+        'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)',
       )
       .eq('student_id', studentId)
-      .eq('assignments.course_id', courseId);
+      .eq('course_id', courseId);
     if (filters.language) query = query.eq('language', filters.language);
     if (filters.q)
       query = query.filter(

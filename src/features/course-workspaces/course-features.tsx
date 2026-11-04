@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type {
   CourseFeature,
   CourseFeatureSetting,
@@ -73,6 +74,7 @@ export function CourseFeatures({
   course: CourseWorkspaceRecord;
   initialFeatures: CourseFeatureSetting[];
 }) {
+  const router = useRouter();
   const [settings, setSettings] = useState(initialFeatures);
   const [error, setError] = useState<string | null>(null);
   const [busyFeature, setBusyFeature] = useState<CourseFeature | null>(null);
@@ -91,6 +93,7 @@ export function CourseFeatures({
           item.feature === feature ? { ...item, enabled } : item,
         ),
       );
+      router.refresh();
     } catch (requestError) {
       setError(
         messageFor(requestError, 'Course feature setting could not be saved.'),

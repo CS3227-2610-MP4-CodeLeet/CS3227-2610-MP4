@@ -1,5 +1,5 @@
 begin;
-select plan(30);
+select no_plan();
 with function_source as (
   select lower(pg_get_functiondef('public.submit_code(uuid,text,uuid)'::regprocedure)) as source
 )
@@ -108,9 +108,18 @@ reset role;
 update public.user_roles set role = 'student' where user_id = '20000000-0000-4000-8000-000000000001';
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
-select throws_ok($$select public.save_grade('50000000-0000-4000-8000-000000000001', '{"40000000-0000-4000-8000-000000000001":8}', 'Demoted', 8, false, 2)$$, '42501', 'instructor_required', 'demoted instructor cannot call the grade RPC directly');
+select lives_ok($$select public.save_grade('50000000-0000-4000-8000-000000000001', '{"40000000-0000-4000-8000-000000000001":8}', 'Course instructor', 8, false, 2)$$, 'course instructor can grade despite a different platform-wide role');
 reset role;
-select is((select version from public.grades where submission_id = '50000000-0000-4000-8000-000000000001'), 2, 'denied grade RPC leaves the grade unchanged');
+select is((select version from public.grades where submission_id = '50000000-0000-4000-8000-000000000001'), 3, 'course-authorized grade save advances the grade version');
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+select lives_ok($$select public.set_course_member('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000002',null)$$,'owner can remove a student from one course');
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+select is((select count(*)::integer from public.ai_usage where course_id='22000000-0000-4000-8000-000000000001'),0,'removed member cannot read AI usage history from the prior course');
+select ok((select count(*)::integer from public.ai_usage where course_id='22000000-0000-4000-8000-000000000002')>0,'remaining course usage stays readable');
 
 select * from finish();
 rollback;

@@ -114,6 +114,7 @@ describe('course workspace management', () => {
         }),
       ),
     );
+    expect(mocks.refresh).toHaveBeenCalledOnce();
   });
 
   it('keeps membership and settings controls away from students', () => {

@@ -5,7 +5,7 @@ import { loadSubmissionHistory } from './history.server';
 const verifiedStudentId = 'verified-student';
 const courseId = 'course-a';
 const historySelect =
-  'id,assignment_id,language,revision,created_at,is_late,due_at_submission,assignments!inner(title)';
+  'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)';
 
 it('sends literal title/language filters before paging with verified ownership and visible-title joins', async () => {
   let requested!: URL;
@@ -31,9 +31,7 @@ it('sends literal title/language filters before paging with verified ownership a
     filters: { q: 'A*%_[x]', language: 'java' },
   });
   expect(requested.searchParams.get('student_id')).toBe('eq.verified-student');
-  expect(requested.searchParams.get('assignments.course_id')).toBe(
-    'eq.course-a',
-  );
+  expect(requested.searchParams.get('course_id')).toBe('eq.course-a');
   expect(requested.searchParams.get('language')).toBe('eq.java');
   expect(requested.searchParams.get('assignments.title')).toBe(
     'imatch.A\\*%_\\[x\\]',
@@ -103,7 +101,7 @@ it('uses the selected course join for language-only history', async () => {
     filters: { q: '', language: 'python' },
   });
   expect(query.eq).toHaveBeenCalledWith('student_id', verifiedStudentId);
-  expect(query.eq).toHaveBeenCalledWith('assignments.course_id', 'course-a');
+  expect(query.eq).toHaveBeenCalledWith('course_id', 'course-a');
   expect(query.eq).toHaveBeenCalledWith('language', 'python');
   expect(query.select).toHaveBeenCalledWith(historySelect);
 });

@@ -26,10 +26,10 @@ export async function loadStudentGrades(
     let query = client
       .from('grades')
       .select(
-        'id,submission_id,total_score,feedback,published_at,submissions!inner(language,revision,assignments!inner(title))',
+        'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
       )
       .eq('submissions.student_id', studentId)
-      .eq('submissions.assignments.course_id', courseId)
+      .eq('submissions.course_id', courseId)
       .not('published_at', 'is', null);
     if (filters.language)
       query = query.eq('submissions.language', filters.language);

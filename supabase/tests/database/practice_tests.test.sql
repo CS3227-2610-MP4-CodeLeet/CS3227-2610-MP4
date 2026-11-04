@@ -45,6 +45,7 @@ select ok(not public.valid_practice_cases('[{}, {}, {}, {}, {}, {}]'),'six cases
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
 select lives_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000002',0,'publish','[{"id":"b3000000-0000-4000-8000-000000000002","name":"Java","stdin":"","expected_stdout":""}]')$$,'owner may prepare published cases for draft assignment');
+select is((select count(*)::integer from public.assignment_practice_sets),2,'instructor can read snapshots prepared for published and draft assignments');
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
 select is((select count(*)::integer from public.assignment_practice_drafts),0,'students cannot read drafts directly');
 select is((select count(*)::integer from public.assignment_practice_sets),1,'students see only published-assignment cases');

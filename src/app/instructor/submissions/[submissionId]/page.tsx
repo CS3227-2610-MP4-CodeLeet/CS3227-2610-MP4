@@ -18,6 +18,13 @@ type Criterion = {
   maxScore: number;
 };
 
+type SavedGrade = {
+  scores: Record<string, unknown>;
+  feedback: string;
+  total_score: number | null;
+  published_at: string | null;
+};
+
 function SubmissionCodeRunner({
   runnerOrigin,
   language,
@@ -139,10 +146,61 @@ export default async function InstructorSubmissionPage({
           />
         </>
       ) : (
-        <p className="rounded-md border p-4 text-sm">
-          Archived courses are read-only.
-        </p>
+        <>
+          <p className="rounded-md border p-4 text-sm">
+            Archived courses are read-only.
+          </p>
+          {grade ? (
+            <ReadOnlyGrade
+              criteria={criteria}
+              grade={{
+                ...grade,
+                scores: grade.scores as Record<string, unknown>,
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No saved grade is available for this submission.
+            </p>
+          )}
+        </>
       )}
     </main>
+  );
+}
+
+function ReadOnlyGrade({
+  criteria,
+  grade,
+}: {
+  criteria: Criterion[];
+  grade: SavedGrade;
+}) {
+  return (
+    <section
+      aria-label="Saved grade"
+      className="space-y-3 rounded-xl border bg-card p-5"
+    >
+      <h2 className="font-semibold">Saved grade · read-only</h2>
+      <p className="text-sm">{grade.published_at ? 'Published' : 'Draft'}</p>
+      <dl className="space-y-2">
+        {criteria.map((criterion) => (
+          <div
+            key={criterion.id}
+            className="flex items-center justify-between gap-4 text-sm"
+          >
+            <dt>
+              {criterion.title} (/{criterion.maxScore})
+            </dt>
+            <dd>{String(grade.scores[criterion.id] ?? '—')}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="text-sm font-medium">Total: {grade.total_score ?? '—'}</p>
+      <div>
+        <h3 className="text-sm font-medium">Feedback</h3>
+        <p className="whitespace-pre-wrap text-sm">{grade.feedback}</p>
+      </div>
+    </section>
   );
 }
