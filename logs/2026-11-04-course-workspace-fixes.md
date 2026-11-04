@@ -6,7 +6,7 @@
 - GitHub issue: #92 https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/92
 - OpenSpec change: build-programming-platform
 - Branch and commits: fix/92-course-workspace-remediation from develop at 8006a9a; commit 1e1e218
-- Pull request: pending
+- Pull request: #93 https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/93
 - Human verification: pending
 - Verifier/date: pending
 
