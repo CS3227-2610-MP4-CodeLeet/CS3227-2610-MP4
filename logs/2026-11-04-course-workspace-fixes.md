@@ -5,7 +5,7 @@
 - AI tools/models, where known: Antigravity (Advanced Agentic Coding); resource measurements unavailable
 - GitHub issue: #92 https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/92
 - OpenSpec change: build-programming-platform
-- Branch and commits: fix/92-course-workspace-remediation from develop at 8006a9a; commit 1e1e218
+- Branch and commits: fix/92-course-workspace-remediation from develop at 8006a9a; commits edd2175, 3eb15b7, 06e29c9
 - Pull request: #93 https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/93
 - Human verification: pending
 - Verifier/date: pending
@@ -51,11 +51,22 @@
   - `pnpm check:scaffold`: Passed (`node workflow/scripts/check-scaffold.mjs` exit 0)
   - `pnpm spec:validate`: Passed (`openspec validate --all --strict` exit 0, 11/11 passed)
   - `pnpm test:unit`: Passed (145 test files passed, 768 tests passed, 0 failures)
+  - GitHub Actions & Vercel PR #93 checks: All passed at head `06e29c9`:
+    - `Analyze (actions)`: Passed
+    - `Analyze (javascript-typescript)`: Passed
+    - `CodeQL`: Passed
+    - `application`: Passed
+    - `database`: Passed
+    - `scaffold`: Passed
+    - `coverage-report`: Passed
+    - `Vercel Preview`: Passed (deployment completed)
+    - `Supabase Preview`: Skipped (as configured)
 - Failures, retries, unresolved issues:
   - ESLint complexity warning in `submissions/[id]/route.ts` resolved by dropping unused `sonarjs/cognitive-complexity` comment.
   - ESLint line count and complexity in `courses/[courseId]/invitations/[invitationId]/route.ts` resolved by adopting `courseAccount` and helper functions.
+  - TypeScript return type in `courses/[courseId]/invitations/[invitationId]/route.ts` resolved by validating `auth.response`.
   - ESLint slowdown resolved by ignoring `.worktrees/**` and `.superpowers/**`.
   - Vercel sign-in 503 is an environment configuration issue on Vercel preview/production; requires configuring `SUPABASE_SERVER_SECRET_KEY` and `AUTH_RATE_LIMIT_SECRET` (>= 32 chars).
 - Resource measurements and unavailable fields: unavailable.
-- Next steps: Commit verified changes, push branch, open pull request linking issue #92, and await human review.
+- Next steps: Team/human verification and merge review of PR #93.
 
