@@ -1,5 +1,12 @@
 begin;
-select plan(27);
+select plan(28);
+with function_source as (
+  select lower(pg_get_functiondef('public.submit_code(uuid,text,uuid)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
+  and position('select m.role into v_role' in substring(source from position('for share' in source)))>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'submission writer locks its course and rechecks membership and assessment access') from function_source;
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values

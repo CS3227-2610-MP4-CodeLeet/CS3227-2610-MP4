@@ -7,7 +7,7 @@ import {
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import {
   matchesListFilters,
   parseListFilters,
@@ -49,6 +49,7 @@ export default async function AssignmentListPage({
     );
   }
   const { supabase, user } = await requireMember();
+  if (!courseId) redirect('/courses');
   const access = await readCourseAccess(
     supabase,
     user.id,

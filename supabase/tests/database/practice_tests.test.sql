@@ -1,5 +1,12 @@
 begin;
 select no_plan();
+with function_source as (
+  select lower(pg_get_functiondef('public.save_practice_tests(uuid,integer,text,jsonb)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
+  and position('is_member(v_course' in substring(source from position('for share' in source)))>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'practice-test writer locks its course and rechecks membership and assessment access') from function_source;
 select has_table('public','assignment_practice_drafts','private draft storage exists');
 select has_table('public','assignment_practice_sets','public snapshot storage exists');
 insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) values
