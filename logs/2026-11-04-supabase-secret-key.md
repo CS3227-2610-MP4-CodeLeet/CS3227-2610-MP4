@@ -23,6 +23,7 @@
     - `src/lib/supabase/metadata.server.test.ts`
     - `.env.example`
     - `docs/DeveloperGuide.md`
+    - `workflow/plans/2026-11-03-username-sign-in.md`
   - Ran unit tests, ESLint, TypeScript checks, and Prettier formatting checks locally.
 
 ## Work and verification
@@ -32,6 +33,7 @@
   - `src/lib/supabase/metadata.server.test.ts`
   - `.env.example`
   - `docs/DeveloperGuide.md`
+  - `workflow/plans/2026-11-03-username-sign-in.md`
   - `logs/2026-11-04-supabase-secret-key.md`
 - Commands/checks actually run and outcomes:
   - `gh issue create`: Created issue #96
