@@ -11,7 +11,7 @@
 
 - Preserve unrelated `next-env.d.ts` edit; no courses, hosted writes, real student data, database reset, provider calls or server execution of source.
 - Names: trimmed 1–80 characters, no @/NUL/control, database lowercasing. Existing duplicates/ineligible names retain email login and explicit rename/claim workflow.
-- Server-only `SUPABASE_SERVER_SECRET_KEY` for narrow metadata RPCs; separate `AUTH_RATE_LIMIT_SECRET` for HMAC. No privileged session creation or exposed email lookup.
+- Server-only `SUPABASE_SECRET_KEY` for narrow metadata RPCs; separate `AUTH_RATE_LIMIT_SECRET` for HMAC. No privileged session creation or exposed email lookup.
 - Limit to ten accepted attempts/identifier/minute and sixty globally/minute; database-atomic windows, no plaintext identifier counters, safe errors/Retry-After and no fail-open route.
 
 ## Review focus

@@ -6,7 +6,7 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://synthetic.example.test');
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'public-synthetic');
-  vi.stubEnv('SUPABASE_SERVER_SECRET_KEY', 'private-synthetic');
+  vi.stubEnv('SUPABASE_SECRET_KEY', 'private-synthetic');
   vi.stubEnv(
     'AUTH_RATE_LIMIT_SECRET',
     'synthetic-hmac-secret-at-least-32-characters',
@@ -31,7 +31,7 @@ it('isolates metadata and stateless dummy clients and disables persisted session
       },
     });
 });
-it.each(['SUPABASE_SERVER_SECRET_KEY', 'AUTH_RATE_LIMIT_SECRET'])(
+it.each(['SUPABASE_SECRET_KEY', 'AUTH_RATE_LIMIT_SECRET'])(
   'fails closed without %s',
   (name) => {
     vi.stubEnv(name, '');
