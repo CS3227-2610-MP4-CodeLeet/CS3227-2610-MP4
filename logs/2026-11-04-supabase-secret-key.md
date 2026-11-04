@@ -5,7 +5,7 @@
 - AI tools/models, where known: Antigravity
 - GitHub issue: #96
 - OpenSpec change: build-programming-platform
-- Branch and commits: refactor/96-supabase-secret-key (commit: 6ced180)
+- Branch and commits: refactor/96-supabase-secret-key (commits: 6ced180, e0e1a32)
 - Pull request: #97 (https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/97)
 - Human verification: pending
 - Verifier/date:
@@ -41,6 +41,8 @@
   - `pnpm typecheck`: Passed (`next typegen && tsc --noEmit` exit 0)
   - `pnpm format:check`: Passed (`prettier --check .` exit 0)
   - `pnpm spec:validate`: Passed (`openspec validate --all --strict` exit 0)
+  - `gh pr create`: Created PR #97 targeting `develop`
+  - `gh pr checks 97`: All 8 checks passed (application, coverage-report, database, scaffold, CodeQL, Analyze actions, Analyze javascript-typescript, Vercel preview deployment)
 - Failures, retries, unresolved issues: none.
 - Resource measurements and unavailable fields: unavailable.
-- Next steps: Commit, push branch, create PR targeting `develop`, and verify GitHub Actions CI.
+- Next steps: Merge PR #97 into `develop`.
