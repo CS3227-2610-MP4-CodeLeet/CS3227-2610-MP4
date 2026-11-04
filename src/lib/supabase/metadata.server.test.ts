@@ -3,6 +3,7 @@ const create = vi.hoisted(() => vi.fn());
 vi.mock('@supabase/supabase-js', () => ({ createClient: create }));
 import { createSignInClients } from './metadata.server';
 beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://synthetic.example.test');
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'public-synthetic');
   vi.stubEnv('SUPABASE_SERVER_SECRET_KEY', 'private-synthetic');

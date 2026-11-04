@@ -42,7 +42,10 @@ async function rpcData(
   args: Record<string, string>,
 ) {
   const result = await client.rpc(name, args);
-  if (result.error) throw new Error('Sign-in dependency unavailable');
+  if (result.error) {
+    console.error(`Sign-in RPC '${name}' failed:`, result.error);
+    throw new Error('Sign-in dependency unavailable');
+  }
   return result.data;
 }
 
@@ -65,7 +68,10 @@ function credentialFailure(
   error: { status?: number } | null,
 ): SignInResult | null {
   if (error?.status === 429) return { kind: 'limited', retryAfter: 60 };
-  if (error && (error.status ?? 500) >= 500) return { kind: 'unavailable' };
+  if (error && (error.status ?? 500) >= 500) {
+    console.error('Supabase signInWithPassword upstream error >= 500:', error);
+    return { kind: 'unavailable' };
+  }
   return error ? { kind: 'credentials' } : null;
 }
 async function authenticate(
@@ -112,7 +118,8 @@ export async function performSignIn(
       return credentialFailure(error) ?? { kind: 'credentials' };
     }
     return await authenticate(email, input.password, deps);
-  } catch {
+  } catch (error) {
+    console.error('performSignIn caught error:', error);
     return { kind: 'unavailable' };
   }
 }
