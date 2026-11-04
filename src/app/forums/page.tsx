@@ -17,7 +17,7 @@ export default async function ForumsPage({
 }) {
   const { user, supabase } = await requireForumMember();
   const params = await searchParams;
-  const { courseId } = await requireDiscussionCourse(
+  const { courseId, access } = await requireDiscussionCourse(
     user.id,
     supabase,
     params.courseId,
@@ -35,12 +35,14 @@ export default async function ForumsPage({
             Ask questions and learn together.
           </p>
         </div>
-        <Link
-          href={`/forums/new?courseId=${courseId}`}
-          className="rounded-md bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800"
-        >
-          New discussion
-        </Link>
+        {access.lifecycle === 'active' && (
+          <Link
+            href={`/forums/new?courseId=${courseId}`}
+            className="rounded-md bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800"
+          >
+            New discussion
+          </Link>
+        )}
       </div>
       <ForumSearchControls query={query} courseId={courseId} />
       <section

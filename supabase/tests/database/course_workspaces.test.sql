@@ -47,6 +47,15 @@ select lives_ok($$select public.create_course_invitation((select id from course_
 insert into course_test_invites select 'student',public.create_course_invitation((select id from course_test_ids where name='main'),'course-student@example.test','student','synthetic-invite-token-student-xxxxxxxx',clock_timestamp()+interval '1 day');
 select is((select id is not null from course_test_invites where name='student'),true,'owner can invite a student by email');
 select is((select count(*)::integer from public.list_course_invitations((select id from course_test_ids where name='main'))),2,'course staff can list pending invitations without exposing token hashes');
+select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000003','student')$$,'owner can add a verified student before invitation acceptance');
+insert into course_test_invites select 'existing-student-promotion',public.create_course_invitation((select id from course_test_ids where name='main'),'course-student@example.test','instructor','synthetic-invite-token-promote-xxxxxxxx',clock_timestamp()+interval '1 day');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
+select throws_ok($$select public.accept_course_invitation('synthetic-invite-token-promote-xxxxxxxx')$$,'42501','invitation_unavailable','an existing member cannot accept a second invitation');
+select is((select role from public.course_memberships where course_id=(select id from course_test_ids where name='main') and user_id=auth.uid()),'student','rejected invitation does not change an existing member role');
+reset role;
+select is((select accepted_at from public.course_invitations where id=(select id from course_test_invites where name='existing-student-promotion')),null::timestamptz,'rejected invitation remains pending for staff reconciliation');
+set local role authenticated;
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 insert into course_test_invites select 'expired',public.create_course_invitation((select id from course_test_ids where name='main'),'course-outsider@example.test','student','synthetic-invite-token-expired-xxxxxxxx',clock_timestamp()+interval '1 day');
 reset role;
 update public.course_invitations set created_at=clock_timestamp()-interval '2 days',expires_at=clock_timestamp()-interval '1 second' where id=(select id from course_test_invites where name='expired');

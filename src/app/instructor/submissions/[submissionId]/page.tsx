@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
+import { hasInstructorAiReviewAccess } from '@/features/student-submissions/course-access.server';
 import { GradeForm } from '@/features/codementor/grade-form';
 import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
@@ -89,6 +90,11 @@ export default async function InstructorSubmissionPage({
     (access.lifecycle === 'active' && !access.featureEnabled)
   )
     notFound();
+  const canRequestReview = await hasInstructorAiReviewAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+  );
   const criteria = rubric.criteria as Criterion[];
   const language = assignmentLanguageSchema.parse(submission.language);
   return (
@@ -119,7 +125,9 @@ export default async function InstructorSubmissionPage({
       />
       {access.lifecycle === 'active' ? (
         <>
-          <ReviewButton role="instructor" submissionId={submission.id} />
+          {canRequestReview && (
+            <ReviewButton role="instructor" submissionId={submission.id} />
+          )}
           <GradeForm
             submissionId={submission.id}
             criteria={criteria}

@@ -96,7 +96,7 @@ describe('course workspace management', () => {
       currentUserId: 'teacher-2',
       initialMembers: members,
     });
-    expect(screen.getByText('Student')).toBeTruthy();
+    expect(screen.getByText('Student', { selector: 'p' })).toBeTruthy();
     expect(screen.getByRole('button', { name: inviteButtonName })).toBeTruthy();
     expect(
       screen.queryByRole('button', { name: 'Transfer ownership' }),

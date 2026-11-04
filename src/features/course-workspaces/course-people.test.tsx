@@ -9,6 +9,9 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CourseInvitation, CourseMember } from './contracts';
 
+const instructorRole = 'instructor';
+const invitedInstructorEmail = 'new-teacher@example.test';
+
 const mocks = vi.hoisted(() => ({ refresh: vi.fn() }));
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: mocks.refresh }),
@@ -28,14 +31,14 @@ const members: CourseMember[] = [
     user_id: 'owner-1',
     email: 'owner@example.test',
     display_name: 'Owner',
-    role: 'instructor',
+    role: instructorRole,
     joined_at: '2026-01-01',
   },
   {
     user_id: 'teacher-2',
     email: 'teacher@example.test',
     display_name: 'Teacher',
-    role: 'instructor',
+    role: instructorRole,
     joined_at: '2026-01-02',
   },
   {
@@ -85,10 +88,10 @@ describe('course people controls', () => {
   it('lets the owner invite either role and refreshes the member list', async () => {
     renderPeople();
     fireEvent.change(screen.getByLabelText('Email address'), {
-      target: { value: 'new-teacher@example.test' },
+      target: { value: invitedInstructorEmail },
     });
     fireEvent.change(screen.getByLabelText('Invite role'), {
-      target: { value: 'instructor' },
+      target: { value: instructorRole },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Invite by email' }));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
@@ -97,19 +100,21 @@ describe('course people controls', () => {
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          email: 'new-teacher@example.test',
-          role: 'instructor',
+          email: invitedInstructorEmail,
+          role: instructorRole,
         }),
       }),
     );
   });
 
-  it('limits instructors to student invitations and student membership changes', async () => {
+  it('lets instructors invite other instructors and limits student membership changes', async () => {
     renderPeople({ isOwner: false });
-    expect(screen.queryByLabelText('Invite role')).toBeNull();
+    fireEvent.change(screen.getByLabelText('Invite role'), {
+      target: { value: instructorRole },
+    });
     expect(screen.getAllByRole('button', { name: 'Remove' })).toHaveLength(1);
     fireEvent.change(screen.getByLabelText('Email address'), {
-      target: { value: 'new-student@example.test' },
+      target: { value: invitedInstructorEmail },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Invite by email' }));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
@@ -117,8 +122,8 @@ describe('course people controls', () => {
       `/api/courses/${course.id}/members`,
       expect.objectContaining({
         body: JSON.stringify({
-          email: 'new-student@example.test',
-          role: 'student',
+          email: invitedInstructorEmail,
+          role: instructorRole,
         }),
       }),
     );

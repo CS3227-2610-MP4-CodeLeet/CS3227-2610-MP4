@@ -28,7 +28,7 @@ export function CoursePeople(props: Props) {
           invited address.
         </p>
       </div>
-      <InvitationForm courseId={props.course.id} isOwner={props.isOwner} />
+      <InvitationForm courseId={props.course.id} />
       <MemberList {...props} />
       <PendingInvitations
         courseId={props.course.id}
@@ -38,13 +38,7 @@ export function CoursePeople(props: Props) {
   );
 }
 
-function InvitationForm({
-  courseId,
-  isOwner,
-}: {
-  courseId: string;
-  isOwner: boolean;
-}) {
+function InvitationForm({ courseId }: { courseId: string }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<CourseMemberRole>('student');
@@ -59,7 +53,7 @@ function InvitationForm({
     try {
       await courseRequest(`/api/courses/${courseId}/members`, 'POST', {
         email,
-        role: isOwner ? role : 'student',
+        role,
       });
       setEmail('');
       router.refresh();
@@ -91,7 +85,7 @@ function InvitationForm({
           placeholder="name@example.edu"
           className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2"
         />
-        {isOwner && <RoleSelect value={role} onChange={setRole} />}
+        <RoleSelect value={role} onChange={setRole} />
         <button
           disabled={busy}
           className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"

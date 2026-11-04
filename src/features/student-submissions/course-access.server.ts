@@ -38,3 +38,38 @@ export async function hasStudentAssessmentAccess(
     (access.lifecycle === 'archived' || access.featureEnabled)
   );
 }
+
+export async function hasStudentAiReviewAccess(
+  supabase: SupabaseClient,
+  studentId: string,
+  courseId: string,
+) {
+  return hasActiveAiReviewAccess(supabase, studentId, courseId, 'student');
+}
+
+export async function hasInstructorAiReviewAccess(
+  supabase: SupabaseClient,
+  instructorId: string,
+  courseId: string,
+) {
+  return hasActiveAiReviewAccess(
+    supabase,
+    instructorId,
+    courseId,
+    'instructor',
+  );
+}
+
+async function hasActiveAiReviewAccess(
+  supabase: SupabaseClient,
+  userId: string,
+  courseId: string,
+  role: 'student' | 'instructor',
+) {
+  const access = await readCourseAccess(supabase, userId, courseId, 'ai');
+  return (
+    access?.role === role &&
+    access.lifecycle === 'active' &&
+    access.featureEnabled
+  );
+}

@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import { requireMember } from '@/lib/auth/verified-user';
-import { hasStudentAssessmentAccess } from '@/features/student-submissions/course-access.server';
+import {
+  hasStudentAiReviewAccess,
+  hasStudentAssessmentAccess,
+} from '@/features/student-submissions/course-access.server';
 import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
@@ -30,12 +33,16 @@ export default async function SubmissionPage({
   if (!courseId || courseId !== assignment?.course_id) notFound();
   if (!(await hasStudentAssessmentAccess(supabase, user.id, courseId)))
     notFound();
-  const grade = await loadPublishedGrade(supabase, submissionId);
+  const [grade, canRequestReview] = await Promise.all([
+    loadPublishedGrade(supabase, submissionId),
+    hasStudentAiReviewAccess(supabase, user.id, courseId),
+  ]);
   return (
     <SubmissionContent
       submission={submission}
       courseId={courseId}
       grade={grade}
+      canRequestReview={canRequestReview}
     />
   );
 }
@@ -80,10 +87,12 @@ function SubmissionContent({
   submission,
   courseId,
   grade,
+  canRequestReview,
 }: {
   submission: SubmissionRecord;
   courseId: string;
   grade: PublishedGrade | null;
+  canRequestReview: boolean;
 }) {
   const languageLabel =
     languageLabels[assignmentLanguageSchema.parse(submission.language)];
@@ -116,7 +125,9 @@ function SubmissionContent({
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>
       </pre>
-      <ReviewButton role="student" submissionId={submission.id} />
+      {canRequestReview && (
+        <ReviewButton role="student" submissionId={submission.id} />
+      )}
       {grade ? (
         <section className="space-y-3 rounded-xl border bg-card p-5">
           <h2 className="font-semibold">

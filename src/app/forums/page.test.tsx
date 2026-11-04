@@ -1,6 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-const mocks = vi.hoisted(() => ({ load: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  load: vi.fn(),
+  access: { role: 'student', lifecycle: 'active', featureEnabled: true },
+}));
 vi.mock('@/features/forums/access.server', () => ({
   requireForumMember: async () => ({ user: { id: 'user-1' }, supabase: {} }),
   requireDiscussionCourse: async (
@@ -9,7 +12,7 @@ vi.mock('@/features/forums/access.server', () => ({
     courseId: string,
   ) => ({
     courseId,
-    access: { role: 'student', lifecycle: 'active', featureEnabled: true },
+    access: mocks.access,
   }),
 }));
 vi.mock('@/lib/courses/access', () => ({
@@ -25,6 +28,7 @@ const courseId = 'f0300000-0000-4000-8000-000000000020';
 
 beforeEach(() => {
   mocks.load.mockResolvedValue({ rows: [], hasNext: false });
+  mocks.access.lifecycle = 'active';
 });
 describe('forum empty and text states', () => {
   it('shows search recovery and retains the normalized query in paging', async () => {
@@ -46,6 +50,14 @@ describe('forum empty and text states', () => {
     );
     expect(html).toContain('No discussions yet. Start the first one.');
     expect(html).toContain(`href="/forums/new?courseId=${courseId}"`);
+  });
+  it('hides the new-discussion action in an archived course', async () => {
+    mocks.access.lifecycle = 'archived';
+    const html = renderToStaticMarkup(
+      await ForumsPage({ searchParams: Promise.resolve({ courseId }) }),
+    );
+    expect(html).not.toContain('New discussion');
+    expect(html).not.toContain('/forums/new');
   });
   it('offers page recovery when an older page is empty', async () => {
     const html = renderToStaticMarkup(
