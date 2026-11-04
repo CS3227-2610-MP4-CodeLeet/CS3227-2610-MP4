@@ -5,8 +5,8 @@
 - AI tools/models, where known: Antigravity
 - GitHub issue: #94
 - OpenSpec change: build-programming-platform
-- Branch and commits: fix/94-sign-in-diagnostics
-- Pull request: pending
+- Branch and commits: fix/94-sign-in-diagnostics (commit: 28e0ae3)
+- Pull request: #95 (https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/95)
 - Human verification: pending
 - Verifier/date:
 
@@ -41,7 +41,9 @@
   - `pnpm typecheck`: Passed (`next typegen && tsc --noEmit` exit 0)
   - `pnpm format:check`: Passed (`prettier --check .` exit 0)
   - `pnpm spec:validate`: Passed (`openspec validate --all --strict` exit 0)
+  - `gh pr create`: Created PR #95 targeting `develop`
+  - `gh pr checks 95`: All 8 checks passed (application, coverage-report, database, scaffold, CodeQL, Analyze actions, Analyze javascript-typescript, Vercel preview deployment)
 - Failures, retries, unresolved issues:
   - ESLint complexity warning in `checkSignInEnv` resolved by separating into `missingSignInFields` helper.
 - Resource measurements and unavailable fields: unavailable.
-- Next steps: Commit, push branch, create PR to `develop`, and observe Vercel Function logs.
+- Next steps: Merge PR #95 into `develop` or test on the preview deployment URL to obtain runtime server-side diagnostic logs for sign-in failures.
