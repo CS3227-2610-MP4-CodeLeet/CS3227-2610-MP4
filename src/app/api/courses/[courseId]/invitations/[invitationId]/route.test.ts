@@ -23,7 +23,12 @@ beforeEach(() => {
     role: 'instructor',
     supabase: { rpc: mocks.rpc },
   });
-  mocks.rpc.mockResolvedValue({ error: null });
+  mocks.rpc.mockImplementation(async (rpcName: string) => {
+    if (rpcName === 'list_course_invitations') {
+      return { data: [{ id: invitationId }], error: null };
+    }
+    return { error: null };
+  });
 });
 
 describe('course invitation revocation API', () => {
@@ -34,6 +39,21 @@ describe('course invitation revocation API', () => {
     expect(mocks.rpc).toHaveBeenCalledWith('revoke_course_invitation', {
       p_invitation: invitationId,
     });
+  });
+
+  it('returns 404 when the invitation does not belong to the route course', async () => {
+    mocks.rpc.mockImplementation(async (rpcName: string) => {
+      if (rpcName === 'list_course_invitations') {
+        return {
+          data: [{ id: '00000000-0000-4000-8000-000000000099' }],
+          error: null,
+        };
+      }
+      return { error: null };
+    });
+    const response = await DELETE(request(), context);
+    expect(response.status).toBe(404);
+    expect((await response.json()).error.code).toBe('invitation_unavailable');
   });
 
   it('rejects cross-origin, malformed and signed-out requests', async () => {

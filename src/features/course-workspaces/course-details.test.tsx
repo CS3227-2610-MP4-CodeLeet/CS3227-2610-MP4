@@ -7,6 +7,10 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+const mocks = vi.hoisted(() => ({ refresh: vi.fn() }));
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: mocks.refresh }),
+}));
 import { CourseDetails } from './course-details';
 
 const course = {
@@ -20,6 +24,7 @@ const course = {
 const coursePath = `/api/courses/${course.id}`;
 const courseTitleLabel = 'Course title';
 beforeEach(() => {
+  mocks.refresh.mockReset();
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) }),
@@ -55,6 +60,7 @@ describe('course details form', () => {
         }),
       }),
     );
+    expect(mocks.refresh).toHaveBeenCalledOnce();
   });
 
   it('shows a safe error and retains the form values when saving fails', async () => {
@@ -77,5 +83,6 @@ describe('course details form', () => {
       'value',
       'Keep this title',
     );
+    expect(mocks.refresh).not.toHaveBeenCalled();
   });
 });

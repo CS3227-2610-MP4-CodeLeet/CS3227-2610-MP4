@@ -1,70 +1,79 @@
 import { type NextRequest } from 'next/server';
-import { z } from 'zod';
-import { getVerifiedUserRole } from '@/lib/auth/verified-user';
-import { sameOriginRequest } from '@/lib/http/request';
+import {
+  apiError,
+  courseAccount,
+  isCourseId,
+  requestOriginError,
+} from '@/features/course-workspaces/http';
 import { privateJson } from '@/lib/http/responses';
+
+const INVITATION_UNAVAILABLE = {
+  error: {
+    code: 'invitation_unavailable',
+    message: 'Invitation could not be found.',
+  },
+};
+
+const REVOKE_DENIED = {
+  error: {
+    code: 'invitation_revoke_denied',
+    message: 'Invitation could not be revoked.',
+  },
+};
+
+type SupabaseClient = Extract<
+  Awaited<ReturnType<typeof courseAccount>>,
+  { supabase: unknown }
+>['supabase'];
+
+async function checkCourseInvitation(
+  supabase: SupabaseClient,
+  courseId: string,
+  invitationId: string,
+) {
+  const { data, error } = await supabase.rpc('list_course_invitations', {
+    p_course: courseId,
+  });
+  if (error) return error.code === '42501' ? 403 : 404;
+  const exists = ((data ?? []) as Array<{ id: string }>).some(
+    (inv) => inv.id === invitationId,
+  );
+  return exists ? 200 : 404;
+}
+
 export async function DELETE(
   request: NextRequest,
   context: RouteContext<'/api/courses/[courseId]/invitations/[invitationId]'>,
 ) {
-  if (!sameOriginRequest(request))
-    return privateJson(
-      {
-        error: {
-          code: 'origin_rejected',
-          message: 'Request origin could not be verified.',
-        },
-      },
-      403,
-    );
+  const originError = requestOriginError(request);
+  if (originError) return originError;
+
   const { courseId, invitationId } = await context.params;
-  if (
-    !z.string().uuid().safeParse(courseId).success ||
-    !z.string().uuid().safeParse(invitationId).success
-  )
-    return privateJson(
-      {
-        error: {
-          code: 'invitation_unavailable',
-          message: 'Invitation could not be found.',
-        },
-      },
-      404,
-    );
+  if (!isCourseId(courseId) || !isCourseId(invitationId))
+    return privateJson(INVITATION_UNAVAILABLE, 404);
+
   try {
-    const { supabase, user, role } = await getVerifiedUserRole();
-    if (!user || !supabase)
-      return privateJson(
-        { error: { code: 'unauthorized', message: 'Sign in required.' } },
-        401,
-      );
-    if (!role)
-      return privateJson(
-        { error: { code: 'forbidden', message: 'Course account required.' } },
-        403,
-      );
-    const { error } = await supabase.rpc('revoke_course_invitation', {
+    const auth = await courseAccount();
+    if ('response' in auth) return auth.response;
+
+    const check = await checkCourseInvitation(
+      auth.supabase,
+      courseId,
+      invitationId,
+    );
+    if (check === 403) return privateJson(REVOKE_DENIED, 403);
+    if (check === 404) return privateJson(INVITATION_UNAVAILABLE, 404);
+
+    const { error } = await auth.supabase.rpc('revoke_course_invitation', {
       p_invitation: invitationId,
     });
     if (error)
-      return privateJson(
-        {
-          error: {
-            code: 'invitation_revoke_denied',
-            message: 'Invitation could not be revoked.',
-          },
-        },
-        error.code === '42501' ? 403 : 404,
-      );
+      return privateJson(REVOKE_DENIED, error.code === '42501' ? 403 : 404);
     return privateJson({ status: 'revoked' });
   } catch {
-    return privateJson(
-      {
-        error: {
-          code: 'invitation_revoke_failed',
-          message: 'Invitation could not be revoked.',
-        },
-      },
+    return apiError(
+      'invitation_revoke_failed',
+      'Invitation could not be revoked.',
       503,
     );
   }

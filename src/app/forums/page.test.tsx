@@ -24,6 +24,7 @@ vi.mock('@/lib/courses/access', () => ({
 }));
 vi.mock('@/features/forums/data.server', () => ({ loadThreads: mocks.load }));
 import ForumsPage from './page';
+import DiscussionNotFound from './not-found';
 const courseId = 'f0300000-0000-4000-8000-000000000020';
 
 beforeEach(() => {
@@ -88,5 +89,11 @@ describe('forum empty and text states', () => {
     expect(html).not.toContain('<img');
     expect(html).not.toContain('<script>');
     expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('links to /courses in DiscussionNotFound without creating an infinite /forums loop', () => {
+    const html = renderToStaticMarkup(DiscussionNotFound());
+    expect(html).toContain('href="/courses"');
+    expect(html).not.toContain('href="/forums"');
   });
 });

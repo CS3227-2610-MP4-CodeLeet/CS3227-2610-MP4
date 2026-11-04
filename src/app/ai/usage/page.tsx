@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 import { notFound } from 'next/navigation';
@@ -43,6 +44,12 @@ export default async function AIUsagePage({
   const summary = summarizeUsage(usage ?? []);
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
+      <Link
+        href={`/courses/${encodeURIComponent(courseId)}`}
+        className="text-sm underline"
+      >
+        Back to course
+      </Link>
       <header>
         <p className="text-sm text-muted-foreground">
           {role === 'student'
