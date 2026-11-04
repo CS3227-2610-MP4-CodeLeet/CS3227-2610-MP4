@@ -44,7 +44,7 @@ async function loadCourseView(
     supabase,
     courseId,
     role,
-    courseResult.data.lifecycle,
+    courseResult.data,
   );
   return {
     course: courseResult.data,
@@ -58,9 +58,9 @@ async function loadStaffDirectory(
   supabase: Supabase,
   courseId: string,
   role: CourseMemberRole,
-  lifecycle: string,
+  course: { lifecycle: string; is_legacy: boolean },
 ) {
-  if (role !== 'instructor')
+  if (role !== 'instructor' || course.is_legacy)
     return {
       members: [] as CourseMember[],
       invitations: [] as CourseInvitation[],
@@ -71,7 +71,7 @@ async function loadStaffDirectory(
   if (membersResult.error)
     throw new Error('Course members could not be loaded.');
   const members = (membersResult.data ?? []) as CourseMember[];
-  if (lifecycle !== 'active')
+  if (course.lifecycle !== 'active')
     return { members, invitations: [] as CourseInvitation[] };
   const invitationResult = await supabase.rpc('list_course_invitations', {
     p_course: courseId,
