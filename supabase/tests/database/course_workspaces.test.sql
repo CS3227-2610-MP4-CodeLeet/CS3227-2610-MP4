@@ -1,5 +1,11 @@
 begin;
 select no_plan();
+with function_source as (
+  select lower(pg_get_functiondef('public.update_course(uuid,text,text)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=p_course for update' in source)>0
+  and position('course_private.is_member' in substring(source from position('for update' in source)))>0,
+  'course update locks its row before checking instructor membership') from function_source;
 
 select has_table('public','courses','course workspace table exists');
 select has_table('public','course_memberships','per-course membership table exists');
