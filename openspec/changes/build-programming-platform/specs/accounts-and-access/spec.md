@@ -67,11 +67,11 @@ The application SHALL apply the saved theme to account and signed-in pages. Regi
 - **THEN** the failure stays visible on the current page until retry and success redirects to sign-in with protected pages requiring authentication again
 
 ### Requirement: Trusted role assignment
-The system SHALL support student/instructor identities with Supabase Auth. Public registration SHALL grant only student access and role elevation SHALL require trusted administration.
+The system SHALL authenticate accounts separately from course membership. Public registration alone SHALL grant no course access. Student/instructor membership SHALL be granted only through an authorized course invitation or student join code after verified sign-in. Platform administration SHALL remain trusted and global.
 
-#### Scenario: Student attempts self-promotion
-- **WHEN** a student includes an instructor role in a registration or profile request
-- **THEN** the system rejects or ignores elevation and retains student permissions
+#### Scenario: Untrusted role elevation
+- **WHEN** a caller supplies a course role in registration, profile, request metadata or a direct database write without authorized invitation acceptance
+- **THEN** no course membership or platform administration is granted; verified invitation acceptance remains the only email-based role grant
 
 ### Requirement: Authorized profiles and private data
 The system SHALL allow users to edit their own text profile and SHALL enforce ownership through server checks and database policies.

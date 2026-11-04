@@ -1,20 +1,40 @@
-import { requireRole } from '@/lib/auth/verified-user';
+import { notFound, redirect } from 'next/navigation';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import { ContextComparison } from '@/features/codementor/context-comparison';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AIContextPage() {
-  const { supabase } = await requireRole('instructor');
+export default async function AIContextPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ courseId?: string }>;
+}) {
+  const { supabase, user } = await requireMember();
+  const { courseId } = await searchParams;
+  if (!courseId) redirect('/courses');
+  const access = await readCourseAccess(supabase, user.id, courseId, 'ai');
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    access.lifecycle !== 'active' ||
+    !access.featureEnabled
+  )
+    notFound();
   const { data: submissions, error } = await supabase
     .from('submissions')
-    .select('id,assignment_id,revision,created_at,assignments(title)')
+    .select('id,assignment_id,revision,created_at,assignments!inner(title)')
+    .eq('assignments.course_id', courseId)
     .order('created_at', { ascending: false })
     .limit(100);
   if (error) throw new Error('Submissions could not be loaded');
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
-      <Link href="/instructor" className="text-sm underline">
+      <Link
+        href={`/instructor?courseId=${encodeURIComponent(courseId)}`}
+        className="text-sm underline"
+      >
         Back to assignments
       </Link>
       <header>

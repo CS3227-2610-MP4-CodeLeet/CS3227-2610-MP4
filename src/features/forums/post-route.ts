@@ -1,11 +1,52 @@
 import { z } from 'zod';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { isAppRole } from '@/lib/auth/roles';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson } from '@/lib/http/responses';
 import { forumInput } from './contracts';
+import { readCourseAccess } from '@/lib/courses/access';
 
 function failure(code: string, message: string, status: number) {
   return privateJson({ error: { code, message } }, status);
+}
+
+async function verifiedForumPoster() {
+  const { user, role, supabase } = await getVerifiedUserRole();
+  if (!user || !supabase)
+    return {
+      ok: false as const,
+      response: failure('unauthorized', 'Sign in to post.', 401),
+    };
+  if (!isAppRole(role))
+    return {
+      ok: false as const,
+      response: failure('forbidden', 'Account access required.', 403),
+    };
+  return { ok: true as const, user, supabase };
+}
+
+async function readForumInput(request: Request) {
+  const body = await readJsonBody(request, 34000);
+  if (!body.ok)
+    return {
+      ok: false as const,
+      response: failure(
+        'invalid_body',
+        'Send a message within the allowed size.',
+        body.reason === 'too-large' ? 413 : 400,
+      ),
+    };
+  const parsed = forumInput.safeParse(body.value);
+  if (!parsed.success)
+    return {
+      ok: false as const,
+      response: failure(
+        'invalid_post',
+        'Use a title of 1–160 characters and a message of 1–8,000 characters.',
+        400,
+      ),
+    };
+  return { ok: true as const, value: parsed.data };
 }
 
 function postingError(error: { code: string; message: string }) {
@@ -37,27 +78,27 @@ function postingError(error: { code: string; message: string }) {
   );
 }
 
-async function createPost(request: Request) {
-  const { user, role, supabase } = await getVerifiedUserRole();
-  if (!user || !supabase)
-    return failure('unauthorized', 'Sign in to post.', 401);
-  if (!role) return failure('forbidden', 'Forum access is required.', 403);
-  const body = await readJsonBody(request, 34000);
-  if (!body.ok)
+async function createPost(request: Request): Promise<Response> {
+  const poster = await verifiedForumPoster();
+  if (!poster.ok) return poster.response;
+  const { user, supabase } = poster;
+  const parsed = await readForumInput(request);
+  if (!parsed.ok) return parsed.response;
+  const value = parsed.value;
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    value.courseId,
+    'discussions',
+  );
+  if (!access || access.lifecycle !== 'active' || !access.featureEnabled)
     return failure(
-      'invalid_body',
-      'Send a message within the allowed size.',
-      body.reason === 'too-large' ? 413 : 400,
+      'unavailable',
+      'This course discussion is unavailable.',
+      404,
     );
-  const parsed = forumInput.safeParse(body.value);
-  if (!parsed.success)
-    return failure(
-      'invalid_post',
-      'Use a title of 1–160 characters and a message of 1–8,000 characters.',
-      400,
-    );
-  const value = parsed.data;
   const { data, error } = await supabase.rpc('create_forum_post', {
+    p_course_id: value.courseId,
     p_thread_id: 'threadId' in value ? value.threadId : null,
     p_title: 'title' in value ? value.title : null,
     p_body: value.body,
@@ -68,7 +109,7 @@ async function createPost(request: Request) {
   return privateJson({ post: result }, 201);
 }
 
-export async function postForum(request: Request) {
+export async function postForum(request: Request): Promise<Response> {
   if (!sameOriginRequest(request))
     return failure(
       'origin_rejected',

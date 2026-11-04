@@ -9,6 +9,7 @@ Students need simple programming practice and submission workflows; instructors 
 - Add single-file Python execution and Java source compilation/execution entirely in the browser, with stdin, diagnostics, cancellation and verified isolation. Support public teacher-published stdin/expected-stdout practice cases with bounded execution and deterministic comparison; student results never establish official grades/XP. Select packages only after feasibility experiments.
 - Add distinct SoCLaaS student hints and instructor grading suggestions with authorization, validated output, quotas, scoped caching and usage metadata.
 - Add discussion threads/replies, server-controlled XP awards and a seeded leaderboard.
+- Add multi-course workspaces with per-course membership/roles, verified email invitations, student join codes, owner transfer, archive/empty-only deletion, per-course feature controls, and course-scoped assignments, discussions, AI, XP and leaderboards. Backfill current shared data into an archived Legacy course whose owner remains Unassigned until platform admin assignment.
 - Establish specialist coordination evidence, security/resource experiments, guides and separate deployment environments.
 - Standardize repository tooling on the latest Node.js 24 patch with direct pnpm commands, and use an issue-linked OpenSpec/Superpowers workflow with incremental commits, sanitized per-change summaries and a PR closeout.
 
@@ -25,11 +26,15 @@ First student delivery is [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet
 - `browser-code-execution`: Client-only Python and Java practice, isolation, diagnostics and cancellation.
 - `role-aware-ai`: SoCLaaS assistance with private-context separation and resource controls.
 - `community-and-xp`: Text discussions, idempotent XP and deterministic leaderboard ordering.
+- `course-workspaces`: Per-course roles, enrollment, lifecycle, feature controls and historical migration.
 - `engineering-and-delivery`: SDD/agent evidence, experiments, deployment and submission artifacts.
 
 ### Modified Capabilities
 
-None; new project.
+- accounts-and-access: separate platform administration from per-course student/instructor membership.
+- assignments-and-grading: scope assignment and grading access to course membership.
+- community-and-xp: scope forums, XP totals and leaderboard to a course.
+- role-aware-ai: require course membership and enabled AI feature for AI workflows.
 
 ## Impact
 

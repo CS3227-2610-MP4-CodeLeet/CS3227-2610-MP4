@@ -4,6 +4,7 @@ import { loadPublishedAssignments } from './assignments.server';
 
 const studentId = '10000000-0000-4000-8000-000000000001';
 const id = '10000000-0000-4000-8000-000000000002';
+const courseId = '10000000-0000-4000-8000-000000000003';
 
 it('embeds only the latest own timing metadata without dropping unsubmitted assignments', async () => {
   let requested!: URL;
@@ -40,10 +41,15 @@ it('embeds only the latest own timing metadata without dropping unsubmitted assi
       },
     },
   });
-  const assignments = await loadPublishedAssignments(client, studentId, {
-    q: 'Loops',
-    language: 'python',
-  });
+  const assignments = await loadPublishedAssignments(
+    client,
+    studentId,
+    courseId,
+    {
+      q: 'Loops',
+      language: 'python',
+    },
+  );
   expect(
     assignments?.map((assignment) => assignment.submission_status),
   ).toEqual(['Submitted late', 'Not submitted']);
@@ -51,6 +57,7 @@ it('embeds only the latest own timing metadata without dropping unsubmitted assi
     'id,title,language,publication_status,due_at,submissions(revision,is_late)',
   );
   expect(requested.searchParams.get('publication_status')).toBe('eq.published');
+  expect(requested.searchParams.get('course_id')).toBe(`eq.${courseId}`);
   expect(requested.searchParams.get('submissions.student_id')).toBe(
     `eq.${studentId}`,
   );

@@ -13,18 +13,27 @@ import {
 
 export async function loadSubmissionHistory(
   client: SupabaseClient,
-  studentId: string,
-  page: number,
-  filters: ListFilters = emptyListFilters,
+  {
+    studentId,
+    courseId,
+    page,
+    filters = emptyListFilters,
+  }: {
+    studentId: string;
+    courseId: string;
+    page: number;
+    filters?: ListFilters;
+  },
 ): Promise<HistoryPage | null> {
   try {
     const offset = (page - 1) * HISTORY_PAGE_SIZE;
     let query = client
       .from('submissions')
       .select(
-        `id,assignment_id,language,revision,created_at,is_late,due_at_submission,${filters.q ? 'assignments!inner(title)' : 'assignments(title)'}`,
+        'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)',
       )
-      .eq('student_id', studentId);
+      .eq('student_id', studentId)
+      .eq('course_id', courseId);
     if (filters.language) query = query.eq('language', filters.language);
     if (filters.q)
       query = query.filter(

@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
+import { notFound } from 'next/navigation';
 
 type UsageEvent = {
   review_type: string;
@@ -15,15 +17,26 @@ type UsageEvent = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function AIUsagePage() {
+// eslint-disable-next-line complexity -- each early return is a separate auth/course boundary.
+export default async function AIUsagePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ courseId?: string }>;
+}) {
+  const courseId = (await searchParams).courseId;
   const { supabase, user, role } = await getVerifiedUserRole();
   if (!user || !role) redirect('/sign-in');
+  if (!courseId) notFound();
+  const access = await readCourseAccess(supabase, user.id, courseId, 'ai');
+  if (!access || (access.lifecycle === 'active' && !access.featureEnabled))
+    notFound();
   const { data: usage, error } = await supabase
     .from('ai_usage')
     .select(
       'review_type,status,error_category,latency_ms,input_tokens,output_tokens,token_source,cache_hit,created_at',
     )
     .eq('requester_id', user.id)
+    .eq('course_id', courseId)
     .order('created_at', { ascending: false })
     .limit(100);
   if (error) throw new Error('Usage data could not be loaded');

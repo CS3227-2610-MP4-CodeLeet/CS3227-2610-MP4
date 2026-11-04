@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ReviewButton } from '@/features/codementor/review-button';
+import { hasInstructorAiReviewAccess } from '@/features/student-submissions/course-access.server';
 import { GradeForm } from '@/features/codementor/grade-form';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
@@ -14,6 +16,13 @@ type Criterion = {
   title: string;
   description: string;
   maxScore: number;
+};
+
+type SavedGrade = {
+  scores: Record<string, unknown>;
+  feedback: string;
+  total_score: number | null;
+  published_at: string | null;
 };
 
 function SubmissionCodeRunner({
@@ -37,13 +46,17 @@ function SubmissionCodeRunner({
   );
 }
 
+// eslint-disable-next-line max-lines-per-function, complexity -- load, authorize, and render this one course-scoped review page together.
 export default async function InstructorSubmissionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ submissionId: string }>;
+  searchParams: Promise<{ courseId?: string }>;
 }) {
   const { submissionId } = await params;
-  const { supabase } = await requireRole('instructor');
+  const requestedCourseId = (await searchParams).courseId;
+  const { supabase, user } = await requireMember();
   const { data: submission } = await supabase
     .from('submissions')
     .select(
@@ -56,7 +69,7 @@ export default async function InstructorSubmissionPage({
     await Promise.all([
       supabase
         .from('assignments')
-        .select('id,title')
+        .select('id,course_id,title')
         .eq('id', submission.assignment_id)
         .maybeSingle(),
       supabase
@@ -71,13 +84,31 @@ export default async function InstructorSubmissionPage({
         .maybeSingle(),
     ]);
   if (!assignment || !rubric) notFound();
+  if (assignment.course_id !== requestedCourseId) notFound();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  )
+    notFound();
+  const canRequestReview = await hasInstructorAiReviewAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+  );
   const criteria = rubric.criteria as Criterion[];
   const language = assignmentLanguageSchema.parse(submission.language);
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
         className="text-sm underline"
-        href={`/instructor/assignments/${assignment.id}/submissions`}
+        href={`/instructor/assignments/${assignment.id}/submissions?courseId=${assignment.course_id}`}
       >
         Back to submissions
       </Link>
@@ -99,16 +130,77 @@ export default async function InstructorSubmissionPage({
         language={language}
         source={submission.source}
       />
-      <ReviewButton role="instructor" submissionId={submission.id} />
-      <GradeForm
-        submissionId={submission.id}
-        criteria={criteria}
-        grade={
-          grade
-            ? { ...grade, scores: grade.scores as Record<string, number> }
-            : null
-        }
-      />
+      {access.lifecycle === 'active' ? (
+        <>
+          {canRequestReview && (
+            <ReviewButton role="instructor" submissionId={submission.id} />
+          )}
+          <GradeForm
+            submissionId={submission.id}
+            criteria={criteria}
+            grade={
+              grade
+                ? { ...grade, scores: grade.scores as Record<string, number> }
+                : null
+            }
+          />
+        </>
+      ) : (
+        <>
+          <p className="rounded-md border p-4 text-sm">
+            Archived courses are read-only.
+          </p>
+          {grade ? (
+            <ReadOnlyGrade
+              criteria={criteria}
+              grade={{
+                ...grade,
+                scores: grade.scores as Record<string, unknown>,
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No saved grade is available for this submission.
+            </p>
+          )}
+        </>
+      )}
     </main>
+  );
+}
+
+function ReadOnlyGrade({
+  criteria,
+  grade,
+}: {
+  criteria: Criterion[];
+  grade: SavedGrade;
+}) {
+  return (
+    <section
+      aria-label="Saved grade"
+      className="space-y-3 rounded-xl border bg-card p-5"
+    >
+      <h2 className="font-semibold">Saved grade · read-only</h2>
+      <p className="text-sm">{grade.published_at ? 'Published' : 'Draft'}</p>
+      <dl className="space-y-2">
+        {criteria.map((criterion) => (
+          <div
+            key={criterion.id}
+            className="flex items-center justify-between gap-4 text-sm"
+          >
+            <dt>
+              {criterion.title} (/{criterion.maxScore})
+            </dt>
+            <dd>{String(grade.scores[criterion.id] ?? '—')}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="text-sm font-medium">Total: {grade.total_score ?? '—'}</p>
+      <div>
+        <h3 className="text-sm font-medium">Feedback</h3>
+        <p className="whitespace-pre-wrap text-sm">{grade.feedback}</p>
+      </div>
+    </section>
   );
 }

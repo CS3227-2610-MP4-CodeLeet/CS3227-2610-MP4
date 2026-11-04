@@ -16,8 +16,9 @@ type Row = {
   request_id: string;
   created_at: string;
 };
-type Fixture = {
+export type Fixture = {
   users: User[];
+  courseId: string;
   assignments: string[];
   rows: Row[];
   peerRow: Row;
@@ -42,9 +43,20 @@ export const test = base.extend<{ historyFixture: Fixture }>({
 });
 
 async function createFixture(admin: APIRequestContext): Promise<Fixture> {
-  const users: User[] = [];
+  const users = await createUsers(admin);
   const assignments = [crypto.randomUUID(), crypto.randomUUID()];
   const title = 'History <img src=x onerror=alert(1)>';
+  const courseId = await createCourse(admin, users);
+  const { rows, peerRow } = await seedHistory(admin, users, {
+    courseId,
+    assignments,
+    title,
+  });
+  return { admin, users, courseId, assignments, rows, peerRow, title };
+}
+
+async function createUsers(admin: APIRequestContext): Promise<User[]> {
+  const users: User[] = [];
   for (const role of ['owner', 'student', 'peer', 'empty']) {
     const email = `history-${role}-${crypto.randomUUID()}@example.test`;
     const response = await admin.post(`${serviceUrl}/auth/v1/admin/users`, {
@@ -60,11 +72,55 @@ async function createFixture(admin: APIRequestContext): Promise<Fixture> {
     { role: 'instructor' },
     'patch',
   );
+  return users;
+}
+
+async function createCourse(
+  admin: APIRequestContext,
+  users: User[],
+): Promise<string> {
+  const courseResponse = await admin.post(`${serviceUrl}/rest/v1/courses`, {
+    headers: { ...headers, Prefer: 'return=representation' },
+    data: {
+      owner_id: users[0].id,
+      created_by: users[0].id,
+      title: `History course ${crypto.randomUUID()}`,
+      description: 'Synthetic history fixture.',
+    },
+  });
+  expect(courseResponse.ok()).toBeTruthy();
+  const [{ id: courseId }] = await courseResponse.json();
+  await write(
+    admin,
+    'course_memberships',
+    users.map((user, index) => ({
+      course_id: courseId,
+      user_id: user.id,
+      role: index === 0 ? 'instructor' : 'student',
+    })),
+  );
+  await write(
+    admin,
+    'course_features',
+    ['assessments', 'ai', 'discussions', 'xp', 'leaderboard'].map(
+      (feature) => ({ course_id: courseId, feature, enabled: true }),
+    ),
+  );
+  return courseId;
+}
+
+async function seedHistory(
+  admin: APIRequestContext,
+  users: User[],
+  fixture: Pick<Fixture, 'courseId' | 'assignments' | 'title'>,
+) {
+  const { courseId, assignments, title } = fixture;
   await write(
     admin,
     'assignments',
     assignments.map((id, index) => ({
       id,
+      course_id: courseId,
       instructor_id: users[0].id,
       title: index ? 'History Java' : title,
       instructions: 'Synthetic history fixture.',
@@ -114,7 +170,7 @@ async function createFixture(admin: APIRequestContext): Promise<Fixture> {
       published_at: null,
     },
   ]);
-  return { admin, users, assignments, rows, peerRow, title };
+  return { rows, peerRow };
 }
 
 function row(assignmentId: string, studentId: string, revision: number): Row {
@@ -158,6 +214,11 @@ async function cleanFixture(data: Fixture) {
     );
     expect(assignment.ok()).toBeTruthy();
   }
+  const course = await data.admin.delete(
+    `${serviceUrl}/rest/v1/courses?id=eq.${data.courseId}`,
+    { headers },
+  );
+  expect(course.ok()).toBeTruthy();
   for (const user of data.users) {
     const response = await data.admin.delete(
       `${serviceUrl}/auth/v1/admin/users/${user.id}`,
@@ -165,6 +226,12 @@ async function cleanFixture(data: Fixture) {
     );
     expect(response.ok()).toBeTruthy();
   }
+}
+
+export function coursePath(data: Pick<Fixture, 'courseId'>, path: string) {
+  const url = new URL(path, 'http://course.test');
+  url.searchParams.set('courseId', data.courseId);
+  return `${url.pathname}?${url.searchParams.toString()}`;
 }
 
 export async function hideFixtureAssignment(data: Fixture) {

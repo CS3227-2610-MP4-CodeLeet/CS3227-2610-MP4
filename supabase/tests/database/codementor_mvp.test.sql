@@ -1,5 +1,26 @@
 begin;
-select plan(26);
+select no_plan();
+with function_source as (
+  select lower(pg_get_functiondef('public.submit_code(uuid,text,uuid)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
+  and position('select m.role into v_role' in substring(source from position('for share' in source)))>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'submission writer locks its course and rechecks membership and assessment access') from function_source;
+with function_source as (
+  select lower(pg_get_functiondef('public.reserve_ai_request(text,uuid)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
+  and position('select m.role into v_role' in substring(source from position('for share' in source)))>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'AI reservation locks its course and rechecks membership and feature access') from function_source;
+with function_source as (
+  select lower(pg_get_functiondef('public.record_ai_cache_hit(text,uuid,integer,integer)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
+  and position('select m.role into v_role' in substring(source from position('for share' in source)))>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'AI cache-hit writer locks its course and rechecks membership and feature access') from function_source;
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -10,11 +31,19 @@ values
 
 update public.user_roles set role = 'instructor' where user_id = '20000000-0000-4000-8000-000000000001';
 update public.user_roles set role = 'instructor' where user_id = '20000000-0000-4000-8000-000000000004';
-insert into public.assignments (id, instructor_id, title, instructions, publication_status)
-values
-  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Published', 'Write a loop.', 'published'),
-  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'Draft', 'Private draft.', 'draft'),
-  ('30000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', 'Other owner', 'Not accessible.', 'published');
+insert into public.courses(id,owner_id,created_by,title,description) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Scoped fixture','');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','instructor');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000002','student');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000003','student');
+insert into public.course_features(course_id,feature,enabled) select '22000000-0000-4000-8000-000000000001',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
+insert into public.courses(id,owner_id,created_by,title,description) values ('22000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000004','20000000-0000-4000-8000-000000000004','Other course','');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000004','instructor');
+insert into public.course_memberships(course_id,user_id,role) values ('22000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','student');
+insert into public.course_features(course_id,feature,enabled) select '22000000-0000-4000-8000-000000000002',feature,true from unnest(array['assessments','ai','discussions','xp','leaderboard']) feature;
+insert into public.assignments (id, instructor_id, title, instructions, publication_status,course_id) values ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Published', 'Write a loop.', 'published','22000000-0000-4000-8000-000000000001'::uuid),
+  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'Draft', 'Private draft.', 'draft','22000000-0000-4000-8000-000000000001'::uuid),
+  ('30000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', 'Other owner', 'Not accessible.', 'published','22000000-0000-4000-8000-000000000002'::uuid),
+  ('30000000-0000-4000-8000-000000000004', '20000000-0000-4000-8000-000000000004', 'Second course', 'Separate AI quota.', 'published','22000000-0000-4000-8000-000000000002'::uuid);
 insert into public.assignment_rubrics (assignment_id, criteria)
 values
   ('30000000-0000-4000-8000-000000000001', '[{"id":"40000000-0000-4000-8000-000000000001","title":"Correctness","description":"Works","maxScore":10}]'),
@@ -22,7 +51,8 @@ values
 insert into public.submissions (id, assignment_id, student_id, source, revision, request_id)
 values
   ('50000000-0000-4000-8000-000000000001', '30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'print(1)', 1, '60000000-0000-4000-8000-000000000001'),
-  ('50000000-0000-4000-8000-000000000002', '30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'print(2)', 1, '60000000-0000-4000-8000-000000000002');
+  ('50000000-0000-4000-8000-000000000002', '30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'print(2)', 1, '60000000-0000-4000-8000-000000000002'),
+  ('50000000-0000-4000-8000-000000000003', '30000000-0000-4000-8000-000000000004', '20000000-0000-4000-8000-000000000002', 'print(3)', 1, '60000000-0000-4000-8000-000000000004');
 insert into public.grades (submission_id, instructor_id, scores, feedback, total_score, published_at)
 values
   ('50000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '{}', 'Draft', 0, null),
@@ -36,7 +66,7 @@ select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002
 select is((select count(id)::integer from public.assignments where id = '30000000-0000-4000-8000-000000000001'), 1, 'student sees the published fixture assignment');
 select is((select count(id)::integer from public.assignments where id = '30000000-0000-4000-8000-000000000002'), 0, 'student cannot see the draft fixture assignment');
 select is((select count(*)::integer from public.assignment_rubrics), 0, 'student cannot read private rubrics');
-select is((select count(*)::integer from public.submissions), 1, 'student sees only own submissions');
+select is((select count(*)::integer from public.submissions where assignment_id='30000000-0000-4000-8000-000000000001'), 1, 'student sees only own submissions for this assignment');
 select is((select count(*)::integer from public.grades), 0, 'student cannot see unpublished or other student grades');
 select is((public.submit_code('30000000-0000-4000-8000-000000000001', 'print(3)', '60000000-0000-4000-8000-000000000003')).revision, 2, 'submission revision is assigned atomically');
 select is((public.submit_code('30000000-0000-4000-8000-000000000001', 'print(3)', '60000000-0000-4000-8000-000000000003')).id, (select id from public.submissions where request_id = '60000000-0000-4000-8000-000000000003'), 'identical retries return the original submission');
@@ -55,6 +85,7 @@ select public.reserve_ai_request('student_feedback', '50000000-0000-4000-8000-00
 select public.record_ai_cache_hit('student_feedback', '50000000-0000-4000-8000-000000000001', 12, 20);
 select is((select count(*)::integer from public.ai_usage where requester_id = auth.uid() and status = 'cache_hit'), 1, 'cache hits are recorded separately from successful quota usage');
 select throws_ok($$select public.reserve_ai_request('student_feedback', '50000000-0000-4000-8000-000000000001')$$, 'P0001', 'daily_quota_exceeded', 'daily successful request quota is reserved atomically');
+select ok(public.reserve_ai_request('student_feedback', '50000000-0000-4000-8000-000000000003') is not null, 'daily AI quota is independent for each course');
 
 reset role;
 set local role authenticated;
@@ -77,9 +108,18 @@ reset role;
 update public.user_roles set role = 'student' where user_id = '20000000-0000-4000-8000-000000000001';
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
-select throws_ok($$select public.save_grade('50000000-0000-4000-8000-000000000001', '{"40000000-0000-4000-8000-000000000001":8}', 'Demoted', 8, false, 2)$$, '42501', 'instructor_required', 'demoted instructor cannot call the grade RPC directly');
+select lives_ok($$select public.save_grade('50000000-0000-4000-8000-000000000001', '{"40000000-0000-4000-8000-000000000001":8}', 'Course instructor', 8, false, 2)$$, 'course instructor can grade despite a different platform-wide role');
 reset role;
-select is((select version from public.grades where submission_id = '50000000-0000-4000-8000-000000000001'), 2, 'denied grade RPC leaves the grade unchanged');
+select is((select version from public.grades where submission_id = '50000000-0000-4000-8000-000000000001'), 3, 'course-authorized grade save advances the grade version');
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+select lives_ok($$select public.set_course_member('22000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000002',null)$$,'owner can remove a student from one course');
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+select is((select count(*)::integer from public.ai_usage where course_id='22000000-0000-4000-8000-000000000001'),0,'removed member cannot read AI usage history from the prior course');
+select ok((select count(*)::integer from public.ai_usage where course_id='22000000-0000-4000-8000-000000000002')>0,'remaining course usage stays readable');
 
 select * from finish();
 rollback;

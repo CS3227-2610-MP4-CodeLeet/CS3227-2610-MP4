@@ -6,6 +6,7 @@ import {
 } from './assignments.server';
 
 const studentId = crypto.randomUUID();
+const courseId = crypto.randomUUID();
 const now = '2026-11-03T10:00:00.000Z';
 function fixture(
   counts: Array<number | null> = [1203, 1201, 3],
@@ -35,7 +36,9 @@ function fixture(
 
 it('counts all published assignments exactly without fetching revisions or truncating at a REST page', async () => {
   const { client, requests } = fixture();
-  expect(await loadAssignmentProgress(client, studentId, now)).toEqual({
+  expect(
+    await loadAssignmentProgress(client, studentId, courseId, now),
+  ).toEqual({
     total: 1203,
     submitted: 2,
     outstanding: 1201,
@@ -46,6 +49,7 @@ it('counts all published assignments exactly without fetching revisions or trunc
     expect(init?.method).toBe('HEAD');
     expect(new Headers(init?.headers).get('prefer')).toContain('count=exact');
     expect(url.searchParams.get('publication_status')).toBe('eq.published');
+    expect(url.searchParams.get('course_id')).toBe(`eq.${courseId}`);
     expect(url.searchParams.get('select')).not.toMatch(/source|grades|rubric/);
   }
   for (const { url } of requests.slice(1)) {
@@ -57,6 +61,18 @@ it('counts all published assignments exactly without fetching revisions or trunc
   expect(requests[2].url.searchParams.get('due_at')).toBe(`lt.${now}`);
 });
 
+it('filters counts and deadlines to the selected course', async () => {
+  const { client, requests } = fixture();
+  await loadAssignmentProgress(client, studentId, courseId, now);
+  await loadUpcomingAssignments(client, studentId, courseId, now);
+  expect(requests.map(({ url }) => url.searchParams.get('course_id'))).toEqual([
+    `eq.${courseId}`,
+    `eq.${courseId}`,
+    `eq.${courseId}`,
+    `eq.${courseId}`,
+  ]);
+});
+
 it.each([
   [0, 0, 0],
   [4, 0, 0],
@@ -64,7 +80,9 @@ it.each([
   'handles empty and entirely submitted collections (%j)',
   async (total, outstanding, overdue) => {
     const { client } = fixture([total, outstanding, overdue]);
-    expect(await loadAssignmentProgress(client, studentId, now)).toEqual({
+    expect(
+      await loadAssignmentProgress(client, studentId, courseId, now),
+    ).toEqual({
       total,
       outstanding,
       overdue,
@@ -85,6 +103,7 @@ it.each([
       await loadAssignmentProgress(
         fixture([total, outstanding, overdue]).client,
         studentId,
+        courseId,
         now,
       ),
     ).toBeNull();
@@ -101,10 +120,13 @@ it('fetches only the five earliest own-outstanding deadlines, including the exac
     },
   ];
   const { client, requests } = fixture([], rows);
-  expect(await loadUpcomingAssignments(client, studentId, now)).toEqual(rows);
+  expect(
+    await loadUpcomingAssignments(client, studentId, courseId, now),
+  ).toEqual(rows);
   const query = requests[0].url.searchParams;
   expect(query.get('submissions.student_id')).toBe(`eq.${studentId}`);
   expect(query.get('submissions')).toBe('is.null');
+  expect(query.get('course_id')).toBe(`eq.${courseId}`);
   expect(query.get('due_at')).toBe(`gte.${now}`);
   expect(query.get('limit')).toBe('5');
   expect(query.get('order')).toBe('due_at.asc,id.asc');
@@ -116,6 +138,7 @@ it('rejects invalid upcoming metadata instead of inventing an empty result', asy
     await loadUpcomingAssignments(
       fixture([], [{ title: 'invalid' }]).client,
       studentId,
+      courseId,
       now,
     ),
   ).toBeNull();
@@ -127,6 +150,10 @@ it('keeps network/backend diagnostics private', async () => {
       throw new Error('private backend');
     },
   } as never;
-  expect(await loadAssignmentProgress(client, studentId, now)).toBeNull();
-  expect(await loadUpcomingAssignments(client, studentId, now)).toBeNull();
+  expect(
+    await loadAssignmentProgress(client, studentId, courseId, now),
+  ).toBeNull();
+  expect(
+    await loadUpcomingAssignments(client, studentId, courseId, now),
+  ).toBeNull();
 });

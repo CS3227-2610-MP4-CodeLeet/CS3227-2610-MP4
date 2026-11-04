@@ -8,7 +8,8 @@ import {
 } from '@/features/student-assignments/preview.server';
 import { CodeEntry } from '@/features/student-submissions/code-entry';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
 import { SubmissionForm } from '@/features/codementor/submission-form';
 import { getAssignmentTestExamples } from '@/features/student-submissions/assignment-practice.server';
 import Link from 'next/link';
@@ -31,10 +32,13 @@ type SubmissionSummary = {
 function SubmissionHistory({
   submissions,
   assignmentId,
+  courseId,
 }: {
   submissions: SubmissionSummary[];
   assignmentId: string;
+  courseId: string;
 }) {
+  const courseQuery = `?courseId=${encodeURIComponent(courseId)}`;
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Your revisions</h2>
@@ -49,14 +53,14 @@ function SubmissionHistory({
             >
               <Link
                 className="underline"
-                href={`/student/submissions/${submission.id}`}
+                href={`/student/submissions/${submission.id}${courseQuery}`}
               >
                 Revision {submission.revision}
               </Link>
               <Link
                 className="underline"
                 aria-label={`Continue editing revision ${submission.revision}`}
-                href={revisionEditorPath(assignmentId, submission.id)}
+                href={revisionEditorPath(assignmentId, submission.id, courseId)}
               >
                 Continue editing
               </Link>
@@ -75,6 +79,7 @@ function SubmissionHistory({
   );
 }
 
+// eslint-disable-next-line complexity -- preview and verified course paths have distinct safe rendering behavior.
 export default async function AssignmentDetailPage({
   params,
   searchParams,
@@ -83,7 +88,10 @@ export default async function AssignmentDetailPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { assignmentId } = await params;
-  const selection = revisionSelection((await searchParams).fromRevision);
+  const query = await searchParams;
+  const requestedCourseId =
+    typeof query.courseId === 'string' ? query.courseId : undefined;
+  const selection = revisionSelection(query.fromRevision);
   if (!selection.success) notFound();
   if (
     isAssignmentPreviewEnabled(
@@ -98,33 +106,38 @@ export default async function AssignmentDetailPage({
       />
     );
   }
-  const { detail, draft, submissions, studentId } = await loadWorkspace(
-    assignmentId,
-    selection.data,
-  );
+  const { detail, courseId, draft, submissions, studentId, archived } =
+    await loadWorkspace(assignmentId, selection.data, requestedCourseId);
   return (
     <div className="space-y-8">
-      <AssignmentInstructions assignment={detail} />
-      <SubmissionForm
-        assignmentId={assignmentId}
-        language={detail.language}
-        key={`${studentId}:${assignmentId}:${detail.language}:${draft?.id ?? 'blank'}`}
-        draftContext={{
-          studentId,
-          assignmentId,
-          language: detail.language,
-          revisionId: draft?.id ?? null,
-        }}
-        initialSource={draft?.source}
-        editingRevision={draft?.revision}
-        testExamples={getAssignmentTestExamples(
-          process.env.NODE_ENV,
-          process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
-        )}
-        browserRunnerOrigin={resolveBrowserRunnerOrigin(process.env)}
-      />
+      <AssignmentInstructions assignment={detail} courseId={courseId} />
+      {archived ? (
+        <p className="rounded-md border p-4 text-sm">
+          This course is archived. Assignment history is read-only.
+        </p>
+      ) : (
+        <SubmissionForm
+          assignmentId={assignmentId}
+          language={detail.language}
+          key={`${studentId}:${assignmentId}:${detail.language}:${draft?.id ?? 'blank'}`}
+          draftContext={{
+            studentId,
+            assignmentId,
+            language: detail.language,
+            revisionId: draft?.id ?? null,
+          }}
+          initialSource={draft?.source}
+          editingRevision={draft?.revision}
+          testExamples={getAssignmentTestExamples(
+            process.env.NODE_ENV,
+            process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
+          )}
+          browserRunnerOrigin={resolveBrowserRunnerOrigin(process.env)}
+        />
+      )}
       <SubmissionHistory
         assignmentId={assignmentId}
+        courseId={courseId}
         submissions={submissions ?? []}
       />
     </div>
@@ -154,15 +167,36 @@ function PreviewAssignment({
   );
 }
 
-async function loadWorkspace(assignmentId: string, revisionId?: string) {
-  const { supabase, user } = await requireRole('student');
+// eslint-disable-next-line complexity -- explicit checks preserve private 404s for invalid course and assignment access.
+async function loadWorkspace(
+  assignmentId: string,
+  revisionId?: string,
+  requestedCourseId?: string,
+) {
+  const { supabase, user } = await requireMember();
   const { data: assignment, error } = await supabase
     .from('assignments')
-    .select('id,title,instructions,language,publication_status,due_at,max_xp')
+    .select(
+      'id,course_id,title,instructions,language,publication_status,due_at,max_xp',
+    )
     .eq('id', assignmentId)
     .eq('publication_status', 'published')
     .maybeSingle();
   if (error || !assignment) notFound();
+  if (requestedCourseId && requestedCourseId !== assignment.course_id)
+    notFound();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'student' ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  )
+    notFound();
   const language = assignmentLanguageSchema.parse(assignment.language);
   const draft = revisionId
     ? await loadRevisionDraft(supabase, {
@@ -189,5 +223,12 @@ async function loadWorkspace(assignmentId: string, revisionId?: string) {
     ),
     publication_status: 'published' as const,
   };
-  return { detail, draft, submissions, studentId: user.id };
+  return {
+    detail,
+    courseId: assignment.course_id,
+    draft,
+    submissions,
+    studentId: user.id,
+    archived: access.lifecycle === 'archived',
+  };
 }

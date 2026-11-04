@@ -14,7 +14,6 @@ import {
 import { ListPagination } from '@/features/student-lists/pagination';
 import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 
-const listPath = '/student/submissions';
 const linkStyle =
   'inline-flex rounded-md border bg-background px-3 py-2 text-sm font-medium hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring';
 
@@ -22,11 +21,14 @@ export function SubmissionHistoryList({
   history,
   page,
   filters = emptyListFilters,
+  courseId,
 }: {
   history: HistoryPage;
   page: number;
   filters?: ListFilters;
+  courseId: string;
 }) {
+  const listPath = `/student/submissions?courseId=${encodeURIComponent(courseId)}`;
   return (
     <section className="space-y-6" aria-labelledby="my-submissions-heading">
       <header className="space-y-2">
@@ -41,13 +43,17 @@ export function SubmissionHistoryList({
           feedback and published grade.
         </p>
       </header>
-      <ListFilterControls path={listPath} filters={filters} />
+      <ListFilterControls
+        path="/student/submissions"
+        filters={filters}
+        courseId={courseId}
+      />
       {history.rows.length ? (
-        <HistoryTable rows={history.rows} />
+        <HistoryTable rows={history.rows} courseId={courseId} />
       ) : hasListFilters(filters) ? (
         <FilteredListEmpty kind="submissions" page={page} />
       ) : (
-        <HistoryEmpty page={page} />
+        <HistoryEmpty page={page} courseId={courseId} />
       )}
       <ListPagination
         path={listPath}
@@ -60,7 +66,7 @@ export function SubmissionHistoryList({
   );
 }
 
-function HistoryEmpty({ page }: { page: number }) {
+function HistoryEmpty({ page, courseId }: { page: number; courseId: string }) {
   return (
     <div className="space-y-3 rounded-xl border bg-card p-8">
       <FileCode2 aria-hidden="true" className="size-7 text-muted-foreground" />
@@ -73,7 +79,11 @@ function HistoryEmpty({ page }: { page: number }) {
           : 'Return to your latest submissions to continue browsing.'}
       </p>
       <Link
-        href={page === 1 ? '/student/assignments' : listPath}
+        href={
+          page === 1
+            ? `/student/assignments?courseId=${encodeURIComponent(courseId)}`
+            : `/student/submissions?courseId=${encodeURIComponent(courseId)}`
+        }
         className={linkStyle}
       >
         {page === 1 ? 'Browse assignments' : 'Latest submissions'}
@@ -82,7 +92,13 @@ function HistoryEmpty({ page }: { page: number }) {
   );
 }
 
-function HistoryTable({ rows }: { rows: readonly HistoryItem[] }) {
+function HistoryTable({
+  rows,
+  courseId,
+}: {
+  rows: readonly HistoryItem[];
+  courseId: string;
+}) {
   return (
     <div className="overflow-x-auto rounded-xl border bg-card">
       <table
@@ -107,7 +123,7 @@ function HistoryTable({ rows }: { rows: readonly HistoryItem[] }) {
         </thead>
         <tbody className="divide-y">
           {rows.map((row) => (
-            <HistoryRow key={row.id} row={row} />
+            <HistoryRow key={row.id} row={row} courseId={courseId} />
           ))}
         </tbody>
       </table>
@@ -115,13 +131,13 @@ function HistoryTable({ rows }: { rows: readonly HistoryItem[] }) {
   );
 }
 
-function HistoryRow({ row }: { row: HistoryItem }) {
+function HistoryRow({ row, courseId }: { row: HistoryItem; courseId: string }) {
   return (
     <tr>
       <td className="min-w-44 max-w-sm px-4 py-4 break-words">
         <Link
           prefetch={false}
-          href={`${listPath}/${row.id}`}
+          href={`/student/submissions/${row.id}?courseId=${encodeURIComponent(courseId)}`}
           className="font-medium text-cyan-800 underline-offset-4 hover:underline dark:text-cyan-300"
           aria-label={`View ${row.title}, revision ${row.revision}`}
         >

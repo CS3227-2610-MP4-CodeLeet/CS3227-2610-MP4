@@ -16,8 +16,7 @@ update public.user_roles set role = 'instructor'
 where role = 'admin'
   and user_id not in ('93000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000002');
 
-insert into public.assignments (id, instructor_id, title, instructions, publication_status)
-values ('94000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000001', 'Admin assignment', 'Test ownership.', 'draft');
+insert into public.assignments (id, instructor_id, title, instructions, publication_status,course_id) values ('94000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000001', 'Admin assignment', 'Test ownership.', 'draft',(select id from public.courses where is_legacy));
 insert into public.assignment_rubrics (assignment_id, criteria)
 values ('94000000-0000-4000-8000-000000000001', '[{"id":"97000000-0000-4000-8000-000000000004","title":"Correctness","description":"Works","maxScore":10}]');
 insert into public.submissions (id, assignment_id, student_id, source, revision, request_id)
@@ -53,7 +52,7 @@ select results_eq(
 );
 select is(public.owns_assignment('94000000-0000-4000-8000-000000000001'), true, 'admin inherits instructor assignment ownership');
 select is((select count(*)::integer from public.assignments where id = '94000000-0000-4000-8000-000000000001'), 1, 'admin can read an owned instructor assignment');
-select lives_ok($$select public.save_grade('97000000-0000-4000-8000-000000000002', '{"97000000-0000-4000-8000-000000000004":8}', 'Admin grading', 8, false, 0)$$, 'admin can grade an owned submission');
+select throws_ok($$select public.save_grade('97000000-0000-4000-8000-000000000002', '{"97000000-0000-4000-8000-000000000004":8}', 'Admin grading', 8, false, 0)$$,'42501','submission_not_owned','archived Legacy course is read-only even to its historical platform admin');
 select lives_ok($$select public.admin_set_user_role('93000000-0000-4000-8000-000000000004', 'instructor')$$, 'admin can assign an allowed role');
 select is((
   select role from public.admin_list_users(null, 100)

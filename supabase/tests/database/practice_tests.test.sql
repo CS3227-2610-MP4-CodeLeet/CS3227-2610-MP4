@@ -1,5 +1,12 @@
 begin;
 select no_plan();
+with function_source as (
+  select lower(pg_get_functiondef('public.save_practice_tests(uuid,integer,text,jsonb)'::regprocedure)) as source
+)
+select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
+  and position('is_member(v_course' in substring(source from position('for share' in source)))>0
+  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
+  'practice-test writer locks its course and rechecks membership and assessment access') from function_source;
 select has_table('public','assignment_practice_drafts','private draft storage exists');
 select has_table('public','assignment_practice_sets','public snapshot storage exists');
 insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) values
@@ -7,9 +14,14 @@ insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,r
  ('b1000000-0000-4000-8000-000000000002','authenticated','authenticated','case-student@example.test','',now(),'{}','{}',now(),now()),
  ('b1000000-0000-4000-8000-000000000003','authenticated','authenticated','case-other@example.test','',now(),'{}','{}',now(),now());
 update public.user_roles set role='instructor' where user_id in ('b1000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000003');
-insert into public.assignments(id,instructor_id,title,instructions,language,publication_status) values
- ('b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Cases Python','Synthetic','python','published'),
- ('b2000000-0000-4000-8000-000000000002','b1000000-0000-4000-8000-000000000001','Cases Java','Synthetic','java','draft');
+insert into public.courses(id,owner_id,created_by,title,description) values ('b4000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Practice test fixture','');
+insert into public.course_memberships(course_id,user_id,role) values
+ ('b4000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','instructor'),
+ ('b4000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000002','student');
+insert into public.course_features(course_id,feature,enabled) values
+ ('b4000000-0000-4000-8000-000000000001','assessments',true);
+insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,course_id) values ('b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Cases Python','Synthetic','python','published','b4000000-0000-4000-8000-000000000001'),
+ ('b2000000-0000-4000-8000-000000000002','b1000000-0000-4000-8000-000000000001','Cases Java','Synthetic','java','draft','b4000000-0000-4000-8000-000000000001');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
 select is((public.save_practice_tests('b2000000-0000-4000-8000-000000000001',0,'save','[{"id":"b3000000-0000-4000-8000-000000000001","name":"Sum","stdin":" 2 3\n","expected_stdout":"5\n"}]')->>'version')::integer,1,'owner saves a private draft');
@@ -33,6 +45,7 @@ select ok(not public.valid_practice_cases('[{}, {}, {}, {}, {}, {}]'),'six cases
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
 select lives_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000002',0,'publish','[{"id":"b3000000-0000-4000-8000-000000000002","name":"Java","stdin":"","expected_stdout":""}]')$$,'owner may prepare published cases for draft assignment');
+select is((select count(*)::integer from public.assignment_practice_sets),2,'instructor can read snapshots prepared for published and draft assignments');
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
 select is((select count(*)::integer from public.assignment_practice_drafts),0,'students cannot read drafts directly');
 select is((select count(*)::integer from public.assignment_practice_sets),1,'students see only published-assignment cases');

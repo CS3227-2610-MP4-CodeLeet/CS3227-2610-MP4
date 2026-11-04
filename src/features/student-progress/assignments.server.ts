@@ -9,6 +9,7 @@ import {
 function outstandingAssignments(
   client: SupabaseClient,
   studentId: string,
+  courseId: string,
   countOnly = false,
 ) {
   return client
@@ -18,6 +19,7 @@ function outstandingAssignments(
       countOnly ? { count: 'exact', head: true } : {},
     )
     .eq('publication_status', 'published')
+    .eq('course_id', courseId)
     .eq('submissions.student_id', studentId)
     .is('submissions', null);
 }
@@ -25,6 +27,7 @@ function outstandingAssignments(
 export async function loadAssignmentProgress(
   client: SupabaseClient,
   studentId: string,
+  courseId: string,
   now: string,
 ): Promise<AssignmentProgress | null> {
   try {
@@ -32,9 +35,13 @@ export async function loadAssignmentProgress(
       client
         .from('assignments')
         .select('id', { count: 'exact', head: true })
-        .eq('publication_status', 'published'),
-      outstandingAssignments(client, studentId, true),
-      outstandingAssignments(client, studentId, true).lt('due_at', now),
+        .eq('publication_status', 'published')
+        .eq('course_id', courseId),
+      outstandingAssignments(client, studentId, courseId, true),
+      outstandingAssignments(client, studentId, courseId, true).lt(
+        'due_at',
+        now,
+      ),
     ]);
     if (
       results.some(
@@ -54,10 +61,15 @@ export async function loadAssignmentProgress(
 export async function loadUpcomingAssignments(
   client: SupabaseClient,
   studentId: string,
+  courseId: string,
   now: string,
 ) {
   try {
-    const { data, error } = await outstandingAssignments(client, studentId)
+    const { data, error } = await outstandingAssignments(
+      client,
+      studentId,
+      courseId,
+    )
       .gte('due_at', now)
       .order('due_at', { ascending: true })
       .order('id', { ascending: true })

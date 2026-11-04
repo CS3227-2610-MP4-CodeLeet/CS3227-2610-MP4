@@ -72,7 +72,7 @@ On 28 October 2026, the requester clarified that the work split is indicative of
 
 ## Goals / Non-Goals
 
-Deliver complete role journeys, two AI features, browser practice, simple discussions/XP and auditable engineering evidence. Exclude uploads, badges, live chat, arbitrary program dependencies, multi-course administration, server execution and automatic grade publication.
+Deliver complete role journeys across multiple course workspaces, two AI features, browser practice, simple discussions/XP and auditable engineering evidence. Exclude uploads, badges, live chat, arbitrary program dependencies, server execution and automatic grade publication.
 
 ## Decisions
 
@@ -256,7 +256,7 @@ Test-case authoring, publishing, schema/migrations/RLS and student display/check
 
 ### Access and revision contracts
 
-Public sign-up grants student only. Trusted administration provisions instructors. Store private rubrics/draft grades separately from student-visible records; RLS alone does not hide individual columns in a readable row. Instructors access owned assignments; students access own revisions.
+Platform administration remains a global trusted role. Course membership grants student or instructor access independently for each course; a user may have different roles across courses. Public registration alone grants no course membership. Invite acceptance and student join-code acceptance require a verified signed-in email. Store private rubrics/draft grades separately from student-visible records; RLS alone does not hide individual columns in a readable row. Active-course instructors access course assignments; students access published assignments in enrolled courses and their own revisions. The archived Legacy course preserves former ownership rules.
 
 Freeze submitted code revisions and reference exact assignment/rubric/code versions in feedback and grades. Preserve previously evaluated revisions on resubmission. Reject stale grade publication with an expected-version check.
 
@@ -354,4 +354,17 @@ The requester approved [same-device browser drafts](../../../workflow/plans/2026
 
 ## Issue #30 independent shared forum
 
-The requester selected forum work to proceed independently of teammate AI/deployment/test-case integration. See the [forum plan](../../../workflow/plans/2026-10-31-forums.md). Deliver one signed-in shared course forum, persistent plain-text threads/replies, trusted username/role snapshots, both-role navigation, stable bounded newest-first pages, retry-safe posting and atomic per-user quotas. Use RLS-protected read projections and an unexposed privileged RPC implementation behind a public invoker wrapper; never broaden profile/submission/grade access. UI supports creation/reading only. No editing/deletion, uploads, live chat, Markdown/HTML, AI or XP. Local seed adds three threads/two replies; migration is additive and verified without resetting existing data. Independent teammate/log review and hosted deployment remain separate gates.
+The requester selected forum work to proceed independently of teammate AI/deployment/test-case integration. See the [forum plan](../../../workflow/plans/2026-10-31-forums.md). Deliver persistent plain-text threads/replies scoped to the active course, trusted username/course-role snapshots, course-aware navigation, stable bounded newest-first pages, retry-safe posting and atomic per-user quotas. Use RLS-protected read projections and an unexposed privileged RPC implementation behind a public invoker wrapper; never broaden profile/submission/grade access. UI supports creation/reading only. No editing/deletion, uploads, live chat, Markdown/HTML, AI or XP. Local seed adds three threads/two replies; migration is additive and verified without resetting existing data. Independent teammate/log review and hosted deployment remain separate gates.
+
+
+## Issue #85: multi-course workspaces
+
+Adopt the user's approved course workspace model. Courses have a title, description, one owner, instructor/student memberships, active/archived lifecycle and per-course switches. Membership role is scoped to the course, so one account may be a student in one course and instructor in another. Keep platform administration global and separate. The owner and instructors can add instructors and add/remove students; only the owner can remove instructors, transfer ownership or archive. Ownership transfer is atomic, promotes the recipient to instructor if needed, and retains the previous owner as an instructor.
+
+Email invitations and student join codes both require signed-in verified email before membership is granted. Store pending invite target/role/course and compare normalized target email with Supabase's server-verified email at acceptance; join codes grant student membership only and are hashed, rate limited, revocable and rotatable. Use Supabase Auth email sign-in links for both existing and new addresses, then accept pending course invitations after verified sign-in. Supabase Auth's local SMTP inbox supports development; hosted delivery to arbitrary recipients requires SMTP configuration. See the official [signInWithOtp reference](https://supabase.com/docs/reference/javascript/auth-signinwithotp), [users and invitations guide](https://supabase.com/docs/guides/auth/users), and [custom SMTP guide](https://supabase.com/docs/guides/auth/auth-smtp).
+
+For active courses, course membership plus feature setting governs route, API, RPC and RLS access for assignments, rubrics, submissions, grades, practice cases, AI, forums, XP and leaderboard. A disabled feature is unavailable to direct calls but its records remain. Initially expose switches only for implemented assessments, AI, discussions, XP and leaderboard. Do not add uploads or unsupported Levels/Statistics functionality.
+
+Archive retains data and permits existing members to read history, while rejecting enrollment and all new/changed activity. Delete only an empty course (owner alone, no assignments/submissions/grades/AI/forum/XP records) through a transaction that serializes with activity. Legacy is the sole owner-pending exception: one archived Legacy course has no owner and displays Unassigned until a platform admin assigns an instructor owner; it remains archived/read-only after assignment. Preserve per-record legacy permissions rather than granting all archive instructors shared grading access.
+
+Stage implementation in separate verified commits: (1) course/membership schema, policies and Legacy backfill; (2) enrollment/management APIs and course navigation; (3) assignments/grading/AI; (4) forum; (5) XP/leaderboard; (6) feature controls/lifecycle UI and final integration. Keep this approved scope in issue #85 and the dated summary.

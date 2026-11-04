@@ -17,7 +17,7 @@ it('submits an explicit instructor maximum as a number, including zero', async (
       new Response(JSON.stringify({ assignment: { id: 'saved' } })),
     );
   vi.stubGlobal('fetch', fetch);
-  render(<AssignmentForm />);
+  render(<AssignmentForm courseId="00000000-0000-4000-8000-000000000003" />);
   fireEvent.change(screen.getByLabelText('Title'), {
     target: { value: 'Sum' },
   });
@@ -37,7 +37,9 @@ it('submits an explicit instructor maximum as a number, including zero', async (
 it('preserves the typed amount and rejects a fractional maximum before a request', async () => {
   const fetch = vi.fn();
   vi.stubGlobal('fetch', fetch);
-  const view = render(<AssignmentForm />);
+  const view = render(
+    <AssignmentForm courseId="00000000-0000-4000-8000-000000000003" />,
+  );
   fireEvent.change(screen.getByLabelText(maxXpLabel), {
     target: { value: '1.5' },
   });

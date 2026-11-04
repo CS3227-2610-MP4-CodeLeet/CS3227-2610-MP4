@@ -2,7 +2,7 @@ import { type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { validateGradeScores } from '@/features/codementor/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
-import { hasInstructorAccess } from '@/lib/auth/roles';
+import { readCourseAccess } from '@/lib/courses/access';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson as response } from '@/lib/http/responses';
 
@@ -18,6 +18,12 @@ const gradeSchema = z
 type SupabaseClient = NonNullable<
   Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']
 >;
+function unavailableSubmission() {
+  return response(
+    { error: { code: 'not_found', message: 'Submission not found.' } },
+    404,
+  );
+}
 async function readGradeInput(request: NextRequest) {
   const body = await readJsonBody(request, 8_000);
   if (!body.ok)
@@ -66,11 +72,7 @@ async function saveGrade(
   grade: z.infer<typeof gradeSchema>,
 ) {
   const criteria = await readRubric(supabase, submissionId);
-  if (!criteria)
-    return response(
-      { error: { code: 'not_found', message: 'Submission not found.' } },
-      404,
-    );
+  if (!criteria) return unavailableSubmission();
   if (!validateGradeScores(grade.scores, criteria, grade.totalScore))
     return response(
       {
@@ -105,6 +107,7 @@ async function saveGrade(
   return response({ grade: data });
 }
 
+// eslint-disable-next-line complexity -- each guard maps invalid or unauthorized grade state to the same private response.
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
@@ -119,19 +122,40 @@ export async function PATCH(
       },
       403,
     );
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || !hasInstructorAccess(role))
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user || !supabase)
     return response(
-      { error: { code: 'forbidden', message: 'Instructor access required.' } },
-      user ? 403 : 401,
+      { error: { code: 'unauthorized', message: 'Sign in required.' } },
+      401,
     );
   const { id: submissionId } = await context.params;
-  if (!z.uuid().safeParse(submissionId).success)
-    return response(
-      { error: { code: 'not_found', message: 'Submission not found.' } },
-      404,
-    );
+  if (!z.uuid().safeParse(submissionId).success) return unavailableSubmission();
   const input = await readGradeInput(request);
   if ('error' in input) return input.error;
+  const { data: submission } = await supabase
+    .from('submissions')
+    .select('assignment_id')
+    .eq('id', submissionId)
+    .maybeSingle();
+  if (!submission) return unavailableSubmission();
+  const { data: assignment } = await supabase
+    .from('assignments')
+    .select('course_id')
+    .eq('id', submission.assignment_id)
+    .maybeSingle();
+  if (!assignment) return unavailableSubmission();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    assignment.course_id,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    access.lifecycle !== 'active' ||
+    !access.featureEnabled
+  )
+    return unavailableSubmission();
   return saveGrade(supabase, submissionId, input.grade);
 }

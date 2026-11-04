@@ -116,6 +116,12 @@ update public.user_roles
 set role = 'admin'
 where user_id = '91000000-0000-4000-8000-000000000016';
 
+-- Synthetic local members belong to the archived Legacy workspace.
+insert into public.course_memberships(course_id,user_id,role)
+select c.id,r.user_id,r.role from public.courses c cross join public.user_roles r
+where c.is_legacy and r.role in ('student','instructor')
+on conflict(course_id,user_id) do nothing;
+
 insert into public.assignments (
   id,
   instructor_id,
@@ -123,7 +129,8 @@ insert into public.assignments (
   instructions,
   language,
   publication_status,
-  due_at
+  due_at,
+  course_id
 )
 select
   format('92000000-0000-4000-8000-%s', lpad(assignment_number::text, 12, '0'))::uuid,
@@ -140,7 +147,8 @@ select
     when 1 then clock_timestamp() + interval '7 days'
     when 2 then clock_timestamp() - interval '1 day'
     else null
-  end
+  end,
+  (select id from public.courses where is_legacy)
 from generate_series(1, 12) as assignments(assignment_number)
 on conflict (id) do nothing;
 
@@ -212,12 +220,13 @@ join public.submissions s
 join public.assignments a on a.id = s.assignment_id
 on conflict (submission_id) do nothing;
 -- Optional local forum examples; this remains an explicit local-only seed.
-insert into public.forum_threads(id,author_id,author_name,author_role,title,body,request_id)
+insert into public.forum_threads(id,author_id,author_name,author_role,title,body,request_id,course_id)
 select format('97000000-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid,
   p.id,p.display_name,r.role,
   case n when 1 then 'Welcome to the forum' when 2 then 'Python questions' else 'Java questions' end,
   'Synthetic local discussion. Ask a question or share an approach.',
-  format('97000000-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid
+  format('97000000-0000-4000-8000-%s',lpad(n::text,12,'0'))::uuid,
+  (select id from public.courses where is_legacy)
 from generate_series(1,3) n
 join public.profiles p on p.id=format('91000000-0000-4000-8000-%s',lpad((case when n=1 then 13 else n-1 end)::text,12,'0'))::uuid
 join public.user_roles r on r.user_id=p.id

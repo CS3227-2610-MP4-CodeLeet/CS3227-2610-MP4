@@ -21,8 +21,14 @@ export function forumSearchExpression(query: string) {
   return `title.imatch."${pattern}",body.imatch."${pattern}"`;
 }
 
-export function forumSearchUrl(path: string, page: number, query = '') {
+export function forumSearchUrl(
+  path: string,
+  page: number,
+  query = '',
+  courseId = '',
+) {
   const params = new URLSearchParams();
+  if (courseId) params.set('courseId', courseId);
   if (query) params.set('q', query);
   params.set('page', String(page));
   return `${path}?${params}`;

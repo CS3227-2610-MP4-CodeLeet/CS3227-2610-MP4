@@ -77,7 +77,7 @@ describe('shared AI review route', () => {
     expect(mocks.performReview).not.toHaveBeenCalled();
   });
 
-  it('rejects a student from the instructor evaluation route', async () => {
+  it('allows course instructors regardless of their global account role', async () => {
     mocks.getVerifiedUserRole.mockResolvedValueOnce({
       user: { id: userId },
       role: 'student',
@@ -86,8 +86,13 @@ describe('shared AI review route', () => {
 
     const response = await handleReview(request(), 'instructor');
 
-    expect(response.status).toBe(403);
-    expect(mocks.performReview).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(mocks.performReview).toHaveBeenCalledWith(
+      {},
+      userId,
+      'instructor',
+      submissionId,
+    );
   });
 
   it('rejects client-supplied source or rubric instead of trusting it as context', async () => {

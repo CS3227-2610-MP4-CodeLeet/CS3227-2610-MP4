@@ -1,28 +1,46 @@
 import { type NextRequest } from 'next/server';
+import { z } from 'zod';
 import { assignmentInputSchema } from '@/features/codementor/contracts';
-import { deadlineRpcArguments } from '@/features/assignment-deadlines/deadlines';
-import {
-  assignmentSaveRpc,
-  xpAssignmentArguments,
-} from '@/features/assignment-xp/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
-import { hasInstructorAccess } from '@/lib/auth/roles';
+import { readCourseAccess } from '@/lib/courses/access';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson } from '@/lib/http/responses';
 
-export async function GET() {
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || !role)
+const courseIdSchema = z.uuid();
+function unavailable() {
+  return privateJson(
+    { error: { code: 'not_found', message: 'Course is unavailable.' } },
+    404,
+  );
+}
+
+export async function GET(request: NextRequest) {
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user)
     return privateJson(
       { error: { code: 'unauthorized', message: 'Sign in required.' } },
       401,
     );
+  const courseId = courseIdSchema.safeParse(
+    request.nextUrl.searchParams.get('courseId'),
+  );
+  if (!courseId.success) return unavailable();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    courseId.data,
+    'assessments',
+  );
+  if (!access || (access.lifecycle === 'active' && !access.featureEnabled))
+    return unavailable();
   let query = supabase
     .from('assignments')
     .select(
-      'id,title,language,publication_status,instructions,version,created_at,updated_at,due_at',
-    );
-  if (role === 'student') query = query.eq('publication_status', 'published');
+      'id,course_id,title,language,publication_status,instructions,version,created_at,updated_at,due_at',
+    )
+    .eq('course_id', courseId.data);
+  if (access.role === 'student')
+    query = query.eq('publication_status', 'published');
   const { data, error } = await query.order('updated_at', { ascending: false });
   if (error)
     return privateJson(
@@ -37,6 +55,49 @@ export async function GET() {
   return privateJson({ assignments: data });
 }
 
+export async function saveCourseAssignment(
+  supabase: NonNullable<
+    Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']
+  >,
+  options: {
+    courseId: string;
+    assignmentId: string | null;
+    expectedVersion: number;
+    input: z.infer<typeof assignmentInputSchema>;
+    status: number;
+  },
+) {
+  const { courseId, assignmentId, expectedVersion, input, status } = options;
+  const { data, error } = await supabase.rpc('save_course_assignment', {
+    p_course_id: courseId,
+    p_assignment_id: assignmentId,
+    p_expected_version: expectedVersion,
+    p_title: input.title,
+    p_instructions: input.instructions,
+    p_criteria: input.rubric,
+    p_publication_status: input.publicationStatus,
+    p_language: input.language,
+    p_due_at: input.dueAt ?? null,
+    p_update_due_at: input.dueAt !== undefined,
+    p_max_xp: input.maxXp ?? null,
+    p_update_max_xp: input.maxXp !== undefined,
+  });
+  if (error)
+    return privateJson(
+      {
+        error: {
+          code: 'save_failed',
+          message:
+            error.message === 'assignment_language_locked'
+              ? 'Language cannot change after students have submitted code.'
+              : 'Assignment could not be saved.',
+        },
+      },
+      error.code === '40001' ? 409 : 400,
+    );
+  return privateJson({ assignment: data }, status);
+}
+
 export async function POST(request: NextRequest) {
   if (!sameOriginRequest(request))
     return privateJson(
@@ -48,16 +109,11 @@ export async function POST(request: NextRequest) {
       },
       403,
     );
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || !role)
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user)
     return privateJson(
       { error: { code: 'unauthorized', message: 'Sign in required.' } },
       401,
-    );
-  if (!hasInstructorAccess(role))
-    return privateJson(
-      { error: { code: 'forbidden', message: 'Instructor access required.' } },
-      403,
     );
   const body = await readJsonBody(request, 18_000);
   if (!body.ok)
@@ -81,26 +137,24 @@ export async function POST(request: NextRequest) {
       },
       400,
     );
-  const { data, error } = await supabase.rpc(assignmentSaveRpc(parsed.data), {
-    p_assignment_id: null,
-    p_expected_version: 0,
-    p_title: parsed.data.title,
-    p_instructions: parsed.data.instructions,
-    p_criteria: parsed.data.rubric,
-    p_publication_status: parsed.data.publicationStatus,
-    p_language: parsed.data.language,
-    ...deadlineRpcArguments(parsed.data.dueAt),
-    ...xpAssignmentArguments(parsed.data),
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    parsed.data.courseId,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    access.lifecycle !== 'active' ||
+    !access.featureEnabled
+  )
+    return unavailable();
+  return saveCourseAssignment(supabase, {
+    courseId: parsed.data.courseId,
+    assignmentId: null,
+    expectedVersion: 0,
+    input: parsed.data,
+    status: 201,
   });
-  if (error)
-    return privateJson(
-      {
-        error: {
-          code: 'save_failed',
-          message: 'Assignment could not be saved.',
-        },
-      },
-      400,
-    );
-  return privateJson({ assignment: data }, 201);
 }

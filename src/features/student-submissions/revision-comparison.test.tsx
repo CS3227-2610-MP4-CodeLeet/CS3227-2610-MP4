@@ -26,7 +26,7 @@ const data: RevisionComparison = {
 
 it('renders safe code, both line numbers, accessible change markers and bounded revision controls', () => {
   const html = renderToStaticMarkup(
-    <RevisionComparisonView comparison={data} />,
+    <RevisionComparisonView comparison={data} courseId="course-a" />,
   );
   expect(html).toContain('Compare revisions');
   expect(html).toContain('Assignment unavailable');
@@ -45,12 +45,16 @@ it('renders safe code, both line numbers, accessible change markers and bounded 
 it('explains identical and single-revision comparisons', () => {
   expect(
     renderToStaticMarkup(
-      <RevisionComparisonView comparison={{ ...data, after: data.before }} />,
+      <RevisionComparisonView
+        comparison={{ ...data, after: data.before }}
+        courseId="course-a"
+      />,
     ),
   ).toContain('No changes between these revisions.');
   const html = renderToStaticMarkup(
     <RevisionComparisonView
       comparison={{ ...data, latestRevision: 1, before: null, after: null }}
+      courseId="course-a"
     />,
   );
   expect(html).toContain('Save another revision to compare changes.');

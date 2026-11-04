@@ -2,10 +2,16 @@ import { FormSubmitButton } from '@/components/ui/pending-button';
 import Form from 'next/form';
 import Link from 'next/link';
 
-export function ForumSearchControls({ query }: { query: string }) {
+export function ForumSearchControls({
+  query,
+  courseId,
+}: {
+  query: string;
+  courseId: string;
+}) {
   return (
     <Form
-      action="/forums"
+      action={`/forums?courseId=${courseId}`}
       role="search"
       aria-label="Search discussions"
       className="flex flex-wrap items-end gap-3 rounded-xl border bg-background p-4"
@@ -34,7 +40,7 @@ export function ForumSearchControls({ query }: { query: string }) {
       </FormSubmitButton>
       {query && (
         <Link
-          href="/forums"
+          href={`/forums?courseId=${courseId}`}
           className="px-3 py-2 text-sm font-medium underline underline-offset-4"
         >
           Clear search

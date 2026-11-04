@@ -1,4 +1,3 @@
-import { requireRole } from '@/lib/auth/verified-user';
 import {
   loadAssignmentProgress,
   loadUpcomingAssignments,
@@ -9,6 +8,10 @@ import {
 } from '@/features/student-progress/activity.server';
 import { loadOwnXp } from '@/features/assignment-xp/queries.server';
 import { ProgressOverview } from '@/features/student-progress/components';
+import { notFound } from 'next/navigation';
+import { requireMember } from '@/lib/auth/verified-user';
+import { readCourseAccess } from '@/lib/courses/access';
+import type { CourseAccess } from '@/lib/courses/access';
 
 async function section<T>(promise: Promise<T>) {
   try {
@@ -18,18 +21,69 @@ async function section<T>(promise: Promise<T>) {
   }
 }
 
-export default async function ProgressPage() {
-  const { supabase, user } = await requireRole('student');
+function canViewFeature(access: CourseAccess | null) {
+  return Boolean(
+    access?.role === 'student' &&
+    (access.lifecycle === 'archived' || access.featureEnabled),
+  );
+}
+
+async function progressFeatures(
+  supabase: Awaited<ReturnType<typeof requireMember>>['supabase'],
+  userId: string,
+  courseId: string,
+) {
+  const [assessmentAccess, xpAccess] = await Promise.all([
+    readCourseAccess(supabase, userId, courseId, 'assessments'),
+    readCourseAccess(supabase, userId, courseId, 'xp'),
+  ]);
+  return {
+    assessmentsEnabled: canViewFeature(assessmentAccess),
+    xpEnabled: canViewFeature(xpAccess),
+  };
+}
+
+function loadWhenEnabled<T>(enabled: boolean, load: () => Promise<T>) {
+  return enabled ? section(load()) : Promise.resolve(null);
+}
+
+export default async function ProgressPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { supabase, user } = await requireMember();
+  const params = await searchParams;
+  const courseId = typeof params.courseId === 'string' ? params.courseId : '';
+  if (!courseId || Object.keys(params).some((key) => key !== 'courseId'))
+    notFound();
+  const { assessmentsEnabled, xpEnabled } = await progressFeatures(
+    supabase,
+    user.id,
+    courseId,
+  );
+  if (!assessmentsEnabled && !xpEnabled) notFound();
   const now = new Date().toISOString();
   const [assignments, upcoming, submissions, grades, xp] = await Promise.all([
-    section(loadAssignmentProgress(supabase, user.id, now)),
-    section(loadUpcomingAssignments(supabase, user.id, now)),
-    section(loadRecentSubmissions(supabase, user.id)),
-    section(loadRecentGrades(supabase, user.id)),
-    section(loadOwnXp(supabase, 1)),
+    loadWhenEnabled(assessmentsEnabled, () =>
+      loadAssignmentProgress(supabase, user.id, courseId, now),
+    ),
+    loadWhenEnabled(assessmentsEnabled, () =>
+      loadUpcomingAssignments(supabase, user.id, courseId, now),
+    ),
+    loadWhenEnabled(assessmentsEnabled, () =>
+      loadRecentSubmissions(supabase, user.id, courseId),
+    ),
+    loadWhenEnabled(assessmentsEnabled, () =>
+      loadRecentGrades(supabase, user.id, courseId),
+    ),
+    loadWhenEnabled(xpEnabled, () => loadOwnXp(supabase, courseId, 1)),
   ]);
   return (
     <ProgressOverview
+      courseId={courseId}
+      assessmentsEnabled={assessmentsEnabled}
+      xpEnabled={xpEnabled}
       data={{
         assignments,
         upcoming,

@@ -3,6 +3,7 @@ import {
   test,
   historyPassword,
   hideFixtureAssignment,
+  coursePath,
 } from './helpers/history-fixtures';
 import { revisionSession } from './helpers/revision-session';
 
@@ -40,7 +41,7 @@ test('exact published assignment counts exceed the REST row limit and revisions 
 }) => {
   test.setTimeout(120_000);
   await revisionSession(page, data.users[1].email, historyPassword);
-  await page.goto(progressPath);
+  await page.goto(coursePath(data, progressPath));
   const baseline = {
     submitted: await cardValue(page, submittedLabel),
     outstanding: await cardValue(page, outstandingLabel),
@@ -53,6 +54,7 @@ test('exact published assignment counts exceed the REST row limit and revisions 
   );
   const extra = Array.from({ length: 1002 }, (_, index) => ({
     id: crypto.randomUUID(),
+    course_id: data.courseId,
     instructor_id: data.users[0].id,
     title: `Progress count fixture ${index}`,
     instructions: 'Synthetic overview acceptance.',
@@ -81,7 +83,7 @@ test('exact published assignment counts exceed the REST row limit and revisions 
       page.getByRole('progressbar', { name: totalsLabel }),
     ).toHaveAttribute('max', String(total + extra.length - 1));
     expect(await cardValue(page, submittedLabel)).toBe(1);
-    await verifyRecentPrivacy(page, data.rows);
+    await verifyRecentPrivacy(page, data);
   } finally {
     await removeExtra(data.admin, extra);
   }
@@ -101,7 +103,7 @@ test('own grades and upcoming work, mobile themes and existing navigation stay p
     ).ok(),
   ).toBeTruthy();
   await revisionSession(page, data.users[3].email, historyPassword);
-  await page.goto(progressPath);
+  await page.goto(coursePath(data, progressPath));
   const comingUp = page.getByRole('region', { name: 'Coming up', exact: true });
   await expect(
     comingUp.getByRole('link', { name: data.title, exact: true }),
@@ -120,7 +122,9 @@ test('own grades and upcoming work, mobile themes and existing navigation stay p
     data.users[3].id,
   );
   await revisionSession(page, data.users[1].email, historyPassword);
-  await page.goto(`${progressPath}?student_id=${data.users[2].id}`);
+  await page.goto(
+    coursePath(data, `${progressPath}?student_id=${data.users[2].id}`),
+  );
   await expect(
     comingUp.getByRole('link', { name: data.title, exact: true }),
   ).toHaveCount(0);
@@ -131,10 +135,10 @@ test('own grades and upcoming work, mobile themes and existing navigation stay p
     page.getByRole('article', { name: 'Total XP', exact: true }),
   ).toContainText('0');
   expect(await page.content()).not.toContain(data.peerRow.id);
-  await verifyMobileNavigation(page);
+  await verifyMobileNavigation(page, data);
 });
 
-async function verifyMobileNavigation(page: Page) {
+async function verifyMobileNavigation(page: Page, data: Fixture) {
   await page.screenshot({
     path: '.runtime-cache/progress-desktop.png',
     fullPage: true,
@@ -165,21 +169,26 @@ async function verifyMobileNavigation(page: Page) {
     .getByRole('navigation', { name: 'Student navigation' })
     .getByRole('link', { name: 'My progress', exact: true })
     .click();
-  await expect(page).toHaveURL(progressPath);
+  await expect(page).toHaveURL(coursePath(data, progressPath));
   await page.getByRole('link', { name: 'View all recent submissions' }).click();
-  await expect(page).toHaveURL('/student/submissions');
+  await expect(page).toHaveURL(coursePath(data, '/student/submissions'));
 }
 
-async function verifyRecentPrivacy(page: Page, rows: Array<{ id: string }>) {
+type Fixture = Parameters<typeof hideFixtureAssignment>[0];
+
+async function verifyRecentPrivacy(page: Page, data: Fixture) {
   const revisions = page.getByRole('list', { name: 'Recent saved revisions' });
   await expect(revisions.locator('li')).toHaveCount(5);
-  const expectedOrder = [...rows]
+  const expectedOrder = [...data.rows]
     .sort((a, b) => b.id.localeCompare(a.id))
     .slice(0, 5);
   for (const [index, row] of expectedOrder.entries())
     await expect(
       revisions.locator('li').nth(index).getByRole('link'),
-    ).toHaveAttribute('href', `/student/submissions/${row.id}`);
+    ).toHaveAttribute(
+      'href',
+      coursePath(data, `/student/submissions/${row.id}`),
+    );
   expect(await page.content()).not.toMatch(
     /HISTORY_SOURCE_SENTINEL|HISTORY_UNPUBLISHED_SECRET|HISTORY_RUBRIC_SECRET/,
   );
@@ -237,9 +246,9 @@ test('signed-out and instructor accounts cannot access student progress', async 
   page,
   historyFixture: data,
 }) => {
-  await page.goto(progressPath);
-  await expect(page).toHaveURL('/sign-in');
+  await page.goto(coursePath(data, progressPath));
+  await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[0].email, historyPassword);
-  await page.goto(progressPath);
-  await expect(page).toHaveURL('/unauthorized');
+  const response = await page.goto(coursePath(data, progressPath));
+  expect(response?.status()).toBe(404);
 });

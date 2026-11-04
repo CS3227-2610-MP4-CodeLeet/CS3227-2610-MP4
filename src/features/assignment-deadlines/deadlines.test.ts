@@ -12,6 +12,7 @@ import {
 
 const utcDue = '2026-11-13T06:00:00Z';
 const assignmentInput = {
+  courseId: '10000000-0000-4000-8000-000000000009',
   title: 'Deadline exercise',
   instructions: 'Print a value.',
   rubric: [

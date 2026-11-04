@@ -9,10 +9,8 @@ export default async function Home() {
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   ) {
-    const { user, role } = await getVerifiedUserRole();
-    if (user && role === 'student') redirect('/student/assignments');
-    if (user && (role === 'instructor' || role === 'admin'))
-      redirect('/instructor');
+    const { user } = await getVerifiedUserRole();
+    if (user) redirect('/courses');
   }
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-6 px-6 py-16">

@@ -28,7 +28,21 @@ const assignmentsPath = '/student/assignments';
 const submissionsPath = '/student/submissions';
 const gradesPath = '/student/grades';
 
-export function ProgressOverview({ data }: { data: ProgressData }) {
+function courseHref(path: string, courseId: string) {
+  return `${path}?courseId=${encodeURIComponent(courseId)}`;
+}
+
+export function ProgressOverview({
+  data,
+  courseId,
+  assessmentsEnabled,
+  xpEnabled,
+}: {
+  data: ProgressData;
+  courseId: string;
+  assessmentsEnabled: boolean;
+  xpEnabled: boolean;
+}) {
   return (
     <section aria-labelledby="progress-heading" className="space-y-6">
       <header className="space-y-2">
@@ -42,40 +56,95 @@ export function ProgressOverview({ data }: { data: ProgressData }) {
           Your assignments, deadlines and recent work in one place.
         </p>
       </header>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard
-          label="Submitted assignments"
-          value={data.assignments?.submitted}
-          href={assignmentsPath}
-        />
-        <SummaryCard
-          label="Outstanding assignments"
-          value={data.assignments?.outstanding}
-          href={assignmentsPath}
-        />
-        <SummaryCard
-          label="Overdue assignments"
-          value={data.assignments?.overdue}
-          href={assignmentsPath}
-        />
+      <ProgressSummaryCards
+        data={data}
+        courseId={courseId}
+        assessmentsEnabled={assessmentsEnabled}
+        xpEnabled={xpEnabled}
+      />
+      <ProgressDetails
+        data={data}
+        courseId={courseId}
+        assessmentsEnabled={assessmentsEnabled}
+        xpEnabled={xpEnabled}
+      />
+    </section>
+  );
+}
+
+function ProgressSummaryCards({
+  data,
+  courseId,
+  assessmentsEnabled,
+  xpEnabled,
+}: {
+  data: ProgressData;
+  courseId: string;
+  assessmentsEnabled: boolean;
+  xpEnabled: boolean;
+}) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {assessmentsEnabled && (
+        <>
+          <SummaryCard
+            label="Submitted assignments"
+            value={data.assignments?.submitted}
+            href={courseHref(assignmentsPath, courseId)}
+          />
+          <SummaryCard
+            label="Outstanding assignments"
+            value={data.assignments?.outstanding}
+            href={courseHref(assignmentsPath, courseId)}
+          />
+          <SummaryCard
+            label="Overdue assignments"
+            value={data.assignments?.overdue}
+            href={courseHref(assignmentsPath, courseId)}
+          />
+        </>
+      )}
+      {xpEnabled && (
         <SummaryCard
           label="Total XP"
           value={data.xp === null ? undefined : formatXp(data.xp)}
-          href="/student/xp"
+          href={courseHref('/student/xp', courseId)}
         />
-      </div>
-      {data.assignments ? (
-        <AssignmentCompletion value={data.assignments} />
-      ) : (
-        <Unavailable text="Assignment progress unavailable" />
       )}
-      {data.xp === null && <Unavailable text="XP unavailable" />}
+    </div>
+  );
+}
+
+function ProgressDetails({
+  data,
+  courseId,
+  assessmentsEnabled,
+  xpEnabled,
+}: {
+  data: ProgressData;
+  courseId: string;
+  assessmentsEnabled: boolean;
+  xpEnabled: boolean;
+}) {
+  return (
+    <>
+      {assessmentsEnabled &&
+        (data.assignments ? (
+          <AssignmentCompletion value={data.assignments} />
+        ) : (
+          <Unavailable text="Assignment progress unavailable" />
+        ))}
+      {xpEnabled && data.xp === null && <Unavailable text="XP unavailable" />}
       <div className="grid items-start gap-6 xl:grid-cols-2">
-        <UpcomingDeadlines rows={data.upcoming} />
-        <RecentSubmissions rows={data.submissions} />
-        <RecentGrades rows={data.grades} />
+        {assessmentsEnabled && (
+          <>
+            <UpcomingDeadlines rows={data.upcoming} courseId={courseId} />
+            <RecentSubmissions rows={data.submissions} courseId={courseId} />
+            <RecentGrades rows={data.grades} courseId={courseId} />
+          </>
+        )}
       </div>
-    </section>
+    </>
   );
 }
 
@@ -172,9 +241,18 @@ function Unavailable({ text }: { text: string }) {
   );
 }
 
-function UpcomingDeadlines({ rows }: { rows: UpcomingAssignment[] | null }) {
+function UpcomingDeadlines({
+  rows,
+  courseId,
+}: {
+  rows: UpcomingAssignment[] | null;
+  courseId: string;
+}) {
   return (
-    <OverviewSection title="Coming up" href={assignmentsPath}>
+    <OverviewSection
+      title="Coming up"
+      href={courseHref(assignmentsPath, courseId)}
+    >
       {rows === null ? (
         <Unavailable text="Deadlines could not be loaded" />
       ) : rows.length ? (
@@ -183,7 +261,7 @@ function UpcomingDeadlines({ rows }: { rows: UpcomingAssignment[] | null }) {
             <li className={itemStyle} key={row.id}>
               <Link
                 className={`${linkStyle} break-words`}
-                href={`${assignmentsPath}/${row.id}`}
+                href={courseHref(`${assignmentsPath}/${row.id}`, courseId)}
                 prefetch={false}
               >
                 {row.title}
@@ -204,9 +282,18 @@ function UpcomingDeadlines({ rows }: { rows: UpcomingAssignment[] | null }) {
   );
 }
 
-function RecentSubmissions({ rows }: { rows: HistoryItem[] | null }) {
+function RecentSubmissions({
+  rows,
+  courseId,
+}: {
+  rows: HistoryItem[] | null;
+  courseId: string;
+}) {
   return (
-    <OverviewSection title="Recent submissions" href={submissionsPath}>
+    <OverviewSection
+      title="Recent submissions"
+      href={courseHref(submissionsPath, courseId)}
+    >
       {rows === null ? (
         <Unavailable text="Submissions could not be loaded" />
       ) : rows.length ? (
@@ -215,7 +302,7 @@ function RecentSubmissions({ rows }: { rows: HistoryItem[] | null }) {
             <li className={itemStyle} key={row.id}>
               <Link
                 className={`${linkStyle} break-words`}
-                href={`${submissionsPath}/${row.id}`}
+                href={courseHref(`${submissionsPath}/${row.id}`, courseId)}
                 prefetch={false}
               >
                 {row.title}
@@ -239,16 +326,28 @@ function RecentSubmissions({ rows }: { rows: HistoryItem[] | null }) {
   );
 }
 
-function RecentGrades({ rows }: { rows: RecentGrade[] | null }) {
+function RecentGrades({
+  rows,
+  courseId,
+}: {
+  rows: RecentGrade[] | null;
+  courseId: string;
+}) {
   return (
-    <OverviewSection title="Recent grades" href={gradesPath}>
+    <OverviewSection
+      title="Recent grades"
+      href={courseHref(gradesPath, courseId)}
+    >
       {rows === null ? (
         <Unavailable text="Grades could not be loaded" />
       ) : rows.length ? (
         <ol className={listStyle} aria-label="Recent published grades">
           {rows.map((row) => (
             <li className={itemStyle} key={row.id}>
-              <Link className={`${linkStyle} break-words`} href={gradesPath}>
+              <Link
+                className={`${linkStyle} break-words`}
+                href={courseHref(gradesPath, courseId)}
+              >
                 {row.title}
               </Link>
               <p className={mutedText}>

@@ -1,25 +1,23 @@
 import { type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { assignmentInputSchema } from '@/features/codementor/contracts';
-import { deadlineRpcArguments } from '@/features/assignment-deadlines/deadlines';
-import {
-  assignmentSaveRpc,
-  xpAssignmentArguments,
-} from '@/features/assignment-xp/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
-import { hasInstructorAccess } from '@/lib/auth/roles';
+import { readCourseAccess } from '@/lib/courses/access';
+import { saveCourseAssignment } from '../route';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 import { privateJson } from '@/lib/http/responses';
 
 const updateSchema = assignmentInputSchema
   .extend({ expectedVersion: z.number().int().min(1) })
   .strict();
-
-function saveFailureMessage(message: string) {
-  return message === 'assignment_language_locked'
-    ? 'Language cannot change after students have submitted code.'
-    : 'Assignment could not be saved.';
+function unavailable() {
+  return privateJson(
+    { error: { code: 'not_found', message: 'Assignment is unavailable.' } },
+    404,
+  );
 }
+
+// eslint-disable-next-line complexity, max-lines-per-function -- keep request validation and course authorization in one auditable sequence.
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
@@ -34,12 +32,14 @@ export async function PATCH(
       },
       403,
     );
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || !hasInstructorAccess(role))
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user)
     return privateJson(
-      { error: { code: 'forbidden', message: 'Instructor access required.' } },
-      user ? 403 : 401,
+      { error: { code: 'unauthorized', message: 'Sign in required.' } },
+      401,
     );
+  const { id } = await context.params;
+  if (!z.uuid().safeParse(id).success) return unavailable();
   const body = await readJsonBody(request, 18_000);
   if (!body.ok)
     return privateJson(
@@ -62,33 +62,35 @@ export async function PATCH(
       },
       400,
     );
-  const { id } = await context.params;
-  const idResult = z.uuid().safeParse(id);
-  if (!idResult.success)
-    return privateJson(
-      { error: { code: 'not_found', message: 'Assignment not found.' } },
-      404,
-    );
-  const { data, error } = await supabase.rpc(assignmentSaveRpc(parsed.data), {
-    p_assignment_id: id,
-    p_expected_version: parsed.data.expectedVersion,
-    p_title: parsed.data.title,
-    p_instructions: parsed.data.instructions,
-    p_criteria: parsed.data.rubric,
-    p_publication_status: parsed.data.publicationStatus,
-    p_language: parsed.data.language,
-    ...deadlineRpcArguments(parsed.data.dueAt),
-    ...xpAssignmentArguments(parsed.data),
+  const { data: assignment, error: assignmentError } = await supabase
+    .from('assignments')
+    .select('course_id')
+    .eq('id', id)
+    .maybeSingle();
+  if (
+    assignmentError ||
+    !assignment ||
+    assignment.course_id !== parsed.data.courseId
+  )
+    return unavailable();
+  const access = await readCourseAccess(
+    supabase,
+    user.id,
+    parsed.data.courseId,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'instructor' ||
+    access.lifecycle !== 'active' ||
+    !access.featureEnabled
+  )
+    return unavailable();
+  return saveCourseAssignment(supabase, {
+    courseId: parsed.data.courseId,
+    assignmentId: id,
+    expectedVersion: parsed.data.expectedVersion,
+    input: parsed.data,
+    status: 200,
   });
-  if (error)
-    return privateJson(
-      {
-        error: {
-          code: 'save_failed',
-          message: saveFailureMessage(error.message),
-        },
-      },
-      error.code === '40001' ? 409 : 400,
-    );
-  return privateJson({ assignment: data });
 }

@@ -42,9 +42,19 @@ If an older account's username is shared or unavailable for sign-in, use your em
 
 The moon/sun control changes light/dark mode across account pages and the workspace. Your browser remembers the choice; without one, the app follows your device preference. Switching themes preserves your code/results.
 
+## Course workspaces
+
+Open **Courses** after signing in. Each course is a separate workspace, and your role is set for each course, so you can teach one course and study in another. Course owners and instructors manage the course's members and features; students can enroll in more than one course.
+
+Instructors create a course with a title and optional description. To add people, invite them by email or share the student join code. An invite or code grants membership only after the person signs in with a verified matching email. Local email links appear in Mailpit; hosted email delivery depends on deployment configuration and has not been verified here.
+
+The course owner and instructors can add instructors and add or remove students. Only the owner can remove another instructor, transfer ownership, or archive the course. Permanent deletion is available only for an empty course and asks for confirmation. Archived courses are read-only. Owners and instructors can enable or disable the shipped assessments, AI, discussions, XP and leaderboard features for each course.
+
+The **Legacy** course contains existing work that has no known class boundary. It is archived and has no owner until a platform admin assigns one. Do not infer or assign a class from the old data.
+
 ## Student: assignments and deadlines
 
-Choose **Assignments** in the sidebar or **Menu**. Only published assignments appear. Enter part of a title, choose **All languages**, **Python** or **Java**, then **Apply filters**. **Clear filters** restores all assignments. Filters remain in the address on refresh/Back. Open an assignment to read instructions above the editor. Its language is fixed by the instructor. Empty lists show **No assignments yet**; failures offer **Try again**. Draft or missing assignments are unavailable.
+Choose a course, then select **Assignments** in its activity links. Only published assignments from that course appear. Enter part of a title, choose **All languages**, **Python** or **Java**, then **Apply filters**. **Clear filters** restores all assignments in the selected course. The course stays in the address when you open an assignment or filter results. Open an assignment to read instructions above the editor. Its language is fixed by the instructor. Empty lists show **No assignments yet**; failures offer **Try again**. Draft or missing assignments are unavailable.
 
 Due dates use Singapore time (SGT). An assignment without one shows **No deadline**.
 
@@ -103,7 +113,7 @@ Drafts are kept for seven days, with up to ten editor drafts on this browser. Ol
 
 ### My submissions
 
-Choose **My submissions** in the sidebar/Menu. Your revisions appear newest first with assignment, language, revision and SGT timestamp. **Next**/**Previous** navigate pages of up to 25 entries. Title/language filters persist when paging. On mobile, scroll inside the table.
+From an assignment in the selected course, choose **My submissions** in the sidebar/Menu. Only revisions from that course appear, newest first, with assignment, language, revision and SGT timestamp. **Next**/**Previous** navigate pages of up to 25 entries. Title/language filters and course context persist when paging. On mobile, scroll inside the table.
 
 Open an assignment title in a row for saved code, learning-feedback controls and any published grade. **All submissions** returns to the list; **Back to assignment** opens an available problem. An unavailable assignment's own revisions remain accessible under **Assignment unavailable** without searchable hidden titles. Empty accounts show **No submissions yet**; failed requests offer **Try again**. Other students' code, private rubrics and unpublished grades remain hidden.
 
@@ -121,11 +131,11 @@ On a saved submission, select **Request review** under **Learning feedback** for
 
 ### My grades
 
-Choose **My grades** in the sidebar/Menu for published grades, newest first. Expand **Instructor feedback** or **View revision**. Scores have no assumed percentage/maximum. Filters/pagination work like My submissions. Empty accounts show **No published grades yet**. Own published grades remain available when the assignment is unavailable, without exposing its hidden title.
+From an assignment in the selected course, choose **My grades** in the sidebar/Menu for published grades from that course, newest first. Expand **Instructor feedback** or **View revision**. Scores have no assumed percentage/maximum. Filters/pagination work like My submissions. Empty course histories show **No published grades yet**. Your published grades remain available when an assignment is unavailable, without exposing its hidden title.
 
 ### My XP
 
-Choose **My XP** in the sidebar/Menu to see your total and assignment awards. Your best currently published result for each assignment counts. XP is your score divided by that grade's rubric maximum, multiplied by the assignment's maximum XP and rounded down. For example, 8 out of 10 on a 100-XP assignment earns 80 XP. Saving more revisions does not add duplicate awards.
+Open **My XP** from a course's activity links to see your total and assignment awards in that course. Your best currently published result for each assignment counts. XP is your score divided by that grade's rubric maximum, multiplied by the assignment's maximum XP and rounded down. For example, 8 out of 10 on a 100-XP assignment earns 80 XP. Saving more revisions does not add duplicate awards.
 
 Corrected or withdrawn grades and changes to an assignment's maximum XP can increase or decrease your total. Draft grades, AI suggestions, running code and forum activity do not earn XP. **Next**/**Previous** browse up to 25 awards per page. An unavailable assignment keeps its award without showing its hidden title. Loading failures offer **Try again**.
 
@@ -143,7 +153,7 @@ The progress bar tracks saved submissions, rather than passing tests or receivin
 
 ## Leaderboard
 
-Choose **Leaderboard** from the student sidebar/Menu or instructor header. Students with positive total XP appear highest first, with **Rank**, **Username** and **XP**. Equal XP shares a rank: two students in first place are followed by rank 3. Within a tie, usernames sort ignoring capitalization; duplicate usernames have a consistent order.
+Choose **Leaderboard** from the selected course's activity links. Students with positive XP in that course appear highest first, with **Rank**, **Username** and **XP**. Equal XP shares a rank: two students in first place are followed by rank 3. Within a tie, usernames sort ignoring capitalization; duplicate usernames have a consistent order.
 
 Students see **Your rank** and **Your XP** even when their row is on another page. **You** identifies their row. Zero XP shows **Unranked** and is not listed. Instructors/admins can browse but are not ranked. **Next**/**Previous** browse 25 rows at a time; mobile tables scroll within their panel when needed.
 
@@ -151,14 +161,14 @@ Refresh or reopen the page after grades or maximum XP change to see updated tota
 
 ## Instructor: assignments and grading
 
-1. In the instructor workspace, choose **New assignment**. Enter **Title**, **Instructions**, **Language**, **Maximum XP** and 1–20 private rubric criteria. Maximum XP must be a whole number from 0 to 100,000; enter 0 for no XP.
+1. Open the course you teach, then choose **New assignment**. Assignments, submissions and grades are scoped to that course. Enter **Title**, **Instructions**, **Language**, **Maximum XP** and 1–20 private rubric criteria. Maximum XP must be a whole number from 0 to 100,000; enter 0 for no XP.
 2. Optionally set **Due date and time (SGT, optional)**. Blank means no deadline; clearing it removes one.
 3. Choose **Draft** or **Published** under **Status**, then **Save assignment**. Drafts stay hidden. Use **Edit** to update an owned assignment. Language cannot change after a submission.
 4. Choose **Submissions** on an assignment, then a revision to review saved source/timing. Available **Run code** executes it in your browser.
 5. Under **AI rubric suggestions**, choose **Request review** for advisory criterion scores/comments. Review them yourself; this does not save/publish a grade.
 6. Enter criterion scores and feedback. **Save draft** keeps the grade private. Select **Publish this grade to the student**, then **Save and publish**, to release it. If another edit changed the record, reload before retrying.
 
-Instructors can review submissions/private rubrics only for owned assignments. AI cannot publish grades. Both roles can visit `/ai/usage` for their own recent usage; instructors also have an **AI usage** link. Counts may be estimates when provider counts are absent. Instructor context comparison uses authorized contexts; two uncached reviews can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
+Instructors can review submissions/private rubrics only for assignments in courses where they are instructors. AI cannot publish grades. Open **AI usage** from the selected course for your recent usage there. In an active AI-enabled instructor course, **Context comparison** is also available from that course. Counts may be estimates when provider counts are absent; two uncached comparisons can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
 
 Publishing or correcting a grade updates the student's assignment XP automatically. Changing **Maximum XP** recalculates existing awards. Later rubric edits do not change the denominator captured with an earlier publication. Assignments created before XP was added start at zero; review and republish older grades before they can earn XP.
 
@@ -172,7 +182,7 @@ Only the owning instructor can manage these cases. Failed saves retain your inpu
 
 ## Forums
 
-Choose **Forums** from the student sidebar/Menu or instructor header. Both roles share discussions. Select **New discussion**, enter title/message, then **Create discussion**. In a discussion, use **Your reply → Post reply**.
+Choose **Discussions** from the selected course's activity links. Instructors and students in that course share its discussions. Select **New discussion**, enter title/message, then **Create discussion**. In a discussion, use **Your reply → Post reply**.
 
 **Search discussions → Search** finds titles/opening messages, ignoring capitalization and treating punctuation literally; replies are not searched. **Clear search** restores all discussions. Paging preserves search; refresh/Back retain its address.
 

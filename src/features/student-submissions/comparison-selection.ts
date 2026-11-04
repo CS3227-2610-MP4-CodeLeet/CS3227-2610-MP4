@@ -16,8 +16,9 @@ export function comparisonSelection(value: {
     .safeParse(value);
 }
 
-export function comparisonPath(id: string) {
-  return `/student/submissions/${id}/compare`;
+export function comparisonPath(id: string, courseId?: string) {
+  const path = `/student/submissions/${id}/compare`;
+  return courseId ? `${path}?courseId=${encodeURIComponent(courseId)}` : path;
 }
 
 export type ComparisonSelection = { before?: number; after?: number };

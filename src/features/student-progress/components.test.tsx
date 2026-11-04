@@ -10,9 +10,17 @@ const empty: ProgressData = {
   submissions: [],
   grades: [],
 };
+const courseId = crypto.randomUUID();
+const progressProps = {
+  courseId,
+  assessmentsEnabled: true,
+  xpEnabled: true,
+};
 
 it('distinguishes empty work from completed work without inventing a percentage', () => {
-  const html = renderToStaticMarkup(<ProgressOverview data={empty} />);
+  const html = renderToStaticMarkup(
+    <ProgressOverview {...progressProps} data={empty} />,
+  );
   expect(html).toContain('No assignments yet');
   expect(html).toContain('No upcoming deadlines');
   expect(html).toContain('No submissions yet');
@@ -59,7 +67,9 @@ it('renders labelled progress, precise XP and safe actionable metadata', () => {
       },
     ],
   };
-  const html = renderToStaticMarkup(<ProgressOverview data={data} />);
+  const html = renderToStaticMarkup(
+    <ProgressOverview {...progressProps} data={data} />,
+  );
   expect(html).toContain('max="1203"');
   expect(html).toContain('value="2"');
   expect(html).toContain('9,007,199,254,740,993');
@@ -67,8 +77,12 @@ it('renders labelled progress, precise XP and safe actionable metadata', () => {
   expect(html).toContain('SGT');
   expect(html).toContain('Revision 7');
   expect(html).toContain('Score unavailable');
-  expect(html).toContain(`href="/student/assignments/${id}"`);
-  expect(html).toContain(`href="/student/submissions/${id}"`);
+  expect(html).toContain(
+    `href="/student/assignments/${id}?courseId=${courseId}"`,
+  );
+  expect(html).toContain(
+    `href="/student/submissions/${id}?courseId=${courseId}"`,
+  );
   expect(html).toContain('&lt;img');
   expect(html).not.toContain('<img');
 });
@@ -77,7 +91,7 @@ it.each(['assignments', 'upcoming', 'xp', 'submissions', 'grades'] as const)(
   'keeps healthy sections visible when %s fails without fabricating zero',
   (key) => {
     const html = renderToStaticMarkup(
-      <ProgressOverview data={{ ...empty, [key]: null }} />,
+      <ProgressOverview {...progressProps} data={{ ...empty, [key]: null }} />,
     );
     expect(html).toContain('Try again');
     expect(html).toContain('My progress');
@@ -87,3 +101,19 @@ it.each(['assignments', 'upcoming', 'xp', 'submissions', 'grades'] as const)(
     if (key !== 'grades') expect(html).toContain('No published grades yet');
   },
 );
+
+it('hides course activity when its feature is disabled', () => {
+  const html = renderToStaticMarkup(
+    <ProgressOverview
+      courseId={courseId}
+      assessmentsEnabled={false}
+      xpEnabled={false}
+      data={empty}
+    />,
+  );
+  expect(html).not.toContain('Submitted assignments');
+  expect(html).not.toContain('Coming up');
+  expect(html).not.toContain('Recent submissions');
+  expect(html).not.toContain('Recent grades');
+  expect(html).not.toContain('Total XP');
+});

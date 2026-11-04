@@ -19,7 +19,7 @@ describe('instructor assignment form', () => {
       .fn()
       .mockResolvedValue(new Response('{}', { status: 201 }));
     vi.stubGlobal('fetch', fetch);
-    render(<AssignmentForm />);
+    render(<AssignmentForm courseId="00000000-0000-4000-8000-000000000003" />);
     fireEvent.change(screen.getByLabelText('Maximum XP'), {
       target: { value: '0' },
     });
@@ -60,7 +60,9 @@ describe('instructor assignment form', () => {
         maxScore: 8,
       }),
     ]);
-    expect(router.push).toHaveBeenCalledWith('/instructor');
+    expect(router.push).toHaveBeenCalledWith(
+      '/instructor?courseId=00000000-0000-4000-8000-000000000003',
+    );
     expect(router.refresh).toHaveBeenCalledOnce();
   });
 
@@ -78,6 +80,7 @@ describe('instructor assignment form', () => {
     );
     render(
       <AssignmentForm
+        courseId="00000000-0000-4000-8000-000000000003"
         assignment={{
           id: 'assignment-1',
           title: 'Existing',
@@ -120,7 +123,7 @@ describe('instructor assignment form', () => {
   });
 
   it('adds, edits, and removes rubric criteria while retaining one required row', () => {
-    render(<AssignmentForm />);
+    render(<AssignmentForm courseId="00000000-0000-4000-8000-000000000003" />);
     fireEvent.change(screen.getByLabelText('Maximum XP'), {
       target: { value: '0' },
     });

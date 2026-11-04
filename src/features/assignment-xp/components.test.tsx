@@ -14,6 +14,7 @@ it('requires an explicit whole-number maximum and shows zero as a valid existing
 it('renders exact totals, available assignment links and hidden-title fallback without grade data', () => {
   render(
     <XpOverview
+      courseId="course-1"
       data={{
         total_xp: '9007199254740993',
         page: 1,
@@ -36,6 +37,6 @@ it('renders exact totals, available assignment links and hidden-title fallback w
     screen.queryByRole('link', { name: 'Assignment unavailable' }),
   ).toBeNull();
   expect(screen.getByRole('link', { name: 'Next' }).getAttribute('href')).toBe(
-    '/student/xp?page=2',
+    '/student/xp?courseId=course-1&page=2',
   );
 });

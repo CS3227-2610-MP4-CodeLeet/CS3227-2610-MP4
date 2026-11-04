@@ -16,6 +16,7 @@ const cleanText = (max: number) =>
 
 export const assignmentInputSchema = z
   .object({
+    courseId: uuid,
     title: cleanText(160),
     instructions: cleanText(12_000),
     language: assignmentLanguageSchema.default('python'),

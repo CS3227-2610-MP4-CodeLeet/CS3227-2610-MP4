@@ -3,6 +3,7 @@ import {
   test,
   historyPassword,
   hideFixtureAssignment,
+  coursePath,
 } from './helpers/history-fixtures';
 import { revisionSession } from './helpers/revision-session';
 
@@ -35,12 +36,12 @@ test('lists only own published feedback, links revision, handles hidden titles a
   historyFixture: data,
 }) => {
   await revisionSession(page, data.users[1].email, historyPassword);
-  await page.goto('/student/assignments');
+  await page.goto(coursePath(data, '/student/assignments'));
   await page
     .getByRole('link', { name: 'My grades', exact: true })
     .first()
     .click();
-  await expect(page).toHaveURL(gradesPath);
+  await expect(page).toHaveURL(coursePath(data, gradesPath));
   await expect(
     page.getByRole('list', { name: listName }).locator('article'),
   ).toHaveCount(1);
@@ -53,9 +54,11 @@ test('lists only own published feedback, links revision, handles hidden titles a
   await page
     .getByRole('link', { name: `View ${data.title}, revision 1`, exact: true })
     .click();
-  await expect(page).toHaveURL(`/student/submissions/${data.rows[0].id}`);
+  await expect(page).toHaveURL(
+    coursePath(data, `/student/submissions/${data.rows[0].id}`),
+  );
   await hideFixtureAssignment(data);
-  await page.goto(gradesPath);
+  await page.goto(coursePath(data, gradesPath));
   await expect(
     page.getByRole('heading', { name: unavailableTitle, exact: true }),
   ).toBeVisible();
@@ -74,7 +77,7 @@ test('filters before stable paging, preserves URL state and never loads draft or
 }) => {
   await seedPublishedGrades(data);
   await revisionSession(page, data.users[1].email, historyPassword);
-  await page.goto(gradesPath);
+  await page.goto(coursePath(data, gradesPath));
   const cards = page.getByRole('list', { name: listName }).locator('article');
   await expect(cards).toHaveCount(25);
   const expected = data.rows
@@ -83,18 +86,21 @@ test('filters before stable paging, preserves URL state and never loads draft or
   // Grade IDs below equal submission IDs, so hand-written tie ordering is testable.
   await expect(
     cards.first().getByRole('link', { name: /^View / }),
-  ).toHaveAttribute('href', `/student/submissions/${expected[0].id}`);
+  ).toHaveAttribute(
+    'href',
+    coursePath(data, `/student/submissions/${expected[0].id}`),
+  );
   await page.getByRole('link', { name: 'Next', exact: true }).click();
-  await expect(page).toHaveURL(`${gradesPath}?page=2`);
+  await expect(page).toHaveURL(coursePath(data, `${gradesPath}?page=2`));
   await expect(cards).toHaveCount(1);
-  await applyJavaFilter(page);
+  await applyJavaFilter(page, data);
   await expect(cards).toHaveCount(2);
   await expect(
     page.getByRole('navigation', { name: 'Grade pages' }),
   ).toHaveCount(0);
-  await checkFilterState(page);
-  await checkFilteredPages(page);
-  await checkInvalidQueries(page, data.users[2].id);
+  await checkFilterState(page, data);
+  await checkFilteredPages(page, data);
+  await checkInvalidQueries(page, data.users[2].id, data);
 });
 
 test('empty accounts and published feedback changes are reflected without exposing drafts', async ({
@@ -102,7 +108,7 @@ test('empty accounts and published feedback changes are reflected without exposi
   historyFixture: data,
 }) => {
   await revisionSession(page, data.users[3].email, historyPassword);
-  await page.goto(gradesPath);
+  await page.goto(coursePath(data, gradesPath));
   await expect(
     page.getByRole('heading', { name: 'No published grades yet' }),
   ).toBeVisible();
@@ -119,7 +125,7 @@ test('empty accounts and published feedback changes are reflected without exposi
     },
   );
   expect(response.ok()).toBeTruthy();
-  await page.goto(gradesPath);
+  await page.goto(coursePath(data, gradesPath));
   await page.getByText('Instructor feedback', { exact: true }).click();
   await expect(page.getByText('Score: 0', { exact: true })).toBeVisible();
   await expect(
@@ -181,12 +187,13 @@ async function seedPublishedGrades(data: HistoryFixture) {
   expect(created.ok()).toBeTruthy();
 }
 
-async function applyJavaFilter(page: Page) {
+async function applyJavaFilter(page: Page, data: HistoryFixture) {
   await page.getByLabel(languageFilter, { exact: true }).selectOption('java');
   await page.getByRole('button', { name: applyName }).click();
   await expect(page).toHaveURL(
     (url) =>
       url.pathname === gradesPath &&
+      url.searchParams.get('courseId') === data.courseId &&
       url.searchParams.get('language') === 'java' &&
       !url.searchParams.has('page'),
   );
@@ -223,14 +230,14 @@ async function checkMobileTheme(page: Page) {
 
 async function checkRoleBoundaries(page: Page, data: HistoryFixture) {
   await page.context().clearCookies();
-  await page.goto(gradesPath);
+  await page.goto(coursePath(data, gradesPath));
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[0].email, historyPassword);
-  await page.goto(gradesPath);
+  await page.goto(coursePath(data, gradesPath));
   await expect(page).toHaveURL(/\/unauthorized$/);
 }
 
-async function checkFilterState(page: Page) {
+async function checkFilterState(page: Page, data: HistoryFixture) {
   await page.reload();
   await expect(page.getByLabel(languageFilter, { exact: true })).toHaveValue(
     'java',
@@ -240,33 +247,43 @@ async function checkFilterState(page: Page) {
   await expect(page).toHaveURL(
     (url) =>
       url.searchParams.get('q') === 'HISTORY [literal]*%_ JAVA' &&
+      url.searchParams.get('courseId') === data.courseId &&
       url.searchParams.get('language') === 'java',
   );
   await expect(
     page.getByRole('list', { name: listName }).locator('article'),
   ).toHaveCount(2);
   await page.getByRole('link', { name: clearName }).click();
-  await expect(page).toHaveURL(gradesPath);
+  await expect(page).toHaveURL(coursePath(data, gradesPath));
 }
 
-async function checkFilteredPages(page: Page) {
+async function checkFilteredPages(page: Page, data: HistoryFixture) {
   await page.getByLabel(titleSearch).fill('History');
   await page.getByRole('button', { name: applyName }).click();
   const next = page.getByRole('link', { name: 'Next', exact: true });
-  await expect(next).toHaveAttribute('href', `${gradesPath}?q=History&page=2`);
+  await expect(next).toHaveAttribute(
+    'href',
+    coursePath(data, `${gradesPath}?q=History&page=2`),
+  );
   await next.click();
-  await expect(page).toHaveURL(`${gradesPath}?q=History&page=2`);
+  await expect(page).toHaveURL(
+    coursePath(data, `${gradesPath}?q=History&page=2`),
+  );
   await expect(
     page.getByRole('list', { name: listName }).locator('article'),
   ).toHaveCount(1);
   await page.getByRole('link', { name: 'Previous', exact: true }).click();
-  await expect(page).toHaveURL(`${gradesPath}?q=History`);
+  await expect(page).toHaveURL(coursePath(data, `${gradesPath}?q=History`));
   await expect(
     page.getByRole('list', { name: listName }).locator('article'),
   ).toHaveCount(25);
 }
 
-async function checkInvalidQueries(page: Page, peerId: string) {
+async function checkInvalidQueries(
+  page: Page,
+  peerId: string,
+  data: HistoryFixture,
+) {
   for (const query of [
     'page=0',
     'page=1&page=2',
@@ -274,7 +291,7 @@ async function checkInvalidQueries(page: Page, peerId: string) {
     'language=python&language=java',
     `q=${'a'.repeat(161)}`,
   ]) {
-    await page.goto(`${gradesPath}?${query}`);
+    await page.goto(coursePath(data, `${gradesPath}?${query}`));
     await expect(
       page.getByRole('heading', {
         name: 'Grades page unavailable',
@@ -282,7 +299,9 @@ async function checkInvalidQueries(page: Page, peerId: string) {
       }),
     ).toBeVisible();
   }
-  await page.goto(`${gradesPath}?studentId=${peerId}&user_id=${peerId}`);
+  await page.goto(
+    coursePath(data, `${gradesPath}?studentId=${peerId}&user_id=${peerId}`),
+  );
   await expect(
     page.getByRole('list', { name: listName }).locator('article'),
   ).toHaveCount(25);

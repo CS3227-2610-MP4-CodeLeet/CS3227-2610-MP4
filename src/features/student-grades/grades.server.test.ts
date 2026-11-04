@@ -5,6 +5,7 @@ import { loadStudentGrades } from './grades.server';
 const gradeId = '10000000-0000-4000-8000-000000000001';
 const submissionId = '10000000-0000-4000-8000-000000000002';
 const studentId = 'verified-student';
+const courseId = 'course-a';
 const row = {
   id: gradeId,
   submission_id: submissionId,
@@ -45,16 +46,19 @@ function fixture(data: unknown, status = 200) {
 
 it('filters ownership/publication/language/literal title before bounded deterministic paging', async () => {
   const data = fixture([]);
-  await loadStudentGrades(data.client, studentId, 2, {
-    q: 'A*%_[x]',
-    language: 'java',
+  await loadStudentGrades(data.client, {
+    studentId,
+    courseId,
+    page: 2,
+    filters: { q: 'A*%_[x]', language: 'java' },
   });
   const query = data.request().searchParams;
   expect(data.request().pathname).toBe('/rest/v1/grades');
   expect(query.get('select')).toBe(
-    'id,submission_id,total_score,feedback,published_at,submissions!inner(language,revision,assignments!inner(title))',
+    'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
   );
   expect(query.get('submissions.student_id')).toBe('eq.verified-student');
+  expect(query.get('submissions.course_id')).toBe(`eq.${courseId}`);
   expect(query.get('published_at')).toBe('not.is.null');
   expect(query.get('submissions.language')).toBe('eq.java');
   expect(query.get('submissions.assignments.title')).toBe(
@@ -74,7 +78,9 @@ it('keeps hidden-assignment grades, projects only safe DTO fields and accepts nu
       source: 'private-extra',
     },
   ]);
-  expect(await loadStudentGrades(data.client, studentId, 1)).toEqual({
+  expect(
+    await loadStudentGrades(data.client, { studentId, courseId, page: 1 }),
+  ).toEqual({
     rows: [
       {
         id: gradeId,
@@ -90,20 +96,28 @@ it('keeps hidden-assignment grades, projects only safe DTO fields and accepts nu
     hasNext: false,
   });
   expect(data.request().searchParams.get('select')).toBe(
-    'id,submission_id,total_score,feedback,published_at,submissions!inner(language,revision,assignments(title))',
+    'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
   );
 });
 
 it('renders 25 entries with one lookahead and no extra page beyond the bound', async () => {
   const data = fixture(Array.from({ length: 26 }, () => row));
   expect(
-    (await loadStudentGrades(data.client, studentId, 1))?.rows,
+    (await loadStudentGrades(data.client, { studentId, courseId, page: 1 }))
+      ?.rows,
   ).toHaveLength(25);
-  expect((await loadStudentGrades(data.client, studentId, 1))?.hasNext).toBe(
-    true,
-  );
   expect(
-    (await loadStudentGrades(data.client, studentId, 10000))?.hasNext,
+    (await loadStudentGrades(data.client, { studentId, courseId, page: 1 }))
+      ?.hasNext,
+  ).toBe(true);
+  expect(
+    (
+      await loadStudentGrades(data.client, {
+        studentId,
+        courseId,
+        page: 10000,
+      })
+    )?.hasNext,
   ).toBe(false);
 });
 
@@ -115,11 +129,17 @@ it.each([
   [{ ...row, submissions: { ...row.submissions, language: 'ruby' } }],
 ])('fails closed for invalid projected data', async (value) => {
   expect(
-    await loadStudentGrades(fixture(value).client, studentId, 1),
+    await loadStudentGrades(fixture(value).client, {
+      studentId,
+      courseId,
+      page: 1,
+    }),
   ).toBeNull();
 });
 
 it('returns a safe failure result for a backend error', async () => {
   const data = fixture({ message: 'private backend detail' }, 500);
-  expect(await loadStudentGrades(data.client, studentId, 1)).toBeNull();
+  expect(
+    await loadStudentGrades(data.client, { studentId, courseId, page: 1 }),
+  ).toBeNull();
 });

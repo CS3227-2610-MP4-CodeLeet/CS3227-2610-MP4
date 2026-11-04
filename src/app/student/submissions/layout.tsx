@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { requireRole } from '@/lib/auth/verified-user';
+import { requireMember } from '@/lib/auth/verified-user';
 import { WorkspaceShell } from '@/features/student-assignments/workspace-shell';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,7 @@ export default async function SubmissionsLayout({
 }: {
   children: ReactNode;
 }) {
-  await requireRole('student');
+  await requireMember();
   return (
     <WorkspaceShell assignments={[]} authenticated>
       {children}

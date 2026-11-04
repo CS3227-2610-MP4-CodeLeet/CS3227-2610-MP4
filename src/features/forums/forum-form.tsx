@@ -4,8 +4,14 @@ import { PendingButton } from '@/components/ui/pending-button';
 
 import { useForumPost } from './use-forum-post';
 
-export function ForumForm({ threadId }: { threadId?: string }) {
-  const { submit, busy, error, edited } = useForumPost({ threadId });
+export function ForumForm({
+  courseId,
+  threadId,
+}: {
+  courseId: string;
+  threadId?: string;
+}) {
+  const { submit, busy, error, edited } = useForumPost({ courseId, threadId });
   return (
     <form
       onSubmit={(event) => {

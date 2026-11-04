@@ -50,10 +50,13 @@ it.each([
         },
       },
     });
-    await loadThreads(client, 2, term);
+    await loadThreads(client, 'f0300000-0000-4000-8000-000000000020', 2, term);
     expect(requested.searchParams.get('or')).toBe(expected);
     expect(requested.searchParams.get('select')).toBe(
       'id,body,author_name,author_role,created_at,title',
+    );
+    expect(requested.searchParams.get('course_id')).toBe(
+      'eq.f0300000-0000-4000-8000-000000000020',
     );
     expect(requested.searchParams.get('order')).toBe('created_at.desc,id.desc');
     expect(requested.searchParams.get('offset')).toBe('25');

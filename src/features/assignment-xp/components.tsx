@@ -28,7 +28,13 @@ export function AssignmentXp({ value }: { value?: number }) {
   if (value === undefined) return null;
   return <span>Maximum XP: {formatXp(value)}</span>;
 }
-export function XpOverview({ data }: { data: XpSummary }) {
+export function XpOverview({
+  data,
+  courseId,
+}: {
+  data: XpSummary;
+  courseId: string;
+}) {
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-semibold">My XP</h1>
@@ -51,7 +57,7 @@ export function XpOverview({ data }: { data: XpSummary }) {
               {award.assignment_title ? (
                 <Link
                   className="min-w-0 break-words underline"
-                  href={`/student/assignments/${award.assignment_id}`}
+                  href={`/student/assignments/${award.assignment_id}?courseId=${courseId}`}
                 >
                   {award.assignment_title}
                 </Link>
@@ -75,7 +81,7 @@ export function XpOverview({ data }: { data: XpSummary }) {
         {data.page > 1 ? (
           <Link
             className="underline"
-            href={`/student/xp?page=${data.page - 1}`}
+            href={`/student/xp?courseId=${courseId}&page=${data.page - 1}`}
           >
             Previous
           </Link>
@@ -85,7 +91,7 @@ export function XpOverview({ data }: { data: XpSummary }) {
         {data.has_more && (
           <Link
             className="underline"
-            href={`/student/xp?page=${data.page + 1}`}
+            href={`/student/xp?courseId=${courseId}&page=${data.page + 1}`}
           >
             Next
           </Link>

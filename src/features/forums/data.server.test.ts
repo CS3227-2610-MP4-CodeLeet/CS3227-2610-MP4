@@ -23,14 +23,16 @@ function rows() {
     created_at: '2026-10-31T00:00:00+00:00',
   }));
 }
+const courseId = 'f0000000-0000-4000-8000-000000000001';
 
 describe('forum projected data access', () => {
   it('bounds stable thread pages with lookahead and excludes private columns', async () => {
     const { client, query } = fixture(rows());
-    const result = await loadThreads(client, 2);
+    const result = await loadThreads(client, courseId, 2);
     expect(result.rows).toHaveLength(25);
     expect(result.hasNext).toBe(true);
     expect(query.range).toHaveBeenCalledWith(25, 50);
+    expect(query.eq).toHaveBeenCalledWith('course_id', courseId);
     expect(query.order.mock.calls).toEqual([
       ['created_at', { ascending: false }],
       ['id', { ascending: false }],
@@ -51,11 +53,11 @@ describe('forum projected data access', () => {
   });
   it('handles unavailable threads without inventing sample data', async () => {
     const { client } = fixture(null);
-    expect(await loadThread(client, crypto.randomUUID())).toBeNull();
+    expect(await loadThread(client, courseId, crypto.randomUUID())).toBeNull();
   });
   it('sanitizes backend failures', async () => {
     const { client } = fixture(null, { message: 'private backend failure' });
-    await expect(loadThreads(client, 1)).rejects.toThrow(
+    await expect(loadThreads(client, courseId, 1)).rejects.toThrow(
       'Unable to load discussions.',
     );
   });

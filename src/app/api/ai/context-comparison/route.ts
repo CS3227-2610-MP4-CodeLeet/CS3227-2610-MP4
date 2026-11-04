@@ -5,7 +5,7 @@ import {
   ReviewServiceError,
 } from '@/features/codementor/review-service';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
-import { hasInstructorAccess } from '@/lib/auth/roles';
+import { readCourseAccess } from '@/lib/courses/access';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
 
 const response = (body: unknown, status = 200) =>
@@ -50,6 +50,31 @@ function errorResponse(error: unknown, requestId: string) {
   return response({ error: { code, message, requestId } }, status);
 }
 
+async function hasCourseComparisonAccess(
+  supabase: NonNullable<
+    Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']
+  >,
+  userId: string,
+  submissionId: string,
+) {
+  const { data: submission, error } = await supabase
+    .from('submissions')
+    .select('assignments!inner(course_id)')
+    .eq('id', submissionId)
+    .maybeSingle();
+  const assignment = Array.isArray(submission?.assignments)
+    ? submission.assignments[0]
+    : submission?.assignments;
+  const courseId = assignment?.course_id;
+  if (error || !courseId) return false;
+  const access = await readCourseAccess(supabase, userId, courseId, 'ai');
+  return (
+    access?.role === 'instructor' &&
+    access.lifecycle === 'active' &&
+    access.featureEnabled
+  );
+}
+
 export async function POST(request: NextRequest) {
   const requestId = crypto.randomUUID();
   if (!sameOriginRequest(request))
@@ -63,8 +88,8 @@ export async function POST(request: NextRequest) {
       },
       403,
     );
-  const { supabase, user, role } = await getVerifiedUserRole();
-  if (!user || !role)
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user || !supabase)
     return response(
       {
         error: {
@@ -75,17 +100,7 @@ export async function POST(request: NextRequest) {
       },
       401,
     );
-  if (!hasInstructorAccess(role))
-    return response(
-      {
-        error: {
-          code: 'forbidden',
-          message: 'Instructor access required.',
-          requestId,
-        },
-      },
-      403,
-    );
+
   const body = await readJsonBody(request, 1_024);
   if (!body.ok)
     return response(
@@ -111,6 +126,14 @@ export async function POST(request: NextRequest) {
       400,
     );
   try {
+    if (
+      !(await hasCourseComparisonAccess(
+        supabase,
+        user.id,
+        parsed.data.submissionId,
+      ))
+    )
+      return errorResponse(new ReviewServiceError('not_found'), requestId);
     const comparison = await performContextComparison(
       supabase,
       user.id,

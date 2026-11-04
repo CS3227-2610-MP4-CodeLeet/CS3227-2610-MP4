@@ -48,5 +48,5 @@ export function buildListUrl(path: string, filters: ListFilters, page = 1) {
   if (filters.q) query.set('q', filters.q);
   if (filters.language) query.set('language', filters.language);
   if (page > 1) query.set('page', String(page));
-  return query.size ? `${path}?${query}` : path;
+  return query.size ? `${path}${path.includes('?') ? '&' : '?'}${query}` : path;
 }

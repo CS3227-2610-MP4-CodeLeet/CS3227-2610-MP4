@@ -24,9 +24,11 @@ const linkStyle =
 export function AssignmentList({
   assignments,
   filters = emptyListFilters,
+  courseId,
 }: {
   assignments: readonly AssignmentSummary[];
   filters?: ListFilters;
+  courseId?: string;
 }) {
   return (
     <section aria-labelledby="assignments-heading" className="space-y-6">
@@ -44,13 +46,17 @@ export function AssignmentList({
           Choose a problem, read the instructions, then work on your solution.
         </p>
       </header>
-      <ListFilterControls path="/student/assignments" filters={filters} />
+      <ListFilterControls
+        path="/student/assignments"
+        filters={filters}
+        courseId={courseId}
+      />
       {assignments.length === 0 && hasListFilters(filters) ? (
         <FilteredListEmpty kind="assignments" />
       ) : assignments.length === 0 ? (
         <EmptyAssignments />
       ) : (
-        <AssignmentTable assignments={assignments} />
+        <AssignmentTable assignments={assignments} courseId={courseId} />
       )}
     </section>
   );
@@ -73,8 +79,10 @@ function EmptyAssignments() {
 
 function AssignmentTable({
   assignments,
+  courseId,
 }: {
   assignments: readonly AssignmentSummary[];
+  courseId?: string;
 }) {
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm shadow-slate-200/30 dark:shadow-none">
@@ -114,6 +122,7 @@ function AssignmentTable({
               key={assignment.id}
               assignment={assignment}
               index={index}
+              courseId={courseId}
             />
           ))}
         </tbody>
@@ -125,11 +134,16 @@ function AssignmentTable({
 function AssignmentRow({
   assignment,
   index,
+  courseId,
 }: {
   assignment: AssignmentSummary;
   index: number;
+  courseId?: string;
 }) {
-  const href = `/student/assignments/${assignment.id}`;
+  const courseQuery = courseId
+    ? `?courseId=${encodeURIComponent(courseId)}`
+    : '';
+  const href = `/student/assignments/${assignment.id}${courseQuery}`;
   return (
     <tr className="group hover:bg-cyan-50/40 dark:hover:bg-cyan-950/40">
       <td className="px-4 py-5 sm:px-6">
@@ -182,13 +196,18 @@ function AssignmentRow({
 
 export function AssignmentInstructions({
   assignment,
+  courseId,
 }: {
   assignment: AssignmentDetail;
+  courseId?: string;
 }) {
+  const courseQuery = courseId
+    ? `?courseId=${encodeURIComponent(courseId)}`
+    : '';
   return (
     <article className="space-y-5">
       <Link
-        href="/student/assignments"
+        href={`/student/assignments${courseQuery}`}
         className={`${linkStyle} text-slate-500 dark:text-slate-400`}
       >
         <ArrowLeft aria-hidden="true" className="size-4" /> All assignments

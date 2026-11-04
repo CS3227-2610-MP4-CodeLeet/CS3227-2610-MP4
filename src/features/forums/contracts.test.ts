@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { forumInput, forumPage } from './contracts';
 
 const requestId = 'f0000000-0000-4000-8000-000000000001';
+const courseId = 'f0000000-0000-4000-8000-000000000002';
 describe('forum contracts', () => {
   it('accepts plain text including markup without interpreting it', () => {
     expect(
@@ -9,30 +10,47 @@ describe('forum contracts', () => {
         title: ' Hello ',
         body: '<script>text</script>',
         requestId,
+        courseId,
       }),
-    ).toEqual({ title: 'Hello', body: '<script>text</script>', requestId });
+    ).toEqual({
+      title: 'Hello',
+      body: '<script>text</script>',
+      requestId,
+      courseId,
+    });
   });
   it.each([
-    { title: ' ', body: 'Message', requestId },
-    { title: 'x'.repeat(161), body: 'Message', requestId },
-    { title: 'Hi', body: '\n\t', requestId },
-    { title: 'Hi', body: 'x'.repeat(8001), requestId },
-    { title: 'Hi', body: 'Message', requestId: 'bad' },
-    { title: 'Hi', body: 'Message', requestId, authorId: requestId },
-    { body: 'Reply', requestId, threadId: requestId, role: 'instructor' },
+    { title: ' ', body: 'Message', requestId, courseId },
+    { title: 'x'.repeat(161), body: 'Message', requestId, courseId },
+    { title: 'Hi', body: '\n\t', requestId, courseId },
+    { title: 'Hi', body: 'x'.repeat(8001), requestId, courseId },
+    { title: 'Hi', body: 'Message', requestId: 'bad', courseId },
+    { title: 'Hi', body: 'Message', requestId, courseId, authorId: requestId },
+    {
+      body: 'Reply',
+      requestId,
+      courseId,
+      threadId: requestId,
+      role: 'instructor',
+    },
   ])('rejects invalid/forged inputs (%#)', (value) => {
     expect(forumInput.safeParse(value).success).toBe(false);
   });
   it('accepts a reply and exact content bounds', () => {
     expect(
-      forumInput.safeParse({ threadId: requestId, body: 'Reply', requestId })
-        .success,
+      forumInput.safeParse({
+        threadId: requestId,
+        body: 'Reply',
+        requestId,
+        courseId,
+      }).success,
     ).toBe(true);
     expect(
       forumInput.safeParse({
         title: 'x'.repeat(160),
         body: 'x'.repeat(8000),
         requestId,
+        courseId,
       }).success,
     ).toBe(true);
   });
