@@ -70,3 +70,38 @@
 - Resource measurements and unavailable fields: unavailable.
 - Next steps: Team/human verification and merge review of PR #93.
 
+## Entry 2: Review comment remediation on PR #93
+
+- Prompts and steering requests:
+  - Address review comment on PR #93 (`chatgpt-codex-connector[bot]`, comment ID `4467221682`) regarding `list_course_invitations` truncation (`LIMIT 200`) in `src/app/api/courses/[courseId]/invitations/[invitationId]/route.ts`.
+  - Push the changes, resolve the review comment, explain why it was not caught earlier, and perform another thorough review of PR #93.
+- Actual participants and handoffs:
+  - Pair programming: Antigravity assistant and John.
+  - Review feedback received from: `chatgpt-codex-connector[bot]`.
+- Decisions taken:
+  - Create additive migration `supabase/migrations/20261104081500_scope_revoke_course_invitation.sql` introducing `revoke_course_invitation(p_invitation uuid, p_course uuid)` to validate course-invitation ownership directly inside the database transaction without querying the 200-row capped listing function.
+  - Preserve the 1-argument `revoke_course_invitation(p_invitation uuid)` overload for database backwards-compatibility.
+  - Add pgTAP test in `supabase/tests/database/course_workspaces.test.sql` to verify course-scoping enforcement on revocation (rejects mismatched course, succeeds for matching course).
+  - Update `src/app/api/courses/[courseId]/invitations/[invitationId]/route.ts` to call the scoped RPC directly, removing `checkCourseInvitation` and `list_course_invitations` entirely.
+  - Update `src/app/api/courses/[courseId]/invitations/[invitationId]/route.test.ts` to verify the new RPC call signature and error handling.
+- Files read, created, or modified:
+  - `supabase/migrations/20261104081500_scope_revoke_course_invitation.sql` (created)
+  - `supabase/tests/database/course_workspaces.test.sql` (modified)
+  - `src/app/api/courses/[courseId]/invitations/[invitationId]/route.ts` (modified)
+  - `src/app/api/courses/[courseId]/invitations/[invitationId]/route.test.ts` (modified)
+  - `logs/2026-11-04-course-workspace-fixes.md` (modified)
+- Commands and checks run and outcomes:
+  - `pnpm exec supabase migration up --local`: exit 0 (migration applied)
+  - `pnpm db:test`: exit 0 (13 test files, 448 tests passed)
+  - `pnpm vitest run src/app/api/courses/[courseId]/invitations/[invitationId]/route.test.ts`: exit 0 (4/4 tests passed)
+  - `pnpm test:unit`: exit 0 (145 test files, 768 tests passed)
+  - `pnpm typecheck`: exit 0 (next typegen && tsc --noEmit)
+  - `pnpm lint`: exit 0 (eslint . --max-warnings=0)
+  - `pnpm format:check`: exit 0 (prettier --check .)
+  - `pnpm spec:validate`: exit 0 (openspec validate --all --strict)
+- Failures, retries, unresolved issues:
+  - Unit test assertion for error responses needed `toMatchObject` to account for `requestId` injection by `privateJson`.
+- Resource measurements and unavailable fields: unavailable.
+- Next steps: Push branch, resolve PR review comment thread, and present thorough review of PR #93.
+
+
