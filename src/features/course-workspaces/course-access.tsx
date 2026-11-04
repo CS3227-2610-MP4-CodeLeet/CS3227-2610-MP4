@@ -123,8 +123,7 @@ function OwnershipTransfer({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const candidates = members.filter(
-    (member) =>
-      member.role === 'instructor' && member.user_id !== currentUserId,
+    (member) => member.user_id !== currentUserId,
   );
   if (!candidates.length) return null;
 
@@ -167,7 +166,7 @@ function OwnershipTransfer({
           onChange={(event) => setOwnerId(event.target.value)}
           className="w-full rounded-md border bg-background px-3 py-2"
         >
-          <option value="">Choose an instructor</option>
+          <option value="">Choose a course member</option>
           {candidates.map((member) => (
             <option key={member.user_id} value={member.user_id}>
               {member.display_name} · {member.email}

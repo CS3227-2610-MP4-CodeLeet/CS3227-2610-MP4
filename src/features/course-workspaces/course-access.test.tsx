@@ -40,6 +40,13 @@ const members: CourseMember[] = [
     role: 'instructor',
     joined_at: '2026-01-02',
   },
+  {
+    user_id: 'student-3',
+    email: 'student@example.test',
+    display_name: 'Student',
+    role: 'student',
+    joined_at: '2026-01-03',
+  },
 ];
 function renderCourseAccess(currentUserId = 'owner-1') {
   render(
@@ -91,14 +98,14 @@ describe('course access management', () => {
     );
   });
 
-  it('requires owner confirmation and a different instructor before transfer', async () => {
+  it('requires owner confirmation and lets the owner select another member', async () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
     renderCourseAccess();
     const transfer = screen.getByLabelText('New course owner');
     expect(
       Array.from(transfer.querySelectorAll('option')).map((x) => x.value),
-    ).toEqual(['', 'teacher-2']);
-    fireEvent.change(transfer, { target: { value: 'teacher-2' } });
+    ).toEqual(['', 'teacher-2', 'student-3']);
+    fireEvent.change(transfer, { target: { value: 'student-3' } });
     fireEvent.click(screen.getByRole('button', { name: transferButtonName }));
     expect(fetch).not.toHaveBeenCalled();
     expect(confirm).toHaveBeenCalledWith(
@@ -112,7 +119,7 @@ describe('course access management', () => {
       `${courseIdPath}/transfer`,
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ newOwnerId: 'teacher-2' }),
+        body: JSON.stringify({ newOwnerId: 'student-3' }),
       }),
     );
   });
