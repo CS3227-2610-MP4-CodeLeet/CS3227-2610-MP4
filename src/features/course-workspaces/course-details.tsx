@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import type { CourseWorkspaceRecord } from './contracts';
 import { courseRequest, messageFor } from './course-request';
 
 export function CourseDetails({ course }: { course: CourseWorkspaceRecord }) {
+  const router = useRouter();
   const [title, setTitle] = useState(course.title);
   const [description, setDescription] = useState(course.description);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +25,7 @@ export function CourseDetails({ course }: { course: CourseWorkspaceRecord }) {
         description,
       });
       setSaved(true);
+      router.refresh();
     } catch (requestError) {
       setError(messageFor(requestError, 'Course details could not be saved.'));
     } finally {

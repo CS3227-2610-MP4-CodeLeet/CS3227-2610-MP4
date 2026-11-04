@@ -1,0 +1,75 @@
+import { renderToStaticMarkup } from 'react-dom/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mocks = vi.hoisted(() => ({
+  member: vi.fn(),
+  access: vi.fn(),
+  submissions: [] as unknown[],
+}));
+
+vi.mock('@/lib/auth/verified-user', () => ({ requireMember: mocks.member }));
+vi.mock('@/lib/courses/access', () => ({ readCourseAccess: mocks.access }));
+vi.mock('@/features/codementor/context-comparison', () => ({
+  ContextComparison: () => null,
+}));
+vi.mock('next/navigation', () => ({
+  notFound: () => {
+    throw new Error('NEXT_NOT_FOUND');
+  },
+  redirect: (url: string) => {
+    throw new Error(`REDIRECT:${url}`);
+  },
+}));
+
+import AIContextPage from './page';
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  const selectQuery = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn(async () => ({ data: mocks.submissions, error: null })),
+  };
+  mocks.member.mockResolvedValue({
+    user: { id: 'instructor-1' },
+    supabase: {
+      from: vi.fn().mockReturnValue(selectQuery),
+    },
+  });
+  mocks.access.mockResolvedValue({
+    role: 'instructor',
+    lifecycle: 'active',
+    featureEnabled: true,
+  });
+});
+
+describe('instructor AI context page', () => {
+  it('renders assignment title when assignments relation is an object or an array', async () => {
+    mocks.submissions = [
+      {
+        id: 'sub-1',
+        assignment_id: 'assign-1',
+        revision: 1,
+        created_at: '2026-11-01',
+        assignments: { title: 'Object Assignment' },
+      },
+      {
+        id: 'sub-2',
+        assignment_id: 'assign-2',
+        revision: 2,
+        created_at: '2026-11-02',
+        assignments: [{ title: 'Array Assignment' }],
+      },
+    ];
+
+    const html = renderToStaticMarkup(
+      await AIContextPage({
+        searchParams: Promise.resolve({ courseId: 'c1' }),
+      }),
+    );
+
+    expect(html).toContain('Object Assignment · revision 1');
+    expect(html).toContain('Array Assignment · revision 2');
+  });
+});

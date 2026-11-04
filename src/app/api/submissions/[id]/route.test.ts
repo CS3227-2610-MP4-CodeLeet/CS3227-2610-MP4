@@ -100,6 +100,21 @@ describe('submission detail route', () => {
     expect((await get(id)).status).toBe(200);
   });
 
+  it('allows students to view their own submission even if the assignment is unpublished (assignments is null)', async () => {
+    const unpublishedRow = {
+      id,
+      assignment_id: 'assignment-1',
+      student_id: 'owner',
+      course_id: courseId,
+      source: 'print(1)',
+      assignments: null,
+    };
+    setup({ role: 'student', userId: 'owner', data: unpublishedRow });
+    const response = await get(id);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ submission: unpublishedRow });
+  });
+
   it('maps database errors to the same not-found response', async () => {
     setup({ data: null, error: new Error('private database details') });
     const response = await get(id);

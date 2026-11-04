@@ -15,6 +15,7 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: mocks.refresh }),
 }));
 import { CourseWorkspace } from './course-workspace';
+import { CourseDetails } from './course-details';
 
 type WorkspaceProps = ComponentProps<typeof CourseWorkspace>;
 const inviteButtonName = 'Invite by email';
@@ -223,5 +224,28 @@ describe('empty course deletion', () => {
     expect(
       screen.queryByRole('button', { name: 'Delete empty course' }),
     ).toBeNull();
+  });
+});
+
+describe('course details', () => {
+  it('calls router.refresh after successful course details update', async () => {
+    render(<CourseDetails course={course} />);
+    fireEvent.change(screen.getByLabelText('Course title'), {
+      target: { value: 'New Algorithms Title' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save details' }));
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        `/api/courses/${course.id}`,
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({
+            title: 'New Algorithms Title',
+            description: course.description,
+          }),
+        }),
+      ),
+    );
+    expect(mocks.refresh).toHaveBeenCalledOnce();
   });
 });

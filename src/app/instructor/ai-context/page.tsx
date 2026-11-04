@@ -52,18 +52,23 @@ export default async function AIContextPage({
           submission.
         </p>
       ) : (
-        submissions.map((submission) => (
-          <article
-            key={submission.id}
-            className="space-y-3 rounded-xl border bg-card p-5"
-          >
-            <h2 className="font-medium">
-              {submission.assignments?.[0]?.title} · revision{' '}
-              {submission.revision}
-            </h2>
-            <ContextComparison submissionId={submission.id} />
-          </article>
-        ))
+        submissions.map((submission) => {
+          const assignment = Array.isArray(submission.assignments)
+            ? submission.assignments[0]
+            : submission.assignments;
+          return (
+            <article
+              key={submission.id}
+              className="space-y-3 rounded-xl border bg-card p-5"
+            >
+              <h2 className="font-medium">
+                {assignment?.title ?? 'Assignment'} · revision{' '}
+                {submission.revision}
+              </h2>
+              <ContextComparison submissionId={submission.id} />
+            </article>
+          );
+        })
       )}
     </main>
   );

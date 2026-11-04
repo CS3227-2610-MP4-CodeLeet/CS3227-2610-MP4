@@ -279,3 +279,15 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 32.2 Add student-only My progress page/navigation with independent empty/error/loading states, pending retry and mobile/theme/accessibility verification.
 - [x] 32.3 Verify synthetic real database/browser scenarios, update guides/log/spec evidence and complete independent review. 674 units, 321 database assertions, three actual synthetic dashboard journeys and 35 standard browser regressions passed; 71 standard prerequisite skips. The review's boundary-retry finding has a failing-first regression and is fixed.
 - [x] 32.4 Commit/push and publish issue-linked PR #90 to develop after successful source-head application/database run 41646811365 and scaffold run 41646817571 at 44e196b. Final metadata-head checks are recorded externally on PR #90 before handoff; no merge or deployment is claimed.
+
+## 34. Issue #92 course workspace post-merge remediation
+
+- [x] 34.1 Fix broken instructor practice-tests link by propagating `courseId` query parameter.
+- [x] 34.2 Fix `GET /api/submissions/[id]` to query `submissions.course_id` and allow student access even when assignments are unpublished.
+- [x] 34.3 Fix infinite loop in `forums/not-found.tsx` by linking to `/courses`.
+- [x] 34.4 Fix course title/description header desync in `course-details.tsx` by refreshing router after successful edit.
+- [x] 34.5 Normalize array vs object PostgREST assignment relation in instructor AI context page.
+- [x] 34.6 Add back-to-course navigation link in AI usage page.
+- [x] 34.7 Ensure invitation revocation validates course ownership/id.
+- [x] 34.8 Verify with unit tests (768/768 passed across 145 files), typecheck, lint, and formatting; document Vercel sign-in env resolution.
+

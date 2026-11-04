@@ -39,5 +39,7 @@ export default defineConfig([
     'test-results/**',
     '.agents/**',
     'website/**',
+    '.worktrees/**',
+    '.superpowers/**',
   ]),
 ]);

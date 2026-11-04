@@ -6,8 +6,8 @@ export default function DiscussionNotFound() {
       <p className="text-sm text-muted-foreground">
         This discussion or page could not be found.
       </p>
-      <Link href="/forums" className="text-sm underline">
-        Back to forums
+      <Link href="/courses" className="text-sm underline">
+        Choose a course
       </Link>
     </section>
   );
