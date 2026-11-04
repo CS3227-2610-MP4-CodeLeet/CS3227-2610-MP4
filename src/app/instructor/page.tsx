@@ -84,12 +84,14 @@ export default async function InstructorPage({
                 >
                   Practice tests
                 </Link>
-                <Link
-                  className="underline"
-                  href={`/instructor/assignments/${assignment.id}/edit?courseId=${courseId}`}
-                >
-                  Edit
-                </Link>
+                {access.lifecycle === 'active' && (
+                  <Link
+                    className="underline"
+                    href={`/instructor/assignments/${assignment.id}/edit?courseId=${courseId}`}
+                  >
+                    Edit
+                  </Link>
+                )}
                 <Link
                   className="underline"
                   href={`/instructor/assignments/${assignment.id}/submissions?courseId=${courseId}`}
