@@ -57,7 +57,8 @@ export async function POST(request: Request) {
       getPasswordClient: createSupabaseServerClient,
     };
     return responseFor(await performSignIn(input.data, deps));
-  } catch {
+  } catch (error) {
+    console.error('POST /api/auth/sign-in error:', error);
     return responseFor({ kind: 'unavailable' });
   }
 }

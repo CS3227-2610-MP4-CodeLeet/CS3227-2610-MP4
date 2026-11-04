@@ -17,6 +17,7 @@ const deps = {
 };
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, 'error').mockImplementation(() => {});
   rpc.mockImplementation(async (name: string) => ({
     data:
       name === 'normalize_login_identifier'

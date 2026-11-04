@@ -25,6 +25,7 @@ function request(value: unknown = body, origin = 'http://localhost:3000') {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, 'error').mockImplementation(() => {});
   mocks.clients.mockReturnValue({});
   mocks.perform.mockResolvedValue({ kind: 'success' });
 });
