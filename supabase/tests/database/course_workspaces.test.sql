@@ -21,7 +21,7 @@ update public.user_roles set role='instructor' where user_id in ('8a500000-0000-
 update public.user_roles set role='admin' where user_id='8a500000-0000-4000-8000-000000000006';
 insert into public.course_memberships(course_id,user_id,role)
 select c.id,u.id,u.role from public.courses c
-cross join (values('8a500000-0000-4000-8000-000000000001'::uuid,'instructor'),('8a500000-0000-4000-8000-000000000003'::uuid,'student')) u(id,role)
+cross join (values('8a500000-0000-4000-8000-000000000001'::uuid,'instructor'),('8a500000-0000-4000-8000-000000000002'::uuid,'instructor'),('8a500000-0000-4000-8000-000000000003'::uuid,'student')) u(id,role)
 where c.is_legacy;
 insert into public.assignments(id,instructor_id,title,instructions,language,publication_status,course_id)
 select '8a600000-0000-4000-8000-000000000001','8a500000-0000-4000-8000-000000000001','Legacy fixture','Synthetic history','python','published',id from public.courses where is_legacy;
@@ -47,7 +47,10 @@ select lives_ok($$select public.create_course_invitation((select id from course_
 insert into course_test_invites select 'student',public.create_course_invitation((select id from course_test_ids where name='main'),'course-student@example.test','student','synthetic-invite-token-student-xxxxxxxx',clock_timestamp()+interval '1 day');
 select is((select id is not null from course_test_invites where name='student'),true,'owner can invite a student by email');
 select is((select count(*)::integer from public.list_course_invitations((select id from course_test_ids where name='main'))),2,'course staff can list pending invitations without exposing token hashes');
-select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000003','student')$$,'owner can add a verified student before invitation acceptance');
+insert into course_test_invites select 'preexisting-student-enrollment',public.create_course_invitation((select id from course_test_ids where name='main'),'course-student@example.test','student','synthetic-invite-token-preexisting-xxxxxxxx',clock_timestamp()+interval '1 day');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
+select lives_ok($$select public.accept_course_invitation('synthetic-invite-token-preexisting-xxxxxxxx')$$,'student enrolls through verified email invitation');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 insert into course_test_invites select 'existing-student-promotion',public.create_course_invitation((select id from course_test_ids where name='main'),'course-student@example.test','instructor','synthetic-invite-token-promote-xxxxxxxx',clock_timestamp()+interval '1 day');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
 select throws_ok($$select public.accept_course_invitation('synthetic-invite-token-promote-xxxxxxxx')$$,'42501','invitation_unavailable','an existing member cannot accept a second invitation');
@@ -79,8 +82,13 @@ select is(public.create_course('Second course','Created after instructor invitat
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 select throws_ok($$select public.delete_empty_course((select id from course_test_ids where name='main'),true)$$,'23514','course_not_empty','courses with members or academic records cannot be deleted');
 select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002',null)$$,'owner can remove an instructor');
-select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002','instructor')$$,'owner can restore an instructor membership');
-select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000003','student')$$,'staff can add a verified student directly');
+select lives_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000003','student')$$,'staff can update an existing student membership');
+select throws_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000004','student')$$,'42501','course_member_required','staff role updates cannot bypass invitation or join-code enrollment');
+select is((select count(*)::integer from public.course_memberships where course_id=(select id from course_test_ids where name='main') and user_id='8a500000-0000-4000-8000-000000000004'),0,'failed role update does not create membership');
+insert into course_test_invites select 'restore-co-instructor',public.create_course_invitation((select id from course_test_ids where name='main'),'course-co-instructor@example.test','instructor','synthetic-invite-token-restore-xxxxxxxx',clock_timestamp()+interval '1 day');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000002',true);
+select lives_ok($$select public.accept_course_invitation('synthetic-invite-token-restore-xxxxxxxx')$$,'removed instructor rejoins through a verified invitation');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 insert into course_test_ids select 'assignment',(public.save_course_assignment(
  (select id from course_test_ids where name='main'),null,0,'Scoped assignment','Print one value.',
  '[{"id":"8a800000-0000-4000-8000-000000000001","title":"Output","description":"Exact output","maxScore":10}]'::jsonb,
@@ -133,6 +141,12 @@ select is((select count(*)::integer from public.courses c where is_legacy),0,'no
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 select ok(public.owns_assignment('8a600000-0000-4000-8000-000000000001'),'Legacy assignment grading remains limited to the original instructor');
 select is((select course_id from public.assignments where id='8a600000-0000-4000-8000-000000000001'),(select id from public.courses where is_legacy),'legacy assignment retains its Legacy association and authorship');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000002',true);
+select ok(not public.owns_assignment('8a600000-0000-4000-8000-000000000001'),'another Legacy instructor cannot grade an assignment they did not author');
+select is((select count(*)::integer from public.assignments where id='8a600000-0000-4000-8000-000000000001'),0,'another Legacy instructor cannot read an assignment they did not author');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000006',true);
+select ok(not public.owns_assignment('8a600000-0000-4000-8000-000000000001'),'platform admins retain only per-assignment Legacy access');
+select is((select count(*)::integer from public.assignments where id='8a600000-0000-4000-8000-000000000001'),0,'platform admin cannot read another instructor Legacy assignment');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
 select is((select count(*)::integer from public.forum_threads where id='8a700000-0000-4000-8000-000000000001'),1,'migrated Legacy member can read historical forum post');
 select is((select count(*)::integer from public.forum_threads where course_id=(select id from course_test_ids where name='main')),0,'Legacy membership cannot read another course forum');
