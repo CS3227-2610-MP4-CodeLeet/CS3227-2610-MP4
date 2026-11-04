@@ -30,7 +30,8 @@ describe('student assignment components', () => {
     expect(html).toContain(
       'href="/student/assignments/loops?courseId=course-a"',
     );
-    expect(html).toContain('action="/student/assignments?courseId=course-a"');
+    expect(html).toContain('action="/student/assignments"');
+    expect(html).toContain('type="hidden" name="courseId" value="course-a"');
   });
 
   it('distinguishes empty library from an empty filtered result', () => {

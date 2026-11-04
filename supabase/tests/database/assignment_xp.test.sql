@@ -50,6 +50,11 @@ select set_config('request.jwt.claim.sub','c1000000-0000-4000-8000-000000000001'
 select lives_ok($$select public.save_grade('c4000000-0000-4000-8000-000000000002','{"c5000000-0000-4000-8000-000000000001":2}','Correction',2,true,1)$$,'grade correction succeeds');
 reset role;
 select is((select amount from public.xp_awards where assignment_id='c2000000-0000-4000-8000-000000000001'),80,'lower correction falls back to remaining best publication');
+select public.set_course_feature('cc000000-0000-4000-8000-000000000001','xp',false);
+update public.assignments set max_xp=200 where id='c2000000-0000-4000-8000-000000000001';
+select is((select amount from public.xp_awards where assignment_id='c2000000-0000-4000-8000-000000000001'),80,'assignment edits do not add XP while the course XP feature is disabled');
+select is((select count(*)::integer from public.xp_ledger where assignment_id='c2000000-0000-4000-8000-000000000001'),3,'disabled XP does not write audit deltas');
+select public.set_course_feature('cc000000-0000-4000-8000-000000000001','xp',true);
 update public.assignments set max_xp=201 where id='c2000000-0000-4000-8000-000000000001';
 select is((select amount from public.xp_awards where assignment_id='c2000000-0000-4000-8000-000000000001'),160,'maximum edit recomputes and floors existing awards');
 -- Rubric changes do not reinterpret the captured publication basis.

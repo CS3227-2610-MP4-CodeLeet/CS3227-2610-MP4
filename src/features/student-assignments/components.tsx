@@ -30,9 +30,6 @@ export function AssignmentList({
   filters?: ListFilters;
   courseId?: string;
 }) {
-  const courseQuery = courseId
-    ? `?courseId=${encodeURIComponent(courseId)}`
-    : '';
   return (
     <section aria-labelledby="assignments-heading" className="space-y-6">
       <header className="space-y-2">
@@ -50,8 +47,9 @@ export function AssignmentList({
         </p>
       </header>
       <ListFilterControls
-        path={`/student/assignments${courseQuery}`}
+        path="/student/assignments"
         filters={filters}
+        courseId={courseId}
       />
       {assignments.length === 0 && hasListFilters(filters) ? (
         <FilteredListEmpty kind="assignments" />

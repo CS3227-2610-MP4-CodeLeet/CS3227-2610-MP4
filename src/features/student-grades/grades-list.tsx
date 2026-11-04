@@ -36,7 +36,11 @@ export function StudentGradesList({
           Your published grades and instructor feedback.
         </p>
       </header>
-      <ListFilterControls path={listPath} filters={filters} />
+      <ListFilterControls
+        path="/student/grades"
+        filters={filters}
+        courseId={courseId}
+      />
       {grades.rows.length ? (
         <ol aria-label="Published grades" className="space-y-4">
           {grades.rows.map((row) => (

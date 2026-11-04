@@ -43,7 +43,11 @@ export function SubmissionHistoryList({
           feedback and published grade.
         </p>
       </header>
-      <ListFilterControls path={listPath} filters={filters} />
+      <ListFilterControls
+        path="/student/submissions"
+        filters={filters}
+        courseId={courseId}
+      />
       {history.rows.length ? (
         <HistoryTable rows={history.rows} courseId={courseId} />
       ) : hasListFilters(filters) ? (

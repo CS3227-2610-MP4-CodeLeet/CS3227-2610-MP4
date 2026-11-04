@@ -6,10 +6,15 @@ import { hasListFilters, type ListFilters } from './filters';
 export function ListFilterControls({
   path,
   filters,
+  courseId,
 }: {
   path: string;
   filters: ListFilters;
+  courseId?: string;
 }) {
+  const clearPath = courseId
+    ? `${path}?courseId=${encodeURIComponent(courseId)}`
+    : path;
   return (
     <Form
       action={path}
@@ -17,6 +22,7 @@ export function ListFilterControls({
       aria-label="Filter by assignment title and language"
       className="flex flex-wrap items-end gap-3 rounded-xl border bg-card p-4"
     >
+      {courseId && <input type="hidden" name="courseId" value={courseId} />}
       <div className="min-w-0 flex-[2_1_14rem] space-y-1.5 text-sm">
         <label htmlFor="list-title-search" className="block font-medium">
           Search by assignment title
@@ -57,7 +63,7 @@ export function ListFilterControls({
       </FormSubmitButton>
       {hasListFilters(filters) && (
         <Link
-          href={path}
+          href={clearPath}
           className="rounded-md px-3 py-2 text-sm font-medium underline underline-offset-4"
         >
           Clear filters

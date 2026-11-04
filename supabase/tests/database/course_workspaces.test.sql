@@ -29,6 +29,7 @@ insert into public.forum_threads(id,author_id,author_name,author_role,title,body
 select '8a700000-0000-4000-8000-000000000001','8a500000-0000-4000-8000-000000000003','Legacy student','student','Legacy thread','Synthetic history',gen_random_uuid(),id from public.courses where is_legacy;
 create temporary table course_test_ids(name text primary key,id uuid not null);
 create temporary table course_test_invites(name text primary key,id uuid not null);
+insert into course_test_ids select 'legacy',id from public.courses where is_legacy;
 grant select,insert on course_test_invites to authenticated;
 grant select,insert on course_test_ids to authenticated;
 
@@ -96,6 +97,8 @@ insert into course_test_ids select 'assignment',(public.save_course_assignment(
 select is((select course_id from public.assignments where id=(select id from course_test_ids where name='assignment')),(select id from course_test_ids where name='main'),'course instructor creates an assignment in the selected course');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000003',true);
 select throws_ok($$select * from public.list_course_members((select id from course_test_ids where name='main'))$$,'42501','course_staff_required','students cannot list other course member identities');
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
+select throws_ok($$select * from public.list_course_members((select id from course_test_ids where name='legacy'))$$,'42501','course_staff_required','Legacy membership cannot expose the platform-wide email directory');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 select throws_ok($$select public.set_course_member((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000001',null)$$,'42501','transfer_owner_first','owner cannot remove self before transfer');
 select lives_ok($$select public.rotate_course_join_code((select id from course_test_ids where name='main'),'synthetic-join-code-8a5xxxxxxxxxxxx')$$,'course instructor can set a student join code');
