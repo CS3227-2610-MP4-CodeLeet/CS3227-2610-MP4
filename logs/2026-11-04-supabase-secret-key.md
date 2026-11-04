@@ -5,8 +5,8 @@
 - AI tools/models, where known: Antigravity
 - GitHub issue: #96
 - OpenSpec change: build-programming-platform
-- Branch and commits: refactor/96-supabase-secret-key
-- Pull request: pending
+- Branch and commits: refactor/96-supabase-secret-key (commit: 6ced180)
+- Pull request: #97 (https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/97)
 - Human verification: pending
 - Verifier/date:
 
