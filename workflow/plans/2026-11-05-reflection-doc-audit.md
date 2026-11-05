@@ -12,7 +12,7 @@ Paul's student scope, deadline policy and dashboard design choices are supported
 
 - [x] Audit reflection claims, add dashboard/decision/resource examples and source links, update the reflection index with separate evidence-review and personal-approval states.
 - [x] Reconcile README, brief, current guide statements, config/proposal status and assignment/OpenSpec checklists. Create an evidence ledger for every checked or deliberately open broad task, including the historical student-contract mismatch.
-- [ ] Verify local links, canonical guide generation, formatting, strict OpenSpec, relevant documentation tests and site build. Review the diff and actual reviewer findings, update the dated log, commit only scoped files, push, run branch CI and create a linked PR. Verify final-head checks without merging.
+- [x] Verify local links, canonical guide generation, formatting, strict OpenSpec, relevant documentation tests and site build. Review the diff and actual reviewer findings, update the dated log, commit only scoped files, push, run branch CI and create a linked PR. Verify final-head checks without merging.
 
 ## Verification boundaries
 

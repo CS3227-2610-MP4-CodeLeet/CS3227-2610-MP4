@@ -297,4 +297,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 35.1 Review Paul's contribution/decision/conclusion claims against source, logs and merged PRs; distinguish evidence review, human reports and personal approval without approving John's reflection.
 - [x] 35.2 Reconcile current README, brief, guide introductions, OpenSpec context and assignment/task checklists using an explicit source/evidence ledger; keep unsupported hosted, exhaustive compatibility, personal-review and final-release gates open.
-- [ ] 35.3 Verify canonical guides, references, formatting, strict OpenSpec, documentation tests/site build and final review; record checks/limitations in the dated log and publish a linked PR after branch CI, then verify final-head checks.
+- [x] 35.3 Verify canonical guides, references, formatting, strict OpenSpec, documentation tests/site build and final review; record checks/limitations in the dated log and publish a linked PR after branch CI, then verify final-head checks.

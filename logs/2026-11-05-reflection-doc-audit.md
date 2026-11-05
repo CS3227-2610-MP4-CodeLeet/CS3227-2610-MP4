@@ -6,7 +6,7 @@
 - GitHub issue: [#98](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/98)
 - OpenSpec change: `build-programming-platform`, engineering-and-delivery, task group 35.
 - Branch: `docs/98-reflection-evidence-audit`, baseline `29b6c1a`.
-- Pull request: pending verification and branch CI.
+- Pull request: [#101](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/101) to develop; not merged.
 - Human verification: pending teammate review.
 - Verifier/date: pending.
 
@@ -21,6 +21,7 @@
 7. Documentation checks: scaffold/local Markdown targets and eleven strict OpenSpec items passed. Initial documentation test invocation used a nonexistent guessed path and ran no tests; discovered `tests/unit/site-guides.test.ts`, then all three existing guide-generation tests passed. Canonical guide generation and Docusaurus production build passed. Docusaurus reported a nonfatal local update-check permission notice and exited 0. Formatting checks passed on scoped files. Node remained 24.14.0 locally, with pinned 24.22.1 reserved for CI. No fresh product acceptance run is claimed.
 
 8. Paul asked Claude Code (Opus 5.5) to finish the reflection review and documentation reconciliation. Re-checked every relative link in the reflection and index (all resolve) and the cited figures against sources: runtime 11/11, Java 31/31, agent budgets (about 12 calls/15 minutes, 10 calls/15 minutes, 12 minutes), asset bytes 13,531,207/6,715,239, the 1,171 ms/0.4 ms sample and dashboard 674 units/321 database assertions. All matched. Replaced a remaining "drafts" label in the reflection index. Searched current README, guides, brief, config and proposal for stale open-PR, disconnected-auth and old-baseline wording; none remained outside historical sections. Fresh checks: scaffold/local links passed; strict OpenSpec 11/11 passed; Prettier passed on scoped files; `tests/unit/site-guides.test.ts` 3/3 passed; `pnpm site:build` succeeded. Node 24.14.0 locally. Tasks 35.1/35.2 marked complete; 35.3 waits for branch CI. Unrelated `next-env.d.ts` and practice-test design edits stay unstaged.
+9. Opened PR #101. Application, database, scaffold, coverage, CodeQL and Vercel comments passed; Supabase Preview skipped. The Vercel preview failed after about 45 seconds with no preview URL. Its logs need Vercel access, which this session lacks. The local production build passed, the change is Markdown-only and the previous develop heads deployed, so the failure was treated as transient. An empty commit retriggered the deployment, which succeeded. All other checks passed again. Task 35.3 marked complete.
 
 ## Work and verification
 
