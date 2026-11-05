@@ -13,7 +13,7 @@ Students need simple programming practice and submission workflows; instructors 
 - Establish specialist coordination evidence, security/resource experiments, guides and separate deployment environments.
 - Standardize repository tooling on the latest Node.js 24 patch with direct pnpm commands, and use an issue-linked OpenSpec/Superpowers workflow with incremental commits, sanitized per-change summaries and a PR closeout.
 
-Exclude uploads, badges, arbitrary student dependencies, server execution and autonomous AI grade publication. All product features remain proposed.
+Exclude uploads, badges, arbitrary student dependencies, server execution and autonomous AI grade publication. Core product capabilities are implemented in merged develop as audited on 5 November 2026; task-level evidence and remaining hosted/human release gates are tracked separately. This active change is not archived or a release approval.
 
 First student delivery is [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5): published assignment browsing, source submission and own revision history. The initial responsibility split identifies primary accountability only; either member may implement any task, coordinating shared interfaces and recording actual handoffs. The requester-authorized student contract v1 selects verified cookie sessions, student API routes, a 32 KiB UTF-8 source bound, structured errors and idempotent retries. The design and task group 7 record the contracts and delivery gates. The local browser runner is practice-only and does not replace the production integration milestone.
 

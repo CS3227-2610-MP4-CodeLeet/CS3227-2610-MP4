@@ -1,66 +1,63 @@
 # CS3227-2610-MP4
 
-A Coursemology-inspired programming assignment platform for students and instructors.
+CodeLeet is an AI assisted learning management platform for programming courses.
 
-Status: authenticated student/instructor workflows, browser-only Python/Java practice, forums, instructor-configured XP and leaderboard are implemented with local synthetic verification. Complete hosted acceptance remains pending. See the [User Guide](docs/UserGuide.md) for current features and limits.
+Status audited on 5 November 2026 against merged develop `29b6c1a`: authenticated accounts, course workspaces, assignments, browser-only Python/Java runs, practice tests, AI assistance, forums, XP/leaderboards and personal progress are implemented. PR #91 and follow-up fixes #93/#95/#97 have merged. Complete production acceptance and the final `master` release remain separate gates. See the [evidence audit](workflow/evidence/2026-11-05-documentation-reconciliation.md).
 
-## Product scope
+## Features and boundaries
 
-- Students enter, run, and submit single-file Python or Java programs, recover unfinished browser drafts, receive AI hints, and view published grades.
-- Instructors create assignments and rubrics, review submissions, request AI grading suggestions, and approve grades for publication.
-- Both roles sign in with email or a unique username, have profiles, and access discussion threads and leaderboard. Students can view their own XP and rank.
-- Python execution and Java source compilation/execution happen in the browser. Local and same-project runtime builds are available; hosted acceptance, browser coverage and distribution/provenance review remain separate gates.
-- No file uploads, badges, package installation, or server-side code execution.
+- Students write and run single-file Python/Java solutions, save immutable revisions, compare revisions, recover browser drafts and view deadlines, published grades and progress.
+- Instructors create assignments/private rubrics and practice cases, review submissions, request AI suggestions and explicitly publish grades.
+- Signed-in users enter **Courses**. Each course has its own memberships, enabled features, assignments, discussions, XP and leaderboard.
+- Both roles receive distinct server-side SoCLaaS assistance. Student context excludes private rubrics; models cannot publish grades or award XP.
+- Python execution and Java compilation/execution happen in an isolated browser runner. Browser results never establish official grades or XP.
+- No uploads, badges, arbitrary dependency installation or server-side execution of submitted code. MP4 was built fresh.
 
-## Technology direction
+## Guides and website
 
-Implemented with Next.js App Router, React, TypeScript, Tailwind CSS, shadcn configuration, ESLint, Prettier, Vitest, Playwright, Supabase Auth/PostgreSQL/RLS, Zod and pnpm. Exact dependencies are recorded in package.json and pnpm-lock.yaml. Local migrations/security tests and SoCLaaS integration are available. Hosted rollout/acceptance is tracked separately. The Docusaurus product site is configured for GitHub Pages; a verified public release is not established by local builds.
+- [User Guide](docs/UserGuide.md): account access and current user journeys.
+- [Developer Guide](docs/DeveloperGuide.md): setup, architecture, security, testing and deployment boundaries.
+- [Reflection index](docs/Reflections.md): separate individual reflections and evidence-review states.
+- [Product website](https://cs3227-2610-mp4-codeleet.github.io/CS3227-2610-MP4/), [online User Guide](https://cs3227-2610-mp4-codeleet.github.io/CS3227-2610-MP4/docs/UserGuide) and [online Developer Guide](https://cs3227-2610-mp4-codeleet.github.io/CS3227-2610-MP4/docs/DeveloperGuide): published through GitHub Pages. All three URLs responded HTTP 200 on 5 November. Availability is not proof of current production application acceptance.
 
-Technology choices were informed by MP3. Its implementation and project files have not been copied; this is a fresh MP4 scaffold.
+## Run locally
 
-## Start here
+Use the exact Node.js 24 patch in [.node-version](.node-version) and pnpm version in [package.json](package.json), currently 24.22.1 and 12.15.0. Start Docker Desktop's Linux engine. In Windows PowerShell:
 
-1. Read [project scope](workflow/ProjectBrief.md) and the [assignment checklist](workflow/AssignmentChecklist.md).
-2. Review the [initial proposal](openspec/changes/build-programming-platform/proposal.md), [design](openspec/changes/build-programming-platform/design.md), and [tasks](openspec/changes/build-programming-platform/tasks.md).
-3. Follow the [development workflow](workflow/AgentProcess.md). Product feature tasks remain unchecked; the shared app foundation is a separate setup milestone.
-4. Run `node workflow/scripts/check-scaffold.mjs` for local scaffold checks.
-5. With OpenSpec 1.8.0 available, run `openspec validate --all --strict`.
+```powershell
+npx.cmd --yes pnpm@12.15.0 install --frozen-lockfile
+npx.cmd --yes pnpm@12.15.0 db:start
+npx.cmd --yes pnpm@12.15.0 exec supabase migration up --local
+```
 
-OpenSpec 1.8.0 generated project-local Codex skills under `.agents/skills/`. Restart the coding client to discover newly generated skills. Their installation does not prove that a multi-agent workflow has run.
+Create ignored `.env.local` from [.env.example](.env.example) only if absent. Preserve existing values. Configure the matching Supabase URL/publishable key, server-only `SUPABASE_SECRET_KEY`, server-only `AUTH_RATE_LIMIT_SECRET` and `APP_SITE_URL` according to the [Developer Guide](docs/DeveloperGuide.md#1-local-setup). Keep secrets private. AI can stay disabled for ordinary account and assignment testing.
+
+```powershell
+npx.cmd --yes pnpm@12.15.0 dev
+```
+
+Open the printed address, normally http://localhost:3000. Authentication is connected to the application. Signing in opens **Courses**. The dev command prepares pinned runtime assets and starts the loopback runner automatically; do not start port 3130 separately. `npx.cmd` avoids PowerShell script-wrapper restrictions without changing execution policy. Installed pinned `pnpm` supports the same commands directly.
+
+`pnpm db:seed` and `pnpm db:reset` are optional destructive rebuilds of a disposable local database, not an ordinary upgrade or sign-in repair. See [database setup](supabase/README.md). Never reset hosted data as part of local setup.
+
+## Verification and development
+
+Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit`, `pnpm db:test`, `pnpm build` and `pnpm site:build` as applicable. Browser setup and opt-in real-runtime/synthetic account prerequisites are documented in the Developer Guide. Use `pnpm exec openspec validate --all --strict` and `node workflow/scripts/check-scaffold.mjs` for specs and local links. A skipped test is not acceptance evidence.
+
+Read [ProjectBrief](workflow/ProjectBrief.md), [AgentProcess](workflow/AgentProcess.md), [AssignmentChecklist](workflow/AssignmentChecklist.md) and the [active OpenSpec tasks](openspec/changes/build-programming-platform/tasks.md) before changing behavior. Skills under `.agents/skills/` are procedures; actual agent executions need their own records. Normal local use uses real accounts and data, while synthetic previews are selected only by the test harness.
+
+## Remaining release gates
+
+Verify the deployed commit, development/production separation, both role journeys, password emails, actual provider-key limits, supported browsers and production runner behavior. [Issue #31](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/31) retains runner acceptance work. Human reflection/log approval and final tested `master` remain separate. Green CI, a preview deployment or a public documentation site does not establish complete production acceptance.
 
 ## Repository layout
 
 | Location | Purpose |
 | --- | --- |
-| `src/` | App Router shell, student preview, browser runner client, and separate local runtime lab |
-| `openspec/` | OpenSpec configuration, proposed changes, and accepted capability specifications |
-| `workflow/` | Development policy, specialist roles, templates, and evidence |
-| `docs/` | Required user guide, developer guide, and reflections |
-| `logs/` | Development interaction summaries and verification status |
-| `tests/` | Unit and browser preview suites; database security tests live in `supabase/tests/` |
-| `supabase/` | Fresh local configuration, profiles/trusted roles migration, and pgTAP access tests |
-| `website/` | Docusaurus product site configured for GitHub Pages |
-| `.github/` | CI and contribution templates |
-
-## Run locally
-
-Use Node.js 24.22.1 and pnpm 12.15.0 (`npm install --global pnpm@12.15.0` if pnpm is missing), then:
-
-```sh
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-Open http://localhost:3000. The coming-soon page needs no credentials or environment variables. You can also run the pinned package manager without a global install: `npx --yes pnpm@12.15.0 dev` (replace `dev` with the desired pnpm arguments). The exact Node patch is pinned in `.node-version`; use that file with your Node version manager.
-
-Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit` and `pnpm build`. For browser checks, run `pnpm exec playwright install chromium`, build, then `pnpm test:e2e`. See [Developer Guide](docs/DeveloperGuide.md) for boundaries and shared-work handoff.
-
-For local database work, start Docker Desktop, run `pnpm db:start`, then `pnpm db:reset` and `pnpm db:test`. `pnpm db:reset` deletes and recreates the local database. The checked-in migration contains no real user data or hosted credentials. Supabase Auth is not yet connected to application routes.
-
-## Student assignment preview
-
-For UI tests only, set `PLAYWRIGHT_ASSIGNMENT_FIXTURES=true` in the test server environment and start/restart `pnpm dev`. Visit http://localhost:3000/student/assignments (use the port printed by Next.js). Browse the Python/Java sample assignments and open their instructions. Draft samples are hidden.
-
-This is development-only synthetic data, not a login or database-backed flow. Production ignores the flag and denies these preview pages. Assignment details include a plain-text code editor with the fixed language, a 32 KiB UTF-8 counter and local input checks. Submit code remains disabled; code is not saved or submitted. The separate runner preview can execute code locally in the browser when enabled; follow the [runner setup and limitations](docs/UserGuide.md#browser-runs-and-published-practice-tests-additional-local-opt-in). Local list state examples are `?preview=empty`, `?preview=slow` and `?preview=error`; error recovery returns to the normal list.
-
-The [browser runtime feasibility experiment](workflow/evidence/runtime-feasibility/README.md) records real Python/Java probes and coordinated security/testing evidence. [Java buffered input works](workflow/evidence/runtime-feasibility/java-input-resolution.md) for the documented basic Scanner/BufferedReader subset. Authenticated assignments support Run code and instructor-published practice tests without making browser results official grades or XP. Runtime provenance/distribution review, supported-browser coverage and complete hosted runner verification remain pending.
+| `src/` | Authenticated app, course services, browser runner and local runtime lab |
+| `tests/`, `supabase/tests/` | Browser journeys and database assertions; unit tests are colocated with source |
+| `supabase/` | Local configuration, additive migrations and synthetic seed |
+| `openspec/` | Active requirements, designs, tasks and accepted specifications |
+| `workflow/`, `.agents/skills/` | Process, plans, evidence, tooling and discoverable skills |
+| `docs/`, `logs/` | Canonical guides, individual reflections and dated interaction summaries |
+| `website/`, `.github/` | Docusaurus documentation site and repository automation |
