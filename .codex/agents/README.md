@@ -24,10 +24,10 @@ As specified in [`workflow/AgentProcess.md`](../../workflow/AgentProcess.md):
 4. **Structured Handoffs**: Work transferred between agents follows the format in [`workflow/templates/Handoff.md`](../../workflow/templates/Handoff.md), recording triggers, allowed files, time budgets, and reproducible findings.
 5. **No Invented Claims**: Subagents must report actual command outputs and limitations; token counts or hidden reasoning metrics are never fabricated.
 
-## Tool Discovery & Usage
+## Tool Registration & Usage
 
 In the OpenAI Codex CLI or ChatGPT environment:
-- Subagents located in `.codex/agents/` are automatically discovered for the workspace.
-- The coordinator can delegate tasks via the `/subagents` command or by mentioning specialized agents.
-- Custom subagents inherit the parent environment's permissions and MCP servers while applying specialized developer instructions and sandbox restrictions.
+- Subagents are formally registered in [`.codex/config.toml`](../config.toml) via `[agents.<role>]` configuration blocks pointing to their respective `config_file = "agents/<role>.toml"`.
+- The coordinator can delegate tasks via the `/subagents` command or by mentioning specialized agents (e.g., `@security_reviewer`, `@test_reviewer`).
+- Custom subagents inherit the parent environment's permissions and MCP servers while applying specialized developer instructions and sandbox restrictions defined in their configuration file.
 
