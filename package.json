@@ -19,6 +19,8 @@
     "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "ai:model-eval": "node workflow/scripts/evaluate-soclaas-models.mjs",
+    "ai:context-eval": "node workflow/scripts/evaluate-context-strategies.mjs",
+    "ai:dev-context-eval": "node workflow/scripts/evaluate-development-context.mjs",
     "ai:promptfoo": "node workflow/scripts/run-promptfoo-evaluation.mjs offline",
     "ai:promptfoo:live": "node workflow/scripts/run-promptfoo-evaluation.mjs live",
     "db:start": "supabase start",
