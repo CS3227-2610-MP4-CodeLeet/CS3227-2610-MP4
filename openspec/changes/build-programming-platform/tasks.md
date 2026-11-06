@@ -55,10 +55,10 @@
 
 ## 1. Contracts and feasibility
 
-- [ ] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task.
+- [x] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [x] 1.2 Evaluate browser Python/Java candidates including Java source compilation, licensing and cold/warm behavior. See runtime-feasibility evidence: Python candidate retained; Java buffered input resolved in the local lab with first-party compatibility classes; provenance/distribution and production integration remain open, so no production Java runtime selected.
 - [ ] 1.3 Prove credential/network isolation, cancellation, output limits and supported browsers before package selection.
-- [ ] 1.4 Map student contract v1 to the implemented schema/auth interfaces and atomic persistence; requester-authorized API types/limits/errors/retry decisions are in the design. XP/deadline decisions remain separate product work.
+- [x] 1.4 Map student contract v1 to the implemented schema/auth interfaces and atomic persistence; requester-authorized API types/limits/errors/retry decisions are in the design. XP/deadline decisions remain separate product work. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 
 ## 2. Fresh foundation
 
@@ -70,7 +70,7 @@
 - [x] 2.6 Refactor runtime functions in `src/runtime-lab/embed.mjs`, `java-support.mjs`, `lab.mjs`, `server.mjs`, `supervisor.mjs` and `worker.mjs` to satisfy the selected limits while preserving browser isolation and runner behavior.
 - [x] 2.7 Refactor repeated literals and remaining limits in `src/features/student-submissions/practice-tests.test.ts`, `tests/e2e/assignment-preview.spec.ts`, `tests/e2e/browser-runtime.spec.ts` and the three affected `workflow/scripts/*.mjs` files.
 - [x] 2.8 Verify `pnpm lint`, typecheck, unit tests and non-opt-in preview E2E journeys: lint/typecheck passed, 31 unit tests passed and 14 E2E tests passed. Four real-runtime E2E tests remain skipped because reviewed local runtime assets are not present.
-- [ ] 2.9 With reviewed local runtime assets available, run the four opt-in Python/Java browser-runtime E2E journeys and record the results.
+- [x] 2.9 With reviewed local runtime assets available, run the four opt-in Python/Java browser-runtime E2E journeys and record the results. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [x] 2.10 Remove Corepack command wrappers from package scripts and contributor/user docs; keep the exact `packageManager` pnpm pin and use direct `pnpm` invocations.
 - [x] 2.11 Pin Node.js to the latest Node 24 LTS patch available on 28 October 2026 (`24.22.1`) in `.node-version`; make CI and documentation use that pin and retain the Node 24 engine range.
 - [x] 2.12 Update repository and contributor workflow to require a matching GitHub issue, OpenSpec artifacts, relevant Superpowers skills, focused Conventional Commits, a reviewed/sanitized `logs/` summary, and a linked PR after verification. Reuse existing foundation issue #11 and PR #12.
@@ -79,20 +79,20 @@
 
 ## 3. Assignments and execution
 
-- [ ] 3.1 Implement assignment creation/private rubrics and student browsing; student work is detailed in task group 7.
-- [ ] 3.2 Implement isolated browser Python/Java adapters with stdin, diagnostics, stop and rerun.
-- [ ] 3.3 Implement immutable code submission revisions and authorized history through the agreed schema and student integration in task group 7.
+- [x] 3.1 Implement assignment creation/private rubrics and student browsing; student work is detailed in task group 7. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 3.2 Implement isolated browser Python/Java adapters with stdin, diagnostics, stop and rerun. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 3.3 Implement immutable code submission revisions and authorized history through the agreed schema and student integration in task group 7. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [x] 3.4 Implement version-checked grade publication with atomic idempotent XP adjustment.
 - [ ] 3.5 Test access boundaries, private grading data, revision races, forged run results and both languages.
 
 ## 4. SoCLaaS features
 
 - [ ] 4.1 Verify provider access/limits and define application budgets/failure handling.
-- [ ] 4.2 Implement shared server-only gateway, separate role contexts and validated output contracts.
-- [ ] 4.3 Implement scoped cache, atomic quotas, timeouts and sanitized usage metadata.
-- [ ] 4.4 Integrate student hints and instructor suggestions with explicit publication approval.
-- [ ] 4.5 Test malformed output, XSS, role/cache leakage, quota races and provider failures.
-- [ ] 4.6 Run bounded live adversarial/quality evaluations and record limitations.
+- [x] 4.2 Implement shared server-only gateway, separate role contexts and validated output contracts. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 4.3 Implement scoped cache, atomic quotas, timeouts and sanitized usage metadata. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 4.4 Integrate student hints and instructor suggestions with explicit publication approval. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 4.5 Test malformed output, XSS, role/cache leakage, quota races and provider failures. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 4.6 Run bounded live adversarial/quality evaluations and record limitations. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 
 ### Issue #75: zero-cost Promptfoo AI security evaluation
 
@@ -110,26 +110,26 @@
 
 ## 6. Review, evidence and release
 
-- [ ] 6.1 Execute authorized specialist coordination and independent reviews with actual handoff evidence.
+- [x] 6.1 Execute authorized specialist coordination and independent reviews with actual handoff evidence. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [ ] 6.2 Compare context and development handoff strategies with measured quality/resource results.
 - [ ] 6.3 Update guides, verified session summaries, individual reflections and acknowledgements.
 - [ ] 6.4 Configure separate environments and team-managed deployment/migrations/recovery.
-- [ ] 6.5 Add fresh Docusaurus site tooling and publish reviewed product website to GitHub Pages.
+- [x] 6.5 Add fresh Docusaurus site tooling and publish reviewed product website to GitHub Pages. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [ ] 6.6 Verify deployed role journeys, both languages, AI failure behavior and security controls.
 - [ ] 6.7 Complete human review, strict validation, archival/spec synchronization and master release before deadline.
 - [x] 6.8 Install and review the Superpowers, Supabase and selected Vercel agent skills under `.agents/skills`, record source hashes in `skills-lock.json`, and exclude credential-disclosure guidance.
 
 ## 7. Issue #5 student assignment browsing and submissions
 
-This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not a second implementation of them. Work areas are coordinated but not exclusive; either member may implement shared auth, migrations/RLS, assignment creation, AI gateway or student integration. These tasks remain unchecked until delivered and verified. The design's dependency gates apply before persistence integration.
+This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not a second implementation of them. Work areas are coordinated but not exclusive; either member may implement shared auth, migrations/RLS, assignment creation, AI gateway or student integration. Early unchecked rows below were reconciled against later merged evidence on 5 November. Historical contract and exhaustive test gates remain open where not fully met; see the issue #98 ledger rather than treating the original preview contract as current behavior.
 
 - [ ] 7.1 Verify the shared implementation against student contract v1: requireStudent/getUser, protected roles/RLS, DTOs/routes, 32 KiB byte bound, errors, and atomic request_id/revision handling; record compatibility changes before integration.
-- [ ] 7.2 Prepare synthetic published Python/Java and draft assignments plus two student fixtures using the shared schema; keep any temporary fixture adapter out of production paths.
-- [ ] 7.3 Implement student published assignment list/detail with loading, empty, unavailable and error states through shared session/data services.
-- [ ] 7.4 Implement source entry, assignment language and agreed input validation with pending/success/failure states; preserve input on failure and render source as text.
-- [ ] 7.5 Integrate authenticated submission creation with server-derived identity/revision/time and an authoritative success response; implement agreed retry behavior without overwrites.
-- [ ] 7.6 Display only the current student's immutable revision history and verify resubmission preserves prior source.
-- [ ] 7.7 Test signed-out access, cross-student read/write and forged student/revision fields through actual local auth, routes and database policies; coordinate shared policy fixes with affected implementers.
+- [x] 7.2 Prepare synthetic published Python/Java and draft assignments plus two student fixtures using the shared schema; keep any temporary fixture adapter out of production paths. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 7.3 Implement student published assignment list/detail with loading, empty, unavailable and error states through shared session/data services. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 7.4 Implement source entry, assignment language and agreed input validation with pending/success/failure states; preserve input on failure and render source as text. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 7.5 Integrate authenticated submission creation with server-derived identity/revision/time and an authoritative success response; implement agreed retry behavior without overwrites. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 7.6 Display only the current student's immutable revision history and verify resubmission preserves prior source. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 7.7 Test signed-out access, cross-student read/write and forged student/revision fields through actual local auth, routes and database policies; coordinate shared policy fixes with affected implementers. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [ ] 7.8 Test python/java, exact UTF-8 byte boundaries and multibyte source, strict bodies/queries, Origin, language mismatch, assignment unpublication, hidden grading data, identical/different-payload retries and concurrent revision allocation.
 - [ ] 7.9 Run applicable checks and independent review, update only verified user-guide behavior, record session evidence/limitations and prepare a PR to develop referencing issue #5. Do not close the milestone on fixture-only results.
 - [x] 7.10 Deliver the separate development-only synthetic list/detail preview with state/navigation tests and production denial; this partial UI milestone does not complete shared-auth tasks 7.2/7.3.
@@ -247,7 +247,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 24.1 Implement forward deadline/timing schema, compatible authorized RPC, seed examples and failing-first time/database tests; verify without resetting local data.
 - [x] 24.2 Integrate validated SGT deadline authoring, source-free scoped latest-own status and revision/instructor timing views with API/query/render tests.
 - [x] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
-- [ ] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending.
+- [x] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 
 ## 23. Issue #56 compare own saved revisions
 
@@ -291,3 +291,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 34.7 Ensure invitation revocation validates course ownership/id.
 - [x] 34.8 Verify with unit tests (768/768 passed across 145 files), typecheck, lint, and formatting; document Vercel sign-in env resolution.
 
+
+
+## 35. Issue #98 reflection and documentation evidence audit
+
+- [x] 35.1 Review Paul's contribution/decision/conclusion claims against source, logs and merged PRs; distinguish evidence review, human reports and personal approval without approving John's reflection.
+- [x] 35.2 Reconcile current README, brief, guide introductions, OpenSpec context and assignment/task checklists using an explicit source/evidence ledger; keep unsupported hosted, exhaustive compatibility, personal-review and final-release gates open.
+- [x] 35.3 Verify canonical guides, references, formatting, strict OpenSpec, documentation tests/site build and final review; record checks/limitations in the dated log and publish a linked PR after branch CI, then verify final-head checks.

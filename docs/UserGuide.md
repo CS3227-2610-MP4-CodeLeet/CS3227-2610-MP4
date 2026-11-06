@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide matches merged develop `dfe5936` (3 November 2026). Use the application address supplied by the team; a verified public test address and complete hosted account/email/AI checks are not yet recorded. Local setup is below. Course workspaces are not included in this version.
+This guide was reconciled against merged develop `29b6c1a` on 5 November 2026, including course workspaces and subsequent fixes. Use the application address supplied by the team. Complete hosted account/email/AI acceptance is not established by this source audit; local setup is below.
 
 ## Choose where to start
 
@@ -16,7 +16,7 @@ This guide matches merged develop `dfe5936` (3 November 2026). Use the applicati
 | Change your username                                 | Student **Menu → Profile settings**, or instructor **Profile** |
 | Create an assignment or manage practice tests/grades | Instructor workspace; instructor access must be provisioned    |
 
-On smaller screens, use **Menu** to open student navigation. New public registrations are student accounts. You do not need instructor access to practise or submit published assignments.
+On smaller screens, use **Menu** to open student navigation. Sign in, open **Courses**, and choose a course where you are enrolled. Your membership sets your role in that course. You do not need instructor access to practise or submit published assignments in a course where you are a student.
 
 ## Start locally
 
@@ -141,7 +141,7 @@ Corrected or withdrawn grades and changes to an assignment's maximum XP can incr
 
 ## Student: My progress
 
-Choose **My progress** in the sidebar or mobile **Menu** for an overview of your work:
+Within your selected student course, choose **My progress** in the sidebar or mobile **Menu** for an overview of that course's work. Assessments and XP sections depend on the course's enabled features:
 
 - **Submitted assignments** counts published assignments with at least one saved revision, including late submissions. Saving several revisions of one assignment still counts once.
 - **Outstanding assignments** have no saved revision from you. **Overdue assignments** are the outstanding assignments whose deadline has passed. Assignments without deadlines still count as outstanding.
