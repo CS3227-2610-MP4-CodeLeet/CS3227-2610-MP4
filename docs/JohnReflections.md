@@ -102,12 +102,12 @@ A major failure mode in multi-agent engineering is "narrative disagreement," whe
 
 | Metric / Dimension | Single-Agent Direct Execution | Multi-Agent Coordination (CodeLeet) | Net Impact & Assessment |
 | --- | --- | --- | --- |
-| **Token Consumption** | Baseline (1x tokens) | 2.5x – 3.8x aggregate tokens across subagents | Higher direct token expenditure. |
+| **Token Consumption** | Baseline (Single-turn prompt) | Unmeasured (Counters not exposed by harness) | Higher conceptual token overhead from serializing handoffs. |
 | **Defect Detection Rate** | Low (Blind to self-created assumptions) | High (Caught race conditions, unhandled output states) | **Significant Win**: Prevented shipping critical security flaws. |
 | **Development Wall-Clock Time** | Fast for trivial edits; slow for complex bugs | Slower upfront (15-20 min handoffs); faster convergence | Net positive for complex architectural modules. |
 | **Merge Friction** | High (Regressions caught late in CI or PR review) | Minimal (Pre-merge independent test verification) | PR [#91](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/91) and [#103](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/103) passed CI on first full-head run. |
 
-The benefits of multi-agent coordination decisively outweighed the costs for **security-critical and high-uncertainty tasks**. The independent security reviewer caught an asynchronous reservation race condition and unbounded message replays before any code reached production. However, for routine tasks, multi-agent overhead was unjustified.
+The benefits of multi-agent coordination decisively outweighed the costs for **security-critical and high-uncertainty tasks**. Because the runtime coordination harness did not expose live agent token counters or execute a matched single-agent baseline, quantitative delegation multipliers remain unmeasured. However, the qualitative trade-off is clear: the additional handoff overhead was justified when the independent security reviewer and browser tester caught an asynchronous reservation race condition and an unhandled output-limit crash before any code reached develop. Conversely, for routine tasks, multi-agent overhead was unjustified.
 
 ### 2.7 When Multi-Agent Coordination Should (and Should Not) Be Used
 
@@ -289,31 +289,18 @@ where $\alpha_{\text{compliance}} \in [0, 1]$ represents strict JSON schema and 
 
 ### 3.7 Cache Optimization, Miss Reduction, and Measured Token Savings
 
-To minimize token usage and operating costs across high-enrollment courses, we designed a **three-tier caching hierarchy**:
+To minimize token usage and operating costs across high-enrollment courses, we analyzed caching at multiple layers of the system architecture:
 
-```
-[Incoming Request] ──► [Tier 1: Client Memory Cache (SWR/React Query)]
-                              │ (Miss)
-                              ▼
-                       [Tier 2: PostgreSQL Deterministic SHA-256 Cache (ai_reviews)]
-                              │ (Miss)
-                              ▼
-                       [Tier 3: Provider Prefix Cache (KV-Cache Reuse at GPU)]
-                              │ (Miss)
-                              ▼
-                       [Full Autoregressive Model Inference]
-```
+1. **Application-Level Deterministic Response Caching (Implemented in PostgreSQL)**:
+   - In [`src/features/codementor/review-service.ts`](../src/features/codementor/review-service.ts), AI reviews are cached in the PostgreSQL `ai_reviews` table.
+   - **Cache Key Formulation**: The SHA-256 cache key is computed in [`reviewCacheKey`](../src/features/codementor/context.ts) over the serialized JSON parameters:
+     $$\text{CacheKey} = \text{SHA-256}(\text{JSON.stringify}(\{\text{requesterId}, \text{reviewType}, \text{assignment}, \text{rubricVersion}, \text{source}, \text{model}, \text{contextStrategy}, \text{promptVersion}\}))$$
+   - **Current Behavior and Canonicalization Limitations**: The current implementation serializes the input source and rubric objects directly as supplied. It does not perform string normalization (such as canonicalizing line endings `\r\n` vs `\n`, stripping trailing whitespace, or sorting object keys). As a result, cosmetically distinct source code currently hashes to distinct cache keys, representing an area for future canonicalization improvements to boost hit rates.
+   - **Empirical Economic Impact**: When a matching cache key exists, `findCachedReview` returns the stored evaluation in **< 15 ms**, consuming **0 provider tokens** and **0 daily quota slots**. Verified in database tests ([`supabase/tests/database/codementor_mvp.test.sql`](../supabase/tests/database/codementor_mvp.test.sql)) and unit tests ([`src/features/codementor/review-service.test.ts`](../src/features/codementor/review-service.test.ts)).
 
-1. **Tier 1: Client Memory Cache**: Prevents duplicate HTTP fetches when students navigate between assignment tabs or toggle UI views.
-2. **Tier 2: Application-Level Deterministic Response Caching**:
-   - In [`src/features/codementor/review-service.ts`](../src/features/codementor/review-service.ts), responses are cached in the PostgreSQL `ai_reviews` table.
-   - **Deterministic Canonicalization**: To prevent cache miss thrash caused by cosmetic formatting, inputs are canonicalized prior to hashing: JSON keys in rubrics are sorted alphabetically, line endings are normalized (`\r\n` $\to$ `\n`), and trailing whitespace is stripped.
-   - The SHA-256 cache key is computed over:
-     $$\text{CacheKey} = \text{SHA-256}(\text{role} \parallel \text{prompt\_v} \parallel \text{rubric\_v} \parallel \text{SHA-256}(\text{code}) \parallel \text{model})$$
-   - **Empirical Economic Impact**: On a cache hit, the service returns the evaluation in **< 15 ms**, consuming **0 provider tokens** and **0 quota slots**. Verified in database tests ([`supabase/tests/database/codementor_mvp.test.sql`](../supabase/tests/database/codementor_mvp.test.sql)).
-3. **Tier 3: Provider-Side Prefix Caching (KV-Cache Reuse)**:
-   - Modern inference engines (vLLM, SGLang, TensorRT-LLM) cache the Key-Value (KV) activations of common prompt prefixes. By keeping the system prompt (`codementor-review-v1`/`v2`) static and appending variable user payloads at the end, the model server avoids recomputing attention matrices for the system prefix.
-   - *Important Boundary Note*: While architected to leverage KV caching, provider-level prompt prefix caching hit percentages are not exposed by the SoCLaaS API header and are honestly marked unavailable.
+2. **Theoretical and Provider Caching Layers (Distinguished from Application Implementation)**:
+   - **Client-Side Caching (Proposed Architecture)**: CodeLeet's review client currently dispatches standard direct `fetch` requests upon user button clicks without an in-memory client cache library (such as SWR or React Query). Introducing client-side memory caching would be a logical next optimization to prevent accidental duplicate fetches before network return.
+   - **Provider-Side Prefix Caching (KV-Cache Invariant)**: In modern LLM serving engines, static prompt prefixes allow inference servers to reuse precomputed Key-Value (KV) attention matrices. Our prompt constructor isolates the static system instructions (`codementor-review-v1`/`v2`) from dynamic user payloads to enable KV reuse. However, provider-level prompt prefix cache hit percentages and latency discounts are not exposed by the SoCLaaS API header and are marked unavailable.
 
 **Context Strategy Optimization Experiment**:
 
@@ -331,7 +318,7 @@ In [`workflow/experiments/2026-11-06-context-strategy-evaluation.md`](../workflo
 | `instructor-java-eval` | Instructor | Java | 509 | 581 | +72 | +14.1% | 12.4% |
 | **Aggregate Total** | — | — | **2,891** | **3,529** | **+638** | **+22.1%** | **18.1%** |
 
-Focused context delivers an **18.1% reduction in input tokens** (mean: 361 vs 441 tokens/request), eliminating extraneous metadata (`createdAt`, `updatedAt`, `publicationStatus`) without impacting pedagogical utility.
+Focused context delivers an **18.1% reduction in input tokens** (mean: 361 vs 441 tokens/request), eliminating non-functional database administrative metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) while preserving all core domain inputs (problem description, language, rubric criteria, and student source). Because this offline benchmark evaluated serialization and structural invariants without generating live model responses, comparative pedagogical feedback quality under both strategies remains an unmeasured question for live model evaluation.
 
 ### 3.8 Internal Reasoning Tokens, Test-Time Compute, and Persisted Reasoning
 
@@ -451,7 +438,7 @@ This functional architecture guarantees modularity, prevents memory leaks in age
 
 ### 5.1 What Worked Well
 
-- **Spec-Driven Development**: Grounding agent tasks in OpenSpec deltas eliminated hallucinations and achieved a 22.1x token reduction in development context.
+- **Spec-Driven Development**: Bounding agent task handoffs to OpenSpec deltas achieved a **22.1x reduction in constructed prompt token size** compared to monolithic repository dumps, structurally mitigating 9 identified obsolete contract hazards without unmeasured claims of live conversational hallucination elimination.
 - **Hub-and-Spoke Subagent Sandboxing**: Restricting subagents to read-only tool sets prevented catastrophic code collisions and caught real security vulnerabilities.
 - **Empirical Model & Context Benchmarking**: Replacing assumptions with hard experimental data enabled us to identify `qwen3-coder-next` as our optimal model and achieve an 18.1% prompt token reduction.
 
