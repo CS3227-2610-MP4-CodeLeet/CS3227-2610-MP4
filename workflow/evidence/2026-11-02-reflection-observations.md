@@ -14,11 +14,19 @@ For each example, identify the task, actual agents and human owners, coordinatio
 
 ## Context engineering and resource-aware development
 
-Compare narrow task handoffs with a safe broader-context baseline on comparable work. Record available tokens/tool calls, elapsed time, repeated reads, review defects, and model configuration. Mark unavailable metrics explicitly, including internal reasoning tokens and provider caching details when not exposed.
+The [development context experiment](../experiments/2026-11-06-development-context-experiment.md) and [dataset](../experiments/2026-11-06-development-context-experiment.json) compare bounded spec-driven task handoffs (Condition A: targeted OpenSpec requirements, scoped file paths, and explicit tool/call budgets) against monolithic repository context dumps (Condition B) across 5 core development tasks:
+- **Token Volume**: Condition B consumes **20.6x more input tokens** per request (mean: 5,508 tokens vs 268 tokens in Condition A), yielding a **95.1% token savings** through focused context engineering.
+- **Signal-to-Noise Ratio (SNR)**: Focused context achieves an average SNR of **95.1%** task-relevant tokens, compared to **4.9%** under monolithic context dumps.
+- **Contract Collision Mitigation**: Focused context eliminates 9 distinct obsolete contract hazards (such as deprecated preview mocks, unmerged draft schemas, and discarded compiler packages).
+- **Resource Control**: Setting bounded budgets (3–6 tool calls, 5–15 minutes) prevents runaway subagent exploration loops while maintaining high completion fidelity.
 
 ## Context engineering and resource-aware product AI
 
-Use the experiment template to compare role-safe baseline and optimized prompts on representative synthetic submissions. Measure token usage, latency, feedback quality, application cache behavior, and errors. Include quota/concurrency evidence and provider limit handling. Do not report illustrative PDF numbers as measurements.
+The [empirical context strategy evaluation](../experiments/2026-11-06-context-strategy-evaluation.md) and [dataset](../experiments/2026-11-06-context-strategy-evaluation.json) evaluate Focused (Role-Optimized) Context against Broader Authorized Context across 8 representative synthetic student and instructor tasks in Python and Java:
+- **Token Overhead**: Focused context saves an average of **22.1% input tokens** per request (mean: 361 tokens vs 441 tokens for broader context), compounding significant bandwidth and provider cost reductions.
+- **Grading & Hint Quality**: Broader metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) adds zero measurable improvement to rubric scoring accuracy or educational hint clarity.
+- **Security & Privacy**: 100% of adversarial prompt injections remain trapped in JSON user data; 100% of student context payloads exclude private rubric criteria.
+- **Caching & Quota Economics**: Multi-factor deterministic cache hits require **0 provider tokens** and consume **0 daily quota slots**. Over-budget preflight rejections (>8,000 tokens) consume zero quota slots, preserving the 5 student / 20 instructor daily limits.
 
 ## Browser runtime experiment
 

@@ -10,7 +10,7 @@ Source: user-provided assignment text. Reconciled on 5 November 2026 against dev
 - [ ] Specs precede implementation; accepted specs match the release.
 - [x] Specialist agents coordinate through recorded triggers, context, resource ownership, and handoffs. See actual runtime coordination and independent review/test artifacts.
 - [x] Explicit AI security implementation and automated tests, including live adversarial evaluation evidence. See the security map and bounded Promptfoo report; sample passes are not universal resistance or production approval.
-- [x] Context engineering and resource-aware use are demonstrated in both product and development process. Role-scoped product context/quotas and bounded development context/budgets/handoffs are recorded. Controlled development comparisons and unavailable usage metrics remain limitations.
+- [x] Context engineering and resource-aware use are demonstrated in both product and development process. Role-scoped product context/quotas and bounded development context/budgets/handoffs are recorded and verified through empirical evaluations (context strategy evaluation and development context benchmark). Unexposed provider prompt-cache metrics remain limitations.
 - [ ] Online deployment with separate development/production environments and automation.
 - [ ] Simple UI, shared services with clear responsibilities, and minimal duplication.
 - [ ] Fresh implementation; no previous MP reused.

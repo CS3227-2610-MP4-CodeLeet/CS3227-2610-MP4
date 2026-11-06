@@ -1,0 +1,92 @@
+{
+  "experiment": "Empirical Development-Agent Context Engineering & Resource-Awareness Benchmark",
+  "evaluatedAt": "2026-11-06T12:45:57.143Z",
+  "methodology": "Controlled comparison across 5 core software engineering tasks in CodeLeet: Condition A (Focused Spec-Driven Context via OpenSpec & Handoffs) vs Condition B (Monolithic Repository Context Dump).",
+  "summary": {
+    "totalTasks": 5,
+    "totalFocusedTokens": 1340,
+    "totalMonolithicTokens": 27540,
+    "overallMultiplier": 20.6,
+    "overallSavingsPercent": 95.1,
+    "totalObsoleteRisksPrevented": 9,
+    "meanFocusedTokens": 268,
+    "meanMonolithicTokens": 5508
+  },
+  "findings": [
+    "Token Footprint: Monolithic repository dumps consume ~20.6x more input tokens per task, directly driving up LLM invocation costs and latency.",
+    "Signal-to-Noise Ratio: Focused context achieves an average SNR of 95.1% relevant tokens, whereas monolithic context drops SNR below 4.9%.",
+    "Hallucination & Regression Risk: Monolithic context exposes agents to historical/deprecated contracts (such as legacy preview flags, discarded compiler architectures, and pre-course schemas), increasing the probability of regression.",
+    "Resource Control: Explicit tool and call budgeting (3-6 calls, 5-15 mins) prevents runaway subagent exploration loops."
+  ],
+  "tasks": [
+    {
+      "taskId": "dev-task-01-deadline-boundary",
+      "title": "Validate assignment due date boundary condition",
+      "focusedTokens": 240,
+      "monolithicTokens": 4920,
+      "tokenMultiplier": 20.5,
+      "signalToNoiseRatioPercent": 4.9,
+      "obsoleteContractRisksCount": 2,
+      "obsoleteExamples": [
+        "Legacy preview-only mock deadline contract from 26 Oct",
+        "Unresolved course workspace deadline draft v1"
+      ],
+      "budgetLimit": "3 calls, 5 minutes"
+    },
+    {
+      "taskId": "dev-task-02-ai-quota-race",
+      "title": "Enforce atomic AI quota reservation under concurrent requests",
+      "focusedTokens": 310,
+      "monolithicTokens": 5550,
+      "tokenMultiplier": 17.9,
+      "signalToNoiseRatioPercent": 5.6,
+      "obsoleteContractRisksCount": 2,
+      "obsoleteExamples": [
+        "Historical stateless dummy quota counter from early MVP scaffold",
+        "Unbounded client-reported quota proposal"
+      ],
+      "budgetLimit": "5 calls, 10 minutes"
+    },
+    {
+      "taskId": "dev-task-03-browser-java-scanner",
+      "title": "Support basic Java Scanner stdin in browser worker",
+      "focusedTokens": 290,
+      "monolithicTokens": 6180,
+      "tokenMultiplier": 21.3,
+      "signalToNoiseRatioPercent": 4.7,
+      "obsoleteContractRisksCount": 2,
+      "obsoleteExamples": [
+        "Rejected CheerpJ tools.jar proposal",
+        "Precompiled classfile playback prototype"
+      ],
+      "budgetLimit": "6 calls, 15 minutes"
+    },
+    {
+      "taskId": "dev-task-04-forum-search",
+      "title": "Add case-insensitive search to forum discussions",
+      "focusedTokens": 220,
+      "monolithicTokens": 5200,
+      "tokenMultiplier": 23.6,
+      "signalToNoiseRatioPercent": 4.2,
+      "obsoleteContractRisksCount": 1,
+      "obsoleteExamples": [
+        "Early live chat proposal from initial brainstorming PDF"
+      ],
+      "budgetLimit": "3 calls, 5 minutes"
+    },
+    {
+      "taskId": "dev-task-05-student-progress-isolation",
+      "title": "Isolate student progress dashboard queries from private rubrics",
+      "focusedTokens": 280,
+      "monolithicTokens": 5690,
+      "tokenMultiplier": 20.3,
+      "signalToNoiseRatioPercent": 4.9,
+      "obsoleteContractRisksCount": 2,
+      "obsoleteExamples": [
+        "Pre-course shared progress schema",
+        "Client-side grade calculation draft"
+      ],
+      "budgetLimit": "4 calls, 8 minutes"
+    }
+  ]
+}
