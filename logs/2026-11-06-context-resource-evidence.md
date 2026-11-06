@@ -6,7 +6,7 @@
 - GitHub issue: [#102](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/102)
 - OpenSpec change: `build-programming-platform`, engineering-and-delivery, task 6.2.
 - Branch and commits: `eval/102-context-and-resource-evidence` from `develop`.
-- Pull request: pending.
+- Pull request: [#103](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/103)
 - Human verification: pending teammate review.
 - Verifier/date: pending.
 
