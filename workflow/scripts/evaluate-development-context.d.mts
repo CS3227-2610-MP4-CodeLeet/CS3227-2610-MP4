@@ -9,21 +9,41 @@ export interface DevelopmentBenchmarkTask {
     constraints: string;
     budget: string;
   };
-  monolithicContextSimulated: {
-    allFilesListCount: number;
-    fullSchemaIncluded: boolean;
-    legacyTranscriptsIncluded: boolean;
-    allTestsIncluded: boolean;
-    sampleNoiseText: string;
+  monolithicDistractors: {
+    schemaSliceRange: [number, number];
+    unrelatedModules: string;
+    legacyNotes: string;
   };
-  relevantTokens: number;
-  distractorTokens: number;
   obsoleteReferencesInMonolithic: string[];
 }
 
 export const developmentBenchmarkTasks: DevelopmentBenchmarkTask[];
 
 export function estimateTokens(text: string): number;
+
+export function buildFocusedDevelopmentPrompt(
+  task: DevelopmentBenchmarkTask,
+): string;
+
+export function buildMonolithicDevelopmentPrompt(
+  task: DevelopmentBenchmarkTask,
+  schemaText?: string,
+): string;
+
+export function evaluateDevTask(
+  task: DevelopmentBenchmarkTask,
+  schemaText?: string,
+): {
+  taskId: string;
+  title: string;
+  focusedTokens: number;
+  monolithicTokens: number;
+  tokenMultiplier: number;
+  signalToNoiseRatioPercent: number;
+  obsoleteContractRisksCount: number;
+  obsoleteExamples: string[];
+  budgetLimit: string;
+};
 
 export function runDevelopmentContextBenchmark(): Promise<{
   experiment: string;

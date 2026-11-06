@@ -80,3 +80,21 @@
   - Evaluated with local estimator `ceil(UTF-8 bytes / 3)`.
   - Provider prompt cache hit rates and internal reasoning tokens remain unexposed by SoCLaaS and are marked unavailable.
 - Next steps: Commit scoped files, push branch, create PR linked to Issue #102, verify PR checks, and request human review.
+
+## Code Review Feedback Reception and Resolution (2026-11-06T21:15:00+08:00)
+
+- PR #103 Reviewer: `chatgpt-codex-connector[bot]` left 5 review comments (4 P1, 1 P2).
+- Addressed all 5 review comments following the `receiving-code-review` skill guidelines:
+  1. **Comment 1 (P1 - Measure development contexts)**: Derived development context token sizes directly from serialized prompt payloads using `estimateTokens` across Condition A (focused spec bundle) and Condition B (monolithic bundle containing real migration schema excerpts, repository file manifest, and distractor module signatures). Removed preset hand-coded `relevantTokens` and `distractorTokens`.
+  2. **Comment 2 (P1 - Remove unmeasured model-quality conclusions)**: Removed claims regarding model feedback/score quality (such as "defect identified", "score accurate") from the offline context strategy report and table. Replaced column with `Structural & Role Isolation Invariants` reflecting what is actually evaluated offline. Clarified that runtime model generation quality is evaluated in the end-to-end and Promptfoo test suites.
+  3. **Comment 3 (P1 - Narrow injection containment claim to system role isolation)**: Renamed invariant from "prompt injection defense" to "system role isolation / prompt separation". Verified that untrusted source code and adversarial directives are encapsulated in user role JSON payloads with 0 bleed into system prompt instructions, without claiming unmeasured runtime model generation robustness.
+  4. **Comment 4 (P1 - Exercise cache and preflight paths)**: Added executable preflight token budget checks to the offline harness (`checkPreflightTokenBudget`), verifying that standard cases pass the 8,000-token ceiling and oversized cases are rejected offline. Removed unobserved database quota RPC constants from the script, clarifying that PostgreSQL advisory locks and 0-token/0-quota cache hits are verified by dedicated production unit and database test suites (`review-service.test.ts` and `codementor_mvp.test.sql`).
+  5. **Comment 5 (P2 - Report reduction against broader baseline)**: Corrected mathematical reporting to distinguish between broader context overhead (`+22.1%` relative to focused) and focused context token savings (`18.1%` reduction relative to broader baseline).
+- Verified that `docs/PaulReflections.md` remains completely untouched.
+- Ran all verification suites:
+  - `pnpm vitest run tests/unit/context-strategy-evaluation.test.ts`: 4/4 passed.
+  - `pnpm vitest run tests/unit/development-context-evaluation.test.ts`: 2/2 passed.
+  - `pnpm ai:context-eval`: 8/8 cases evaluated, 18.1% savings / 22.1% overhead verified.
+  - `pnpm ai:dev-context-eval`: 5/5 tasks evaluated, 22.1x token multiplier (95.5% savings) verified.
+  - `node workflow/scripts/prepare-site-docs.mjs`: canonical docs regenerated.
+

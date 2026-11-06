@@ -23,10 +23,10 @@ The [development context experiment](../experiments/2026-11-06-development-conte
 ## Context engineering and resource-aware product AI
 
 The [empirical context strategy evaluation](../experiments/2026-11-06-context-strategy-evaluation.md) and [dataset](../experiments/2026-11-06-context-strategy-evaluation.json) evaluate Focused (Role-Optimized) Context against Broader Authorized Context across 8 representative synthetic student and instructor tasks in Python and Java:
-- **Token Overhead**: Focused context saves an average of **22.1% input tokens** per request (mean: 361 tokens vs 441 tokens for broader context), compounding significant bandwidth and provider cost reductions.
-- **Grading & Hint Quality**: Broader metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) adds zero measurable improvement to rubric scoring accuracy or educational hint clarity.
-- **Security & Privacy**: 100% of adversarial prompt injections remain trapped in JSON user data; 100% of student context payloads exclude private rubric criteria.
-- **Caching & Quota Economics**: Multi-factor deterministic cache hits require **0 provider tokens** and consume **0 daily quota slots**. Over-budget preflight rejections (>8,000 tokens) consume zero quota slots, preserving the 5 student / 20 instructor daily limits.
+- **Token Footprint**: Focused context achieves an **18.1% input token reduction** per request against the broader context baseline (mean: 361 tokens vs 441 tokens; broader context adds **+22.1% overhead**).
+- **Domain Inputs**: Broader database metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) adds extraneous tokens without modifying required prompt inputs.
+- **Security & Role Isolation**: 100% of untrusted source code and adversarial input strings are encapsulated in user role JSON payloads with 0 bleed into system prompt instructions. 100% of student context payloads exclude private rubric criteria.
+- **Caching & Quota Economics**: Dedicated unit and database test suites verify that deterministic cache hits require **0 provider tokens** and consume **0 daily quota slots**, and that PostgreSQL advisory locks enforce atomic quota caps. Offline preflight checks verify that oversized payloads (>8,000 tokens) are rejected before execution.
 
 ## Browser runtime experiment
 

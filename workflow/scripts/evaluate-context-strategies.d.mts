@@ -5,6 +5,15 @@ export const INSTRUCTOR_SYSTEM_PROMPT: string;
 
 export function estimateTokens(value: unknown): number;
 
+export function checkPreflightTokenBudget(
+  messages: unknown,
+  budgetCeiling?: number,
+): {
+  estimatedTokens: number;
+  withinBudget: boolean;
+  rejected: boolean;
+};
+
 export function buildFocusedMessages(
   testCase: {
     role: 'student' | 'instructor';
@@ -78,18 +87,27 @@ export function runContextStrategyBenchmark(): Promise<{
     totalBroaderTokens: number;
     overallDelta: number;
     overallPercentageIncrease: number;
+    broaderOverheadPercent: number;
+    focusedSavingsPercent: number;
     meanFocusedTokens: number;
     meanBroaderTokens: number;
     meanTokenSavingsPerRequest: number;
   };
   invariantsVerified: {
+    allSystemPromptsIsolatedFromUserSource: boolean;
+    allUserPayloadsEncapsulatedInUserRole: boolean;
     allInjectionsSafelyContainedInUserData: boolean;
     allStudentRubricsIsolated: boolean;
     allCacheKeysDistinctByStrategy: boolean;
     allCacheKeysIdentityScoped: boolean;
     inputBudgetEnforcedAt8000Tokens: boolean;
   };
-  quotaEconomics: Record<string, number>;
+  preflightEnforcement: {
+    budgetThreshold: number;
+    regularCasesPass: boolean;
+    oversizedCaseRejected: boolean;
+    oversizedEstimatedTokens: number;
+  };
   cases: Array<{
     caseId: string;
     role: string;
@@ -98,6 +116,8 @@ export function runContextStrategyBenchmark(): Promise<{
     broaderTokens: number;
     tokenDelta: number;
     percentageIncrease: number;
+    broaderOverheadPercent: number;
+    focusedSavingsPercent: number;
     security: Record<string, boolean>;
   }>;
 }>;

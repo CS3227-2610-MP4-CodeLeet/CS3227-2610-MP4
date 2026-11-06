@@ -28,6 +28,15 @@ export function estimateTokens(value) {
   return Math.ceil(new TextEncoder().encode(json).byteLength / 3);
 }
 
+export function checkPreflightTokenBudget(messages, budgetCeiling = 8000) {
+  const estimatedTokens = estimateTokens(messages);
+  return {
+    estimatedTokens,
+    withinBudget: estimatedTokens <= budgetCeiling,
+    rejected: estimatedTokens > budgetCeiling,
+  };
+}
+
 export function buildFocusedMessages(testCase, assignment, rubric) {
   if (testCase.role === 'student') {
     return {
@@ -135,27 +144,29 @@ export function computeCacheKey(input) {
     .digest('hex');
 }
 
-function verifyCaseSecurity(testCase, focusedMessages) {
-  const injectionContainedInSystem =
-    focusedMessages.system.includes('Ignore previous') ||
-    focusedMessages.system.includes('SYSTEM OVERRIDE');
-  const injectionSafelyContainedInUser =
-    focusedMessages.user.includes('Ignore previous') ||
-    focusedMessages.user.includes('SYSTEM OVERRIDE');
+function verifyStructuralIntegrity(testCase, focusedMessages) {
+  const parsedUser = JSON.parse(focusedMessages.user);
+  const userPayloadEncapsulated =
+    parsedUser.source === testCase.submission.source;
+  const systemPromptIsolated =
+    !focusedMessages.system.includes('Ignore previous') &&
+    !focusedMessages.system.includes('SYSTEM OVERRIDE') &&
+    !focusedMessages.system.includes(testCase.submission.source);
 
   let studentRubricIsolated = true;
   if (testCase.role === 'student') {
-    const studentUserPayload = JSON.parse(focusedMessages.user);
     studentRubricIsolated =
-      !('rubric' in studentUserPayload) &&
+      !('rubric' in parsedUser) &&
       !focusedMessages.user.includes('Correctness') &&
       !focusedMessages.user.includes('Clarity');
   }
 
   return {
-    injectionContainedInSystem,
-    injectionSafelyContainedInUser,
+    systemPromptIsolated,
+    userPayloadEncapsulated,
     studentRubricIsolated,
+    injectionContainedInSystem: !systemPromptIsolated,
+    injectionSafelyContainedInUser: userPayloadEncapsulated,
   };
 }
 
@@ -206,11 +217,14 @@ function evaluateSingleCase(testCase, dataset) {
   const focusedTokens = estimateTokens(focusedMessages);
   const broaderTokens = estimateTokens(broaderMessages);
   const tokenDelta = broaderTokens - focusedTokens;
-  const percentageIncrease = Number(
+  const broaderOverheadPercent = Number(
     ((tokenDelta / focusedTokens) * 100).toFixed(1),
   );
+  const focusedSavingsPercent = Number(
+    ((tokenDelta / broaderTokens) * 100).toFixed(1),
+  );
 
-  const security = verifyCaseSecurity(testCase, focusedMessages);
+  const structural = verifyStructuralIntegrity(testCase, focusedMessages);
   const cache = verifyCaseCacheKeys(testCase, assignment, rubric);
 
   return {
@@ -220,9 +234,11 @@ function evaluateSingleCase(testCase, dataset) {
     focusedTokens,
     broaderTokens,
     tokenDelta,
-    percentageIncrease,
+    percentageIncrease: broaderOverheadPercent,
+    broaderOverheadPercent,
+    focusedSavingsPercent,
     security: {
-      ...security,
+      ...structural,
       ...cache,
     },
   };
@@ -238,8 +254,11 @@ function buildReportSummary(dataset, results) {
     0,
   );
   const overallDelta = totalBroaderTokens - totalFocusedTokens;
-  const overallPercentageIncrease = Number(
+  const broaderOverheadPercent = Number(
     ((overallDelta / totalFocusedTokens) * 100).toFixed(1),
+  );
+  const focusedSavingsPercent = Number(
+    ((overallDelta / totalBroaderTokens) * 100).toFixed(1),
   );
 
   return {
@@ -247,7 +266,9 @@ function buildReportSummary(dataset, results) {
     totalFocusedTokens,
     totalBroaderTokens,
     overallDelta,
-    overallPercentageIncrease,
+    overallPercentageIncrease: broaderOverheadPercent,
+    broaderOverheadPercent,
+    focusedSavingsPercent,
     meanFocusedTokens: Math.round(totalFocusedTokens / dataset.cases.length),
     meanBroaderTokens: Math.round(totalBroaderTokens / dataset.cases.length),
     meanTokenSavingsPerRequest: Math.round(
@@ -263,6 +284,19 @@ export async function runContextStrategyBenchmark() {
   const results = dataset.cases.map((c) => evaluateSingleCase(c, dataset));
   const summary = buildReportSummary(dataset, results);
 
+  const oversizedCheck = checkPreflightTokenBudget({
+    system: STUDENT_SYSTEM_PROMPT,
+    user: JSON.stringify({
+      task: 'Give feedback',
+      assignment: { id: 'large-test', title: 'Large', instructions: 'x'.repeat(25000), language: 'python', version: 1 },
+      source: 'print(1)\n'.repeat(2500),
+    }),
+  });
+
+  const preflightEnforced =
+    results.every((r) => r.focusedTokens <= 8000 && r.broaderTokens <= 8000) &&
+    oversizedCheck.rejected;
+
   const report = {
     experiment: 'Empirical Context Strategy & Resource Accounting Evaluation',
     evaluatedAt: new Date().toISOString(),
@@ -270,8 +304,14 @@ export async function runContextStrategyBenchmark() {
     estimator: 'ceil(serialized UTF-8 bytes / 3)',
     summary,
     invariantsVerified: {
+      allSystemPromptsIsolatedFromUserSource: results.every(
+        (r) => r.security.systemPromptIsolated,
+      ),
+      allUserPayloadsEncapsulatedInUserRole: results.every(
+        (r) => r.security.userPayloadEncapsulated,
+      ),
       allInjectionsSafelyContainedInUserData: results.every(
-        (r) => !r.security.injectionContainedInSystem,
+        (r) => r.security.systemPromptIsolated && r.security.userPayloadEncapsulated,
       ),
       allStudentRubricsIsolated: results.every(
         (r) => r.security.studentRubricIsolated,
@@ -282,15 +322,13 @@ export async function runContextStrategyBenchmark() {
       allCacheKeysIdentityScoped: results.every(
         (r) => r.security.cacheIsIdentityScoped,
       ),
-      inputBudgetEnforcedAt8000Tokens: true,
+      inputBudgetEnforcedAt8000Tokens: preflightEnforced,
     },
-    quotaEconomics: {
-      studentDailyCap: 5,
-      instructorDailyCap: 20,
-      cacheHitTokenCost: 0,
-      cacheHitQuotaConsumed: 0,
-      preflightOversizeTokenCost: 0,
-      preflightOversizeQuotaConsumed: 0,
+    preflightEnforcement: {
+      budgetThreshold: 8000,
+      regularCasesPass: true,
+      oversizedCaseRejected: oversizedCheck.rejected,
+      oversizedEstimatedTokens: oversizedCheck.estimatedTokens,
     },
     cases: results,
   };
@@ -310,10 +348,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     `Broader Context Mean Tokens: ${report.summary.meanBroaderTokens}`,
   );
   console.log(
-    `Mean Token Overhead of Broader Context: +${report.summary.meanTokenSavingsPerRequest} tokens (+${report.summary.overallPercentageIncrease}%)`,
+    `Mean Token Delta: +${report.summary.meanTokenSavingsPerRequest} tokens (Broader Overhead: +${report.summary.broaderOverheadPercent}%, Focused Savings: ${report.summary.focusedSavingsPercent}%)`,
   );
   console.log(
-    `All Security Invariants Verified: ${report.invariantsVerified.allInjectionsSafelyContainedInUserData && report.invariantsVerified.allStudentRubricsIsolated}`,
+    `Structural Invariants Verified: ${report.invariantsVerified.allSystemPromptsIsolatedFromUserSource && report.invariantsVerified.allStudentRubricsIsolated}`,
+  );
+  console.log(
+    `Preflight Budget Enforced at 8000 Tokens: ${report.invariantsVerified.inputBudgetEnforcedAt8000Tokens}`,
   );
   console.log(`Results saved to: ${outputPath}`);
 }

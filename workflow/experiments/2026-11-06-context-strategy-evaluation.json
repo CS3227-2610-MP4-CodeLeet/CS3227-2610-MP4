@@ -1,6 +1,6 @@
 {
   "experiment": "Empirical Context Strategy & Resource Accounting Evaluation",
-  "evaluatedAt": "2026-11-06T12:45:32.479Z",
+  "evaluatedAt": "2026-11-06T13:09:32.944Z",
   "benchmarkVersion": "mp4-context-strategy-cases-v1",
   "estimator": "ceil(serialized UTF-8 bytes / 3)",
   "summary": {
@@ -9,24 +9,26 @@
     "totalBroaderTokens": 3529,
     "overallDelta": 638,
     "overallPercentageIncrease": 22.1,
+    "broaderOverheadPercent": 22.1,
+    "focusedSavingsPercent": 18.1,
     "meanFocusedTokens": 361,
     "meanBroaderTokens": 441,
     "meanTokenSavingsPerRequest": 80
   },
   "invariantsVerified": {
+    "allSystemPromptsIsolatedFromUserSource": true,
+    "allUserPayloadsEncapsulatedInUserRole": true,
     "allInjectionsSafelyContainedInUserData": true,
     "allStudentRubricsIsolated": true,
     "allCacheKeysDistinctByStrategy": true,
     "allCacheKeysIdentityScoped": true,
     "inputBudgetEnforcedAt8000Tokens": true
   },
-  "quotaEconomics": {
-    "studentDailyCap": 5,
-    "instructorDailyCap": 20,
-    "cacheHitTokenCost": 0,
-    "cacheHitQuotaConsumed": 0,
-    "preflightOversizeTokenCost": 0,
-    "preflightOversizeQuotaConsumed": 0
+  "preflightEnforcement": {
+    "budgetThreshold": 8000,
+    "regularCasesPass": true,
+    "oversizedCaseRejected": true,
+    "oversizedEstimatedTokens": 17660
   },
   "cases": [
     {
@@ -37,10 +39,14 @@
       "broaderTokens": 329,
       "tokenDelta": 84,
       "percentageIncrease": 34.3,
+      "broaderOverheadPercent": 34.3,
+      "focusedSavingsPercent": 25.5,
       "security": {
-        "injectionContainedInSystem": false,
-        "injectionSafelyContainedInUser": false,
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
         "studentRubricIsolated": true,
+        "injectionContainedInSystem": false,
+        "injectionSafelyContainedInUser": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -53,10 +59,14 @@
       "broaderTokens": 367,
       "tokenDelta": 85,
       "percentageIncrease": 30.1,
+      "broaderOverheadPercent": 30.1,
+      "focusedSavingsPercent": 23.2,
       "security": {
-        "injectionContainedInSystem": false,
-        "injectionSafelyContainedInUser": false,
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
         "studentRubricIsolated": true,
+        "injectionContainedInSystem": false,
+        "injectionSafelyContainedInUser": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -69,10 +79,14 @@
       "broaderTokens": 360,
       "tokenDelta": 85,
       "percentageIncrease": 30.9,
+      "broaderOverheadPercent": 30.9,
+      "focusedSavingsPercent": 23.6,
       "security": {
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
+        "studentRubricIsolated": true,
         "injectionContainedInSystem": false,
         "injectionSafelyContainedInUser": true,
-        "studentRubricIsolated": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -85,10 +99,14 @@
       "broaderTokens": 424,
       "tokenDelta": 84,
       "percentageIncrease": 24.7,
+      "broaderOverheadPercent": 24.7,
+      "focusedSavingsPercent": 19.8,
       "security": {
-        "injectionContainedInSystem": false,
-        "injectionSafelyContainedInUser": false,
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
         "studentRubricIsolated": true,
+        "injectionContainedInSystem": false,
+        "injectionSafelyContainedInUser": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -101,10 +119,14 @@
       "broaderTokens": 427,
       "tokenDelta": 85,
       "percentageIncrease": 24.9,
+      "broaderOverheadPercent": 24.9,
+      "focusedSavingsPercent": 19.9,
       "security": {
-        "injectionContainedInSystem": false,
-        "injectionSafelyContainedInUser": false,
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
         "studentRubricIsolated": true,
+        "injectionContainedInSystem": false,
+        "injectionSafelyContainedInUser": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -117,10 +139,14 @@
       "broaderTokens": 530,
       "tokenDelta": 72,
       "percentageIncrease": 15.7,
+      "broaderOverheadPercent": 15.7,
+      "focusedSavingsPercent": 13.6,
       "security": {
-        "injectionContainedInSystem": false,
-        "injectionSafelyContainedInUser": false,
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
         "studentRubricIsolated": true,
+        "injectionContainedInSystem": false,
+        "injectionSafelyContainedInUser": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -133,10 +159,14 @@
       "broaderTokens": 511,
       "tokenDelta": 71,
       "percentageIncrease": 16.1,
+      "broaderOverheadPercent": 16.1,
+      "focusedSavingsPercent": 13.9,
       "security": {
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
+        "studentRubricIsolated": true,
         "injectionContainedInSystem": false,
         "injectionSafelyContainedInUser": true,
-        "studentRubricIsolated": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }
@@ -149,10 +179,14 @@
       "broaderTokens": 581,
       "tokenDelta": 72,
       "percentageIncrease": 14.1,
+      "broaderOverheadPercent": 14.1,
+      "focusedSavingsPercent": 12.4,
       "security": {
-        "injectionContainedInSystem": false,
-        "injectionSafelyContainedInUser": false,
+        "systemPromptIsolated": true,
+        "userPayloadEncapsulated": true,
         "studentRubricIsolated": true,
+        "injectionContainedInSystem": false,
+        "injectionSafelyContainedInUser": true,
         "cacheKeysAreDistinct": true,
         "cacheIsIdentityScoped": true
       }

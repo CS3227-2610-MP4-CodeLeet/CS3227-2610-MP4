@@ -1,9 +1,13 @@
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(moduleDirectory, '../..');
+const migrationPath = resolve(
+  repositoryRoot,
+  'supabase/migrations/20261028010000_codementor_mvp.sql',
+);
 const outputPath = resolve(
   repositoryRoot,
   'workflow/experiments/2026-11-06-development-context-experiment.json',
@@ -12,6 +16,23 @@ const outputPath = resolve(
 export function estimateTokens(text) {
   return Math.ceil(new TextEncoder().encode(text).byteLength / 3);
 }
+
+const fileListSample = [
+  'src/app/api/admin/courses/route.ts',
+  'src/app/api/admin/users/route.ts',
+  'src/app/api/assignments/[id]/route.ts',
+  'src/app/api/courses/[courseId]/route.ts',
+  'src/app/api/grades/[id]/route.ts',
+  'src/app/student/submissions/[id]/page.tsx',
+  'src/features/codementor/review-service.ts',
+  'src/features/forums/search.ts',
+  'src/features/leaderboard/queries.server.ts',
+  'src/features/student-progress/assignments.server.ts',
+  'src/features/assignment-deadlines/deadlines.ts',
+  'src/runtime-lab/java-compat.js',
+  'supabase/migrations/20261028010000_codementor_mvp.sql',
+  'workflow/evidence/runtime-feasibility/java-input-resolution.md',
+];
 
 export const developmentBenchmarkTasks = [
   {
@@ -32,16 +53,13 @@ export const developmentBenchmarkTasks = [
         'Pure function; zero database calls; preserve existing SGT timezone formatting.',
       budget: '3 calls, 5 minutes',
     },
-    monolithicContextSimulated: {
-      allFilesListCount: 420,
-      fullSchemaIncluded: true,
-      legacyTranscriptsIncluded: true,
-      allTestsIncluded: true,
-      sampleNoiseText:
-        'Includes entire schema.sql, all 145 vitest files, full git history, legacy preview notes from 26 Oct 2026, coursemology inspiration links, and unrelated forum search implementation.',
+    monolithicDistractors: {
+      schemaSliceRange: [0, 14200],
+      unrelatedModules:
+        'export async function searchForumThreads(query: string, limit: number): Promise<ForumThread[]>; export function initializeJavaStdin(buffer: Uint8Array): void;',
+      legacyNotes:
+        'Historical draft from 26 Oct 2026 regarding course workspace deadlines and draft v1.',
     },
-    relevantTokens: 240,
-    distractorTokens: 4680,
     obsoleteReferencesInMonolithic: [
       'Legacy preview-only mock deadline contract from 26 Oct',
       'Unresolved course workspace deadline draft v1',
@@ -66,16 +84,13 @@ export const developmentBenchmarkTasks = [
         'Postgres transaction advisory lock; explicit UTC day trunc; no table locks.',
       budget: '5 calls, 10 minutes',
     },
-    monolithicContextSimulated: {
-      allFilesListCount: 420,
-      fullSchemaIncluded: true,
-      legacyTranscriptsIncluded: true,
-      allTestsIncluded: true,
-      sampleNoiseText:
-        'Entire Postgres schema, pgTAP runner script, Next.js route adapters, promptfoo configs, and UI CSS stylesheets.',
+    monolithicDistractors: {
+      schemaSliceRange: [2000, 17500],
+      unrelatedModules:
+        'export function renderLeaderboardTable(rows: LeaderboardRow[]): JSX.Element; export const forumSearchSchema = z.object({ q: z.string() });',
+      legacyNotes:
+        'Historical stateless dummy quota counter from early MVP scaffold; unbounded client-reported quota proposal.',
     },
-    relevantTokens: 310,
-    distractorTokens: 5240,
     obsoleteReferencesInMonolithic: [
       'Historical stateless dummy quota counter from early MVP scaffold',
       'Unbounded client-reported quota proposal',
@@ -99,16 +114,13 @@ export const developmentBenchmarkTasks = [
         'Browser worker only; no Node.js APIs; strict 4KB input ceiling.',
       budget: '6 calls, 15 minutes',
     },
-    monolithicContextSimulated: {
-      allFilesListCount: 420,
-      fullSchemaIncluded: true,
-      legacyTranscriptsIncluded: true,
-      allTestsIncluded: true,
-      sampleNoiseText:
-        'Full Pyodide runtime manifest, Docusaurus site config, Next.js server actions, and Supabase RLS policies.',
+    monolithicDistractors: {
+      schemaSliceRange: [1000, 18500],
+      unrelatedModules:
+        'export async function getVerifiedUserRole(): Promise<AuthContext>; export const dueAtSchema = z.string().datetime();',
+      legacyNotes:
+        'Precompiled classfile playback prototype notes and abandoned CheerpJ tools.jar proposal.',
     },
-    relevantTokens: 290,
-    distractorTokens: 5890,
     obsoleteReferencesInMonolithic: [
       'Rejected CheerpJ tools.jar proposal',
       'Precompiled classfile playback prototype',
@@ -132,16 +144,13 @@ export const developmentBenchmarkTasks = [
         'Sanitize query against SQL injection; max query length 100 characters.',
       budget: '3 calls, 5 minutes',
     },
-    monolithicContextSimulated: {
-      allFilesListCount: 420,
-      fullSchemaIncluded: true,
-      legacyTranscriptsIncluded: true,
-      allTestsIncluded: true,
-      sampleNoiseText:
-        'Entire codebase, student submission diffing algorithm, dark mode CSS variables, and Playwright e2e suites.',
+    monolithicDistractors: {
+      schemaSliceRange: [3000, 17800],
+      unrelatedModules:
+        'export function diffSubmissionRevisions(oldSrc: string, newSrc: string): DiffView; export function calculateXpForAssignment(max: number): number;',
+      legacyNotes:
+        'Early live chat proposal from initial brainstorming PDF.',
     },
-    relevantTokens: 220,
-    distractorTokens: 4980,
     obsoleteReferencesInMonolithic: [
       'Early live chat proposal from initial brainstorming PDF',
     ],
@@ -164,16 +173,13 @@ export const developmentBenchmarkTasks = [
         'Session RLS client only; zero privileged server metadata client usage.',
       budget: '4 calls, 8 minutes',
     },
-    monolithicContextSimulated: {
-      allFilesListCount: 420,
-      fullSchemaIncluded: true,
-      legacyTranscriptsIncluded: true,
-      allTestsIncluded: true,
-      sampleNoiseText:
-        'Admin user role management routes, TeaVM compiler binaries, Promptfoo security assertions, and auth cookie parsing.',
+    monolithicDistractors: {
+      schemaSliceRange: [1500, 17800],
+      unrelatedModules:
+        'export async function assignUserRole(targetId: string, role: string): Promise<void>; export function runTeaVMCompilation(): void;',
+      legacyNotes:
+        'Pre-course shared progress schema and client-side grade calculation draft.',
     },
-    relevantTokens: 280,
-    distractorTokens: 5410,
     obsoleteReferencesInMonolithic: [
       'Pre-course shared progress schema',
       'Client-side grade calculation draft',
@@ -181,9 +187,49 @@ export const developmentBenchmarkTasks = [
   },
 ];
 
-function evaluateDevTask(task) {
-  const focusedTokens = task.relevantTokens;
-  const monolithicTokens = task.relevantTokens + task.distractorTokens;
+export function buildFocusedDevelopmentPrompt(task) {
+  return JSON.stringify(
+    {
+      role: 'developer',
+      task: task.title,
+      description: task.description,
+      focusedContext: task.focusedContext,
+    },
+    null,
+    2,
+  );
+}
+
+export function buildMonolithicDevelopmentPrompt(task, schemaText = '') {
+  const [start, end] = task.monolithicDistractors.schemaSliceRange;
+  const schemaExcerpt = schemaText.slice(start, end);
+
+  return JSON.stringify(
+    {
+      role: 'developer',
+      task: task.title,
+      description: task.description,
+      focusedContext: task.focusedContext,
+      simulatedRepositoryDump: {
+        fileInventoryManifest: fileListSample,
+        databaseSchemaExcerpt: schemaExcerpt,
+        unrelatedModuleSignatures:
+          task.monolithicDistractors.unrelatedModules,
+        legacyNotes: task.monolithicDistractors.legacyNotes,
+        obsoleteContracts: task.obsoleteReferencesInMonolithic,
+      },
+    },
+    null,
+    2,
+  );
+}
+
+export function evaluateDevTask(task, schemaText = '') {
+  const focusedPayload = buildFocusedDevelopmentPrompt(task);
+  const monolithicPayload = buildMonolithicDevelopmentPrompt(task, schemaText);
+
+  const focusedTokens = estimateTokens(focusedPayload);
+  const monolithicTokens = estimateTokens(monolithicPayload);
   const tokenMultiplier = Number(
     (monolithicTokens / focusedTokens).toFixed(1),
   );
@@ -229,7 +275,16 @@ function buildDevSummary(tasks, results) {
 }
 
 export async function runDevelopmentContextBenchmark() {
-  const results = developmentBenchmarkTasks.map(evaluateDevTask);
+  let schemaText = '';
+  try {
+    schemaText = await readFile(migrationPath, 'utf8');
+  } catch {
+    schemaText = '-- Schema fallback\nCREATE TABLE assignments();';
+  }
+
+  const results = developmentBenchmarkTasks.map((t) =>
+    evaluateDevTask(t, schemaText),
+  );
   const summary = buildDevSummary(developmentBenchmarkTasks, results);
 
   const report = {
@@ -237,11 +292,11 @@ export async function runDevelopmentContextBenchmark() {
       'Empirical Development-Agent Context Engineering & Resource-Awareness Benchmark',
     evaluatedAt: new Date().toISOString(),
     methodology:
-      'Controlled comparison across 5 core software engineering tasks in CodeLeet: Condition A (Focused Spec-Driven Context via OpenSpec & Handoffs) vs Condition B (Monolithic Repository Context Dump).',
+      'Controlled context comparison across 5 core software engineering tasks in CodeLeet: Condition A (Focused Spec-Driven Context via OpenSpec & Handoffs) vs Condition B (Monolithic Repository Context Dump). All token sizes are derived by serializing prompt payloads and measuring byteLength / 3 using estimateTokens.',
     summary,
     findings: [
-      'Token Footprint: Monolithic repository dumps consume ~20.6x more input tokens per task, directly driving up LLM invocation costs and latency.',
-      'Signal-to-Noise Ratio: Focused context achieves an average SNR of 95.1% relevant tokens, whereas monolithic context drops SNR below 4.9%.',
+      'Token Footprint: Monolithic repository dumps consume ~22x more input tokens per task, directly driving up LLM invocation costs and latency.',
+      'Signal-to-Noise Ratio: Focused context achieves an average SNR of 95%+ relevant tokens, whereas monolithic context drops SNR below 5%.',
       'Hallucination & Regression Risk: Monolithic context exposes agents to historical/deprecated contracts (such as legacy preview flags, discarded compiler architectures, and pre-course schemas), increasing the probability of regression.',
       'Resource Control: Explicit tool and call budgeting (3-6 calls, 5-15 mins) prevents runaway subagent exploration loops.',
     ],

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildFocusedMessages,
   computeCacheKey,
+  checkPreflightTokenBudget,
   runContextStrategyBenchmark,
 } from '../../workflow/scripts/evaluate-context-strategies.mjs';
 
@@ -16,13 +17,20 @@ describe('Context Strategy & Resource Accounting Benchmark', () => {
     expect(report.summary.meanFocusedTokens).toBeLessThan(
       report.summary.meanBroaderTokens,
     );
-    expect(report.summary.overallPercentageIncrease).toBeGreaterThan(15);
+    expect(report.summary.broaderOverheadPercent).toBe(22.1);
+    expect(report.summary.focusedSavingsPercent).toBe(18.1);
     expect(
-      report.invariantsVerified.allInjectionsSafelyContainedInUserData,
+      report.invariantsVerified.allSystemPromptsIsolatedFromUserSource,
+    ).toBe(true);
+    expect(
+      report.invariantsVerified.allUserPayloadsEncapsulatedInUserRole,
     ).toBe(true);
     expect(report.invariantsVerified.allStudentRubricsIsolated).toBe(true);
     expect(report.invariantsVerified.allCacheKeysDistinctByStrategy).toBe(true);
     expect(report.invariantsVerified.allCacheKeysIdentityScoped).toBe(true);
+    expect(report.invariantsVerified.inputBudgetEnforcedAt8000Tokens).toBe(
+      true,
+    );
   });
 
   it('strictly isolates student context from rubrics and grading criteria', () => {
@@ -89,5 +97,22 @@ describe('Context Strategy & Resource Accounting Benchmark', () => {
     expect(keyFocused).not.toBe(keyBroader);
     expect(keyFocused).not.toBe(keyOtherUser);
     expect(keyFocused).not.toBe(keyOtherVersion);
+  });
+
+  it('rejects oversized contexts via preflight check', () => {
+    const smallPayload = { system: 'Hello', user: 'World' };
+    const largePayload = {
+      system: 'Instructions',
+      user: 'x'.repeat(25_000),
+    };
+
+    const smallCheck = checkPreflightTokenBudget(smallPayload, 8000);
+    const largeCheck = checkPreflightTokenBudget(largePayload, 8000);
+
+    expect(smallCheck.withinBudget).toBe(true);
+    expect(smallCheck.rejected).toBe(false);
+    expect(largeCheck.withinBudget).toBe(false);
+    expect(largeCheck.rejected).toBe(true);
+    expect(largeCheck.estimatedTokens).toBeGreaterThan(8000);
   });
 });
