@@ -33,6 +33,23 @@
    - Ran `pnpm spec:validate` (11/11 passed).
    - Ran `pnpm format:check` (all files match Prettier style).
    - Ran `pnpm lint` and `pnpm typecheck`.
+5. Prompt 3: User informed of user edits (CS3227 reference, list formatting) and requested adding more deep engineering insights to `JohnReflections.md` for university module evaluation.
+6. Assistant actions:
+   - Verified and strictly preserved all user edits and formatting changes.
+   - Enriched Multi-Agent SE with:
+     - Subsection 2.8: Formal Communication Graph Topology and Complexity ($O(N)$ Hub-and-Spoke vs $O(N^2)$ Mesh Networks).
+     - Subsection 2.9: Mitigating Epistemic Drift and Hallucination Cascades in Agent Pipelines via Empirical Spikes and Adversarial Red-Teaming.
+   - Enriched Context Engineering & Resource-Aware Use with:
+     - Mathematical Context Signal-to-Noise Ratio (SNR) and attention entropy analysis in 3.2.
+     - Transformer Positional Attention Dynamics (RoPE, Primacy/Recency exploitation via Sandwich Prompting) in 3.3.
+     - Pareto Frontier and Objective Utility Optimization for model selection in 3.6.
+     - Three-Tier Cache Hierarchy (L1 memory, L2 deterministic database response cache with canonicalization, L3 provider KV prefix caching) in 3.7.
+     - Test-Time Compute Allocation, Chain-of-Thought Scaling, and Distilled Lemma Persistence in 3.8.
+   - Enriched SDD & AI Security with:
+     - Subsection 4.6: The Principle of Least Privilege in Agent Tool Sandboxing (Harness-Level vs Prompt-Level Guardrails).
+     - Subsection 4.7: Pure Functional Agent Dispatches vs. Stateful Conversational Accumulation.
+   - Ran `node workflow/scripts/prepare-site-docs.mjs` and `pnpm check:scaffold` (all passed).
+   - Ran `pnpm format:check` (all matched files use Prettier style).
 
 ## Work and verification
 
