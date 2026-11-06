@@ -85,9 +85,13 @@
   - `pnpm lint`: exit 0.
   - `pnpm typecheck`: exit 0.
   - `pnpm vitest run tests/unit/context-strategy-evaluation.test.ts tests/unit/development-context-evaluation.test.ts`: exit 0 (6/6 tests passed).
+  - `pnpm vitest run`: full test suite passed (774/774 tests across 147 files, exit 0).
   - `gh pr create`: PR #105 created targeting `develop`.
+  - Review thread resolutions: addressed and resolved 5 review threads on PR #105.
+  - Repository-wide factual audit: reconciled test counts (774 Vitest tests across 147 files, 447 pgTAP assertions across 13 files at PR #91 merge), aligned Promptfoo case corpus (10 synthetic cases across student/instructor and Python/Java), updated timeout API to `AbortSignal.timeout(30_000)` in `src/lib/ai/soclaas.ts`, and linked `workflow/scripts/check-ai-quota-concurrency.mjs` for the 12-request concurrency test.
 - Failures, retries, unresolved issues:
   - Initial `pnpm check:scaffold` caught 2 invalid relative links (`../workflow/plans/2026-11-03-course-workspaces.md` and `../src/app/api/ai/review/route.ts`); corrected to valid paths (`../logs/2026-11-03-course-workspaces.md`, `../src/app/api/ai/instructor-review/route.ts`, and `../src/lib/ai/review-route.ts`).
+  - Vitest execution mutated `evaluatedAt` in benchmark JSON files; reverted working directory changes to maintain clean git tree.
 - Resource measurements and unavailable fields:
   - All metrics cited from empirical benchmarks (22.1x dev token multiplier, 18.1% prompt token savings, 0-token cache hits, 1/4 vs 0/4 vs 4/4 model evaluation).
   - Provider prompt caching hit rates and internal reasoning tokens remain unexposed by SoCLaaS and are explicitly marked unavailable.

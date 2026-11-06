@@ -13,9 +13,9 @@ The following ledger indexes the verifiable pull requests, issues, and experimen
 
 | Area & Milestone | Artifact Links & Pull Requests | Verifiable Evidence & Assertions |
 | --- | --- | --- |
-| **Course Workspaces & Multi-Tenancy** | Issue [#85](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/85), PR [#91](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/91), [`logs/2026-11-03-course-workspaces.md`](../logs/2026-11-03-course-workspaces.md) | 370 pgTAP database assertions across 12 files; strict course-boundary RLS; atomic join-code enrollment; role-based access control (`instructor` vs `student`). |
+| **Course Workspaces & Multi-Tenancy** | Issue [#85](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/85), PR [#91](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/91), [`logs/2026-11-03-course-workspaces.md`](../logs/2026-11-03-course-workspaces.md) | 447 pgTAP database assertions across 13 files at PR #91 merge (370 assertions across 12 files at feature milestone); strict course-boundary RLS; atomic join-code enrollment; role-based access control (`instructor` vs `student`). |
 | **SoCLaaS AI Gateway & Caching** | PR [#49](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/49), [`src/features/codementor/context.ts`](../src/features/codementor/context.ts), [`src/features/codementor/review-service.ts`](../src/features/codementor/review-service.ts) | Deterministic SHA-256 caching in `ai_reviews`; 0 provider tokens and 0 quota slots on cache hit; role-separated prompt constructors (`codementor-review-v1`/`v2`). |
-| **Atomic Quotas & Concurrency** | [`supabase/tests/database/codementor_mvp.test.sql`](../supabase/tests/database/codementor_mvp.test.sql), [`src/features/codementor/review-service.test.ts`](../src/features/codementor/review-service.test.ts) | PostgreSQL advisory locks in `reserve_ai_request` preventing concurrency race conditions under 12 simulated concurrent requests (5 accepted, 7 rejected at limit). |
+| **Atomic Quotas & Concurrency** | [`supabase/tests/database/codementor_mvp.test.sql`](../supabase/tests/database/codementor_mvp.test.sql), [`src/features/codementor/review-service.test.ts`](../src/features/codementor/review-service.test.ts), [`workflow/scripts/check-ai-quota-concurrency.mjs`](../workflow/scripts/check-ai-quota-concurrency.mjs) | PostgreSQL advisory locks in `reserve_ai_request` preventing concurrency race conditions under 12 simulated concurrent requests (5 accepted, 7 rejected at limit). |
 | **Live SoCLaaS Model Evaluation** | Issue [#48](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/48), [`workflow/experiments/2026-11-01-soclaas-model-evaluation.md`](../workflow/experiments/2026-11-01-soclaas-model-evaluation.md) | Controlled 3-model trial (`llama3.1:8b`, `qwen3.5:9b`, `qwen3-coder-next`) across 4 synthetic cases; acceptance, latency, token consumption, and failure modes. |
 | **Application Context Strategy Benchmark** | Issue [#102](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/102), PR [#103](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/103), [`workflow/experiments/2026-11-06-context-strategy-evaluation.md`](../workflow/experiments/2026-11-06-context-strategy-evaluation.md) | Empirical evaluation across 8 cases; **18.1% token reduction** for focused context (+22.1% broader overhead); 100% rubric privacy; 100% system role isolation. |
 | **Development Context Multiplier Experiment** | Issue [#102](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/102), PR [#103](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/103), [`workflow/experiments/2026-11-06-development-context-experiment.md`](../workflow/experiments/2026-11-06-development-context-experiment.md) | 5 core platform tasks; **22.1x token multiplier** (95.5% token savings) for focused spec-driven handoffs vs monolithic dumps; 9 obsolete guidance hazards mitigated. |
@@ -284,8 +284,8 @@ where $\alpha_{\text{compliance}} \in [0, 1]$ represents strict JSON schema and 
 **Configuration Guardrails**:
 
 - **Output Token Cap**: Capped strictly at **800 tokens**, preventing runaway conversational generation.
-- **Timeout Ceiling**: Capped at **30 seconds** via `AbortController` in [`src/lib/ai/soclaas.ts`](../src/lib/ai/soclaas.ts).
-- **Preflight Payload Gate**: Capped at **8,000 tokens** via `checkPreflightTokenBudget`; oversized payloads are rejected before incurring network or API costs.
+- **Timeout Ceiling**: Capped at **30 seconds** via `AbortSignal.timeout(30_000)` in [`src/lib/ai/soclaas.ts`](../src/lib/ai/soclaas.ts).
+- **Preflight Payload Gate**: Capped at **8,000 tokens** via `promptTokenEstimate` in [`src/features/codementor/review-service.ts`](../src/features/codementor/review-service.ts) and `checkPreflightTokenBudget` in [`workflow/scripts/evaluate-context-strategies.mjs`](../workflow/scripts/evaluate-context-strategies.mjs); oversized payloads are rejected before incurring network or API costs.
 
 ### 3.7 Cache Optimization, Miss Reduction, and Measured Token Savings
 
@@ -313,9 +313,9 @@ In [`workflow/experiments/2026-11-06-context-strategy-evaluation.md`](../workflo
 | `student-python-injection` | Student | Python | 275 | 360 | +85 | +30.9% | 23.6% |
 | `student-java-clean` | Student | Java | 340 | 424 | +84 | +24.7% | 19.8% |
 | `student-java-defect` | Student | Java | 342 | 427 | +85 | +24.9% | 19.9% |
-| `instructor-python-eval` | Instructor | Python | 458 | 530 | +72 | +15.7% | 13.6% |
-| `instructor-python-inj` | Instructor | Python | 440 | 511 | +71 | +16.1% | 13.9% |
-| `instructor-java-eval` | Instructor | Java | 509 | 581 | +72 | +14.1% | 12.4% |
+| `instructor-python-evaluation` | Instructor | Python | 458 | 530 | +72 | +15.7% | 13.6% |
+| `instructor-python-injection` | Instructor | Python | 440 | 511 | +71 | +16.1% | 13.9% |
+| `instructor-java-evaluation` | Instructor | Java | 509 | 581 | +72 | +14.1% | 12.4% |
 | **Aggregate Total** | — | — | **2,891** | **3,529** | **+638** | **+22.1%** | **18.1%** |
 
 Focused context delivers an **18.1% reduction in input tokens** (mean: 361 vs 441 tokens/request), eliminating non-functional database administrative metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) while preserving all core domain inputs (problem description, language, rubric criteria, and student source). Because this offline benchmark evaluated serialization and structural invariants without generating live model responses, comparative pedagogical feedback quality under both strategies remains an unmeasured question for live model evaluation.
@@ -334,11 +334,11 @@ The emergence of reasoning-centric models shifts computational emphasis from pre
 Beyond caching and prompt shortening, we implemented three additional engineering controls:
 
 1. **Zero-Token Offline Security Testing with Promptfoo**:
-   - Rather than testing prompt vulnerabilities via live API calls, we configured local Promptfoo evaluations ([`workflow/experiments/promptfoo/promptfooconfig.yaml`](../workflow/experiments/promptfoo/promptfooconfig.yaml)). This allowed us to run 48 security assertions locally at zero token cost.
+   - Rather than testing prompt vulnerabilities via live API calls, we configured local Promptfoo evaluations ([`workflow/experiments/promptfoo/promptfooconfig.yaml`](../workflow/experiments/promptfoo/promptfooconfig.yaml)). This allowed us to evaluate our suite of 10 synthetic security and injection cases (spanning student and instructor roles, Python and Java, source-code injection, assignment-instruction injection, and rubric-description injection) locally against deterministic fixtures at zero token cost.
 2. **Schema-Constrained JSON Generation**:
    - By specifying strict JSON schemas in system prompts and validating them with Zod, we eliminated conversational preamble ("Sure, here is your evaluation:"), saving approximately 40–60 tokens per response.
 3. **pgTAP Database Verification**:
-   - All authorization and quota policies were tested in local PostgreSQL instances via pgTAP (370 assertions across 12 files), completely eliminating the need to use LLMs for database logic verification.
+   - All authorization and quota policies were tested in local PostgreSQL instances via pgTAP (447 assertions across 13 files at PR #91 merge; 370 assertions across 12 files at feature milestone), completely eliminating the need to use LLMs for database logic verification.
 
 ### 3.10 High-Consumption Tasks in Agentic Workflows and Mitigation
 
@@ -452,8 +452,8 @@ This functional architecture guarantees modularity, prevents memory leaks in age
 
 | Verification Gate | Command & Automated Evidence | Status & Limitations |
 | --- | --- | --- |
-| **Unit Test Suite** | `pnpm vitest run`: 768 unit tests passed across 145 files. | Verified on local Node 24.22.1. |
-| **Database Assertions** | `supabase test db`: 370 pgTAP assertions passed across 12 files. | Verified on local PostgreSQL 15 container. |
+| **Unit Test Suite** | `pnpm vitest run`: 774 unit tests passed across 147 files. | Verified on local Node 24.22.1. |
+| **Database Assertions** | `supabase test db`: 447 pgTAP assertions passed across 13 files at PR #91 merge. | Verified on local PostgreSQL 15 container. |
 | **Static Analysis** | `pnpm lint`, `pnpm typecheck`, `pnpm format:check`: 0 errors. | Verified against strict ESLint and TypeScript configs. |
 | **OpenSpec Validation** | `pnpm spec:validate`: 11/11 requirements passed. | Verified against active delta specifications. |
 | **Live Provider Limits** | SoCLaaS gateway rate limits and prompt caching metrics. | **OPEN / UNAVAILABLE**: Provider does not expose internal caching rates or reasoning tokens. |
