@@ -1,10 +1,10 @@
 -- Migration: add search and role filtering to admin_list_users RPC
 
 create or replace function public.admin_list_users(
-  p_after_user_id uuid default null,
-  p_limit integer default 51,
-  p_search text default null,
-  p_role text default null
+  p_after_user_id uuid,
+  p_limit integer,
+  p_search text,
+  p_role text
 )
 returns table (user_id uuid, email text, display_name text, role text)
 language plpgsql
@@ -48,8 +48,8 @@ revoke all on function public.admin_list_users(uuid, integer, text, text) from p
 grant execute on function public.admin_list_users(uuid, integer, text, text) to authenticated;
 
 create or replace function public.admin_list_users(
-  p_after_user_id uuid,
-  p_limit integer
+  p_after_user_id uuid default null,
+  p_limit integer default 51
 )
 returns table (user_id uuid, email text, display_name text, role text)
 language sql
