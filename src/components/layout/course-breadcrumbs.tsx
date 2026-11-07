@@ -37,23 +37,20 @@ function formatSegmentLabel(segment: string): string {
     .join(' ');
 }
 
-export function CourseBreadcrumbs({
-  courseId,
-  courseTitle,
-  onToggleMobileSidebar,
-}: CourseBreadcrumbsProps) {
-  const pathname = usePathname();
-  const leafTitle = useBreadcrumbTitle();
+type BreadcrumbItem = { label: string; href?: string; isCurrent: boolean };
 
-  // Pathname: /courses/[courseId]/assignments/asg-456
-  // Segments: ['courses', courseId, 'assignments', 'asg-456']
+function buildBreadcrumbs(
+  pathname: string,
+  courseId: string,
+  courseTitle: string,
+  leafTitle: string | null,
+): BreadcrumbItem[] {
   const segments = pathname.split('?')[0].split('/').filter(Boolean);
-
   const courseIndex = segments.indexOf(courseId);
   const courseSubSegments =
     courseIndex >= 0 ? segments.slice(courseIndex + 1) : [];
 
-  const crumbs: Array<{ label: string; href?: string; isCurrent: boolean }> = [
+  const crumbs: BreadcrumbItem[] = [
     { label: 'Courses', href: '/courses', isCurrent: false },
     {
       label: courseTitle,
@@ -66,19 +63,25 @@ export function CourseBreadcrumbs({
   courseSubSegments.forEach((segment, idx) => {
     const isLast = idx === courseSubSegments.length - 1;
     currentPath += `/${segment}`;
-
-    let label = formatSegmentLabel(segment);
-    // If it's the last segment and we have a dynamic leaf title, use it
-    if (isLast && leafTitle) {
-      label = leafTitle;
-    }
-
+    const label = isLast && leafTitle ? leafTitle : formatSegmentLabel(segment);
     crumbs.push({
       label,
       href: isLast ? undefined : currentPath,
       isCurrent: isLast,
     });
   });
+
+  return crumbs;
+}
+
+export function CourseBreadcrumbs({
+  courseId,
+  courseTitle,
+  onToggleMobileSidebar,
+}: CourseBreadcrumbsProps) {
+  const pathname = usePathname();
+  const leafTitle = useBreadcrumbTitle();
+  const crumbs = buildBreadcrumbs(pathname, courseId, courseTitle, leafTitle);
 
   return (
     <div className="flex items-center gap-3 border-b bg-background/95 px-6 py-3 backdrop-blur">
@@ -87,6 +90,7 @@ export function CourseBreadcrumbs({
           type="button"
           onClick={onToggleMobileSidebar}
           aria-label="Open navigation menu"
+          aria-expanded={false}
           className="rounded-md border p-1.5 text-muted-foreground hover:bg-accent md:hidden"
         >
           <svg

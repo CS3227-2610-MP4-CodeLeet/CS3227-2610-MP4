@@ -11,7 +11,7 @@ export function ForumSearchControls({
 }) {
   return (
     <Form
-      action={`/forums?courseId=${courseId}`}
+      action={`/courses/${courseId}/forums`}
       role="search"
       aria-label="Search discussions"
       className="flex flex-wrap items-end gap-3 rounded-xl border bg-background p-4"
@@ -40,7 +40,7 @@ export function ForumSearchControls({
       </FormSubmitButton>
       {query && (
         <Link
-          href={`/forums?courseId=${courseId}`}
+          href={`/courses/${courseId}/forums`}
           className="px-3 py-2 text-sm font-medium underline underline-offset-4"
         >
           Clear search

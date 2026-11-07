@@ -17,8 +17,10 @@ export function comparisonSelection(value: {
 }
 
 export function comparisonPath(id: string, courseId?: string) {
-  const path = `/student/submissions/${id}/compare`;
-  return courseId ? `${path}?courseId=${encodeURIComponent(courseId)}` : path;
+  if (courseId) {
+    return `/courses/${courseId}/submissions/${id}/compare`;
+  }
+  return `/student/submissions/${id}/compare`;
 }
 
 export type ComparisonSelection = { before?: number; after?: number };

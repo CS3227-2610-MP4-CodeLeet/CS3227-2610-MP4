@@ -44,7 +44,7 @@ export function LeaderboardView({
         {data.page > 1 ? (
           <Link
             className="underline"
-            href={`/leaderboard?courseId=${courseId}&page=${data.page - 1}`}
+            href={`/courses/${courseId}/leaderboard?page=${data.page - 1}`}
           >
             Previous
           </Link>
@@ -54,7 +54,7 @@ export function LeaderboardView({
         {data.has_more && (
           <Link
             className="underline"
-            href={`/leaderboard?courseId=${courseId}&page=${data.page + 1}`}
+            href={`/courses/${courseId}/leaderboard?page=${data.page + 1}`}
           >
             Next
           </Link>

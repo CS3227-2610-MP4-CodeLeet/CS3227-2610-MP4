@@ -37,6 +37,6 @@ it('renders exact totals, available assignment links and hidden-title fallback w
     screen.queryByRole('link', { name: 'Assignment unavailable' }),
   ).toBeNull();
   expect(screen.getByRole('link', { name: 'Next' }).getAttribute('href')).toBe(
-    '/student/xp?courseId=course-1&page=2',
+    '/courses/course-1/xp?page=2',
   );
 });

@@ -57,7 +57,7 @@ export function XpOverview({
               {award.assignment_title ? (
                 <Link
                   className="min-w-0 break-words underline"
-                  href={`/student/assignments/${award.assignment_id}?courseId=${courseId}`}
+                  href={`/courses/${courseId}/assignments/${award.assignment_id}`}
                 >
                   {award.assignment_title}
                 </Link>
@@ -81,7 +81,7 @@ export function XpOverview({
         {data.page > 1 ? (
           <Link
             className="underline"
-            href={`/student/xp?courseId=${courseId}&page=${data.page - 1}`}
+            href={`/courses/${courseId}/xp?page=${data.page - 1}`}
           >
             Previous
           </Link>
@@ -91,7 +91,7 @@ export function XpOverview({
         {data.has_more && (
           <Link
             className="underline"
-            href={`/student/xp?courseId=${courseId}&page=${data.page + 1}`}
+            href={`/courses/${courseId}/xp?page=${data.page + 1}`}
           >
             Next
           </Link>

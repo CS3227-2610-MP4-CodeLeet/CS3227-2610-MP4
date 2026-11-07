@@ -81,9 +81,9 @@ describe('CourseWorkspaceLayout', () => {
     };
 
     vi.mocked(getVerifiedUserRole).mockResolvedValue({
-      user: { id: 'user-1', email: 'john@example.com' } as any,
+      user: { id: 'user-1', email: 'john@example.com' } as never,
       role: 'student',
-      supabase: mockSupabase as any,
+      supabase: mockSupabase as never,
     });
 
     const element = await CourseWorkspaceLayout({

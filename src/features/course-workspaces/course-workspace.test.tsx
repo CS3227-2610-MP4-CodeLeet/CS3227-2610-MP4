@@ -158,51 +158,6 @@ describe('course workspace management', () => {
   });
 });
 
-describe('course feature navigation', () => {
-  it('offers context comparison only inside an active AI-enabled instructor course', () => {
-    renderWorkspace({
-      role: 'instructor',
-      currentUserId: 'owner-1',
-      initialMembers: [members[0]],
-    });
-    expect(
-      screen
-        .getByRole('link', { name: 'Context comparison' })
-        .getAttribute('href'),
-    ).toBe(`/courses/${course.id}/instructor/ai-context`);
-    expect(
-      screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
-    ).toBe(`/courses/${course.id}/instructor`);
-    expect(
-      screen.getByRole('link', { name: 'New assignment' }).getAttribute('href'),
-    ).toBe(`/courses/${course.id}/instructor/assignments/new`);
-  });
-
-  it('shows only enabled course activities with explicit course context', () => {
-    renderWorkspace({
-      features: [
-        { feature: 'assessments', enabled: true },
-        { feature: 'ai', enabled: false },
-        { feature: 'discussions', enabled: false },
-        { feature: 'xp', enabled: false },
-        { feature: 'leaderboard', enabled: false },
-      ],
-    });
-    expect(
-      screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
-    ).toBe(`/student/assignments?courseId=${course.id}`);
-    expect(
-      screen.getByRole('link', { name: 'My progress' }).getAttribute('href'),
-    ).toBe(`/student/progress?courseId=${course.id}`);
-    expect(screen.queryByRole('link', { name: 'AI usage' })).toBeNull();
-    expect(
-      screen.queryByRole('link', { name: 'Context comparison' }),
-    ).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Discussions' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'My XP' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Leaderboard' })).toBeNull();
-  });
-});
 
 describe('empty course deletion', () => {
   it('requires confirmation before deleting an empty course', () => {

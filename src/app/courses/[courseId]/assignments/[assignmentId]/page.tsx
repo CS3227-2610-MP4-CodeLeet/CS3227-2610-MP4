@@ -125,6 +125,45 @@ export default async function CourseAssignmentDetailPage({
   );
 }
 
+async function assertStudentAssessmentsAccess(
+  supabase: Parameters<typeof readCourseAccess>[0],
+  userId: string,
+  courseId: string,
+) {
+  const access = await readCourseAccess(
+    supabase,
+    userId,
+    courseId,
+    'assessments',
+  );
+  if (
+    !access ||
+    access.role !== 'student' ||
+    (access.lifecycle === 'active' && !access.featureEnabled)
+  ) {
+    notFound();
+  }
+  return access;
+}
+
+async function loadOptionalRevisionDraft(options: {
+  supabase: Parameters<typeof loadRevisionDraft>[0];
+  studentId: string;
+  assignmentId: string;
+  language: ReturnType<typeof assignmentLanguageSchema.parse>;
+  revisionId?: string;
+}) {
+  if (!options.revisionId) return null;
+  const draft = await loadRevisionDraft(options.supabase, {
+    studentId: options.studentId,
+    assignmentId: options.assignmentId,
+    language: options.language,
+    revisionId: options.revisionId,
+  });
+  if (!draft) notFound();
+  return draft;
+}
+
 async function loadWorkspace(
   assignmentId: string,
   courseId: string,
@@ -143,30 +182,20 @@ async function loadWorkspace(
 
   if (error || !assignment) notFound();
 
-  const access = await readCourseAccess(
+  const access = await assertStudentAssessmentsAccess(
     supabase,
     user.id,
     courseId,
-    'assessments',
   );
-  if (
-    !access ||
-    access.role !== 'student' ||
-    (access.lifecycle === 'active' && !access.featureEnabled)
-  ) {
-    notFound();
-  }
 
   const language = assignmentLanguageSchema.parse(assignment.language);
-  const draft = revisionId
-    ? await loadRevisionDraft(supabase, {
-        studentId: user.id,
-        assignmentId,
-        language,
-        revisionId,
-      })
-    : null;
-  if (revisionId && !draft) notFound();
+  const draft = await loadOptionalRevisionDraft({
+    supabase,
+    studentId: user.id,
+    assignmentId,
+    language,
+    revisionId,
+  });
 
   const { data: submissions, error: historyError } = await supabase
     .from('submissions')

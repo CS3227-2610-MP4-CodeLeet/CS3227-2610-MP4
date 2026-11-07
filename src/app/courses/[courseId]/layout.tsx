@@ -8,23 +8,11 @@ import type { CourseFeatureSetting } from '@/features/course-workspaces/contract
 
 export const dynamic = 'force-dynamic';
 
-export default async function CourseWorkspaceLayout({
-  children,
-  params,
-}: {
-  children: ReactNode;
-  params: Promise<{ courseId: string }>;
-}) {
-  const { courseId } = await params;
-  const { user, role: platformRole, supabase } = await getVerifiedUserRole();
-
-  if (!user || !supabase) {
-    redirect('/sign-in');
-  }
-  if (!platformRole) {
-    redirect('/unauthorized');
-  }
-
+async function fetchCourseWorkspaceData(
+  supabase: Parameters<typeof loadOwnXp>[0],
+  courseId: string,
+  userId: string,
+) {
   const [courseResult, membershipResult, featureResult, profileResult] =
     await Promise.all([
       supabase
@@ -36,7 +24,7 @@ export default async function CourseWorkspaceLayout({
         .from('course_memberships')
         .select('role')
         .eq('course_id', courseId)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .maybeSingle(),
       supabase
         .from('course_features')
@@ -45,7 +33,7 @@ export default async function CourseWorkspaceLayout({
       supabase
         .from('profiles')
         .select('display_name')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle(),
     ]);
 
@@ -57,21 +45,46 @@ export default async function CourseWorkspaceLayout({
     notFound();
   }
 
-  const course = courseResult.data;
-  const courseRole = membershipResult.data.role as 'student' | 'instructor';
-  const features = (featureResult.data ?? []) as CourseFeatureSetting[];
-  const displayName =
-    profileResult.data?.display_name || user.email?.split('@')[0] || 'User';
+  return {
+    course: courseResult.data,
+    courseRole: membershipResult.data.role as 'student' | 'instructor',
+    features: (featureResult.data ?? []) as CourseFeatureSetting[],
+    profileDisplayName: profileResult.data?.display_name ?? null,
+  };
+}
 
-  const isXpEnabled = features.some(
-    (f) => f.feature === 'xp' && f.enabled,
-  );
-
-  let totalXp: string | null = null;
+async function resolveTotalXp(
+  supabase: Parameters<typeof loadOwnXp>[0],
+  courseId: string,
+  courseRole: 'student' | 'instructor',
+  features: CourseFeatureSetting[],
+): Promise<string | null> {
+  const isXpEnabled = features.some((f) => f.feature === 'xp' && f.enabled);
   if (courseRole === 'student' && isXpEnabled) {
     const xpSummary = await loadOwnXp(supabase, courseId, 1);
-    totalXp = xpSummary?.total_xp ?? null;
+    return xpSummary?.total_xp ?? null;
   }
+  return null;
+}
+
+export default async function CourseWorkspaceLayout({
+  children,
+  params,
+}: {
+  children: ReactNode;
+  params: Promise<{ courseId: string }>;
+}) {
+  const { courseId } = await params;
+  const { user, role: platformRole, supabase } = await getVerifiedUserRole();
+
+  if (!user || !supabase) redirect('/sign-in');
+  if (!platformRole) redirect('/unauthorized');
+
+  const { course, courseRole, features, profileDisplayName } =
+    await fetchCourseWorkspaceData(supabase, courseId, user.id);
+
+  const displayName = profileDisplayName || user.email?.split('@')[0] || 'User';
+  const totalXp = await resolveTotalXp(supabase, courseId, courseRole, features);
 
   return (
     <BreadcrumbProvider>

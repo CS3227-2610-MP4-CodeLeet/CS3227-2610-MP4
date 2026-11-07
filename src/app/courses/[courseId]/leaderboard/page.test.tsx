@@ -33,15 +33,17 @@ beforeEach(() => {
   } as never);
 });
 
+const testCourseId = 'course-123';
+
 it('loads leaderboard for course member', async () => {
   const result = await CourseLeaderboardPage({
-    params: Promise.resolve({ courseId: 'course-123' }),
+    params: Promise.resolve({ courseId: testCourseId }),
     searchParams: Promise.resolve({ page: '1' }),
   });
   expect(result).toBeDefined();
   expect(loadLeaderboard).toHaveBeenCalledWith(
     expect.anything(),
-    'course-123',
+    testCourseId,
     1,
   );
 });
@@ -50,7 +52,7 @@ it('fails closed when member has no leaderboard access', async () => {
   vi.mocked(readCourseAccess).mockResolvedValue(null as never);
   await expect(
     CourseLeaderboardPage({
-      params: Promise.resolve({ courseId: 'course-123' }),
+      params: Promise.resolve({ courseId: testCourseId }),
       searchParams: Promise.resolve({}),
     }),
   ).rejects.toThrow('NEXT_NOT_FOUND');

@@ -28,10 +28,9 @@ describe('student assignment components', () => {
       <AssignmentList assignments={[assignment]} courseId="course-a" />,
     );
     expect(html).toContain(
-      'href="/student/assignments/loops?courseId=course-a"',
+      'href="/courses/course-a/assignments/loops"',
     );
-    expect(html).toContain('action="/student/assignments"');
-    expect(html).toContain('type="hidden" name="courseId" value="course-a"');
+    expect(html).toContain('action="/courses/course-a/assignments"');
   });
 
   it('distinguishes empty library from an empty filtered result', () => {
@@ -62,7 +61,7 @@ describe('student assignment components', () => {
       <AssignmentInstructions assignment={detail} courseId="course-a" />,
     );
     expect(courseHtml).toContain(
-      'href="/student/assignments?courseId=course-a"',
+      'href="/courses/course-a/assignments"',
     );
   });
 });

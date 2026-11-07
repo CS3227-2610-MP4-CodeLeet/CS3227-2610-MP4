@@ -1,4 +1,3 @@
-import { loadPublishedAssignments } from '@/features/assignment-deadlines/assignments.server';
 import { AssignmentList } from '@/features/student-assignments/components';
 import {
   listPreviewAssignments,
@@ -6,7 +5,6 @@ import {
 } from '@/features/student-assignments/preview.server';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { requireMember } from '@/lib/auth/verified-user';
-import { readCourseAccess } from '@/lib/courses/access';
 import { notFound, redirect } from 'next/navigation';
 import {
   matchesListFilters,
@@ -48,7 +46,7 @@ export default async function AssignmentListPage({
       />
     );
   }
-  const { supabase, user } = await requireMember();
+  await requireMember();
   if (!courseId) redirect('/courses');
 
   // Redirect legacy query-string course routes to canonical path

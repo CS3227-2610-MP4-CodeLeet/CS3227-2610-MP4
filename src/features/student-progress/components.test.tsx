@@ -78,10 +78,10 @@ it('renders labelled progress, precise XP and safe actionable metadata', () => {
   expect(html).toContain('Revision 7');
   expect(html).toContain('Score unavailable');
   expect(html).toContain(
-    `href="/student/assignments/${id}?courseId=${courseId}"`,
+    `href="/courses/${courseId}/assignments/${id}"`,
   );
   expect(html).toContain(
-    `href="/student/submissions/${id}?courseId=${courseId}"`,
+    `href="/courses/${courseId}/submissions/${id}"`,
   );
   expect(html).toContain('&lt;img');
   expect(html).not.toContain('<img');

@@ -1,4 +1,3 @@
-import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, expect, it, vi } from 'vitest';
 import CourseProgressPage from './page';
 import { requireMember } from '@/lib/auth/verified-user';

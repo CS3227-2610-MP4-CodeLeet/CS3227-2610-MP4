@@ -47,9 +47,12 @@ export function AssignmentList({
         </p>
       </header>
       <ListFilterControls
-        path="/student/assignments"
+        path={
+          courseId
+            ? `/courses/${courseId}/assignments`
+            : '/student/assignments'
+        }
         filters={filters}
-        courseId={courseId}
       />
       {assignments.length === 0 && hasListFilters(filters) ? (
         <FilteredListEmpty kind="assignments" />
@@ -140,10 +143,9 @@ function AssignmentRow({
   index: number;
   courseId?: string;
 }) {
-  const courseQuery = courseId
-    ? `?courseId=${encodeURIComponent(courseId)}`
-    : '';
-  const href = `/student/assignments/${assignment.id}${courseQuery}`;
+  const href = courseId
+    ? `/courses/${courseId}/assignments/${assignment.id}`
+    : `/student/assignments/${assignment.id}`;
   return (
     <tr className="group hover:bg-cyan-50/40 dark:hover:bg-cyan-950/40">
       <td className="px-4 py-5 sm:px-6">
@@ -201,13 +203,13 @@ export function AssignmentInstructions({
   assignment: AssignmentDetail;
   courseId?: string;
 }) {
-  const courseQuery = courseId
-    ? `?courseId=${encodeURIComponent(courseId)}`
-    : '';
+  const assignmentsHref = courseId
+    ? `/courses/${courseId}/assignments`
+    : '/student/assignments';
   return (
     <article className="space-y-5">
       <Link
-        href={`/student/assignments${courseQuery}`}
+        href={assignmentsHref}
         className={`${linkStyle} text-slate-500 dark:text-slate-400`}
       >
         <ArrowLeft aria-hidden="true" className="size-4" /> All assignments

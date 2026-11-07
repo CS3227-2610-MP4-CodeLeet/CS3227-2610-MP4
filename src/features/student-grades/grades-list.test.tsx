@@ -28,15 +28,15 @@ it('renders literal feedback, revision links and filtered pagination without inv
   expect(html).toContain('&lt;script&gt;unsafe()&lt;/script&gt;');
   expect(html).not.toContain('<script>unsafe()');
   expect(html).toContain(
-    'href="/student/submissions/own-revision?courseId=course-a"',
+    'href="/courses/course-a/submissions/own-revision"',
   );
   expect(html).toContain('Score unavailable');
   expect(html).not.toContain('%');
   expect(html).toContain(
-    '/student/grades?courseId=course-a&amp;q=Loops&amp;language=java&amp;page=3',
+    '/courses/course-a/grades?q=Loops&amp;language=java&amp;page=3',
   );
   expect(html).toContain(
-    '/student/grades?courseId=course-a&amp;q=Loops&amp;language=java"',
+    '/courses/course-a/grades?q=Loops&amp;language=java"',
   );
 }, 15_000);
 

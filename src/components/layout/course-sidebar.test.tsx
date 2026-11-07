@@ -1,6 +1,7 @@
 /** @vitest-environment jsdom */
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import type { CourseFeatureSetting } from '@/features/course-workspaces/contracts';
 import { CourseSidebar } from './course-sidebar';
 
 vi.mock('next/navigation', () => ({
@@ -12,25 +13,27 @@ afterEach(() => {
   localStorage.clear();
 });
 
-describe('CourseSidebar', () => {
-  const defaultProps = {
-    course: {
-      id: 'course-123',
-      title: 'Introduction to AI',
-      lifecycle: 'active',
-    },
-    role: 'student' as const,
-    userName: 'Alice Smith',
-    totalXp: '2400',
-    features: [
-      { feature: 'assessments', enabled: true },
-      { feature: 'discussions', enabled: true },
-      { feature: 'xp', enabled: true },
-      { feature: 'leaderboard', enabled: true },
-      { feature: 'ai', enabled: true },
-    ],
-  };
+const defaultFeatures: CourseFeatureSetting[] = [
+  { feature: 'assessments', enabled: true },
+  { feature: 'discussions', enabled: true },
+  { feature: 'xp', enabled: true },
+  { feature: 'leaderboard', enabled: true },
+  { feature: 'ai', enabled: true },
+];
 
+const defaultProps = {
+  course: {
+    id: 'course-123',
+    title: 'Introduction to AI',
+    lifecycle: 'active',
+  },
+  role: 'student' as const,
+  userName: 'Alice Smith',
+  totalXp: '2400',
+  features: defaultFeatures,
+};
+
+describe('CourseSidebar', () => {
   it('renders course title, user profile, formatted XP, and navigation links', () => {
     render(<CourseSidebar {...defaultProps} />);
 

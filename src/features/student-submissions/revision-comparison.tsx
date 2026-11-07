@@ -22,13 +22,13 @@ export function RevisionComparisonView({
         className="flex flex-wrap gap-4 text-sm"
       >
         <Link
-          href={`/student/submissions/${anchor.id}?courseId=${encodeURIComponent(courseId)}`}
+          href={`/courses/${courseId}/submissions/${anchor.id}`}
           className="underline"
         >
           Back to revision {anchor.revision}
         </Link>
         <Link
-          href={`/student/submissions?courseId=${encodeURIComponent(courseId)}`}
+          href={`/courses/${courseId}/submissions`}
           className="underline"
         >
           All submissions

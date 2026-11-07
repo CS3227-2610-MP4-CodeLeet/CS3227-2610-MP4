@@ -42,7 +42,7 @@ describe('forum post form', () => {
     });
     expect(payload.requestId).toMatch(/^[0-9a-f-]{36}$/i);
     expect(router.push).toHaveBeenCalledWith(
-      '/forums/thread-1?courseId=f0300000-0000-4000-8000-000000000020',
+      '/courses/f0300000-0000-4000-8000-000000000020/forums/thread-1',
     );
     expect(router.refresh).toHaveBeenCalledOnce();
     expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('');

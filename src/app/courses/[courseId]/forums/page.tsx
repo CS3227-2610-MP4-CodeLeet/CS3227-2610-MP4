@@ -78,10 +78,10 @@ export default async function CourseForumsPage({
         ))}
       </section>
       <ForumPager
-        hasNextPage={threads.hasNextPage}
+        hasNext={threads.hasNext}
         page={page}
+        path={`/courses/${courseId}/forums`}
         query={query}
-        courseId={courseId}
       />
     </div>
   );

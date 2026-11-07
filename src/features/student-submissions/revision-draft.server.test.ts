@@ -23,6 +23,9 @@ it('uses only assignment/revision identifiers in edit links', () => {
   expect(revisionEditorPath(assignmentId, revisionId)).toBe(
     `/student/assignments/${assignmentId}?fromRevision=${revisionId}`,
   );
+  expect(revisionEditorPath(assignmentId, revisionId, 'course-a')).toBe(
+    `/courses/course-a/assignments/${assignmentId}?fromRevision=${revisionId}`,
+  );
 });
 
 function clientWith(response: unknown, status = 200) {

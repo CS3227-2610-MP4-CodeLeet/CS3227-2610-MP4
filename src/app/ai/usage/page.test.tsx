@@ -18,9 +18,9 @@ beforeEach(async () => {
   vi.clearAllMocks();
   const { getVerifiedUserRole } = await import('@/lib/auth/verified-user');
   vi.mocked(getVerifiedUserRole).mockResolvedValue({
-    user: { id: 'user-1' } as any,
+    user: { id: 'user-1' } as never,
     role: 'student',
-    supabase: {} as any,
+    supabase: {} as never,
   });
 });
 

@@ -22,6 +22,8 @@ vi.mock('next/navigation', () => ({
 
 import CourseAssignmentsPage from './page';
 
+const testCourseId = 'course-123';
+
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.member.mockResolvedValue({ user: { id: 'student-1' }, supabase: {} });
@@ -35,20 +37,20 @@ beforeEach(() => {
 
 it('loads published assignments for student in course', async () => {
   const result = await CourseAssignmentsPage({
-    params: Promise.resolve({ courseId: 'course-123' }),
+    params: Promise.resolve({ courseId: testCourseId }),
     searchParams: Promise.resolve({}),
   });
   expect(result).toBeDefined();
   expect(mocks.access).toHaveBeenCalledWith(
     expect.anything(),
     'student-1',
-    'course-123',
+    testCourseId,
     'assessments',
   );
   expect(mocks.loadAssignments).toHaveBeenCalledWith(
     expect.anything(),
     'student-1',
-    'course-123',
+    testCourseId,
     expect.anything(),
   );
 });
@@ -57,7 +59,7 @@ it('throws notFound if student has no access', async () => {
   mocks.access.mockResolvedValue(null);
   await expect(
     CourseAssignmentsPage({
-      params: Promise.resolve({ courseId: 'course-123' }),
+      params: Promise.resolve({ courseId: testCourseId }),
       searchParams: Promise.resolve({}),
     }),
   ).rejects.toThrow('NEXT_NOT_FOUND');

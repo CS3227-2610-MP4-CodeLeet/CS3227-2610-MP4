@@ -84,9 +84,7 @@ function DiscussionContent({
         </p>
       </article>
       <section aria-label="Replies" className="space-y-4">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Replies ({replies.totalCount})
-        </h2>
+        <h2 className="text-lg font-semibold tracking-tight">Replies</h2>
         {!replies.rows.length && (
           <p className="rounded-xl border bg-background px-5 py-8 text-sm text-muted-foreground">
             {page > 1
@@ -105,10 +103,9 @@ function DiscussionContent({
           ))}
         </div>
         <ForumPager
-          hasNextPage={replies.hasNextPage}
+          hasNext={replies.hasNext}
           page={page}
-          courseId={courseId}
-          threadId={threadId}
+          path={`/courses/${courseId}/forums/${threadId}`}
         />
         {canReply ? (
           <section className="space-y-3 rounded-xl border bg-background p-5 sm:p-6">

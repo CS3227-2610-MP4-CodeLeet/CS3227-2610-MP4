@@ -71,58 +71,64 @@ export default async function CourseAIUsagePage({
             No AI reviews recorded for this course yet.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3">Time</th>
-                  <th className="px-4 py-3">Type</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Tokens (In / Out)</th>
-                  <th className="px-4 py-3">Latency</th>
-                  <th className="px-4 py-3">Cache</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {summary.events.map((event, i) => (
-                  <tr key={i} className="hover:bg-muted/20">
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {new Date(event.created_at).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 capitalize">{event.review_type}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                          event.status === 'completed'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
-                            : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
-                        }`}
-                      >
-                        {event.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs">
-                      {event.input_tokens ?? 0} / {event.output_tokens ?? 0}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs">
-                      {event.latency_ms ? `${event.latency_ms}ms` : '-'}
-                    </td>
-                    <td className="px-4 py-3 text-xs">
-                      {event.cache_hit ? (
-                        <span className="font-semibold text-green-600 dark:text-green-400">
-                          HIT
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">MISS</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecentReviewsTable events={summary.events} />
         )}
       </section>
+    </div>
+  );
+}
+
+function RecentReviewsTable({ events }: { events: UsageEvent[] }) {
+  return (
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full text-left text-sm">
+        <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
+          <tr>
+            <th className="px-4 py-3">Time</th>
+            <th className="px-4 py-3">Type</th>
+            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3">Tokens (In / Out)</th>
+            <th className="px-4 py-3">Latency</th>
+            <th className="px-4 py-3">Cache</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {events.map((event, i) => (
+            <tr key={i} className="hover:bg-muted/20">
+              <td className="px-4 py-3 text-xs text-muted-foreground">
+                {new Date(event.created_at).toLocaleString()}
+              </td>
+              <td className="px-4 py-3 capitalize">{event.review_type}</td>
+              <td className="px-4 py-3">
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                    event.status === 'completed'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
+                      : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                  }`}
+                >
+                  {event.status}
+                </span>
+              </td>
+              <td className="px-4 py-3 font-mono text-xs">
+                {event.input_tokens ?? 0} / {event.output_tokens ?? 0}
+              </td>
+              <td className="px-4 py-3 font-mono text-xs">
+                {event.latency_ms ? `${event.latency_ms}ms` : '-'}
+              </td>
+              <td className="px-4 py-3 text-xs">
+                {event.cache_hit ? (
+                  <span className="font-semibold text-green-600 dark:text-green-400">
+                    HIT
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">MISS</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
