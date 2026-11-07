@@ -31,3 +31,9 @@ it('redirects a course-less student assignment visit to course selection', async
   expect(mocks.member).toHaveBeenCalledOnce();
   expect(mocks.access).not.toHaveBeenCalled();
 });
+
+it('redirects legacy query-string course visit to /courses/[courseId]/assignments', async () => {
+  await expect(
+    AssignmentListPage({ searchParams: Promise.resolve({ courseId: 'course-123' }) }),
+  ).rejects.toThrow('NEXT_REDIRECT:/courses/course-123/assignments');
+});

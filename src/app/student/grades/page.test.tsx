@@ -1,61 +1,36 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import MyGradesPage from './page';
 import { requireMember } from '@/lib/auth/verified-user';
-import { readCourseAccess } from '@/lib/courses/access';
-import { loadStudentGrades } from '@/features/student-grades/grades.server';
 
 vi.mock('@/lib/auth/verified-user', () => ({ requireMember: vi.fn() }));
-vi.mock('@/lib/courses/access', () => ({ readCourseAccess: vi.fn() }));
-vi.mock('@/features/student-grades/grades.server', () => ({
-  loadStudentGrades: vi.fn(),
+vi.mock('next/navigation', () => ({
+  notFound: () => {
+    throw new Error('NEXT_NOT_FOUND');
+  },
+  redirect: (path: string) => {
+    throw new Error(`NEXT_REDIRECT:${path}`);
+  },
 }));
-
-const studentId = 'verified-student';
-const courseId = 'course-a';
-const verified = {
-  supabase: {},
-  user: { id: studentId },
-};
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(requireMember).mockResolvedValue(verified as never);
-  vi.mocked(readCourseAccess).mockResolvedValue({
-    role: 'student',
-    lifecycle: 'active',
-    featureEnabled: true,
-  } as never);
-  vi.mocked(loadStudentGrades).mockResolvedValue({ rows: [], hasNext: false });
+  vi.mocked(requireMember).mockResolvedValue({ user: { id: 'student-1' }, supabase: {} } as never);
 });
 
-it('requires course membership and scopes published grades to that course', async () => {
-  await MyGradesPage({
-    searchParams: Promise.resolve({
-      courseId,
-      student_id: 'another-student',
-      q: ' Loops ',
-      language: 'java',
-      page: '2',
+it('redirects to /courses/[courseId]/grades when courseId is provided', async () => {
+  await expect(
+    MyGradesPage({
+      searchParams: Promise.resolve({
+        courseId: 'course-a',
+        page: '2',
+        q: 'loops',
+      }),
     }),
-  });
-  expect(readCourseAccess).toHaveBeenCalledWith(
-    verified.supabase,
-    studentId,
-    courseId,
-    'assessments',
-  );
-  expect(loadStudentGrades).toHaveBeenCalledWith(verified.supabase, {
-    studentId,
-    courseId,
-    page: 2,
-    filters: { q: 'Loops', language: 'java' },
-  });
+  ).rejects.toThrow('NEXT_REDIRECT:/courses/course-a/grades?page=2&q=loops');
 });
 
 it('fails closed when no course context is selected', async () => {
   await expect(
     MyGradesPage({ searchParams: Promise.resolve({}) }),
-  ).rejects.toThrow();
-  expect(readCourseAccess).not.toHaveBeenCalled();
-  expect(loadStudentGrades).not.toHaveBeenCalled();
+  ).rejects.toThrow('NEXT_NOT_FOUND');
 });
