@@ -8,11 +8,12 @@ import { z } from 'zod';
 export const dynamic = 'force-dynamic';
 
 export default async function NewAssignmentPage({
-  searchParams,
+  params,
 }: {
-  searchParams: Promise<{ courseId?: string }>;
+  params: Promise<{ courseId: string }>;
 }) {
-  const courseId = z.uuid().safeParse((await searchParams).courseId);
+  const { courseId: rawCourseId } = await params;
+  const courseId = z.uuid().safeParse(rawCourseId);
   if (!courseId.success) notFound();
   const { supabase, user } = await requireMember();
   const access = await readCourseAccess(
@@ -32,7 +33,7 @@ export default async function NewAssignmentPage({
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
         className="text-sm underline"
-        href={`/instructor?courseId=${courseId.data}`}
+        href={`/courses/${courseId.data}/instructor`}
       >
         Back to assignments
       </Link>

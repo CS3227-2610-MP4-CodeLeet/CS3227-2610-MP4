@@ -65,7 +65,7 @@ describe('instructor AI context page', () => {
 
     const html = renderToStaticMarkup(
       await AIContextPage({
-        searchParams: Promise.resolve({ courseId: 'c1' }),
+        params: Promise.resolve({ courseId: 'c1' }),
       }),
     );
 

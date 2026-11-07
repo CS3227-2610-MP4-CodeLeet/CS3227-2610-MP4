@@ -189,7 +189,7 @@ function CourseFeatureLinks({
   const assignmentsHref =
     role === 'student'
       ? `/student/assignments?courseId=${course.id}`
-      : `/instructor?courseId=${course.id}`;
+      : `/courses/${course.id}/instructor`;
   const archived = course.lifecycle === 'archived';
   return (
     <nav aria-label="Course activities" className="flex flex-wrap gap-3">
@@ -232,7 +232,7 @@ function CourseFeatureLinks({
       </CourseActivityLink>
       <CourseActivityLink
         enabled={role === 'instructor' && !archived && assessmentsEnabled}
-        href={`/instructor/assignments/new?courseId=${course.id}`}
+        href={`/courses/${course.id}/instructor/assignments/new`}
         primary
       >
         New assignment
@@ -262,7 +262,7 @@ function CourseAiLinks({
       </CourseActivityLink>
       <CourseActivityLink
         enabled={role === 'instructor' && !archived && aiEnabled}
-        href={`/instructor/ai-context?courseId=${course.id}`}
+        href={`/courses/${course.id}/instructor/ai-context`}
       >
         Context comparison
       </CourseActivityLink>

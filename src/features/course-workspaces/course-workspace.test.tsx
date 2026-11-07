@@ -169,7 +169,13 @@ describe('course feature navigation', () => {
       screen
         .getByRole('link', { name: 'Context comparison' })
         .getAttribute('href'),
-    ).toBe(`/instructor/ai-context?courseId=${course.id}`);
+    ).toBe(`/courses/${course.id}/instructor/ai-context`);
+    expect(
+      screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
+    ).toBe(`/courses/${course.id}/instructor`);
+    expect(
+      screen.getByRole('link', { name: 'New assignment' }).getAttribute('href'),
+    ).toBe(`/courses/${course.id}/instructor/assignments/new`);
   });
 
   it('shows only enabled course activities with explicit course context', () => {

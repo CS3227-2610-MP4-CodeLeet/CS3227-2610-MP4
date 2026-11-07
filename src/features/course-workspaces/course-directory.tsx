@@ -32,16 +32,7 @@ export function CourseDirectory({
 
   return (
     <main className="mx-auto max-w-6xl space-y-8 px-6 py-10">
-      <header className="space-y-2">
-        <p className="text-sm text-muted-foreground">
-          Your teaching and learning spaces
-        </p>
-        <h1 className="text-3xl font-semibold">Courses</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Each course keeps its members, settings and work together. You can
-          have a different role in each course.
-        </p>
-      </header>
+      <CourseDirectoryHeader />
 
       <section aria-labelledby="course-list-heading" className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -80,30 +71,54 @@ export function CourseDirectory({
       </section>
 
       {activeModal !== 'none' && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) setActiveModal('none');
-          }}
-        >
-          <div className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-xl">
-            {activeModal === 'create' ? (
-              <CourseCreateForm
-                onSuccess={() => setActiveModal('none')}
-                onCancel={() => setActiveModal('none')}
-              />
-            ) : (
-              <CourseJoinForm
-                onSuccess={() => setActiveModal('none')}
-                onCancel={() => setActiveModal('none')}
-              />
-            )}
-          </div>
-        </div>
+        <CourseActionModal
+          activeModal={activeModal}
+          onClose={() => setActiveModal('none')}
+        />
       )}
     </main>
+  );
+}
+
+function CourseDirectoryHeader() {
+  return (
+    <header className="space-y-2">
+      <p className="text-sm text-muted-foreground">
+        Your teaching and learning spaces
+      </p>
+      <h1 className="text-3xl font-semibold">Courses</h1>
+      <p className="max-w-2xl text-sm text-muted-foreground">
+        Each course keeps its members, settings and work together. You can
+        have a different role in each course.
+      </p>
+    </header>
+  );
+}
+
+function CourseActionModal({
+  activeModal,
+  onClose,
+}: {
+  activeModal: 'create' | 'join';
+  onClose: () => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-xl">
+        {activeModal === 'create' ? (
+          <CourseCreateForm onSuccess={onClose} onCancel={onClose} />
+        ) : (
+          <CourseJoinForm onSuccess={onClose} onCancel={onClose} />
+        )}
+      </div>
+    </div>
   );
 }
 

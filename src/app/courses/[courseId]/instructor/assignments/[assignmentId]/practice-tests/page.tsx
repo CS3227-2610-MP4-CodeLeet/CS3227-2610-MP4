@@ -5,15 +5,13 @@ import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 import { loadOwnerCases } from '@/features/practice-test-authoring/queries.server';
 import { PracticeTestEditor } from '@/features/practice-test-authoring/editor';
+
 export default async function PracticeTestsPage({
   params,
-  searchParams,
 }: {
-  params: Promise<{ assignmentId: string }>;
-  searchParams: Promise<{ courseId?: string }>;
+  params: Promise<{ courseId: string; assignmentId: string }>;
 }) {
-  const { assignmentId } = await params;
-  const courseId = (await searchParams).courseId;
+  const { courseId, assignmentId } = await params;
   if (!z.uuid().safeParse(assignmentId).success) notFound();
   const { supabase, user } = await requireMember();
   const { data: assignment } = await supabase
@@ -40,7 +38,7 @@ export default async function PracticeTestsPage({
     <main className="mx-auto max-w-4xl space-y-6 px-6 py-10">
       <Link
         className="text-sm underline"
-        href={`/instructor?courseId=${assignment.course_id}`}
+        href={`/courses/${courseId}/instructor`}
       >
         Back to assignments
       </Link>

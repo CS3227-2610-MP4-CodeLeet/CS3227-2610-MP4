@@ -47,15 +47,12 @@ function SubmissionCodeRunner({
 }
 
 // eslint-disable-next-line max-lines-per-function, complexity -- load, authorize, and render this one course-scoped review page together.
-export default async function InstructorSubmissionPage({
+export default async function CourseInstructorSubmissionPage({
   params,
-  searchParams,
 }: {
-  params: Promise<{ submissionId: string }>;
-  searchParams: Promise<{ courseId?: string }>;
+  params: Promise<{ courseId: string; submissionId: string }>;
 }) {
-  const { submissionId } = await params;
-  const requestedCourseId = (await searchParams).courseId;
+  const { courseId, submissionId } = await params;
   const { supabase, user } = await requireMember();
   const { data: submission } = await supabase
     .from('submissions')
@@ -83,8 +80,7 @@ export default async function InstructorSubmissionPage({
         .eq('submission_id', submissionId)
         .maybeSingle(),
     ]);
-  if (!assignment || !rubric) notFound();
-  if (assignment.course_id !== requestedCourseId) notFound();
+  if (!assignment || !rubric || assignment.course_id !== courseId) notFound();
   const access = await readCourseAccess(
     supabase,
     user.id,
@@ -108,7 +104,7 @@ export default async function InstructorSubmissionPage({
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
         className="text-sm underline"
-        href={`/instructor/assignments/${assignment.id}/submissions?courseId=${assignment.course_id}`}
+        href={`/courses/${courseId}/instructor/assignments/${assignment.id}/submissions`}
       >
         Back to submissions
       </Link>

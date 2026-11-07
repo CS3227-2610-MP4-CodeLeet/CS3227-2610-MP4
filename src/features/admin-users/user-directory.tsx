@@ -2,7 +2,7 @@
 
 import { PendingButton } from '@/components/ui/pending-button';
 
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminUser, AppRole } from './contracts';
 
@@ -14,6 +14,7 @@ type Props = {
 };
 
 const roles: AppRole[] = ['student', 'instructor', 'admin'];
+const USER_DIRECTORY_LOAD_ERROR = 'The user directory could not be loaded.';
 
 type ChangeOptions = {
   targetUserId: string;
@@ -40,7 +41,7 @@ export async function confirmRoleChange({
 }
 
 export function destinationForRole(role: AppRole) {
-  return role === 'student' ? '/student/assignments' : '/instructor';
+  return role === 'student' ? '/student/assignments' : '/courses';
 }
 
 export async function runSinglePageRequest(
@@ -148,27 +149,51 @@ async function throwRoleChangeError(response: Response): Promise<never> {
   throw new Error('The role could not be changed. Refresh and try again.');
 }
 
-function useDirectoryPages(
-  initialUsers: AdminUser[],
-  initialNextAfter: string | null,
-  setError: (message: string | null) => void,
+function buildAdminUsersUrl(
+  after: string | null,
+  query: string,
+  role: string,
 ) {
-  const [users, setUsers] = useState(initialUsers);
-  const [nextAfter, setNextAfter] = useState(initialNextAfter);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [search, setSearch] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
-  const pageRequestInFlight = useRef(false);
-  const isInitialMount = useRef(true);
+  const queryParts: string[] = [];
+  if (after) queryParts.push(`after=${encodeURIComponent(after)}`);
+  if (query.trim()) queryParts.push(`q=${encodeURIComponent(query.trim())}`);
+  if (role) queryParts.push(`role=${encodeURIComponent(role)}`);
+  return queryParts.length
+    ? `/api/admin/users?${queryParts.join('&')}`
+    : '/api/admin/users';
+}
 
+function useDebouncedSearch(search: string, delay = 300) {
+  const [debounced, setDebounced] = useState(search);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(search);
-    }, 300);
+    const timer = setTimeout(() => setDebounced(search), delay);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [search, delay]);
+  return debounced;
+}
+
+async function fetchUsersPage(url: string) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(USER_DIRECTORY_LOAD_ERROR);
+  return (await response.json()) as {
+    users: AdminUser[];
+    nextAfter: string | null;
+  };
+}
+
+function useFilteredSearch({
+  query,
+  role,
+  setError,
+  onLoaded,
+}: {
+  query: string;
+  role: string;
+  setError: (message: string | null) => void;
+  onLoaded: (page: { users: AdminUser[]; nextAfter: string | null }) => void;
+}) {
+  const [isSearching, setIsSearching] = useState(false);
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -181,37 +206,18 @@ function useDirectoryPages(
       setError(null);
       setIsSearching(true);
       try {
-        const queryParts: string[] = [];
-        if (debouncedQuery.trim())
-          queryParts.push(`q=${encodeURIComponent(debouncedQuery.trim())}`);
-        if (roleFilter)
-          queryParts.push(`role=${encodeURIComponent(roleFilter)}`);
-        const url = queryParts.length
-          ? `/api/admin/users?${queryParts.join('&')}`
-          : '/api/admin/users';
-        const response = await fetch(url, { cache: 'no-store' });
-        if (!response.ok)
-          throw new Error('The user directory could not be loaded.');
-        const page = (await response.json()) as {
-          users: AdminUser[];
-          nextAfter: string | null;
-        };
-        if (isSubscribed) {
-          setUsers(page.users);
-          setNextAfter(page.nextAfter);
-        }
+        const page = await fetchUsersPage(buildAdminUsersUrl(null, query, role));
+        if (isSubscribed) onLoaded(page);
       } catch (loadError) {
         if (isSubscribed) {
           setError(
             loadError instanceof Error
               ? loadError.message
-              : 'The user directory could not be loaded.',
+              : USER_DIRECTORY_LOAD_ERROR,
           );
         }
       } finally {
-        if (isSubscribed) {
-          setIsSearching(false);
-        }
+        if (isSubscribed) setIsSearching(false);
       }
     }
 
@@ -219,7 +225,38 @@ function useDirectoryPages(
     return () => {
       isSubscribed = false;
     };
-  }, [debouncedQuery, roleFilter, setError]);
+  }, [query, role, setError, onLoaded]);
+
+  return isSearching;
+}
+
+function useDirectoryPages(
+  initialUsers: AdminUser[],
+  initialNextAfter: string | null,
+  setError: (message: string | null) => void,
+) {
+  const [users, setUsers] = useState(initialUsers);
+  const [nextAfter, setNextAfter] = useState(initialNextAfter);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const debouncedQuery = useDebouncedSearch(search);
+  const pageRequestInFlight = useRef(false);
+
+  const onLoaded = useCallback(
+    (page: { users: AdminUser[]; nextAfter: string | null }) => {
+      setUsers(page.users);
+      setNextAfter(page.nextAfter);
+    },
+    [],
+  );
+
+  const isSearching = useFilteredSearch({
+    query: debouncedQuery,
+    role: roleFilter,
+    setError,
+    onLoaded,
+  });
 
   async function loadMore() {
     if (!nextAfter) return;
@@ -227,28 +264,16 @@ function useDirectoryPages(
     await runSinglePageRequest(pageRequestInFlight, async () => {
       setIsLoadingMore(true);
       try {
-        const queryParts: string[] = [`after=${encodeURIComponent(nextAfter)}`];
-        if (debouncedQuery.trim())
-          queryParts.push(`q=${encodeURIComponent(debouncedQuery.trim())}`);
-        if (roleFilter)
-          queryParts.push(`role=${encodeURIComponent(roleFilter)}`);
-        const response = await fetch(
-          `/api/admin/users?${queryParts.join('&')}`,
-          { cache: 'no-store' },
+        const page = await fetchUsersPage(
+          buildAdminUsersUrl(nextAfter, debouncedQuery, roleFilter),
         );
-        if (!response.ok)
-          throw new Error('The user directory could not be loaded.');
-        const page = (await response.json()) as {
-          users: AdminUser[];
-          nextAfter: string | null;
-        };
         setUsers((current) => [...current, ...page.users]);
         setNextAfter(page.nextAfter);
       } catch (loadError) {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : 'The user directory could not be loaded.',
+            : USER_DIRECTORY_LOAD_ERROR,
         );
       } finally {
         setIsLoadingMore(false);

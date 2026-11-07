@@ -81,7 +81,7 @@ describe('admin user directory', () => {
       navigate,
     });
     expect(save).toHaveBeenCalledOnce();
-    expect(navigate).toHaveBeenCalledWith('/instructor');
+    expect(navigate).toHaveBeenCalledWith('/courses');
     expect(destinationForRole('student')).toBe('/student/assignments');
   });
 
