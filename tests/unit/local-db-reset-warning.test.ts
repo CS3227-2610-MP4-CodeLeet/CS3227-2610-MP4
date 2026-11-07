@@ -63,7 +63,7 @@ describe('local database reset warning', () => {
       expect(columns).toContain(tokenColumn);
     }
     expect(values).toMatch(
-      /^id, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', email,( '',){9} now\(\)/i,
+      /^id, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', email, (''|extensions\.crypt\(.+?\)),( '',){8} now\(\)/i,
     );
   });
 });
