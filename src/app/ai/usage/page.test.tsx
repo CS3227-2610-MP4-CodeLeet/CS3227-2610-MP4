@@ -1,62 +1,37 @@
-import { renderToStaticMarkup } from 'react-dom/server';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-const mocks = vi.hoisted(() => ({
-  userRole: vi.fn(),
-  access: vi.fn(),
-  usage: [] as unknown[],
-}));
+import { beforeEach, expect, it, vi } from 'vitest';
+import AIUsagePage from './page';
 
 vi.mock('@/lib/auth/verified-user', () => ({
-  getVerifiedUserRole: mocks.userRole,
+  getVerifiedUserRole: vi.fn(),
 }));
-vi.mock('@/lib/courses/access', () => ({
-  readCourseAccess: mocks.access,
-}));
+
 vi.mock('next/navigation', () => ({
   notFound: () => {
     throw new Error('NEXT_NOT_FOUND');
   },
-  redirect: (url: string) => {
-    throw new Error(`REDIRECT:${url}`);
+  redirect: (path: string) => {
+    throw new Error(`NEXT_REDIRECT:${path}`);
   },
 }));
 
-import AIUsagePage from './page';
-
-const courseId = '00000000-0000-4000-8000-000000000050';
-
-beforeEach(() => {
+beforeEach(async () => {
   vi.clearAllMocks();
-  const selectQuery = {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn(async () => ({ data: mocks.usage, error: null })),
-  };
-  mocks.userRole.mockResolvedValue({
-    user: { id: 'student-1' },
+  const { getVerifiedUserRole } = await import('@/lib/auth/verified-user');
+  vi.mocked(getVerifiedUserRole).mockResolvedValue({
+    user: { id: 'user-1' } as any,
     role: 'student',
-    supabase: {
-      from: vi.fn().mockReturnValue(selectQuery),
-    },
-  });
-  mocks.access.mockResolvedValue({
-    role: 'student',
-    lifecycle: 'active',
-    featureEnabled: true,
+    supabase: {} as any,
   });
 });
 
-describe('AI usage page', () => {
-  it('renders a back link to the course workspace', async () => {
-    const html = renderToStaticMarkup(
-      await AIUsagePage({
-        searchParams: Promise.resolve({ courseId }),
-      }),
-    );
+it('redirects to /courses/[courseId]/ai-usage when courseId is provided', async () => {
+  await expect(
+    AIUsagePage({ searchParams: Promise.resolve({ courseId: 'course-123' }) }),
+  ).rejects.toThrow('NEXT_REDIRECT:/courses/course-123/ai-usage');
+});
 
-    expect(html).toContain(`href="/courses/${courseId}"`);
-    expect(html).toContain('Back to course');
-  });
+it('fails closed when no course context is selected', async () => {
+  await expect(
+    AIUsagePage({ searchParams: Promise.resolve({}) }),
+  ).rejects.toThrow('NEXT_NOT_FOUND');
 });
