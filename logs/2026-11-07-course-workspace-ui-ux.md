@@ -15,7 +15,7 @@
   - `e9cc9ff` refactor(instructor): migrate instructor routes under /courses/[courseId]/instructor and remove /instructor
   - `9a2edf7` fix(admin): preserve parameter defaults on 2-arg admin_list_users overload
   - `a9cde57` test(courses): update course directory test fixtures and fetch mock contract
-- Pull request: pending
+- Pull request: https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/111
 - Human verification: pending
 - Verifier/date: pending
 
