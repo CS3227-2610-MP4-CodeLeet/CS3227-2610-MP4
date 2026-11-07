@@ -31,9 +31,9 @@ export default async function CourseXpPage({
 
   const data = await loadOwnXp(supabase, courseId, page);
   return data ? (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <XpOverview data={data} courseId={courseId} />
-    </div>
+    </main>
   ) : (
     <XpError />
   );

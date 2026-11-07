@@ -34,7 +34,7 @@ export function CourseWorkspace({
   const isOwner = course.owner_id === currentUserId;
   const canManage = role === 'instructor' && course.lifecycle === 'active';
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+    <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
       <CourseHeading course={course} role={role} />
       {canManage && (
         <ManagementPanels
@@ -52,7 +52,7 @@ export function CourseWorkspace({
           platform administration page.
         </p>
       )}
-    </div>
+    </main>
   );
 }
 
@@ -126,5 +126,3 @@ function ManagementPanels({
     </>
   );
 }
-
-

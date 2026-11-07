@@ -47,12 +47,12 @@ export default async function CourseAssignmentsPage({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <AssignmentList
         assignments={assignments}
         filters={filters}
         courseId={courseId}
       />
-    </div>
+    </main>
   );
 }

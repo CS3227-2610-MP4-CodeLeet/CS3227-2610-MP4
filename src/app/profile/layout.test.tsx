@@ -49,9 +49,15 @@ describe('ProfileLayout', () => {
     });
     render(element);
 
-    expect(screen.getByRole('link', { name: 'CodeLeet' }).getAttribute('href')).toBe('/courses');
-    expect(screen.getByRole('link', { name: 'Courses' }).getAttribute('href')).toBe('/courses');
-    expect(screen.getByRole('link', { name: 'Profile' }).getAttribute('href')).toBe('/profile');
+    expect(
+      screen.getByRole('link', { name: 'CodeLeet' }).getAttribute('href'),
+    ).toBe('/courses');
+    expect(
+      screen.getByRole('link', { name: 'Courses' }).getAttribute('href'),
+    ).toBe('/courses');
+    expect(
+      screen.getByRole('link', { name: 'Profile' }).getAttribute('href'),
+    ).toBe('/profile');
     expect(screen.queryByRole('link', { name: /user roles/i })).toBeNull();
     expect(screen.getByText('Child Content')).toBeDefined();
   });
@@ -67,7 +73,9 @@ describe('ProfileLayout', () => {
     });
     render(element);
 
-    expect(screen.getByRole('link', { name: /user roles/i }).getAttribute('href')).toBe('/admin');
+    expect(
+      screen.getByRole('link', { name: /user roles/i }).getAttribute('href'),
+    ).toBe('/admin');
     expect(screen.getByText('Child Content')).toBeDefined();
   });
 });

@@ -37,7 +37,7 @@ export default async function CourseSubmissionPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <BreadcrumbSetter title={`Revision ${submission.revision}`} />
       <SubmissionContent
         submission={submission}
@@ -46,7 +46,7 @@ export default async function CourseSubmissionPage({
         grade={grade}
         canRequestReview={canRequestReview}
       />
-    </div>
+    </main>
   );
 }
 
@@ -210,10 +210,7 @@ function SubmissionNavigation({
       aria-label="Submission navigation"
       className="flex flex-wrap gap-4 text-sm"
     >
-      <Link
-        href={`/courses/${courseId}/submissions`}
-        className="underline"
-      >
+      <Link href={`/courses/${courseId}/submissions`} className="underline">
         All submissions
       </Link>
       {assignmentAvailable && (

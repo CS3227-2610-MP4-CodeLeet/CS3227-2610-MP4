@@ -23,11 +23,7 @@ export default async function CourseDiscussionPage({
   const { courseId, threadId } = await params;
   const query = await searchParams;
 
-  const { access } = await requireDiscussionCourse(
-    user.id,
-    supabase,
-    courseId,
-  );
+  const { access } = await requireDiscussionCourse(user.id, supabase, courseId);
   const page = forumPage(query.page);
   if (!z.uuid().safeParse(threadId).success || page === null) notFound();
 
@@ -37,7 +33,7 @@ export default async function CourseDiscussionPage({
   const replies = await loadReplies(supabase, threadId, page);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <BreadcrumbSetter title={thread.title} />
       <DiscussionContent
         courseId={courseId}
@@ -47,7 +43,7 @@ export default async function CourseDiscussionPage({
         page={page}
         canReply={access.lifecycle === 'active' && access.featureEnabled}
       />
-    </div>
+    </main>
   );
 }
 

@@ -158,7 +158,6 @@ describe('course workspace management', () => {
   });
 });
 
-
 describe('empty course deletion', () => {
   it('requires confirmation before deleting an empty course', () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));

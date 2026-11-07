@@ -53,7 +53,7 @@ describe('CourseAIUsagePage', () => {
     mocks.usage = [
       {
         review_type: 'automated',
-        status: 'completed',
+        status: 'succeeded',
         error_category: null,
         latency_ms: 320,
         input_tokens: 100,

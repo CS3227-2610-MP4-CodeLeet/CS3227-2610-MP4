@@ -21,11 +21,7 @@ export default async function CourseForumsPage({
   const { courseId } = await params;
   const urlParams = await searchParams;
 
-  const { access } = await requireDiscussionCourse(
-    user.id,
-    supabase,
-    courseId,
-  );
+  const { access } = await requireDiscussionCourse(user.id, supabase, courseId);
   const page = forumPage(urlParams.page);
   const query = parseForumSearch(urlParams.q);
   if (page === null || query === null) notFound();
@@ -33,7 +29,7 @@ export default async function CourseForumsPage({
   const threads = await loadThreads(supabase, courseId, page, query);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Discussions</h1>
@@ -83,7 +79,7 @@ export default async function CourseForumsPage({
         path={`/courses/${courseId}/forums`}
         query={query}
       />
-    </div>
+    </main>
   );
 }
 

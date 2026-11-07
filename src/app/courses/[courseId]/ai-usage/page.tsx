@@ -45,7 +45,7 @@ export default async function CourseAIUsagePage({
   const summary = summarizeUsage(usage ?? []);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-6 py-8">
+    <main className="mx-auto max-w-5xl space-y-8 px-6 py-8">
       <header className="space-y-1">
         <h1 className="text-3xl font-semibold">AI Usage</h1>
         <p className="text-sm text-muted-foreground">
@@ -74,7 +74,7 @@ export default async function CourseAIUsagePage({
           <RecentReviewsTable events={summary.events} />
         )}
       </section>
-    </div>
+    </main>
   );
 }
 
@@ -101,11 +101,9 @@ function RecentReviewsTable({ events }: { events: UsageEvent[] }) {
               <td className="px-4 py-3 capitalize">{event.review_type}</td>
               <td className="px-4 py-3">
                 <span
-                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                    event.status === 'completed'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'
-                      : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
-                  }`}
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClass(
+                    event.status,
+                  )}`}
                 >
                   {event.status}
                 </span>
@@ -133,19 +131,23 @@ function RecentReviewsTable({ events }: { events: UsageEvent[] }) {
   );
 }
 
-function StatCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
+function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-lg border bg-card p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
     </div>
   );
+}
+
+function statusBadgeClass(status: string) {
+  if (status === 'succeeded' || status === 'cache_hit') {
+    return 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300';
+  }
+  if (status === 'pending') {
+    return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+  }
+  return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
 }
 
 function summarizeUsage(events: UsageEvent[]) {

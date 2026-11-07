@@ -13,6 +13,7 @@
   - `45ccce6` feat(courses): migrate forums, leaderboard, and ai-usage to /courses/[courseId]/ with legacy redirects
   - `b0b62b0` refactor(navigation): update internal links, components, and tests for /courses/[courseId]/ structure
   - `697072f` refactor(courses): clean up legacy route folders and relocate boundaries to course paths
+  - `7d07d47` fix(layout): address PR review comments for landmark nesting, hydration store, and ai badge statuses
 - Pull request: [#113](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113)
 - Human verification: pending
 - Verifier/date: pending
@@ -70,6 +71,16 @@
    - Refactored `src/app/profile/page.tsx` to remove the ad-hoc top bar and redundant "Back to assignments" / "Back to courses" links.
    - Added unit tests in `src/app/profile/layout.test.tsx` and `src/app/profile/page.test.tsx` verifying global navigation and omission of legacy back-links across all platform roles.
    - Verified that `pnpm vitest run`, `pnpm lint`, and `pnpm build` pass cleanly.
+14. **User Request (PR Review Comments & CI Failures)**:
+   - User reported failed CI checks (`Application checks` and `Scaffold checks`) on PR #113.
+   - Requested fetching review comments on PR #113, addressing them, pushing changes, and resolving the review comment threads.
+15. **Agent Action (CI Fixes & Review Comments Resolution)**:
+   - **Scaffold Check**: Fixed stale markdown links in `docs/PaulReflections.md` and `workflow/evidence/2026-11-02-security-testing.md` targeting old paths `src/app/student/progress/error.test.tsx` and `src/app/student/submissions/...`. Replaced with canonical `/courses/[courseId]/...` paths. Verified `node workflow/scripts/check-scaffold.mjs` passed cleanly.
+   - **Review Comment 1 (`4501882273` at `ai-usage/page.tsx:105`)**: Fixed status badge styling compared against `'completed'`. Updated `statusBadgeClass(event.status)` to support database-persisted statuses `'succeeded'`, `'cache_hit'`, `'pending'`, and `'failed'`. Updated unit tests in `src/app/courses/[courseId]/ai-usage/page.test.tsx`.
+   - **Review Comment 2 (`4501882277` at `course-sidebar.tsx:428`)**: Replaced `localStorage` state reading and `useEffect` setState with `useSyncExternalStore` using stable server snapshot `false` and storage listener synchronization. Extracted SVG icons into `src/components/layout/course-sidebar-icons.tsx` to keep lines well under 500.
+   - **Review Comment 3 (`4501882280` at `course-workspace-shell.tsx:42`)**: Resolved nested `<main>` landmarks by replacing the shell's `<main>` container with a neutral `<div>` and standardizing all `/courses/[courseId]/` child pages to render exactly one `<main>` landmark.
+   - **Application Format Check**: Executed `pnpm format` across all files and verified `pnpm format:check` passed with 0 issues.
+   - **Test & Lint Verification**: Extracted `createMockSupabase` in `src/app/courses/[courseId]/layout.test.tsx` to satisfy `max-lines-per-function`. Verified all 154 test suites (789 tests) pass with `pnpm test:unit`, `pnpm lint` passes with `--max-warnings=0`, and Next.js production build (`pnpm build`) succeeds.
 
 ## Work and verification
 
@@ -119,8 +130,10 @@
   - `src/features/forums/search-controls.tsx`
   - `src/features/forums/search-controls.test.tsx`
 - Commands/checks actually run and outcomes:
-  - `pnpm vitest run`: 152 test files evaluated, all individual and full suites pass cleanly (785 tests).
+  - `pnpm vitest run`: 154 test files evaluated, all test suites pass cleanly (789 tests).
   - `pnpm lint`: ESLint passed with 0 errors and 0 warnings (`--max-warnings=0`).
+  - `pnpm format:check`: Prettier check passed with 0 formatting discrepancies.
+  - `node workflow/scripts/check-scaffold.mjs`: Scaffold verification passed with 0 broken Markdown link targets.
   - `pnpm build`: Next.js production build succeeded with type checking passed and all static/dynamic route artifacts emitted cleanly.
   - Branch creation: `git checkout -b feat/112-course-sidebar-and-routing` (success)
   - Issue creation: `gh issue create` -> https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/112 (success)
@@ -131,9 +144,13 @@
   - Handled multiple course title element queries caused by presence in both sidebar and breadcrumb trail.
   - Handled ESLint `max-lines-per-function`, `max-statements`, `complexity`, and React 19 `react-hooks/set-state-in-effect` by decomposing components into focused helpers and using state initializer functions.
   - Investigated and resolved the discussion search redirection issue where HTML GET forms stripped query parameters from `action="/forums?courseId=..."` by updating the action to `/courses/${courseId}/forums` and testing.
+  - Resolved PR review comment 1 regarding AI usage event status comparison mismatch with database constraints.
+  - Resolved PR review comment 2 regarding `localStorage` SSR hydration mismatch by migrating to `useSyncExternalStore`.
+  - Resolved PR review comment 3 regarding nested `<main>` landmarks between workspace shell and child pages.
+  - Fixed broken markdown links in scaffold check.
 - Resource measurements and unavailable fields:
-  - Full vitest execution time: ~18 seconds across 72 test files; full repo unit tests: ~210s across 152 files.
-  - Next.js build compilation time: ~10 seconds with static generation in ~0.6s.
+  - Full vitest execution time: ~105s across 154 files (789 tests).
+  - Next.js build compilation time: ~7.4s with TypeScript checked in 18.5s and static generation in ~1.0s.
 - Next steps:
-  - Push branch `feat/112-course-sidebar-and-routing` to origin.
-  - Update PR #113.
+  - Commit fixes and push branch `feat/112-course-sidebar-and-routing` to origin.
+  - Reply to and resolve PR #113 review comments via GitHub API.

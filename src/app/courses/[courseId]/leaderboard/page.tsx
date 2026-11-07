@@ -36,9 +36,9 @@ export default async function CourseLeaderboardPage({
 
   const data = await loadLeaderboard(supabase, courseId, page);
   return data ? (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <LeaderboardView data={data} courseId={courseId} />
-    </div>
+    </main>
   ) : (
     <LeaderboardError />
   );

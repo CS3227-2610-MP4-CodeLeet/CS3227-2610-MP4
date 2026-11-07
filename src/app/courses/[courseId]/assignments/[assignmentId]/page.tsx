@@ -89,7 +89,7 @@ export default async function CourseAssignmentDetailPage({
     await loadWorkspace(assignmentId, courseId, selection.data);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+    <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
       <BreadcrumbSetter title={detail.title} />
       <AssignmentInstructions assignment={detail} courseId={courseId} />
       {archived ? (
@@ -121,7 +121,7 @@ export default async function CourseAssignmentDetailPage({
         courseId={courseId}
         submissions={submissions ?? []}
       />
-    </div>
+    </main>
   );
 }
 

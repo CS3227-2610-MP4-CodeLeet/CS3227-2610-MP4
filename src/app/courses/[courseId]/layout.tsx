@@ -84,7 +84,12 @@ export default async function CourseWorkspaceLayout({
     await fetchCourseWorkspaceData(supabase, courseId, user.id);
 
   const displayName = profileDisplayName || user.email?.split('@')[0] || 'User';
-  const totalXp = await resolveTotalXp(supabase, courseId, courseRole, features);
+  const totalXp = await resolveTotalXp(
+    supabase,
+    courseId,
+    courseRole,
+    features,
+  );
 
   return (
     <BreadcrumbProvider>

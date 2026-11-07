@@ -26,9 +26,7 @@ async function openSelectedCourseAssignments(page: Page, courseId: string) {
     await menuButton.click();
   }
   await page.getByRole('link', { name: 'Assignments', exact: true }).click();
-  await expect(page).toHaveURL(
-    new RegExp(`/courses/${courseId}/assignments$`),
-  );
+  await expect(page).toHaveURL(new RegExp(`/courses/${courseId}/assignments$`));
   await expect(
     page.getByRole('heading', { name: 'Your assignments' }),
   ).toBeVisible();

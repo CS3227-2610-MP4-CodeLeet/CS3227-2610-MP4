@@ -45,13 +45,13 @@ export default async function CourseSubmissionsPage({
   if (!history) return <SubmissionsError />;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <SubmissionHistoryList
         history={history}
         page={page}
         filters={filters}
         courseId={courseId}
       />
-    </div>
+    </main>
   );
 }

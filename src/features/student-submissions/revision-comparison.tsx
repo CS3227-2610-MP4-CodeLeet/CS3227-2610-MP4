@@ -27,10 +27,7 @@ export function RevisionComparisonView({
         >
           Back to revision {anchor.revision}
         </Link>
-        <Link
-          href={`/courses/${courseId}/submissions`}
-          className="underline"
-        >
+        <Link href={`/courses/${courseId}/submissions`} className="underline">
           All submissions
         </Link>
       </nav>

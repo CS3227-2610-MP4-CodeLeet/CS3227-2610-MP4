@@ -39,7 +39,7 @@ export function CourseWorkspaceShell({
           courseTitle={course.title}
           onToggleMobileSidebar={() => setIsMobileOpen(true)}
         />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

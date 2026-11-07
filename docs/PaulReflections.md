@@ -12,7 +12,7 @@ The strongest student-side examples are [Java assignment integration](../workflo
 | --- | --- | --- |
 | Require Python/Java execution inside the browser and authorize specialist investigation | [Runtime coordination](../workflow/evidence/runtime-feasibility/coordination.md), research, review and independent test artifacts | Specialists contributed different findings. Local acceptance is narrower than production security. |
 | Accept late work, label it Late and apply no automatic penalty | [Deadline decision/implementation log](../logs/2026-11-01-assignment-deadlines.md), [database assertions](../supabase/tests/database/assignment_deadlines.test.sql) | A product choice can become observable timing, retry and forgery checks. |
-| Choose and approve the simple personal progress overview | [Dashboard log](../logs/2026-11-03-student-progress.md), [recovery test](../src/app/student/progress/error.test.tsx), [PR #90](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/90) | Review and a failing test exposed a recovery defect that a visible button alone did not establish. |
+| Choose and approve the simple personal progress overview | [Dashboard log](../logs/2026-11-03-student-progress.md), [recovery test](../src/app/courses/[courseId]/progress/error.test.tsx), [PR #90](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/90) | Review and a failing test exposed a recovery defect that a visible button alone did not establish. |
 
 ## 1. Multi-Agent Software Engineering
 
@@ -28,7 +28,7 @@ In ordinary terms, the output cap worked, but the runner returned a general erro
 
 The [progress dashboard record](../logs/2026-11-03-student-progress.md) documents my scope/design decisions and the actual read-only reviewer `/root/student_progress_review`. That agent found that router refresh alone retained the failed route boundary. The reviewer did not run tests. The coordinator verified the finding against installed Next.js documentation/source, wrote a real React boundary test, observed failure, connected the boundary retry callback and observed a pass.
 
-The [regression](../src/app/student/progress/error.test.tsx) causes a component error, shows the fallback, clicks Try again and waits for recovered content. It separately checks that a private diagnostic is hidden. A button's existence or a mocked refresh call would not prove successful recovery. Paul additionally confirmed John's independent involvement during the 5 November discussion. That is a human report, not a replacement for or inference from the logged agent execution.
+The [regression](../src/app/courses/[courseId]/progress/error.test.tsx) causes a component error, shows the fallback, clicks Try again and waits for recovered content. It separately checks that a private diagnostic is hidden. A button's existence or a mocked refresh call would not prove successful recovery. Paul additionally confirmed John's independent involvement during the 5 November discussion. That is a human report, not a replacement for or inference from the logged agent execution.
 
 For this feature, the historical final local milestone recorded 674 unit passes, 321 database assertions and three actual synthetic dashboard browser journeys, with standard browser prerequisite skips reported separately. Those counts belong to that baseline. They are not fresh tests of the later course integration or a production acceptance claim.
 

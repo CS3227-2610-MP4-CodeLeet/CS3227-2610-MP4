@@ -45,13 +45,13 @@ export default async function CourseGradesPage({
   if (!grades) return <GradesError />;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <StudentGradesList
         grades={grades}
         page={page}
         filters={filters}
         courseId={courseId}
       />
-    </div>
+    </main>
   );
 }

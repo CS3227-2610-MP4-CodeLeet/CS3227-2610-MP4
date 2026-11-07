@@ -27,17 +27,13 @@ it('renders literal feedback, revision links and filtered pagination without inv
   );
   expect(html).toContain('&lt;script&gt;unsafe()&lt;/script&gt;');
   expect(html).not.toContain('<script>unsafe()');
-  expect(html).toContain(
-    'href="/courses/course-a/submissions/own-revision"',
-  );
+  expect(html).toContain('href="/courses/course-a/submissions/own-revision"');
   expect(html).toContain('Score unavailable');
   expect(html).not.toContain('%');
   expect(html).toContain(
     '/courses/course-a/grades?q=Loops&amp;language=java&amp;page=3',
   );
-  expect(html).toContain(
-    '/courses/course-a/grades?q=Loops&amp;language=java"',
-  );
+  expect(html).toContain('/courses/course-a/grades?q=Loops&amp;language=java"');
 }, 15_000);
 
 it('distinguishes an unpublished empty account from a filtered no-match page', () => {

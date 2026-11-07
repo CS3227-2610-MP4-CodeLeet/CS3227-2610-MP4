@@ -50,9 +50,9 @@ export default async function CourseCompareRevisionsPage({
   if (!comparison) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <main className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <BreadcrumbSetter title="Compare Revisions" />
       <RevisionComparisonView comparison={comparison} courseId={courseId} />
-    </div>
+    </main>
   );
 }

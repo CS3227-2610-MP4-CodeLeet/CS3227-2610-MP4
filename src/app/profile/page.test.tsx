@@ -12,7 +12,15 @@ vi.mock('@/features/profile/profile.server', () => ({
 }));
 
 vi.mock('@/features/profile/profile-form', () => ({
-  ProfileForm: ({ username, email, role }: { username: string; email: string; role: string }) => (
+  ProfileForm: ({
+    username,
+    email,
+    role,
+  }: {
+    username: string;
+    email: string;
+    role: string;
+  }) => (
     <div data-testid="profile-form">
       <span>{username}</span>
       <span>{email}</span>
@@ -38,8 +46,12 @@ describe('ProfilePage', () => {
     const element = await ProfilePage();
     render(element);
 
-    expect(screen.getByRole('heading', { name: 'Profile settings' })).toBeDefined();
-    expect(screen.getByText('Manage how you appear in CodeLeet.')).toBeDefined();
+    expect(
+      screen.getByRole('heading', { name: 'Profile settings' }),
+    ).toBeDefined();
+    expect(
+      screen.getByText('Manage how you appear in CodeLeet.'),
+    ).toBeDefined();
     expect(screen.getByTestId('profile-form')).toBeDefined();
     expect(screen.getByText('Student 01')).toBeDefined();
     expect(screen.getByText('student01@codeleet.test')).toBeDefined();

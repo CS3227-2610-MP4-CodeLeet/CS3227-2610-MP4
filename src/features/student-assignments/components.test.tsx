@@ -27,9 +27,7 @@ describe('student assignment components', () => {
     const html = renderToStaticMarkup(
       <AssignmentList assignments={[assignment]} courseId="course-a" />,
     );
-    expect(html).toContain(
-      'href="/courses/course-a/assignments/loops"',
-    );
+    expect(html).toContain('href="/courses/course-a/assignments/loops"');
     expect(html).toContain('action="/courses/course-a/assignments"');
   });
 
@@ -60,8 +58,6 @@ describe('student assignment components', () => {
     const courseHtml = renderToStaticMarkup(
       <AssignmentInstructions assignment={detail} courseId="course-a" />,
     );
-    expect(courseHtml).toContain(
-      'href="/courses/course-a/assignments"',
-    );
+    expect(courseHtml).toContain('href="/courses/course-a/assignments"');
   });
 });

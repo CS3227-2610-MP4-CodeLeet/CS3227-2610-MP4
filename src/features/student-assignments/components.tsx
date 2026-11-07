@@ -48,9 +48,7 @@ export function AssignmentList({
       </header>
       <ListFilterControls
         path={
-          courseId
-            ? `/courses/${courseId}/assignments`
-            : '/student/assignments'
+          courseId ? `/courses/${courseId}/assignments` : '/student/assignments'
         }
         filters={filters}
       />

@@ -24,7 +24,7 @@ async function section<T>(promise: Promise<T>) {
 function canViewFeature(access: CourseAccess | null) {
   return Boolean(
     access?.role === 'student' &&
-      (access.lifecycle === 'archived' || access.featureEnabled),
+    (access.lifecycle === 'archived' || access.featureEnabled),
   );
 }
 
@@ -80,7 +80,7 @@ export default async function CourseProgressPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <ProgressOverview
         courseId={courseId}
         assessmentsEnabled={assessmentsEnabled}
@@ -93,6 +93,6 @@ export default async function CourseProgressPage({
           xp: xp?.total_xp ?? null,
         }}
       />
-    </div>
+    </main>
   );
 }
