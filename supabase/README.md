@@ -19,7 +19,7 @@ The seed creates 12 synthetic students, 3 synthetic instructors, 1 synthetic adm
 - Admin: `admin@codeleet.test` (display name `Admin`).
 
 ### Standard Local Password
-All seeded local accounts come pre-configured with the default password **`123456`** (meeting Supabase's 6-character minimum requirement via bcrypt hashing in `supabase/seed.sql`). You can immediately sign in at `http://localhost:3000/sign-in` using any seeded email (or its display name / login username) and the password `123456`. Alternatively, local password resets via Mailpit (`http://localhost:54324`) remain fully supported.
+All seeded local accounts come pre-configured with the default password **`password`** (satisfying the application's 8-character minimum client requirement via bcrypt hashing in `supabase/seed.sql`). You can immediately sign in at `http://localhost:3000/sign-in` using any seeded email (or its display name / login username) and the password `password`. Alternatively, local password resets via Mailpit (`http://localhost:54324`) remain fully supported.
 
 ### Seeded Courses
 1. **CS101: Introduction to Python Programming** (Python-only, owned by `instructor1@codeleet.test`): Features *Two Sum*, *Valid Palindrome*, and *Best Time to Buy and Sell Stock*.

@@ -48,7 +48,7 @@ select
   'authenticated',
   'authenticated',
   email,
-  extensions.crypt('123456', extensions.gen_salt('bf')),
+  extensions.crypt('password', extensions.gen_salt('bf')),
   '',
   '',
   '',
