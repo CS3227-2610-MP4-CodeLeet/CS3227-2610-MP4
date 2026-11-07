@@ -14,6 +14,7 @@
   - `b0b62b0` refactor(navigation): update internal links, components, and tests for /courses/[courseId]/ structure
   - `697072f` refactor(courses): clean up legacy route folders and relocate boundaries to course paths
   - `7d07d47` fix(layout): address PR review comments for landmark nesting, hydration store, and ai badge statuses
+  - `408ab4f` fix(student): restore submissions auth redirect gate for e2e protected route coverage
 - Pull request: [#113](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113)
 - Human verification: pending
 - Verifier/date: pending
@@ -81,6 +82,7 @@
    - **Review Comment 3 (`4501882280` at `course-workspace-shell.tsx:42`)**: Resolved nested `<main>` landmarks by replacing the shell's `<main>` container with a neutral `<div>` and standardizing all `/courses/[courseId]/` child pages to render exactly one `<main>` landmark.
    - **Application Format Check**: Executed `pnpm format` across all files and verified `pnpm format:check` passed with 0 issues.
    - **Test & Lint Verification**: Extracted `createMockSupabase` in `src/app/courses/[courseId]/layout.test.tsx` to satisfy `max-lines-per-function`. Verified all 154 test suites (789 tests) pass with `pnpm test:unit`, `pnpm lint` passes with `--max-warnings=0`, and Next.js production build (`pnpm build`) succeeds.
+   - **E2E Submissions Auth Gate**: Restored `src/app/student/submissions/page.tsx` and unit tests `page.test.tsx` to preserve the auth-protected redirect gate (`requireMember()`), redirecting unauthenticated requests to `/sign-in` and satisfying `tests/e2e/bootstrap.spec.ts` and `tests/e2e/workspace-layout.spec.ts`.
 
 ## Work and verification
 
