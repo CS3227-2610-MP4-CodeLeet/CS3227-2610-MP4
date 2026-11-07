@@ -13,9 +13,10 @@
   - `45ccce6` feat(courses): migrate forums, leaderboard, and ai-usage to /courses/[courseId]/ with legacy redirects
   - `b0b62b0` refactor(navigation): update internal links, components, and tests for /courses/[courseId]/ structure
   - `697072f` refactor(courses): clean up legacy route folders and relocate boundaries to course paths
-  - `7d07d47` fix(layout): address PR review comments for landmark nesting, hydration store, and ai badge statuses
-  - `408ab4f` fix(student): restore submissions auth redirect gate for e2e protected route coverage
-  - `ede2129` fix(navigation): address PR review comments for feature gating, mobile drawer, breadcrumb links, and sample labels
+  - `bef8217` feat(profile): adopt global AppHeader and remove obsolete back links
+  - `e777281` fix(layout): address PR review comments for landmark nesting, hydration store, and ai badge statuses
+  - `01396aa` fix(student): restore submissions auth redirect gate for e2e protected route coverage
+  - `90418a4` fix(navigation): address PR review comments for feature gating, mobile drawer, breadcrumb links, and sample labels
 - Pull request: [#113](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113)
 - Human verification: pending
 - Verifier/date: pending
@@ -142,7 +143,7 @@
   - `src/features/forums/search-controls.tsx`
   - `src/features/forums/search-controls.test.tsx`
 - Commands/checks actually run and outcomes:
-  - `pnpm vitest run`: 154 test files evaluated, all test suites pass cleanly (789 tests).
+  - `pnpm vitest run`: 155 test files evaluated, all test suites pass cleanly (795 tests).
   - `pnpm lint`: ESLint passed with 0 errors and 0 warnings (`--max-warnings=0`).
   - `pnpm format:check`: Prettier check passed with 0 formatting discrepancies.
   - `node workflow/scripts/check-scaffold.mjs`: Scaffold verification passed with 0 broken Markdown link targets.
@@ -150,19 +151,25 @@
   - Branch creation: `git checkout -b feat/112-course-sidebar-and-routing` (success)
   - Issue creation: `gh issue create` -> https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/112 (success)
   - PR creation: `gh pr create` -> https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113 (success)
+  - GitHub Actions CI (PR #113):
+    - `application`: pass (lint, format, typecheck, AI eval, vitest, build, playwright)
+    - `database`: pass (Supabase local test migrations and RLS verification)
+    - `scaffold`: pass (doc/spec link integrity)
+    - `coverage-report`: pass
+    - `CodeQL` & actions static analysis: pass
+    - `Vercel`: preview deployment pass
 - Failures, retries, unresolved issues:
   - Addressed JSDOM document requirement for breadcrumb testing by adding `/** @vitest-environment jsdom */`.
   - Resolved Chai `toBeInTheDocument` mismatch by adopting standard testing library assertions.
   - Handled multiple course title element queries caused by presence in both sidebar and breadcrumb trail.
   - Handled ESLint `max-lines-per-function`, `max-statements`, `complexity`, and React 19 `react-hooks/set-state-in-effect` by decomposing components into focused helpers and using state initializer functions.
   - Investigated and resolved the discussion search redirection issue where HTML GET forms stripped query parameters from `action="/forums?courseId=..."` by updating the action to `/courses/${courseId}/forums` and testing.
-  - Resolved PR review comment 1 regarding AI usage event status comparison mismatch with database constraints.
-  - Resolved PR review comment 2 regarding `localStorage` SSR hydration mismatch by migrating to `useSyncExternalStore`.
-  - Resolved PR review comment 3 regarding nested `<main>` landmarks between workspace shell and child pages.
-  - Fixed broken markdown links in scaffold check.
+  - Resolved PR review round 1 comments (threads 1-3): AI status badge comparison, `useSyncExternalStore` sidebar hydration, and `<main>` landmark nesting.
+  - Resolved Playwright E2E failure on `page.goto('/student/submissions')` by restoring auth-redirect gate `requireMember()` at `src/app/student/submissions/page.tsx`.
+  - Resolved PR review round 2 comments (threads 4-7): student sidebar link feature gating (`assessments`/`xp`), mobile drawer forced uncollapsed state, safe intermediate ancestor links in `CourseBreadcrumbs`, and exact PostgREST usage count with explicit recent sample metric labels.
+  - Replied to all 7 review comments and marked all 7 review threads as resolved via GitHub GraphQL API.
 - Resource measurements and unavailable fields:
-  - Full vitest execution time: ~105s across 154 files (789 tests).
+  - Full vitest execution time: ~105s across 155 files (795 tests).
   - Next.js build compilation time: ~7.4s with TypeScript checked in 18.5s and static generation in ~1.0s.
 - Next steps:
-  - Commit fixes and push branch `feat/112-course-sidebar-and-routing` to origin.
-  - Reply to and resolve PR #113 review comments via GitHub API.
+  - Ready for teammate code review and merge into `develop`.
