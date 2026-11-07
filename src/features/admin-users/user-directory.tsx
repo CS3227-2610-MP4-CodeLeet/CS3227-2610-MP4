@@ -2,7 +2,7 @@
 
 import { PendingButton } from '@/components/ui/pending-button';
 
-import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminUser, AppRole } from './contracts';
 
@@ -156,7 +156,70 @@ function useDirectoryPages(
   const [users, setUsers] = useState(initialUsers);
   const [nextAfter, setNextAfter] = useState(initialNextAfter);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [search, setSearch] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const pageRequestInFlight = useRef(false);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    let isSubscribed = true;
+    async function fetchFiltered() {
+      setError(null);
+      setIsSearching(true);
+      try {
+        const queryParts: string[] = [];
+        if (debouncedQuery.trim())
+          queryParts.push(`q=${encodeURIComponent(debouncedQuery.trim())}`);
+        if (roleFilter)
+          queryParts.push(`role=${encodeURIComponent(roleFilter)}`);
+        const url = queryParts.length
+          ? `/api/admin/users?${queryParts.join('&')}`
+          : '/api/admin/users';
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok)
+          throw new Error('The user directory could not be loaded.');
+        const page = (await response.json()) as {
+          users: AdminUser[];
+          nextAfter: string | null;
+        };
+        if (isSubscribed) {
+          setUsers(page.users);
+          setNextAfter(page.nextAfter);
+        }
+      } catch (loadError) {
+        if (isSubscribed) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : 'The user directory could not be loaded.',
+          );
+        }
+      } finally {
+        if (isSubscribed) {
+          setIsSearching(false);
+        }
+      }
+    }
+
+    void fetchFiltered();
+    return () => {
+      isSubscribed = false;
+    };
+  }, [debouncedQuery, roleFilter, setError]);
 
   async function loadMore() {
     if (!nextAfter) return;
@@ -164,8 +227,13 @@ function useDirectoryPages(
     await runSinglePageRequest(pageRequestInFlight, async () => {
       setIsLoadingMore(true);
       try {
+        const queryParts: string[] = [`after=${encodeURIComponent(nextAfter)}`];
+        if (debouncedQuery.trim())
+          queryParts.push(`q=${encodeURIComponent(debouncedQuery.trim())}`);
+        if (roleFilter)
+          queryParts.push(`role=${encodeURIComponent(roleFilter)}`);
         const response = await fetch(
-          `/api/admin/users?after=${encodeURIComponent(nextAfter)}`,
+          `/api/admin/users?${queryParts.join('&')}`,
           { cache: 'no-store' },
         );
         if (!response.ok)
@@ -188,7 +256,18 @@ function useDirectoryPages(
     });
   }
 
-  return { users, setUsers, nextAfter, isLoadingMore, loadMore };
+  return {
+    users,
+    setUsers,
+    nextAfter,
+    isLoadingMore,
+    isSearching,
+    search,
+    setSearch,
+    roleFilter,
+    setRoleFilter,
+    loadMore,
+  };
 }
 
 function UserRows({
@@ -249,6 +328,53 @@ function UserRows({
   );
 }
 
+function DirectoryFilters({
+  search,
+  onSearchChange,
+  roleFilter,
+  onRoleFilterChange,
+  isSearching,
+}: {
+  search: string;
+  onSearchChange: (value: string) => void;
+  roleFilter: string;
+  onRoleFilterChange: (value: string) => void;
+  isSearching: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-4">
+      <div className="relative min-w-64 flex-1">
+        <input
+          type="search"
+          aria-label="Search users by email or name"
+          placeholder="Search users by email or name…"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+        />
+        {isSearching && (
+          <span className="absolute right-3 top-2.5 text-xs text-muted-foreground">
+            Searching…
+          </span>
+        )}
+      </div>
+      <div className="w-44">
+        <select
+          aria-label="Filter by role"
+          value={roleFilter}
+          onChange={(event) => onRoleFilterChange(event.target.value)}
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+        >
+          <option value="">All roles</option>
+          <option value="student">Student</option>
+          <option value="instructor">Instructor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
 export function UserDirectory({
   currentUserId,
   initialUsers,
@@ -272,6 +398,13 @@ export function UserDirectory({
           {error}
         </p>
       )}
+      <DirectoryFilters
+        search={directory.search}
+        onSearchChange={directory.setSearch}
+        roleFilter={directory.roleFilter}
+        onRoleFilterChange={directory.setRoleFilter}
+        isSearching={directory.isSearching}
+      />
       <UserRows
         users={directory.users}
         busyUserIds={busyUserIds}
