@@ -61,7 +61,7 @@ describe('instructor assignment form', () => {
       }),
     ]);
     expect(router.push).toHaveBeenCalledWith(
-      '/instructor?courseId=00000000-0000-4000-8000-000000000003',
+      '/courses/00000000-0000-4000-8000-000000000003/instructor',
     );
     expect(router.refresh).toHaveBeenCalledOnce();
   });

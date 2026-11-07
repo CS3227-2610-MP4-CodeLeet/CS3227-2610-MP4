@@ -20,7 +20,7 @@ vi.mock('next/navigation', () => ({
   },
 }));
 
-import InstructorSubmissionPage from './page';
+import CourseInstructorSubmissionPage from './page';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -86,9 +86,11 @@ beforeEach(() => {
 });
 
 it('shows saved archived grades read-only without grading controls', async () => {
-  const page = await InstructorSubmissionPage({
-    params: Promise.resolve({ submissionId: 'submission-1' }),
-    searchParams: Promise.resolve({ courseId: 'course-1' }),
+  const page = await CourseInstructorSubmissionPage({
+    params: Promise.resolve({
+      courseId: 'course-1',
+      submissionId: 'submission-1',
+    }),
   });
   const html = renderToStaticMarkup(page);
 

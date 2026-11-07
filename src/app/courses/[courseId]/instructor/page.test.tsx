@@ -21,7 +21,7 @@ vi.mock('next/navigation', () => ({
   },
 }));
 
-import InstructorPage from './page';
+import CourseInstructorPage from './page';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -58,8 +58,8 @@ beforeEach(() => {
 });
 
 async function renderPage() {
-  const page = await InstructorPage({
-    searchParams: Promise.resolve({ courseId: 'course-1' }),
+  const page = await CourseInstructorPage({
+    params: Promise.resolve({ courseId: 'course-1' }),
   });
   return renderToStaticMarkup(page);
 }
@@ -75,11 +75,13 @@ it('keeps archived assignments readable without offering a broken Edit action', 
 
   expect(html).toContain('Archived assignment');
   expect(html).toContain('Submissions');
-  expect(html).not.toContain('/edit?courseId=course-1');
+  expect(html).not.toContain('/edit');
 });
 
 it('keeps the Edit action available for active course assignments', async () => {
   const html = await renderPage();
 
-  expect(html).toContain('/edit?courseId=course-1');
+  expect(html).toContain(
+    '/courses/course-1/instructor/assignments/assignment-1/edit',
+  );
 });

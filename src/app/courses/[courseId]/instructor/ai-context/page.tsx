@@ -7,12 +7,12 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function AIContextPage({
-  searchParams,
+  params,
 }: {
-  searchParams: Promise<{ courseId?: string }>;
+  params: Promise<{ courseId: string }>;
 }) {
   const { supabase, user } = await requireMember();
-  const { courseId } = await searchParams;
+  const { courseId } = await params;
   if (!courseId) redirect('/courses');
   const access = await readCourseAccess(supabase, user.id, courseId, 'ai');
   if (
@@ -32,7 +32,7 @@ export default async function AIContextPage({
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
-        href={`/instructor?courseId=${encodeURIComponent(courseId)}`}
+        href={`/courses/${courseId}/instructor`}
         className="text-sm underline"
       >
         Back to assignments

@@ -81,7 +81,7 @@ describe('admin user directory', () => {
       navigate,
     });
     expect(save).toHaveBeenCalledOnce();
-    expect(navigate).toHaveBeenCalledWith('/instructor');
+    expect(navigate).toHaveBeenCalledWith('/courses');
     expect(destinationForRole('student')).toBe('/student/assignments');
   });
 
@@ -200,5 +200,156 @@ describe('admin user directory', () => {
         }) as HTMLSelectElement
       ).disabled,
     ).toBe(false);
+  });
+
+  it('searches users with debounce and updates directory', async () => {
+    const searchedUser = {
+      user_id: '00000000-0000-4000-8000-000000000099',
+      email: 'searched@example.test',
+      display_name: 'Searched User',
+      role: 'student' as const,
+    };
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ users: [searchedUser], nextAfter: null }),
+          { status: 200 },
+        ),
+      );
+    vi.stubGlobal('fetch', mockFetch);
+
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter="cursor-1"
+      />,
+    );
+
+    const searchInput = screen.getByRole('searchbox', {
+      name: /search users/i,
+    });
+    fireEvent.change(searchInput, {
+      target: { value: 'searched@example.test' },
+    });
+
+    // Wait for 300ms debounce
+    await new Promise((resolve) => setTimeout(resolve, 350));
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/admin/users?q=searched%40example.test',
+        expect.anything(),
+      );
+    });
+  });
+
+  it('filters users by role and updates directory', async () => {
+    const instructorUser = {
+      user_id: '00000000-0000-4000-8000-000000000088',
+      email: 'instructor@example.test',
+      display_name: 'Instructor User',
+      role: 'instructor' as const,
+    };
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ users: [instructorUser], nextAfter: null }),
+          { status: 200 },
+        ),
+      );
+    vi.stubGlobal('fetch', mockFetch);
+
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter="cursor-1"
+      />,
+    );
+
+    const roleFilter = screen.getByRole('combobox', {
+      name: /filter by role/i,
+    });
+    fireEvent.change(roleFilter, { target: { value: 'instructor' } });
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/users?role=instructor'),
+        expect.anything(),
+      );
+    });
+  });
+
+  it('invalidates pending pagination when filter changes and disables load more while searching', async () => {
+    let resolvePageRequest: (res: Response) => void;
+    const pendingPagePromise = new Promise<Response>((resolve) => {
+      resolvePageRequest = resolve;
+    });
+
+    const mockFetch = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('after=')) {
+        return pendingPagePromise;
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            users: [
+              {
+                user_id: '00000000-0000-4000-8000-000000000099',
+                email: 'filtered@example.test',
+                display_name: 'Filtered User',
+                role: 'student',
+              },
+            ],
+            nextAfter: null,
+          }),
+          { status: 200 },
+        ),
+      );
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter="cursor-1"
+      />,
+    );
+
+    const loadMoreBtn = screen.getByRole('button', { name: 'Load more users' });
+    fireEvent.click(loadMoreBtn);
+
+    const roleFilter = screen.getByRole('combobox', {
+      name: /filter by role/i,
+    });
+    fireEvent.change(roleFilter, { target: { value: 'student' } });
+
+    await waitFor(() => {
+      expect(screen.getByText('filtered@example.test')).toBeTruthy();
+    });
+
+    resolvePageRequest!(
+      new Response(
+        JSON.stringify({
+          users: [
+            {
+              user_id: '00000000-0000-4000-8000-000000000077',
+              email: 'stale-page@example.test',
+              display_name: 'Stale User',
+              role: 'instructor',
+            },
+          ],
+          nextAfter: null,
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByText('stale-page@example.test')).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import {
   adminUserSchema,
+  appRoleSchema,
   userIdSchema,
 } from '@/features/admin-users/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
@@ -46,9 +47,24 @@ export async function GET(request: NextRequest) {
   const after = request.nextUrl.searchParams.get('after');
   if (after && !userIdSchema.safeParse(after).success)
     return failure('invalid_cursor', 'Page cursor is invalid.', 400);
+
+  const roleParam = request.nextUrl.searchParams.get('role');
+  let filteredRole: string | null = null;
+  if (roleParam) {
+    const roleParsed = appRoleSchema.safeParse(roleParam);
+    if (!roleParsed.success)
+      return failure('invalid_role', 'Role filter is invalid.', 400);
+    filteredRole = roleParsed.data;
+  }
+
+  const qParam = request.nextUrl.searchParams.get('q');
+  const search = qParam?.trim() ? qParam.trim().slice(0, 100) : null;
+
   const { data, error } = await supabase.rpc('admin_list_users', {
     p_after_user_id: after,
     p_limit: pageSize + 1,
+    p_search: search,
+    p_role: filteredRole,
   });
   if (error) return databaseFailure(error.code);
   return pageResult(data);

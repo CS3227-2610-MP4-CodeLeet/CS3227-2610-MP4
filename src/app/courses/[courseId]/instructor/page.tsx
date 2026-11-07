@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { languageLabels } from '@/features/student-assignments/types';
 import { AssignmentDueDate } from '@/features/assignment-deadlines/components';
 import { AssignmentXp } from '@/features/assignment-xp/components';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 function languageLabel(language: unknown) {
@@ -13,15 +14,14 @@ function languageLabel(language: unknown) {
 }
 
 // eslint-disable-next-line max-lines-per-function, complexity -- page-level guards keep the course context visible before rendering.
-export default async function InstructorPage({
-  searchParams,
+export default async function CourseInstructorPage({
+  params,
 }: {
-  searchParams: Promise<{ courseId?: string }>;
+  params: Promise<{ courseId: string }>;
 }) {
   const { supabase, user } = await getVerifiedUserRole();
   if (!user || !supabase) redirect('/sign-in');
-  const courseId = (await searchParams).courseId;
-  if (!courseId) redirect('/courses');
+  const { courseId } = await params;
   const access = await readCourseAccess(
     supabase,
     user.id,
@@ -40,6 +40,9 @@ export default async function InstructorPage({
   if (error) throw new Error('Assignments could not be loaded');
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
+      <Link href={`/courses/${courseId}`} className="text-sm underline">
+        ← Course workspace
+      </Link>
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Course instructor</p>
@@ -48,7 +51,7 @@ export default async function InstructorPage({
         {access.lifecycle === 'active' && (
           <Link
             className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
-            href={`/instructor/assignments/new?courseId=${courseId}`}
+            href={`/courses/${courseId}/instructor/assignments/new`}
           >
             New assignment
           </Link>
@@ -80,21 +83,21 @@ export default async function InstructorPage({
               <div className="flex gap-4 text-sm">
                 <Link
                   className="underline"
-                  href={`/instructor/assignments/${assignment.id}/practice-tests?courseId=${courseId}`}
+                  href={`/courses/${courseId}/instructor/assignments/${assignment.id}/practice-tests`}
                 >
                   Practice tests
                 </Link>
                 {access.lifecycle === 'active' && (
                   <Link
                     className="underline"
-                    href={`/instructor/assignments/${assignment.id}/edit?courseId=${courseId}`}
+                    href={`/courses/${courseId}/instructor/assignments/${assignment.id}/edit`}
                   >
                     Edit
                   </Link>
                 )}
                 <Link
                   className="underline"
-                  href={`/instructor/assignments/${assignment.id}/submissions?courseId=${courseId}`}
+                  href={`/courses/${courseId}/instructor/assignments/${assignment.id}/submissions`}
                 >
                   Submissions
                 </Link>

@@ -10,20 +10,17 @@ import {
 // eslint-disable-next-line max-lines-per-function -- page markup stays with its server-side course context.
 export default async function InstructorSubmissionsPage({
   params,
-  searchParams,
 }: {
-  params: Promise<{ assignmentId: string }>;
-  searchParams: Promise<{ courseId?: string }>;
+  params: Promise<{ courseId: string; assignmentId: string }>;
 }) {
-  const { assignmentId } = await params;
-  const requestedCourseId = (await searchParams).courseId;
+  const { courseId, assignmentId } = await params;
   const { supabase, user } = await requireMember();
   const { data: assignment } = await supabase
     .from('assignments')
     .select('id,course_id,title,due_at')
     .eq('id', assignmentId)
     .maybeSingle();
-  if (!assignment || assignment.course_id !== requestedCourseId) notFound();
+  if (!assignment || assignment.course_id !== courseId) notFound();
   const access = await readCourseAccess(
     supabase,
     user.id,
@@ -46,7 +43,7 @@ export default async function InstructorSubmissionsPage({
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
       <Link
         className="text-sm underline"
-        href={`/instructor?courseId=${assignment.course_id}`}
+        href={`/courses/${courseId}/instructor`}
       >
         Back to assignments
       </Link>
@@ -83,7 +80,7 @@ export default async function InstructorSubmissionsPage({
               </time>
               <Link
                 className="underline"
-                href={`/instructor/submissions/${submission.id}?courseId=${assignment.course_id}`}
+                href={`/courses/${courseId}/instructor/submissions/${submission.id}`}
               >
                 Review
               </Link>

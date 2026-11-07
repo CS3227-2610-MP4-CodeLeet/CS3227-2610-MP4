@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function ProfilePage() {
   const profile = await loadProfileSettings();
   const workspace =
-    profile.role === 'student' ? '/student/assignments' : '/instructor';
+    profile.role === 'student' ? '/student/assignments' : '/courses';
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-8">
       <header className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-b py-4">
@@ -28,7 +28,7 @@ export default async function ProfilePage() {
         >
           {profile.role === 'student'
             ? 'Back to assignments'
-            : 'Back to instructor workspace'}
+            : 'Back to courses'}
         </Link>
         <section className="space-y-6 rounded-xl border bg-background p-5 sm:p-7">
           <div>

@@ -1,4 +1,5 @@
-// @vitest-environment jsdom
+/** @vitest-environment jsdom */
+
 import {
   cleanup,
   fireEvent,
@@ -7,34 +8,48 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-const mocks = vi.hoisted(() => ({ push: vi.fn() }));
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mocks.push }) }));
+import type { CourseSummary } from './contracts';
 import { CourseDirectory } from './course-directory';
 
-const courses = [
+const mocks = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mocks.push, refresh: mocks.refresh }),
+}));
+
+const courses: CourseSummary[] = [
   {
     id: '00000000-0000-4000-8000-000000000001',
     title: 'Algorithms',
-    description: 'Fall term',
-    owner_id: 'owner-1',
-    lifecycle: 'active' as const,
+    description: 'Core concepts',
+    lifecycle: 'active',
     is_legacy: false,
-    role: 'instructor' as const,
+    role: 'instructor',
+    owner_id: 'owner-1',
   },
   {
     id: '00000000-0000-4000-8000-000000000002',
+    title: 'Operating Systems',
+    description: '',
+    lifecycle: 'active',
+    is_legacy: false,
+    role: 'student',
+    owner_id: 'owner-2',
+  },
+  {
+    id: '00000000-0000-4000-8000-000000000000',
     title: 'Legacy',
-    description: 'Historical work',
-    owner_id: null,
-    lifecycle: 'archived' as const,
+    description: 'Historical archive',
+    lifecycle: 'archived',
     is_legacy: true,
-    role: 'student' as const,
+    role: null,
+    owner_id: null,
   },
 ];
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  mocks.push.mockReset();
+  mocks.refresh.mockReset();
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue({
@@ -45,12 +60,15 @@ beforeEach(() => {
     }),
   );
 });
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
 
-describe('course directory', () => {
+const CREATE_COURSE_LABEL = 'Create course';
+
+describe('course directory display', () => {
   it('shows each course role and archived Legacy owner state', () => {
     render(
       <CourseDirectory
@@ -66,23 +84,32 @@ describe('course directory', () => {
     expect(screen.getByText('archived')).toBeTruthy();
     expect(screen.getByText(/owner: unassigned/i)).toBeTruthy();
   });
+});
 
-  it('creates a course and opens its workspace', async () => {
+describe('course directory create modal', () => {
+  it('opens create course modal and submits new course', async () => {
     render(
       <CourseDirectory
-        initialCourses={[]}
+        initialCourses={courses}
         canCreate={true}
         currentUserId="owner-1"
         platformAdmin={false}
       />,
     );
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: CREATE_COURSE_LABEL }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
     fireEvent.change(screen.getByLabelText('Course title'), {
       target: { value: 'Data Structures' },
     });
     fireEvent.change(screen.getByLabelText('Description'), {
       target: { value: 'Spring term' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create course' }));
+    const submitBtn = screen.getByRole('button', { name: 'Save course' });
+    fireEvent.click(submitBtn);
+
     await waitFor(() =>
       expect(mocks.push).toHaveBeenCalledWith(
         '/courses/00000000-0000-4000-8000-000000000003',
@@ -99,8 +126,10 @@ describe('course directory', () => {
       }),
     );
   });
+});
 
-  it('joins a course by code and provides an empty state for new students', async () => {
+describe('course directory join and cancel modals', () => {
+  it('opens join course modal and submits join code', async () => {
     render(
       <CourseDirectory
         initialCourses={[]}
@@ -110,10 +139,17 @@ describe('course directory', () => {
       />,
     );
     expect(screen.getByText(/no courses yet/i)).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Join course' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
     fireEvent.change(screen.getByLabelText('Join code'), {
       target: { value: 'synthetic-join-code-123456' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Join course' }));
+    const submitBtn = screen.getByRole('button', { name: 'Submit join code' });
+    fireEvent.click(submitBtn);
+
     await waitFor(() =>
       expect(mocks.push).toHaveBeenCalledWith(
         '/courses/00000000-0000-4000-8000-000000000003',
@@ -123,6 +159,49 @@ describe('course directory', () => {
       '/api/courses/join',
       expect.objectContaining({ method: 'POST' }),
     );
-    expect(screen.queryByRole('button', { name: 'Create course' })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: CREATE_COURSE_LABEL }),
+    ).toBeNull();
+  });
+
+  it('closes modal when cancel button is clicked', () => {
+    render(
+      <CourseDirectory
+        initialCourses={courses}
+        canCreate={true}
+        currentUserId="owner-1"
+        platformAdmin={false}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: CREATE_COURSE_LABEL }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('traps focus inside the modal and restores focus to trigger on close', () => {
+    render(
+      <CourseDirectory
+        initialCourses={courses}
+        canCreate={true}
+        currentUserId="owner-1"
+        platformAdmin={false}
+      />,
+    );
+    const triggerBtn = screen.getByRole('button', {
+      name: CREATE_COURSE_LABEL,
+    });
+    triggerBtn.focus();
+    expect(document.activeElement).toBe(triggerBtn);
+
+    fireEvent.click(triggerBtn);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByLabelText('Course title'));
+
+    const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
+    fireEvent.click(cancelBtn);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(triggerBtn);
   });
 });

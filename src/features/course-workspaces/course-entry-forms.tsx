@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
-function useCourseSubmission(path: string) {
+function useCourseSubmission(path: string, onSuccess?: () => void) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -26,6 +26,7 @@ function useCourseSubmission(path: string) {
         throw new Error(
           result.error?.message ?? 'Course request failed. Try again.',
         );
+      onSuccess?.();
       router.push(`/courses/${result.courseId}`);
     } catch (requestError) {
       setError(
@@ -40,10 +41,19 @@ function useCourseSubmission(path: string) {
   return { error, busy, submit };
 }
 
-export function CourseCreateForm() {
+export function CourseCreateForm({
+  onSuccess,
+  onCancel,
+}: {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const { error, busy, submit } = useCourseSubmission('/api/courses');
+  const { error, busy, submit } = useCourseSubmission(
+    '/api/courses',
+    onSuccess,
+  );
 
   function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +61,7 @@ export function CourseCreateForm() {
   }
 
   return (
-    <form onSubmit={create} className="space-y-4 rounded-xl border p-5">
+    <form onSubmit={create} className="space-y-4">
       <div>
         <h2 className="text-xl font-semibold">Create a course</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -82,19 +92,40 @@ export function CourseCreateForm() {
           className="min-h-24 w-full rounded-md border bg-background px-3 py-2"
         />
       </label>
-      <button
-        disabled={busy}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-      >
-        Create course
-      </button>
+      <div className="flex items-center justify-end gap-3 pt-2">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={busy}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          {busy ? 'Saving…' : 'Save course'}
+        </button>
+      </div>
     </form>
   );
 }
 
-export function CourseJoinForm() {
+export function CourseJoinForm({
+  onSuccess,
+  onCancel,
+}: {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}) {
   const [code, setCode] = useState('');
-  const { error, busy, submit } = useCourseSubmission('/api/courses/join');
+  const { error, busy, submit } = useCourseSubmission(
+    '/api/courses/join',
+    onSuccess,
+  );
 
   function join(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,7 +133,7 @@ export function CourseJoinForm() {
   }
 
   return (
-    <form onSubmit={join} className="space-y-4 rounded-xl border p-5">
+    <form onSubmit={join} className="space-y-4">
       <div>
         <h2 className="text-xl font-semibold">Join a course</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -126,12 +157,24 @@ export function CourseJoinForm() {
           className="w-full rounded-md border bg-background px-3 py-2"
         />
       </label>
-      <button
-        disabled={busy}
-        className="rounded-md border px-4 py-2 text-sm font-medium"
-      >
-        Join course
-      </button>
+      <div className="flex items-center justify-end gap-3 pt-2">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={busy}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          {busy ? 'Joining…' : 'Submit join code'}
+        </button>
+      </div>
     </form>
   );
 }
