@@ -12,13 +12,20 @@ pnpm db:test
 
 Migrations provide text profiles, protected student/instructor/admin roles, assignments with a separately protected rubric, immutable Python/Java submission revisions, grades, AI reviews, and usage records. Public signup always receives the `student` role. Role writes remain unavailable to application clients; admins use the guarded role-management panel.
 
-The seed creates 12 synthetic students, 3 synthetic instructors, 1 synthetic admin, 12 assignments (10 published and 2 drafts), rubrics, student submissions, and a mix of published and unpublished grades. Fresh assignment examples alternate between deadlines seven days ahead, one day ago and no deadline; new revisions capture their timing automatically. The seeded login emails are:
+The seed creates 12 synthetic students, 3 synthetic instructors, 1 synthetic admin, 3 active courses, 12 assignments (10 published and 2 drafts), rubrics, student submissions, and a mix of published and unpublished grades. Fresh assignment examples feature popular LeetCode Easy problems (Two Sum, Valid Palindrome, Best Time to Buy and Sell Stock, Valid Parentheses, Roman to Integer, Binary Search, Palindrome Number, Fizz Buzz, Contains Duplicate) with executable test cases and criteria rubrics, alternating between deadlines seven days ahead, one day ago and no deadline; new revisions capture their timing automatically. The seeded login emails are:
 
 - Students: `student01@codeleet.test` through `student12@codeleet.test` (display names `Student 01` through `Student 12`).
 - Instructors: `instructor1@codeleet.test` through `instructor3@codeleet.test` (display names `Instructor 1` through `Instructor 3`).
 - Admin: `admin@codeleet.test` (display name `Admin`).
 
-These accounts have **no preset password**. To set one for local sign-in, start the local Supabase services and app, open `http://localhost:3000/forgot-password`, and submit the seeded email. Open the newest reset email in [local Mailpit](http://localhost:54324), follow its link in the same browser, and choose a new password. Then sign in at `http://localhost:3000/sign-in` with that email and password. Reset messages are captured locally and are not sent to real inboxes. Running `pnpm db:seed` or `pnpm db:reset` recreates these accounts without passwords, so repeat this setup after resetting. No password is committed to the repository.
+### Standard Local Password
+All seeded local accounts come pre-configured with the default password **`123456`** (meeting Supabase's 6-character minimum requirement via bcrypt hashing in `supabase/seed.sql`). You can immediately sign in at `http://localhost:3000/sign-in` using any seeded email (or its display name / login username) and the password `123456`. Alternatively, local password resets via Mailpit (`http://localhost:54324`) remain fully supported.
+
+### Seeded Courses
+1. **CS101: Introduction to Python Programming** (Python-only, owned by `instructor1@codeleet.test`): Features *Two Sum*, *Valid Palindrome*, and *Best Time to Buy and Sell Stock*.
+2. **CS102: Data Structures in Java** (Java-only, owned by `instructor2@codeleet.test`): Features *Valid Parentheses*, *Roman to Integer*, and *Binary Search* (draft).
+3. **CS201: Algorithms & Problem Solving** (Polyglot with both Python and Java, owned by `instructor3@codeleet.test`): Features *Palindrome Number* (Python), *Fizz Buzz* (Java), and *Contains Duplicate* (Python).
+4. **Legacy**: Archived historical workspace preserved for backward compatibility.
 
 ## Provision the first admin
 
