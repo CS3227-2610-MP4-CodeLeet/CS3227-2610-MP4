@@ -43,6 +43,26 @@ docs: standardize issue and pull request titles
 
 In each pull request description, replace the template's `Closes #<issue-number>` placeholder with the matching issue number. GitHub automatically closes the issue when the pull request merges into this repository's default branch (`develop`).
 
+## Quality Standards
+
+All contributors, pull requests, and automated workflows must meet the following descriptors across all evaluated criteria:
+
+| Category | Descriptor | Key Expectations |
+| :--- | :--- | :--- |
+| **GUI** | Good GUI. Significantly different from generic templates. | Custom styling, thoughtful layout, polished UI/UX that transcends standard component scaffolds. Responsive, accessible, and purpose-built for student and instructor programming workflows. |
+| **Functionalities** | Noticeably more functionalities than expected, i.e., has gone the extra mile. | Rich feature set beyond minimal requirements: course-scoped workspaces, interactive test runners, revision comparison, forum search, leaderboard, autosaving, role diagnostics, and AI-assisted workflows. |
+| **Bugs** | No bugs. | Zero regressions. Defensive edge-case handling across network errors, malformed payloads, role mismatches, and execution timeouts. Passing all automated checks. |
+| **User Guide** | Covers all functionality. Easy to read. Very useful. | Comprehensive user documentation in `docs/UserGuide.md`, covering workflows for every role, clear walkthroughs, screenshots/diagrams, and verified current behavior. |
+| **Developer Guide** | Covers all software engineering practices. Easy to read. Very useful. | Thorough developer documentation in `docs/DeveloperGuide.md`, documenting architecture, component diagrams, design patterns, testing strategy, and environment setup. |
+| **Design** | Excellent design, good design principles and patterns followed, components properly separated with a clean flow of interactions, evidence of extensibility / maintainability, design decisions well-discussed. | Clean separation of concerns (SOLID, DRY), server/client boundaries, decoupled runner services, extensible schemas, and documented design trade-offs. |
+| **Code Quality** | Very well-managed codebase. Clean, neat and readable. Clear sign of following good software engineering practices throughout the repo. Clear sign of following good coding convention and the design in the documentation. | Clean code, strict TypeScript types, SonarJS compliance, standard formatting, consistent naming conventions, and well-structured modules under `src/`. |
+| **Tests and Error Handling** | Multi-level testing with a lot of test cases. Comprehensive error handling. | Unit tests (Vitest), integration/database tests (pgTAP/Supabase), end-to-end browser tests (Playwright), error boundaries, and explicit failure path assertions. |
+| **AI Security in the App** | A comprehensive set of AI security features implemented and tested in the app. | Threat modeling, robust prompt injection defenses, server-side private rubrics and keys, untrusted input containment, and automated evaluation (e.g. Promptfoo). |
+| **Deployment** | Proper separation of development and production environment well managed with automation. | Clear isolation between local dev, preview, and production environments; CI/CD pipeline automation; safe migration strategies and smoke tests. |
+| **Reflections on Agentic SE** | Comprehensive reflection on agentic SE workflow, with strong evidence of Multi-Agent SE, Context Engineering and Resource-aware Use. Multiple examples for each topic shown and discussed in detail. | In-depth reflection documentation (`docs/Reflections.md`, `docs/JohnReflections.md`, `docs/PaulReflections.md`) backed by quantitative and empirical evidence from logs and experiments. |
+| **Workflow-related Artefacts** | Very well-managed artefacts. Clean, neat, and readable. Strong sign of following good convention and design. | Traceable OpenSpec changes (proposals, specs, design, tasks), chronological session logs in `logs/`, handoffs, and verification records. |
+| **Git Version Control Practices** | Excellent commit history, appropriately sized commits with meaningful messages, frequent and focused commits, clear descriptive messages, changes generally grouped into logical units of work, logical progression showing an iterative development process. | Strict Conventional Commits, cohesive commit units, traceable PR and issue links, and a clean, progressive branch history. |
+
 Current scaffold checks:
 
 ```sh

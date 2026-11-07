@@ -23,6 +23,24 @@ Read `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, and the relevant Op
 - Update `docs/UserGuide.md` only with verified current behavior. Keep plans in workflow/OpenSpec documents.
 - Do not commit secrets, credentials, real student data, raw sensitive prompts, or generated runtime distributions without license review.
 
+## Quality Standards
+
+All contributions and AI coding agents must align with the following standards:
+
+- **GUI**: Good GUI. Significantly different from generic templates.
+- **Functionalities**: Noticeably more functionalities than expected, i.e., has gone the extra mile.
+- **Bugs**: No bugs. Zero regression policy across unit, integration, and e2e suites.
+- **User Guide**: Covers all functionality. Easy to read. Very useful.
+- **Developer Guide**: Covers all software engineering practices. Easy to read. Very useful.
+- **Design**: Excellent design, good design principles and patterns followed, components properly separated with a clean flow of interactions, evidence of extensibility / maintainability, design decisions well-discussed.
+- **Code quality**: Very well-managed codebase. Clean, neat and readable. Clear sign of following good software engineering practices throughout the repo. Clear sign of following good coding convention and the design in the documentation.
+- **Tests and Error Handling**: Multi-level testing with a lot of test cases. Comprehensive error handling across all boundaries.
+- **AI Security in the App**: A comprehensive set of AI security features implemented and tested in the app (threat modeling, prompt injection mitigations, server-side secret isolation, automated eval).
+- **Deployment**: Proper separation of development and production environment well managed with automation.
+- **Reflections on Agentic SE** (e.g., Multi-Agent SE, Context Engineering, and Resource-aware Use): Comprehensive reflection on agentic SE workflow, with strong evidence of Multi-Agent SE, Context Engineering, and Resource-aware Use. Multiple examples for each topic shown and discussed in detail.
+- **Workflow-related Artefacts**: Very well-managed artefacts. Clean, neat, and readable. Strong sign of following good convention and design.
+- **Git Version Control Practices**: Excellent commit history, appropriately sized commits with meaningful messages, frequent and focused commits, clear descriptive messages, changes generally grouped into logical units of work, logical progression showing an iterative development process.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
