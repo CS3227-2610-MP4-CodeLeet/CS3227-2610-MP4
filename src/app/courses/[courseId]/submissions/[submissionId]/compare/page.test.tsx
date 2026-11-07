@@ -5,7 +5,7 @@ import {
   hasStudentAssessmentAccess,
 } from '@/features/student-submissions/course-access.server';
 import { loadRevisionComparison } from '@/features/student-submissions/revision-comparison.server';
-import CompareRevisionsPage from './page';
+import CourseCompareRevisionsPage from './page';
 
 const studentId = 'verified-student';
 
@@ -36,13 +36,15 @@ beforeEach(() => {
 
 it('uses verified identity and validated revision numbers rather than URL identity', async () => {
   await expect(
-    CompareRevisionsPage({
-      params: Promise.resolve({ submissionId: 'anchor-id' }),
+    CourseCompareRevisionsPage({
+      params: Promise.resolve({
+        courseId: 'course-a',
+        submissionId: 'anchor-id',
+      }),
       searchParams: Promise.resolve({
         before: '2',
         after: '1',
         student_id: 'peer',
-        courseId: 'course-a',
       }),
     }),
   ).rejects.toThrow('not-found');
@@ -65,10 +67,26 @@ it('uses verified identity and validated revision numbers rather than URL identi
   );
 });
 
+it('rejects mismatch between path courseId and submission courseId', async () => {
+  vi.mocked(courseIdForStudentSubmission).mockResolvedValue('course-other');
+  await expect(
+    CourseCompareRevisionsPage({
+      params: Promise.resolve({
+        courseId: 'course-a',
+        submissionId: 'anchor-id',
+      }),
+      searchParams: Promise.resolve({ before: '2', after: '1' }),
+    }),
+  ).rejects.toThrow('not-found');
+});
+
 it('rejects duplicate parameters before any comparison read', async () => {
   await expect(
-    CompareRevisionsPage({
-      params: Promise.resolve({ submissionId: 'anchor-id' }),
+    CourseCompareRevisionsPage({
+      params: Promise.resolve({
+        courseId: 'course-a',
+        submissionId: 'anchor-id',
+      }),
       searchParams: Promise.resolve({ before: ['1', '2'] }),
     }),
   ).rejects.toThrow('not-found');

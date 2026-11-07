@@ -52,6 +52,15 @@
    - **Task 4**: Migrated all student routes (`/assignments`, `/assignments/[assignmentId]`, `/submissions`, `/submissions/[submissionId]`, `/submissions/[submissionId]/compare`, `/grades`, `/progress`, `/xp`) to `/courses/[courseId]/...`. Configured backward-compatible redirects on legacy `/student/*` query-string endpoints while preserving unauthenticated preview mode (`579c5af`).
    - **Task 5**: Migrated forums (`/forums`, `/forums/new`, `/forums/[threadId]`), leaderboard (`/leaderboard`), and personal AI usage (`/ai-usage`) to `/courses/[courseId]/...`. Configured legacy redirects for query-string entry points (`45ccce6`).
    - **Task 6**: Updated internal navigation links across feature components (`assignment-xp`, `forums`, `leaderboard`, `student-assignments`, `student-grades`, `student-progress`, `student-submissions`), updated test suites and E2E specs, and resolved all ESLint/TypeScript constraints (`b0b62b0`).
+10. **User Follow-up & Steering**:
+   - User inquired why `/app/ai/usage/`, `/app/forum/`, `/app/leaderboard/`, and `/app/student` folders still existed, whether they were needed, and asked to clean them up and remove them from the repo.
+   - User reported a bug where "Search discussions" redirects to `/forums` instead of appending query parameters to `/courses/[courseId]/forums`.
+11. **Agent Action (Task 7 - Cleanup & Form Target Verification)**:
+   - Root-caused search form redirection: in HTML standard GET form submission, browsers strip embedded query parameters from `action="/forums?courseId=..."` upon appending form inputs (`?q=...`). Ensured `ForumSearchControls` action explicitly points to `/courses/${courseId}/forums` and added dedicated unit tests in `src/features/forums/search-controls.test.tsx`.
+   - Relocated error boundaries, loading spinners, and not-found templates directly under canonical `src/app/courses/[courseId]/` subtrees (`forums`, `leaderboard`, `grades`, `progress`, `submissions`, `xp`, `assignments`).
+   - Removed legacy redirect stubs and directories: `src/app/ai/usage`, `src/app/forums`, `src/app/leaderboard`, and `src/app/student/{grades,progress,submissions,xp}`.
+   - Retained only `/student/assignments` offline test fixtures required by Playwright unauthenticated browser runner tests (`PLAYWRIGHT_ASSIGNMENT_FIXTURES`).
+   - Verified that `pnpm vitest run`, `pnpm lint`, and `pnpm build` pass with 0 errors.
 
 ## Work and verification
 
@@ -65,31 +74,52 @@
   - `src/app/courses/[courseId]/layout.tsx`
   - `src/app/courses/[courseId]/assignments/page.tsx`
   - `src/app/courses/[courseId]/assignments/[assignmentId]/page.tsx`
+  - `src/app/courses/[courseId]/assignments/error.tsx`
+  - `src/app/courses/[courseId]/assignments/loading.tsx`
+  - `src/app/courses/[courseId]/assignments/not-found.tsx`
   - `src/app/courses/[courseId]/submissions/page.tsx`
   - `src/app/courses/[courseId]/submissions/[submissionId]/page.tsx`
   - `src/app/courses/[courseId]/submissions/[submissionId]/compare/page.tsx`
+  - `src/app/courses/[courseId]/submissions/error.tsx`
+  - `src/app/courses/[courseId]/submissions/loading.tsx`
   - `src/app/courses/[courseId]/grades/page.tsx`
+  - `src/app/courses/[courseId]/grades/error.tsx`
+  - `src/app/courses/[courseId]/grades/loading.tsx`
+  - `src/app/courses/[courseId]/grades/not-found.tsx`
   - `src/app/courses/[courseId]/progress/page.tsx`
+  - `src/app/courses/[courseId]/progress/error.tsx`
+  - `src/app/courses/[courseId]/progress/loading.tsx`
   - `src/app/courses/[courseId]/xp/page.tsx`
+  - `src/app/courses/[courseId]/xp/error.tsx`
+  - `src/app/courses/[courseId]/xp/loading.tsx`
   - `src/app/courses/[courseId]/forums/page.tsx`
+  - `src/app/courses/[courseId]/forums/error.tsx`
+  - `src/app/courses/[courseId]/forums/loading.tsx`
+  - `src/app/courses/[courseId]/forums/not-found.tsx`
   - `src/app/courses/[courseId]/forums/new/page.tsx`
   - `src/app/courses/[courseId]/forums/[threadId]/page.tsx`
   - `src/app/courses/[courseId]/leaderboard/page.tsx`
+  - `src/app/courses/[courseId]/leaderboard/error.tsx`
+  - `src/app/courses/[courseId]/leaderboard/loading.tsx`
   - `src/app/courses/[courseId]/ai-usage/page.tsx`
+  - `src/features/forums/search-controls.tsx`
+  - `src/features/forums/search-controls.test.tsx`
 - Commands/checks actually run and outcomes:
-  - `pnpm vitest run`: 72 test files passed, 411 tests passed (0 failures).
+  - `pnpm vitest run`: 152 test files evaluated, all individual and full suites pass cleanly (785 tests).
   - `pnpm lint`: ESLint passed with 0 errors and 0 warnings (`--max-warnings=0`).
   - `pnpm build`: Next.js production build succeeded with type checking passed and all static/dynamic route artifacts emitted cleanly.
   - Branch creation: `git checkout -b feat/112-course-sidebar-and-routing` (success)
   - Issue creation: `gh issue create` -> https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/112 (success)
+  - PR creation: `gh pr create` -> https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113 (success)
 - Failures, retries, unresolved issues:
   - Addressed JSDOM document requirement for breadcrumb testing by adding `/** @vitest-environment jsdom */`.
   - Resolved Chai `toBeInTheDocument` mismatch by adopting standard testing library assertions.
   - Handled multiple course title element queries caused by presence in both sidebar and breadcrumb trail.
   - Handled ESLint `max-lines-per-function`, `max-statements`, `complexity`, and React 19 `react-hooks/set-state-in-effect` by decomposing components into focused helpers and using state initializer functions.
+  - Investigated and resolved the discussion search redirection issue where HTML GET forms stripped query parameters from `action="/forums?courseId=..."` by updating the action to `/courses/${courseId}/forums` and testing.
 - Resource measurements and unavailable fields:
-  - Full vitest execution time: ~18 seconds across 72 test files.
-  - Next.js build compilation time: ~4 seconds with static generation in ~1.5s.
+  - Full vitest execution time: ~18 seconds across 72 test files; full repo unit tests: ~210s across 152 files.
+  - Next.js build compilation time: ~24 seconds with static generation in ~1.0s.
 - Next steps:
-  - Push branch `feat/112-course-sidebar-and-routing` to origin.
-  - Open pull request to `develop` linking issue #112.
+  - Commit cleanups and push to `feat/112-course-sidebar-and-routing`.
+  - Update PR #113.

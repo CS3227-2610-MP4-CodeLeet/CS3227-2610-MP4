@@ -3,7 +3,7 @@ import { requireMember } from '@/lib/auth/verified-user';
 import { parseHistoryPage } from '@/features/student-submissions/history';
 import { loadOwnXp } from '@/features/assignment-xp/queries.server';
 import { XpOverview } from '@/features/assignment-xp/components';
-import XpError from '@/app/student/xp/error';
+import XpError from './error';
 import { readCourseAccess } from '@/lib/courses/access';
 
 export default async function CourseXpPage({

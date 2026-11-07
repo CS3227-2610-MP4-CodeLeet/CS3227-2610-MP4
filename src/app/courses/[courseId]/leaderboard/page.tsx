@@ -4,7 +4,7 @@ import { readCourseAccess } from '@/lib/courses/access';
 import { parseHistoryPage } from '@/features/student-submissions/history';
 import { loadLeaderboard } from '@/features/leaderboard/queries.server';
 import { LeaderboardView } from '@/features/leaderboard/components';
-import LeaderboardError from '@/app/leaderboard/error';
+import LeaderboardError from './error';
 
 export default async function CourseLeaderboardPage({
   params,

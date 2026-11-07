@@ -5,7 +5,7 @@ import { parseHistoryPage } from '@/features/student-submissions/history';
 import { parseListFilters } from '@/features/student-lists/filters';
 import { loadStudentGrades } from '@/features/student-grades/grades.server';
 import { StudentGradesList } from '@/features/student-grades/grades-list';
-import GradesError from '@/app/student/grades/error';
+import GradesError from './error';
 
 export default async function CourseGradesPage({
   params,

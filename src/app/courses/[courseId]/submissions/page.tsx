@@ -4,7 +4,7 @@ import { readCourseAccess } from '@/lib/courses/access';
 import { parseHistoryPage } from '@/features/student-submissions/history';
 import { loadSubmissionHistory } from '@/features/student-submissions/history.server';
 import { SubmissionHistoryList } from '@/features/student-submissions/history-list';
-import SubmissionsError from '@/app/student/submissions/error';
+import SubmissionsError from './error';
 import { parseListFilters } from '@/features/student-lists/filters';
 
 export default async function CourseSubmissionsPage({

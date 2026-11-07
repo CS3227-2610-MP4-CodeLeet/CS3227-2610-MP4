@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 export default function DiscussionNotFound() {
   return (
     <section className="space-y-3 rounded-xl border bg-background p-6">

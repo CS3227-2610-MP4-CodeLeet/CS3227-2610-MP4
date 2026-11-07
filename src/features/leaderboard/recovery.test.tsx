@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
-import LeaderboardError from '@/app/leaderboard/error';
+import LeaderboardError from '@/app/courses/[courseId]/leaderboard/error';
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
