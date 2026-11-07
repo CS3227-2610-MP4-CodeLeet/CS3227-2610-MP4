@@ -45,6 +45,8 @@ describe('GET /api/admin/users', () => {
     expect(mocks.rpc).toHaveBeenCalledWith('admin_list_users', {
       p_after_user_id: null,
       p_limit: 51,
+      p_search: null,
+      p_role: null,
     });
   });
 
@@ -84,5 +86,26 @@ describe('GET /api/admin/users', () => {
         (row: { user_id: string }) => row.user_id === rows[50].user_id,
       ),
     ).toBe(false);
+  });
+
+  it('passes search and role filters to admin_list_users RPC', async () => {
+    const response = await GET(
+      new NextRequest(`${directoryUrl}?q=student&role=student`),
+    );
+    expect(response.status).toBe(200);
+    expect(mocks.rpc).toHaveBeenCalledWith('admin_list_users', {
+      p_after_user_id: null,
+      p_limit: 51,
+      p_search: 'student',
+      p_role: 'student',
+    });
+  });
+
+  it('rejects an invalid role filter', async () => {
+    const response = await GET(
+      new NextRequest(`${directoryUrl}?role=superadmin`),
+    );
+    expect(response.status).toBe(400);
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });
