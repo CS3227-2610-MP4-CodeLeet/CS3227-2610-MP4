@@ -8,7 +8,8 @@
 - Branch and commits: `feat/enhanced-local-seed-fixtures`
   - `d011f54`: `feat(seed): expand local seed data with admin, courses, and leetcode assignments`
   - `5a729e2`: `fix(seed): update default password to meet 8-character client input requirement`
-- Pull request: Pending creation
+  - `c8f6adb`: `chore: record session log for enhanced seed fixtures`
+- Pull request: #109
 - Human verification: pending
 - Verifier/date: John / 2026-11-07
 
@@ -21,11 +22,11 @@
 
 2. **Approach Selection & Design**:
    - User chose Approach 1 and requested the shortest valid password.
-   - Assistant wrote the design document in `docs/superpowers/specs/2026-11-07-enhanced-local-seed-fixtures-design.md`, noting Supabase's 6-character minimum (`minimum_password_length = 6`) and initial proposal of `123456`.
+   - Assistant wrote the design document in `workflow/plans/2026-11-07-enhanced-local-seed-fixtures-design.md`, noting Supabase's 6-character minimum (`minimum_password_length = 6`) and initial proposal of `123456`.
    - User approved the design document.
 
 3. **Planning & Native Execution**:
-   - Assistant invoked `writing-plans` to produce `docs/superpowers/plans/2026-11-07-enhanced-local-seed-fixtures.md`.
+   - Assistant invoked `writing-plans` to produce `workflow/plans/2026-11-07-enhanced-local-seed-fixtures.md`.
    - User selected Native inline execution.
    - Assistant updated `supabase/seed.sql` with:
      - Admin account (`admin@codeleet.test`) and bcrypt password.
@@ -41,14 +42,23 @@
    - Verified programmatic sign-in with email and username resolution.
    - User tested and approved opening the Pull Request.
 
+5. **PR Creation, Body Escaping Fix, and Review Reception**:
+   - Assistant created PR #109, but PowerShell CLI argument interpretation mangled backticks and backslashes in the body.
+   - User flagged the mangled PR description text and requested addressing inline review comments on PR #109.
+   - Assistant fetched review comments from Codex:
+     - Comment 4500908756 (P1): Relocate workflow artifacts from `docs/superpowers/` to `workflow/plans/` per `AGENTS.md`.
+     - Comment 4500908759 (P2): Update plan and design docs to reference `password` instead of `123456`.
+   - Assistant moved `docs/superpowers/specs/2026-11-07-enhanced-local-seed-fixtures-design.md` and `docs/superpowers/plans/2026-11-07-enhanced-local-seed-fixtures.md` into `workflow/plans/`, updated password references to `password`, and updated the PR description via `--body-file` without mangling.
+
 ## Work and verification
 
 - Files and requirement links:
   - `supabase/seed.sql`: Primary declarative seed fixture.
   - `supabase/README.md`: Documented local credentials (`password`) and course structure.
   - `tests/unit/local-db-reset-warning.test.ts`: Updated regex to accept `extensions.crypt` password hashes.
-  - `docs/superpowers/specs/2026-11-07-enhanced-local-seed-fixtures-design.md`: Design spec.
-  - `docs/superpowers/plans/2026-11-07-enhanced-local-seed-fixtures.md`: Implementation plan.
+  - `workflow/plans/2026-11-07-enhanced-local-seed-fixtures-design.md`: Design spec.
+  - `workflow/plans/2026-11-07-enhanced-local-seed-fixtures.md`: Implementation plan.
+  - `.superpowers/sdd/2026-11-07-enhanced-local-seed-fixtures/progress.md`: SDD tracking.
 - Commands/checks actually run and outcomes:
   - `pnpm db:seed`: Dropped database, applied 25 migrations, and loaded seed fixtures cleanly.
   - `pnpm db:test`: All 13 test suites (448 subtests) passed.
@@ -59,8 +69,10 @@
 - Failures, retries, unresolved issues:
   - Initial `123456` password blocked by browser client `minLength={8}` constraint; resolved by switching to `password`.
   - Database test count conflict resolved by keeping legacy assignments free of published practice sets.
+  - PowerShell body argument mangled PR description; resolved by updating PR via file-based input.
 - Resource measurements and unavailable fields:
   - Unit test duration: 165s.
   - Database pgTAP test duration: 10s.
 - Next steps:
-  - Push branch and create Pull Request to `develop` linking issue #108.
+  - Push documentation updates to `feat/enhanced-local-seed-fixtures`.
+  - Resolve review comment threads on PR #109.

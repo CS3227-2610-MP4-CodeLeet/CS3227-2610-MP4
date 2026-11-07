@@ -4,7 +4,7 @@
 Local development and automated testing require realistic, rich fixture data that reflects actual platform capabilities rather than trivial placeholders. Enhancing the seed fixtures ensures developers and evaluators can immediately sign in with standard credentials (including an admin account), test course workspaces across Python, Java, and polyglot contexts, and interact with realistic LeetCode-style assignments with valid test cases, rubrics, submissions, grades, and forum discussions.
 
 ## Goals
-- Provide an admin user (`admin@codeleet.test`), 3 instructors, and 12 students with a uniform, shortest-valid password (`123456`, meeting Supabase's 6-character minimum).
+- Provide an admin user (`admin@codeleet.test`), 3 instructors, and 12 students with a uniform default password (`password`, 8 characters, satisfying both client-side validation and Supabase auth requirements).
 - Provision 3 active course workspaces:
   1. **Python Programming**: Python-only course (e.g., CS101) owned by Instructor 1.
   2. **Java Programming**: Java-only course (e.g., CS102) owned by Instructor 2.
@@ -23,21 +23,21 @@ Local development and automated testing require realistic, rich fixture data tha
 - **Anti-Goals:** Committing real secrets, bypassing Supabase auth constraints, exceeding the 5-test-case limit per assignment, or breaking existing e2e test assumptions.
 
 ## Constraints
-- Password length must be at least 6 characters per `supabase/config.toml` (`minimum_password_length = 6`).
+- Password length must satisfy Supabase's 6-character minimum (`minimum_password_length = 6`) and client-side password field validation (`minLength={8}`). Default password is set to `password` (8 characters).
 - Test cases must satisfy `public.valid_practice_cases` (max 5 cases per set; exactly 4 keys: `id`, `name`, `stdin`, `expected_stdout`; stdin <= 4096 bytes; stdout <= 8192 bytes).
 - Assignments must adhere to `language in ('python', 'java')` and reference a valid `course_id`.
 - Code execution is strictly browser-only (stdin/stdout via `Main` class for Java, script for Python).
 
 ## Approaches Considered
 - **Approach 1: Self-Contained Declarative SQL in `supabase/seed.sql` (Chosen):**
-  Uses PostgreSQL extensions (`extensions.crypt('123456', extensions.gen_salt('bf'))`) to populate `auth.users`, courses, memberships, assignments, practice sets, rubrics, submissions, grades, and forum threads in one atomic script. Directly compatible with `pnpm db:seed` and `supabase db reset`. Zero external runtime dependencies.
+  Uses PostgreSQL extensions (`extensions.crypt('password', extensions.gen_salt('bf'))`) to populate `auth.users`, courses, memberships, assignments, practice sets, rubrics, submissions, grades, and forum threads in one atomic script. Directly compatible with `pnpm db:seed` and `supabase db reset`. Zero external runtime dependencies.
 - **Approach 2: Programmatic Seed Script via Supabase Admin API:**
   Populates data via Node.js/TypeScript calling Supabase RPCs and REST endpoints. Trades off execution speed and CLI resets for UI-level RPC validation.
 - **Decision:** Approach 1 was chosen for speed, reproducibility, zero dependencies, and native integration with `pnpm db:seed`.
 
 ## Detailed Seed Plan
 1. **Accounts & Authentication:**
-   - Hash password `123456` using bcrypt in `seed_accounts`.
+   - Hash password `password` using bcrypt in `seed_accounts`.
    - Update `auth.users` encrypted password, confirmed email, identities, and profiles.
    - Maintain `admin@codeleet.test` with `admin` role in `public.user_roles`.
 2. **Courses:**
@@ -68,5 +68,5 @@ Local development and automated testing require realistic, rich fixture data tha
    - Grades with realistic scores and feedback contributing to XP awards and leaderboard rankings.
    - Forum threads and replies per course discussing algorithms, edge cases, and best practices.
 6. **Documentation:**
-   - Update `supabase/README.md` to document the seeded credentials (`123456`), courses, and assignment details.
+   - Update `supabase/README.md` to document the seeded credentials (`password`), courses, and assignment details.
 
