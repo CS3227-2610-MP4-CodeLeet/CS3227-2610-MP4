@@ -10,6 +10,7 @@ import { languageLabels } from '@/features/student-assignments/types';
 import { PracticeRunner } from '@/features/student-submissions/practice-runner';
 import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
 import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
+import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
 type Criterion = {
   id: string;
@@ -102,6 +103,9 @@ export default async function CourseInstructorSubmissionPage({
   const language = assignmentLanguageSchema.parse(submission.language);
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
+      <BreadcrumbSetter
+        title={`Review: ${assignment.title} (r${submission.revision})`}
+      />
       <Link
         className="text-sm underline"
         href={`/courses/${courseId}/instructor/assignments/${assignment.id}/submissions`}

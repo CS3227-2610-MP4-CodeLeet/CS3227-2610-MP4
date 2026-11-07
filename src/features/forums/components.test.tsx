@@ -1,8 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ForumPager, PostAuthor } from './components';
-import ForumsError from '@/app/forums/error';
-import ForumsLoading from '@/app/forums/loading';
+import ForumsError from '@/app/courses/[courseId]/forums/error';
+import ForumsLoading from '@/app/courses/[courseId]/forums/loading';
 
 describe('forum presentation boundaries', () => {
   it('escapes author names and labels Singapore time', () => {

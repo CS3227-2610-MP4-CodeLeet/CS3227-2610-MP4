@@ -36,7 +36,7 @@ it('renders shared ranks, exact totals and own position without executing names'
   expect(screen.getByText('You')).toBeTruthy();
   expect(screen.getAllByText('9,007,199,254,740,993')).toHaveLength(3);
   expect(screen.getByRole('link', { name: 'Next' }).getAttribute('href')).toBe(
-    '/leaderboard?courseId=course-1&page=2',
+    '/courses/course-1/leaderboard?page=2',
   );
 });
 it('distinguishes a new student, empty board and an empty later page', () => {
@@ -63,5 +63,5 @@ it('distinguishes a new student, empty board and an empty later page', () => {
   expect(screen.queryByText('Your rank')).toBeNull();
   expect(
     screen.getByRole('link', { name: 'Previous' }).getAttribute('href'),
-  ).toBe('/leaderboard?courseId=course-1&page=1');
+  ).toBe('/courses/course-1/leaderboard?page=1');
 });

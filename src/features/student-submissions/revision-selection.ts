@@ -11,7 +11,8 @@ export function revisionEditorPath(
   revisionId: string,
   courseId?: string,
 ) {
-  const query = new URLSearchParams({ fromRevision: revisionId });
-  if (courseId) query.set('courseId', courseId);
-  return `/student/assignments/${assignmentId}?${query}`;
+  if (courseId) {
+    return `/courses/${courseId}/assignments/${assignmentId}?fromRevision=${revisionId}`;
+  }
+  return `/student/assignments/${assignmentId}?fromRevision=${revisionId}`;
 }

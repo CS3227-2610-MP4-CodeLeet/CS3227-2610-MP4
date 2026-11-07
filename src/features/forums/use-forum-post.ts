@@ -52,7 +52,7 @@ export function useForumPost({
       }
       requestId.current = null;
       form.reset();
-      router.push(`/forums/${result.post.threadId}?courseId=${courseId}`);
+      router.push(`/courses/${courseId}/forums/${result.post.threadId}`);
       router.refresh();
     } catch {
       setError(

@@ -4,6 +4,7 @@ import { AssignmentForm } from '@/features/codementor/assignment-form';
 import { requireMember } from '@/lib/auth/verified-user';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { readCourseAccess } from '@/lib/courses/access';
+import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
 function hasInstructorAccess(
   access: Awaited<ReturnType<typeof readCourseAccess>>,
@@ -65,6 +66,7 @@ export default async function EditAssignmentPage({
   if (!hasInstructorAccess(access)) notFound();
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
+      <BreadcrumbSetter title={`Edit: ${assignment.title}`} />
       <Link
         className="text-sm underline"
         href={`/courses/${courseId}/instructor`}

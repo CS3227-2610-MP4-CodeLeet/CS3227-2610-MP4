@@ -28,7 +28,7 @@ describe('submission history presentation', () => {
     expect(html).toContain('aria-label="My submitted revisions"');
     expect(html).toContain('Loops &amp; arrays');
     expect(html).toContain(
-      '/student/submissions/00000000-0000-4000-8000-000000000001?courseId=course-a',
+      '/courses/course-a/submissions/00000000-0000-4000-8000-000000000001',
     );
     expect(html).toContain('Python');
     expect(html).toMatch(/(?:>3<\/td>|>3<\/p>)/);
@@ -45,7 +45,7 @@ describe('submission history presentation', () => {
       />,
     );
     expect(first).toContain('No submissions yet');
-    expect(first).toContain('/student/assignments?courseId=course-a');
+    expect(first).toContain('/courses/course-a/assignments');
 
     const later = renderToStaticMarkup(
       <SubmissionHistoryList
@@ -56,7 +56,7 @@ describe('submission history presentation', () => {
     );
     expect(later).toContain('No submissions on this page');
     expect(later).toContain('Latest submissions');
-    expect(later).toContain('href="/student/submissions?courseId=course-a"');
+    expect(later).toContain('href="/courses/course-a/submissions"');
 
     const filtered = renderToStaticMarkup(
       <SubmissionHistoryList
