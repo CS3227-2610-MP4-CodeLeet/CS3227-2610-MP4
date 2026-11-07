@@ -12,6 +12,7 @@
   - `579c5af` feat(courses): migrate student feature pages to /courses/[courseId]/ with legacy redirects
   - `45ccce6` feat(courses): migrate forums, leaderboard, and ai-usage to /courses/[courseId]/ with legacy redirects
   - `b0b62b0` refactor(navigation): update internal links, components, and tests for /courses/[courseId]/ structure
+  - `697072f` refactor(courses): clean up legacy route folders and relocate boundaries to course paths
 - Pull request: [#113](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113)
 - Human verification: pending
 - Verifier/date: pending
@@ -58,9 +59,17 @@
 11. **Agent Action (Task 7 - Cleanup & Form Target Verification)**:
    - Root-caused search form redirection: in HTML standard GET form submission, browsers strip embedded query parameters from `action="/forums?courseId=..."` upon appending form inputs (`?q=...`). Ensured `ForumSearchControls` action explicitly points to `/courses/${courseId}/forums` and added dedicated unit tests in `src/features/forums/search-controls.test.tsx`.
    - Relocated error boundaries, loading spinners, and not-found templates directly under canonical `src/app/courses/[courseId]/` subtrees (`forums`, `leaderboard`, `grades`, `progress`, `submissions`, `xp`, `assignments`).
-   - Removed legacy redirect stubs and directories: `src/app/ai/usage`, `src/app/forums`, `src/app/leaderboard`, and `src/app/student/{grades,progress,submissions,xp}`.
+   - Removed legacy redirect stubs and directories: `src/app/ai/usage`, `src/app/forums`, `src/app/leaderboard`, and `src/app/student/{grades,progress,submissions,xp}` (`697072f`).
    - Retained only `/student/assignments` offline test fixtures required by Playwright unauthenticated browser runner tests (`PLAYWRIGHT_ASSIGNMENT_FIXTURES`).
    - Verified that `pnpm vitest run`, `pnpm lint`, and `pnpm build` pass with 0 errors.
+12. **User Request (Profile Global Header & Backlink Removal)**:
+   - Inquired why `/profile` was not using the global `AppHeader` and requested updating it for all platform roles (admin, instructor, student).
+   - Inquired whether the "Back to" link at the top of the profile page was unnecessary and requested removing it for all roles.
+13. **Agent Action (Task 8 - Profile Global AppHeader Adoption)**:
+   - Created `src/app/profile/layout.tsx` incorporating `<AppHeader role={role} />` with verified session authentication and platform role inspection.
+   - Refactored `src/app/profile/page.tsx` to remove the ad-hoc top bar and redundant "Back to assignments" / "Back to courses" links.
+   - Added unit tests in `src/app/profile/layout.test.tsx` and `src/app/profile/page.test.tsx` verifying global navigation and omission of legacy back-links across all platform roles.
+   - Verified that `pnpm vitest run`, `pnpm lint`, and `pnpm build` pass cleanly.
 
 ## Work and verification
 
@@ -71,6 +80,11 @@
   - `src/components/layout/course-breadcrumbs.tsx`
   - `src/components/layout/course-sidebar.tsx`
   - `src/components/layout/course-workspace-shell.tsx`
+  - `src/components/layout/app-header.tsx`
+  - `src/app/profile/layout.tsx`
+  - `src/app/profile/layout.test.tsx`
+  - `src/app/profile/page.tsx`
+  - `src/app/profile/page.test.tsx`
   - `src/app/courses/[courseId]/layout.tsx`
   - `src/app/courses/[courseId]/assignments/page.tsx`
   - `src/app/courses/[courseId]/assignments/[assignmentId]/page.tsx`
@@ -119,7 +133,7 @@
   - Investigated and resolved the discussion search redirection issue where HTML GET forms stripped query parameters from `action="/forums?courseId=..."` by updating the action to `/courses/${courseId}/forums` and testing.
 - Resource measurements and unavailable fields:
   - Full vitest execution time: ~18 seconds across 72 test files; full repo unit tests: ~210s across 152 files.
-  - Next.js build compilation time: ~24 seconds with static generation in ~1.0s.
+  - Next.js build compilation time: ~10 seconds with static generation in ~0.6s.
 - Next steps:
-  - Commit cleanups and push to `feat/112-course-sidebar-and-routing`.
+  - Push branch `feat/112-course-sidebar-and-routing` to origin.
   - Update PR #113.
