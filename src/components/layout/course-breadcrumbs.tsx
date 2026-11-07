@@ -39,23 +39,39 @@ function formatSegmentLabel(segment: string): string {
 
 type BreadcrumbItem = { label: string; href?: string; isCurrent: boolean };
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const FIXTURE_ID_REGEX = /^(asg|sub|course|thread|user)-/i;
+
+export function isDynamicIdentifier(segment: string): boolean {
+  return (
+    UUID_REGEX.test(segment) ||
+    FIXTURE_ID_REGEX.test(segment) ||
+    /^\d+$/.test(segment)
+  );
+}
+
+const INSTRUCTOR_DASHBOARD_SEGMENTS = new Set([
+  'instructor',
+  'assignments',
+  'submissions',
+]);
+
 function resolveAncestorHref(
   courseId: string,
-  subSegments: string[],
-  idx: number,
+  segment: string,
+  isInstructor: boolean,
 ): string | undefined {
-  if (subSegments[0] === 'instructor') {
-    if (idx === 0) return `/courses/${courseId}/instructor`;
-    if (idx === 1 && subSegments[1] === 'ai-context') {
-      return `/courses/${courseId}/instructor/ai-context`;
-    }
-    if (idx === 1 && subSegments[1] === 'assignments') {
+  if (isInstructor) {
+    if (INSTRUCTOR_DASHBOARD_SEGMENTS.has(segment)) {
       return `/courses/${courseId}/instructor`;
     }
-    return undefined;
+    return segment === 'ai-context'
+      ? `/courses/${courseId}/instructor/ai-context`
+      : undefined;
   }
 
-  return `/courses/${courseId}/${subSegments.slice(0, idx + 1).join('/')}`;
+  return `/courses/${courseId}/${segment}`;
 }
 
 function buildBreadcrumbs(
@@ -78,12 +94,24 @@ function buildBreadcrumbs(
     },
   ];
 
-  courseSubSegments.forEach((segment, idx) => {
+  const displaySegments = courseSubSegments.filter((segment, idx) => {
     const isLast = idx === courseSubSegments.length - 1;
-    const label = isLast && leafTitle ? leafTitle : formatSegmentLabel(segment);
+    return isLast || !isDynamicIdentifier(segment);
+  });
+
+  const isInstructor = courseSubSegments[0] === 'instructor';
+
+  displaySegments.forEach((segment, idx) => {
+    const isLast = idx === displaySegments.length - 1;
+    const label =
+      isLast && leafTitle
+        ? leafTitle
+        : isDynamicIdentifier(segment)
+          ? 'Details'
+          : formatSegmentLabel(segment);
     const href = isLast
       ? undefined
-      : resolveAncestorHref(courseId, courseSubSegments, idx);
+      : resolveAncestorHref(courseId, segment, isInstructor);
     crumbs.push({
       label,
       href,

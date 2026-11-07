@@ -94,6 +94,13 @@
      - **Review Comment 6 (`4502520156` in `course-breadcrumbs.tsx:70`)**: Implemented `resolveAncestorHref` to map instructor assignment paths to `/courses/[courseId]/instructor` and safely omit `href` on non-routable intermediate segments (e.g. `[assignmentId]`), rendering them as text `<span>` without broken links. Added unit tests in `course-breadcrumbs.test.tsx`.
      - **Review Comment 7 (`4502520158` in `ai-usage/page.tsx:55`)**: Added `{ count: 'exact' }` to PostgREST query to show exact total reviews while fetching 100 rows, and explicitly labeled token consumption, cache hit rate, and latency as recent sample metrics. Updated unit tests in `ai-usage/page.test.tsx`.
    - Verified with `pnpm format:check`, `pnpm lint`, `pnpm test:unit` (155 files, 795 tests), `node workflow/scripts/check-scaffold.mjs`, and `pnpm build`.
+18. **User Request (Additional PR Review Comments Round 3)**:
+   - User requested fetching 2 new review comments in PR #113, addressing them, pushing changes, and resolving the review comments.
+19. **Agent Action (Review Comments Round 3 Resolution)**:
+   - Evaluated 2 new review comments per `receiving-code-review` standard:
+     - **Review Comment 8 (`4502735701` at `course-breadcrumbs.tsx:84`)**: Intermediate dynamic route segments (such as submission or assignment UUIDs on `/submissions/<submissionId>/compare` or `/instructor/assignments/<assignmentId>/edit`) rendered as raw hex strings in intermediate breadcrumb segments. Omitted non-leaf dynamic identifiers (`UUID_REGEX`, `FIXTURE_ID_REGEX`, numeric IDs) from breadcrumb display segments so that intermediate unroutable entity IDs do not appear in the trail. Mounted `<BreadcrumbSetter />` on instructor edit, practice tests, submissions, and submission review pages to supply human-readable entity leaf titles. Added unit tests in `src/components/layout/course-breadcrumbs.test.tsx`.
+     - **Review Comment 9 (`4502735708` at `course-sidebar.tsx:331`)**: Instructor "Assignments" item points to `/courses/<id>/instructor`. Using `pathname.startsWith(`${item.href}/`)` kept "Assignments" highlighted across all instructor subpages, including `/instructor/ai-context` (causing simultaneous highlight with Context comparison) and `/instructor/assignments/new` (which has a dedicated primary button). Extracted `isNavItemActive` into `src/components/layout/course-sidebar-nav.ts` to restrict the assignments item highlight strictly to assignment management paths (`/instructor`, `/instructor/assignments/*` except `new`, and `/instructor/submissions/*`). Added unit tests in `src/components/layout/course-sidebar-nav.test.ts`.
+   - Verified with `pnpm format:check`, `pnpm lint`, `pnpm vitest run --maxWorkers=4` (156 test files, 799 tests passed), `node workflow/scripts/check-scaffold.mjs`, and `pnpm build`.
 
 ## Work and verification
 
@@ -142,8 +149,14 @@
   - `src/app/courses/[courseId]/ai-usage/page.tsx`
   - `src/features/forums/search-controls.tsx`
   - `src/features/forums/search-controls.test.tsx`
+  - `src/components/layout/course-sidebar-nav.ts`
+  - `src/components/layout/course-sidebar-nav.test.ts`
+  - `src/app/courses/[courseId]/instructor/assignments/[assignmentId]/edit/page.tsx`
+  - `src/app/courses/[courseId]/instructor/assignments/[assignmentId]/practice-tests/page.tsx`
+  - `src/app/courses/[courseId]/instructor/assignments/[assignmentId]/submissions/page.tsx`
+  - `src/app/courses/[courseId]/instructor/submissions/[submissionId]/page.tsx`
 - Commands/checks actually run and outcomes:
-  - `pnpm vitest run`: 155 test files evaluated, all test suites pass cleanly (795 tests).
+  - `pnpm vitest run --maxWorkers=4`: 156 test files evaluated, all test suites pass cleanly (799 tests).
   - `pnpm lint`: ESLint passed with 0 errors and 0 warnings (`--max-warnings=0`).
   - `pnpm format:check`: Prettier check passed with 0 formatting discrepancies.
   - `node workflow/scripts/check-scaffold.mjs`: Scaffold verification passed with 0 broken Markdown link targets.

@@ -18,6 +18,7 @@ import {
   TrendingUpIcon,
   TrophyIcon,
 } from './course-sidebar-icons';
+import { isNavItemActive } from './course-sidebar-nav';
 
 export type CourseSidebarProps = {
   course: {
@@ -325,10 +326,7 @@ function SidebarNavLinks({
       {navItems
         .filter((item) => item.enabled)
         .map((item) => {
-          const isActive =
-            item.href === `/courses/${courseId}`
-              ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = isNavItemActive(item.href, pathname, courseId);
 
           return (
             <Link

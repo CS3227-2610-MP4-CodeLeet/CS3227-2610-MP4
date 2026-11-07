@@ -5,6 +5,7 @@ import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 import { loadOwnerCases } from '@/features/practice-test-authoring/queries.server';
 import { PracticeTestEditor } from '@/features/practice-test-authoring/editor';
+import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
 export default async function PracticeTestsPage({
   params,
@@ -36,6 +37,7 @@ export default async function PracticeTestsPage({
   if (!data) notFound();
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-6 py-10">
+      <BreadcrumbSetter title={`Practice Tests: ${data.title}`} />
       <Link
         className="text-sm underline"
         href={`/courses/${courseId}/instructor`}

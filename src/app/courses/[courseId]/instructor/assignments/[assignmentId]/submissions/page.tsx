@@ -6,6 +6,7 @@ import {
   AssignmentDueDate,
   SubmissionTiming,
 } from '@/features/assignment-deadlines/components';
+import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
 // eslint-disable-next-line max-lines-per-function -- page markup stays with its server-side course context.
 export default async function InstructorSubmissionsPage({
@@ -41,6 +42,7 @@ export default async function InstructorSubmissionsPage({
   if (error) throw new Error('Submissions could not be loaded');
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-6 py-10">
+      <BreadcrumbSetter title={`Submissions: ${assignment.title}`} />
       <Link
         className="text-sm underline"
         href={`/courses/${courseId}/instructor`}

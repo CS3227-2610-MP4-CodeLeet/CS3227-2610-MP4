@@ -59,7 +59,7 @@ describe('CourseBreadcrumbs', () => {
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
-  it('maps non-routable instructor intermediate segments safely without broken 404 links', () => {
+  it('omits non-routable dynamic intermediate segments from breadcrumbs', () => {
     mockUsePathname.mockReturnValue(
       '/courses/course-123/instructor/assignments/asg-456/edit',
     );
@@ -75,8 +75,25 @@ describe('CourseBreadcrumbs', () => {
     expect(
       screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
     ).toBe('/courses/course-123/instructor');
-    expect(screen.queryByRole('link', { name: 'Asg 456' })).toBeNull();
-    expect(screen.getByText('Asg 456')).toBeDefined();
+    expect(screen.queryByText('Asg 456')).toBeNull();
     expect(screen.getByText('Edit')).toBeDefined();
+  });
+
+  it('omits intermediate dynamic identifiers on student revision comparison', () => {
+    mockUsePathname.mockReturnValue(
+      '/courses/course-123/submissions/sub-789/compare',
+    );
+    render(
+      <BreadcrumbProvider>
+        <CourseBreadcrumbs courseId="course-123" courseTitle="CS101: Python" />
+        <BreadcrumbSetter title="Compare Revisions" />
+      </BreadcrumbProvider>,
+    );
+
+    expect(
+      screen.getByRole('link', { name: 'Submissions' }).getAttribute('href'),
+    ).toBe('/courses/course-123/submissions');
+    expect(screen.queryByText('Sub 789')).toBeNull();
+    expect(screen.getByText('Compare Revisions')).toBeDefined();
   });
 });
