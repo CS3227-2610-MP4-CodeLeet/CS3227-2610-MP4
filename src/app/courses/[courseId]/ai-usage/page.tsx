@@ -30,10 +30,15 @@ export default async function CourseAIUsagePage({
     notFound();
   }
 
-  const { data: usage, error } = await supabase
+  const {
+    data: usage,
+    error,
+    count,
+  } = await supabase
     .from('ai_usage')
     .select(
       'review_type,status,error_category,latency_ms,input_tokens,output_tokens,token_source,cache_hit,created_at',
+      { count: 'exact' },
     )
     .eq('requester_id', user.id)
     .eq('course_id', courseId)
@@ -43,6 +48,7 @@ export default async function CourseAIUsagePage({
   if (error) throw new Error('Usage data could not be loaded');
 
   const summary = summarizeUsage(usage ?? []);
+  const totalReviewsCount = count ?? summary.totalReviews;
 
   return (
     <main className="mx-auto max-w-5xl space-y-8 px-6 py-8">
@@ -54,14 +60,26 @@ export default async function CourseAIUsagePage({
         </p>
       </header>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Total Reviews" value={summary.totalReviews} />
-        <StatCard label="Cache Hit Rate" value={`${summary.cacheHitRate}%`} />
-        <StatCard label="Avg Latency" value={`${summary.avgLatencyMs}ms`} />
-        <StatCard
-          label="Total Tokens"
-          value={summary.totalTokens.toLocaleString()}
-        />
+      <section className="space-y-2">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <StatCard label="Total Reviews" value={totalReviewsCount} />
+          <StatCard
+            label="Recent Cache Hit Rate"
+            value={`${summary.cacheHitRate}%`}
+          />
+          <StatCard
+            label="Recent Avg Latency"
+            value={`${summary.avgLatencyMs}ms`}
+          />
+          <StatCard
+            label="Recent Tokens"
+            value={summary.totalTokens.toLocaleString()}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Token consumption, cache hit rate, and latency are calculated from
+          your latest {summary.events.length} reviews.
+        </p>
       </section>
 
       <section className="space-y-4">

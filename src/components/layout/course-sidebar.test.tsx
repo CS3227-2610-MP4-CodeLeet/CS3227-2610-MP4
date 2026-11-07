@@ -13,6 +13,9 @@ afterEach(() => {
   localStorage.clear();
 });
 
+const COURSE_TITLE = 'Introduction to AI';
+const USER_NAME = 'Alice Smith';
+
 const defaultFeatures: CourseFeatureSetting[] = [
   { feature: 'assessments', enabled: true },
   { feature: 'discussions', enabled: true },
@@ -24,21 +27,21 @@ const defaultFeatures: CourseFeatureSetting[] = [
 const defaultProps = {
   course: {
     id: 'course-123',
-    title: 'Introduction to AI',
+    title: COURSE_TITLE,
     lifecycle: 'active',
   },
   role: 'student' as const,
-  userName: 'Alice Smith',
+  userName: USER_NAME,
   totalXp: '2400',
   features: defaultFeatures,
 };
 
-describe('CourseSidebar', () => {
+describe('CourseSidebar - basic navigation', () => {
   it('renders course title, user profile, formatted XP, and navigation links', () => {
     render(<CourseSidebar {...defaultProps} />);
 
-    expect(screen.getByText('Introduction to AI')).toBeDefined();
-    expect(screen.getByText('Alice Smith')).toBeDefined();
+    expect(screen.getByText(COURSE_TITLE)).toBeDefined();
+    expect(screen.getByText(USER_NAME)).toBeDefined();
     expect(screen.getByText(/student/i)).toBeDefined();
     expect(screen.getByText(/2,400 XP/i)).toBeDefined();
 
@@ -54,28 +57,6 @@ describe('CourseSidebar', () => {
     expect(
       screen.getByRole('link', { name: /my xp/i }).getAttribute('href'),
     ).toBe('/courses/course-123/xp');
-  });
-
-  it('toggles collapse state when collapse button is clicked', () => {
-    render(<CourseSidebar {...defaultProps} />);
-    const toggleButton = screen.getByRole('button', {
-      name: /collapse sidebar/i,
-    });
-    expect(toggleButton.getAttribute('aria-expanded')).toBe('true');
-    fireEvent.click(toggleButton);
-    expect(toggleButton.getAttribute('aria-expanded')).toBe('false');
-  });
-
-  it('hides XP badge and link when xp feature is disabled', () => {
-    const disabledXp = {
-      ...defaultProps,
-      features: defaultProps.features.map((f) =>
-        f.feature === 'xp' ? { ...f, enabled: false } : f,
-      ),
-    };
-    render(<CourseSidebar {...disabledXp} />);
-    expect(screen.queryByText(/2,400 XP/i)).toBeNull();
-    expect(screen.queryByRole('link', { name: /my xp/i })).toBeNull();
   });
 
   it('renders instructor links for instructor role', () => {
@@ -99,5 +80,69 @@ describe('CourseSidebar', () => {
     ).toBe('/courses/course-123/instructor/assignments/new');
     expect(screen.queryByRole('link', { name: /my xp/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /my progress/i })).toBeNull();
+  });
+});
+
+describe('CourseSidebar - feature gating', () => {
+  it('hides XP badge and link when xp feature is disabled', () => {
+    const disabledXp = {
+      ...defaultProps,
+      features: defaultProps.features.map((f) =>
+        f.feature === 'xp' ? { ...f, enabled: false } : f,
+      ),
+    };
+    render(<CourseSidebar {...disabledXp} />);
+    expect(screen.queryByText(/2,400 XP/i)).toBeNull();
+    expect(screen.queryByRole('link', { name: /my xp/i })).toBeNull();
+  });
+
+  it('hides submissions and grades links when assessments feature is disabled', () => {
+    const disabledAssessments = {
+      ...defaultProps,
+      features: defaultProps.features.map((f) =>
+        f.feature === 'assessments' ? { ...f, enabled: false } : f,
+      ),
+    };
+    render(<CourseSidebar {...disabledAssessments} />);
+    expect(screen.queryByRole('link', { name: /assignments/i })).toBeNull();
+    expect(screen.queryByRole('link', { name: /my submissions/i })).toBeNull();
+    expect(screen.queryByRole('link', { name: /my grades/i })).toBeNull();
+    expect(screen.getByRole('link', { name: /my progress/i })).toBeDefined();
+    expect(screen.getByRole('link', { name: /my xp/i })).toBeDefined();
+  });
+
+  it('hides progress link when both assessments and xp features are disabled', () => {
+    const disabledBoth = {
+      ...defaultProps,
+      features: defaultProps.features.map((f) =>
+        f.feature === 'assessments' || f.feature === 'xp'
+          ? { ...f, enabled: false }
+          : f,
+      ),
+    };
+    render(<CourseSidebar {...disabledBoth} />);
+    expect(screen.queryByRole('link', { name: /my progress/i })).toBeNull();
+  });
+});
+
+describe('CourseSidebar - collapse and responsive drawer', () => {
+  it('toggles collapse state when collapse button is clicked', () => {
+    render(<CourseSidebar {...defaultProps} />);
+    const toggleButton = screen.getByRole('button', {
+      name: /collapse sidebar/i,
+    });
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(toggleButton);
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('keeps mobile drawer content expanded even when desktop sidebar preference is collapsed', () => {
+    localStorage.setItem('codeleet:course-sidebar-collapsed', 'true');
+    render(<CourseSidebar {...defaultProps} isMobileOpen={true} />);
+
+    const titles = screen.getAllByText(COURSE_TITLE);
+    expect(titles.length).toBeGreaterThanOrEqual(1);
+    const users = screen.getAllByText(USER_NAME);
+    expect(users.length).toBeGreaterThanOrEqual(1);
   });
 });

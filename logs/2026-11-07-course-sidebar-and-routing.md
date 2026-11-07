@@ -15,6 +15,7 @@
   - `697072f` refactor(courses): clean up legacy route folders and relocate boundaries to course paths
   - `7d07d47` fix(layout): address PR review comments for landmark nesting, hydration store, and ai badge statuses
   - `408ab4f` fix(student): restore submissions auth redirect gate for e2e protected route coverage
+  - `ede2129` fix(navigation): address PR review comments for feature gating, mobile drawer, breadcrumb links, and sample labels
 - Pull request: [#113](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113)
 - Human verification: pending
 - Verifier/date: pending
@@ -83,6 +84,15 @@
    - **Application Format Check**: Executed `pnpm format` across all files and verified `pnpm format:check` passed with 0 issues.
    - **Test & Lint Verification**: Extracted `createMockSupabase` in `src/app/courses/[courseId]/layout.test.tsx` to satisfy `max-lines-per-function`. Verified all 154 test suites (789 tests) pass with `pnpm test:unit`, `pnpm lint` passes with `--max-warnings=0`, and Next.js production build (`pnpm build`) succeeds.
    - **E2E Submissions Auth Gate**: Restored `src/app/student/submissions/page.tsx` and unit tests `page.test.tsx` to preserve the auth-protected redirect gate (`requireMember()`), redirecting unauthenticated requests to `/sign-in` and satisfying `tests/e2e/bootstrap.spec.ts` and `tests/e2e/workspace-layout.spec.ts`.
+16. **User Request (Additional PR Review Comments)**:
+   - User requested fetching new review comments in PR #113, addressing them, pushing changes, and resolving the review comments.
+17. **Agent Action (Review Comments Round 2 Resolution)**:
+   - Evaluated 4 new review comments per `receiving-code-review` standard:
+     - **Review Comment 4 (`4502520151` in `course-sidebar.tsx:128`)**: Updated `getStudentNavItems` to gate `My submissions` and `My grades` on `assessments`, `My progress` on `assessments || xp`, and `My XP` on `xp`, mirroring the page route authorization checks. Added unit tests in `course-sidebar.test.tsx`.
+     - **Review Comment 5 (`4502520152` in `course-sidebar.tsx:455`)**: Extracted `SidebarContent` and passed `isCollapsed={false}` to `MobileSidebarDrawer` so that the mobile drawer opens fully expanded with visible labels regardless of desktop collapsed preference. Added unit tests in `course-sidebar.test.tsx`.
+     - **Review Comment 6 (`4502520156` in `course-breadcrumbs.tsx:70`)**: Implemented `resolveAncestorHref` to map instructor assignment paths to `/courses/[courseId]/instructor` and safely omit `href` on non-routable intermediate segments (e.g. `[assignmentId]`), rendering them as text `<span>` without broken links. Added unit tests in `course-breadcrumbs.test.tsx`.
+     - **Review Comment 7 (`4502520158` in `ai-usage/page.tsx:55`)**: Added `{ count: 'exact' }` to PostgREST query to show exact total reviews while fetching 100 rows, and explicitly labeled token consumption, cache hit rate, and latency as recent sample metrics. Updated unit tests in `ai-usage/page.test.tsx`.
+   - Verified with `pnpm format:check`, `pnpm lint`, `pnpm test:unit` (155 files, 795 tests), `node workflow/scripts/check-scaffold.mjs`, and `pnpm build`.
 
 ## Work and verification
 

@@ -4,12 +4,15 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { BreadcrumbProvider, BreadcrumbSetter } from './breadcrumb-context';
 import { CourseBreadcrumbs } from './course-breadcrumbs';
 
+const mockUsePathname = vi.fn(() => '/courses/course-123/assignments/asg-456');
+
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/courses/course-123/assignments/asg-456',
+  usePathname: () => mockUsePathname(),
 }));
 
 afterEach(() => {
   cleanup();
+  mockUsePathname.mockReturnValue('/courses/course-123/assignments/asg-456');
 });
 
 describe('CourseBreadcrumbs', () => {
@@ -54,5 +57,26 @@ describe('CourseBreadcrumbs', () => {
     expect(toggleBtn).toBeDefined();
     toggleBtn.click();
     expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('maps non-routable instructor intermediate segments safely without broken 404 links', () => {
+    mockUsePathname.mockReturnValue(
+      '/courses/course-123/instructor/assignments/asg-456/edit',
+    );
+    render(
+      <BreadcrumbProvider>
+        <CourseBreadcrumbs courseId="course-123" courseTitle="CS101: Python" />
+      </BreadcrumbProvider>,
+    );
+
+    expect(
+      screen.getByRole('link', { name: 'Instructor' }).getAttribute('href'),
+    ).toBe('/courses/course-123/instructor');
+    expect(
+      screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
+    ).toBe('/courses/course-123/instructor');
+    expect(screen.queryByRole('link', { name: 'Asg 456' })).toBeNull();
+    expect(screen.getByText('Asg 456')).toBeDefined();
+    expect(screen.getByText('Edit')).toBeDefined();
   });
 });

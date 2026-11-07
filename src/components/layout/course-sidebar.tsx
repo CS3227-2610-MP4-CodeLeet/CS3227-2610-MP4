@@ -118,26 +118,29 @@ function getInstructorNavItems(
 
 function getStudentNavItems(
   courseId: string,
+  archived: boolean,
   features: CourseFeatureSetting[],
 ): NavItem[] {
-  const hasXp = features.some((f) => f.feature === 'xp' && f.enabled);
+  const hasAssessments = isFeatureEnabled(features, 'assessments', archived);
+  const hasXp = isFeatureEnabled(features, 'xp', archived);
+  const hasProgress = hasAssessments || hasXp;
   return [
     {
       label: 'My submissions',
       href: `/courses/${courseId}/submissions`,
-      enabled: true,
+      enabled: hasAssessments,
       icon: () => <ClockIcon />,
     },
     {
       label: 'My grades',
       href: `/courses/${courseId}/grades`,
-      enabled: true,
+      enabled: hasAssessments,
       icon: () => <BarChartIcon />,
     },
     {
       label: 'My progress',
       href: `/courses/${courseId}/progress`,
-      enabled: true,
+      enabled: hasProgress,
       icon: () => <TrendingUpIcon />,
     },
     {
@@ -179,7 +182,9 @@ function buildNavItems(
       enabled: assessments,
       icon: () => <ClipboardIcon />,
     },
-    ...(role === 'student' ? getStudentNavItems(courseId, features) : []),
+    ...(role === 'student'
+      ? getStudentNavItems(courseId, archived, features)
+      : []),
     {
       label: 'Discussions',
       href: `/courses/${courseId}/forums`,
@@ -395,6 +400,54 @@ function MobileSidebarDrawer({
   );
 }
 
+function SidebarContent({
+  course,
+  role,
+  userName,
+  totalXp,
+  xpEnabled,
+  navItems,
+  pathname,
+  isCollapsed,
+  toggleCollapse,
+  onCloseMobile,
+}: {
+  course: CourseSidebarProps['course'];
+  role: 'student' | 'instructor';
+  userName: string;
+  totalXp?: string | null;
+  xpEnabled: boolean;
+  navItems: NavItem[];
+  pathname: string;
+  isCollapsed: boolean;
+  toggleCollapse?: () => void;
+  onCloseMobile?: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      <SidebarHeader
+        course={course}
+        isCollapsed={isCollapsed}
+        toggleCollapse={toggleCollapse ?? (() => {})}
+      />
+      <SidebarUserProfile
+        userName={userName}
+        role={role}
+        totalXp={totalXp}
+        xpEnabled={xpEnabled}
+        isCollapsed={isCollapsed}
+      />
+      <SidebarNavLinks
+        courseId={course.id}
+        navItems={navItems}
+        pathname={pathname}
+        isCollapsed={isCollapsed}
+        onCloseMobile={onCloseMobile}
+      />
+    </div>
+  );
+}
+
 export function CourseSidebar({
   course,
   role,
@@ -418,30 +471,6 @@ export function CourseSidebar({
   const xpEnabled = features.some((f) => f.feature === 'xp' && f.enabled);
   const navItems = buildNavItems(course.id, role, course.lifecycle, features);
 
-  const content = (
-    <div className="flex h-full flex-col">
-      <SidebarHeader
-        course={course}
-        isCollapsed={isCollapsed}
-        toggleCollapse={toggleCollapse}
-      />
-      <SidebarUserProfile
-        userName={userName}
-        role={role}
-        totalXp={totalXp}
-        xpEnabled={xpEnabled}
-        isCollapsed={isCollapsed}
-      />
-      <SidebarNavLinks
-        courseId={course.id}
-        navItems={navItems}
-        pathname={pathname}
-        isCollapsed={isCollapsed}
-        onCloseMobile={onCloseMobile}
-      />
-    </div>
-  );
-
   return (
     <>
       <aside
@@ -449,10 +478,30 @@ export function CourseSidebar({
           isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
-        {content}
+        <SidebarContent
+          course={course}
+          role={role}
+          userName={userName}
+          totalXp={totalXp}
+          xpEnabled={xpEnabled}
+          navItems={navItems}
+          pathname={pathname}
+          isCollapsed={isCollapsed}
+          toggleCollapse={toggleCollapse}
+        />
       </aside>
       <MobileSidebarDrawer isOpen={isMobileOpen} onClose={onCloseMobile}>
-        {content}
+        <SidebarContent
+          course={course}
+          role={role}
+          userName={userName}
+          totalXp={totalXp}
+          xpEnabled={xpEnabled}
+          navItems={navItems}
+          pathname={pathname}
+          isCollapsed={false}
+          onCloseMobile={onCloseMobile}
+        />
       </MobileSidebarDrawer>
     </>
   );

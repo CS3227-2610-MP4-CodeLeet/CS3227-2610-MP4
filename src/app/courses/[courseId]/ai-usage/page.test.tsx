@@ -71,6 +71,9 @@ describe('CourseAIUsagePage', () => {
 
     expect(html).toContain('AI Usage');
     expect(html).toContain('Total Reviews');
+    expect(html).toContain('Recent Cache Hit Rate');
+    expect(html).toContain('Recent Avg Latency');
+    expect(html).toContain('Recent Tokens');
     expect(html).toContain('100%');
     expect(html).toContain('320ms');
   });

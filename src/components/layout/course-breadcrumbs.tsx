@@ -39,6 +39,25 @@ function formatSegmentLabel(segment: string): string {
 
 type BreadcrumbItem = { label: string; href?: string; isCurrent: boolean };
 
+function resolveAncestorHref(
+  courseId: string,
+  subSegments: string[],
+  idx: number,
+): string | undefined {
+  if (subSegments[0] === 'instructor') {
+    if (idx === 0) return `/courses/${courseId}/instructor`;
+    if (idx === 1 && subSegments[1] === 'ai-context') {
+      return `/courses/${courseId}/instructor/ai-context`;
+    }
+    if (idx === 1 && subSegments[1] === 'assignments') {
+      return `/courses/${courseId}/instructor`;
+    }
+    return undefined;
+  }
+
+  return `/courses/${courseId}/${subSegments.slice(0, idx + 1).join('/')}`;
+}
+
 function buildBreadcrumbs(
   pathname: string,
   courseId: string,
@@ -59,14 +78,15 @@ function buildBreadcrumbs(
     },
   ];
 
-  let currentPath = `/courses/${courseId}`;
   courseSubSegments.forEach((segment, idx) => {
     const isLast = idx === courseSubSegments.length - 1;
-    currentPath += `/${segment}`;
     const label = isLast && leafTitle ? leafTitle : formatSegmentLabel(segment);
+    const href = isLast
+      ? undefined
+      : resolveAncestorHref(courseId, courseSubSegments, idx);
     crumbs.push({
       label,
-      href: isLast ? undefined : currentPath,
+      href,
       isCurrent: isLast,
     });
   });
@@ -122,13 +142,17 @@ export function CourseBreadcrumbs({
                 >
                   {crumb.label}
                 </span>
-              ) : (
+              ) : crumb.href ? (
                 <Link
-                  href={crumb.href || '#'}
+                  href={crumb.href}
                   className="truncate hover:text-foreground hover:underline"
                 >
                   {crumb.label}
                 </Link>
+              ) : (
+                <span className="truncate text-muted-foreground">
+                  {crumb.label}
+                </span>
               )}
             </li>
           ))}
