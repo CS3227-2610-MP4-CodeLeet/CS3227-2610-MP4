@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import {
+  cp,
   mkdir,
   readFile,
   readdir,
@@ -193,7 +194,20 @@ async function stageAssets(staging, version, manifest, fetchImpl) {
 
 async function replaceOutput(staging, output) {
   await rm(output, { recursive: true, force: true });
-  await rename(staging, output);
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await rename(staging, output);
+      return;
+    } catch (error) {
+      if ((error?.code === 'EPERM' || error?.code === 'EBUSY') && attempt < 4) {
+        await new Promise((resolveTimeout) => setTimeout(resolveTimeout, 100 * (attempt + 1)));
+      } else {
+        await cp(staging, output, { recursive: true });
+        await rm(staging, { recursive: true, force: true });
+        return;
+      }
+    }
+  }
 }
 
 async function removeAbandonedStagingDirectories(publicDirectory) {
