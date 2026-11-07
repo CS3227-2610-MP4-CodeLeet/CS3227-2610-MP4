@@ -12,7 +12,7 @@
   - `579c5af` feat(courses): migrate student feature pages to /courses/[courseId]/ with legacy redirects
   - `45ccce6` feat(courses): migrate forums, leaderboard, and ai-usage to /courses/[courseId]/ with legacy redirects
   - `b0b62b0` refactor(navigation): update internal links, components, and tests for /courses/[courseId]/ structure
-- Pull request: pending
+- Pull request: [#113](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/113)
 - Human verification: pending
 - Verifier/date: pending
 
