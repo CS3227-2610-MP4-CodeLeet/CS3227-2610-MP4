@@ -1,6 +1,12 @@
 /** @vitest-environment jsdom */
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CourseSummary } from './contracts';
 import { CourseDirectory } from './course-directory';
@@ -172,5 +178,30 @@ describe('course directory join and cancel modals', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('traps focus inside the modal and restores focus to trigger on close', () => {
+    render(
+      <CourseDirectory
+        initialCourses={courses}
+        canCreate={true}
+        currentUserId="owner-1"
+        platformAdmin={false}
+      />,
+    );
+    const triggerBtn = screen.getByRole('button', {
+      name: CREATE_COURSE_LABEL,
+    });
+    triggerBtn.focus();
+    expect(document.activeElement).toBe(triggerBtn);
+
+    fireEvent.click(triggerBtn);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByLabelText('Course title'));
+
+    const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
+    fireEvent.click(cancelBtn);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(triggerBtn);
   });
 });

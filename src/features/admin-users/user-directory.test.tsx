@@ -209,12 +209,14 @@ describe('admin user directory', () => {
       display_name: 'Searched User',
       role: 'student' as const,
     };
-    const mockFetch = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({ users: [searchedUser], nextAfter: null }),
-        { status: 200 },
-      ),
-    );
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ users: [searchedUser], nextAfter: null }),
+          { status: 200 },
+        ),
+      );
     vi.stubGlobal('fetch', mockFetch);
 
     render(
@@ -228,7 +230,9 @@ describe('admin user directory', () => {
     const searchInput = screen.getByRole('searchbox', {
       name: /search users/i,
     });
-    fireEvent.change(searchInput, { target: { value: 'searched@example.test' } });
+    fireEvent.change(searchInput, {
+      target: { value: 'searched@example.test' },
+    });
 
     // Wait for 300ms debounce
     await new Promise((resolve) => setTimeout(resolve, 350));
@@ -248,12 +252,14 @@ describe('admin user directory', () => {
       display_name: 'Instructor User',
       role: 'instructor' as const,
     };
-    const mockFetch = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({ users: [instructorUser], nextAfter: null }),
-        { status: 200 },
-      ),
-    );
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ users: [instructorUser], nextAfter: null }),
+          { status: 200 },
+        ),
+      );
     vi.stubGlobal('fetch', mockFetch);
 
     render(
@@ -264,7 +270,9 @@ describe('admin user directory', () => {
       />,
     );
 
-    const roleFilter = screen.getByRole('combobox', { name: /filter by role/i });
+    const roleFilter = screen.getByRole('combobox', {
+      name: /filter by role/i,
+    });
     fireEvent.change(roleFilter, { target: { value: 'instructor' } });
 
     await waitFor(() => {
@@ -273,5 +281,75 @@ describe('admin user directory', () => {
         expect.anything(),
       );
     });
+  });
+
+  it('invalidates pending pagination when filter changes and disables load more while searching', async () => {
+    let resolvePageRequest: (res: Response) => void;
+    const pendingPagePromise = new Promise<Response>((resolve) => {
+      resolvePageRequest = resolve;
+    });
+
+    const mockFetch = vi.fn().mockImplementation((url: string) => {
+      if (url.includes('after=')) {
+        return pendingPagePromise;
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            users: [
+              {
+                user_id: '00000000-0000-4000-8000-000000000099',
+                email: 'filtered@example.test',
+                display_name: 'Filtered User',
+                role: 'student',
+              },
+            ],
+            nextAfter: null,
+          }),
+          { status: 200 },
+        ),
+      );
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
+    render(
+      <UserDirectory
+        currentUserId="other"
+        initialUsers={users}
+        initialNextAfter="cursor-1"
+      />,
+    );
+
+    const loadMoreBtn = screen.getByRole('button', { name: 'Load more users' });
+    fireEvent.click(loadMoreBtn);
+
+    const roleFilter = screen.getByRole('combobox', {
+      name: /filter by role/i,
+    });
+    fireEvent.change(roleFilter, { target: { value: 'student' } });
+
+    await waitFor(() => {
+      expect(screen.getByText('filtered@example.test')).toBeTruthy();
+    });
+
+    resolvePageRequest!(
+      new Response(
+        JSON.stringify({
+          users: [
+            {
+              user_id: '00000000-0000-4000-8000-000000000077',
+              email: 'stale-page@example.test',
+              display_name: 'Stale User',
+              role: 'instructor',
+            },
+          ],
+          nextAfter: null,
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByText('stale-page@example.test')).toBeNull();
   });
 });

@@ -23,7 +23,9 @@ vi.mock('@/lib/auth/verified-user', () => ({
 }));
 
 vi.mock('@/features/admin-users/user-directory', () => ({
-  UserDirectory: () => <div data-testid="user-directory">User Directory Mock</div>,
+  UserDirectory: () => (
+    <div data-testid="user-directory">User Directory Mock</div>
+  ),
 }));
 
 describe('AdminPage', () => {

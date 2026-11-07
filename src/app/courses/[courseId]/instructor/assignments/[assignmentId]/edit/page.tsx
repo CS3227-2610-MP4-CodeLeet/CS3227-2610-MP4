@@ -10,9 +10,9 @@ function hasInstructorAccess(
 ) {
   return Boolean(
     access &&
-      access.role === 'instructor' &&
-      access.lifecycle === 'active' &&
-      access.featureEnabled,
+    access.role === 'instructor' &&
+    access.lifecycle === 'active' &&
+    access.featureEnabled,
   );
 }
 
@@ -38,7 +38,12 @@ async function loadAssignmentData(
     .select('criteria')
     .eq('assignment_id', assignmentId)
     .maybeSingle();
-  return { assignment, error, submissionCount, criteria: rubric?.criteria ?? [] };
+  return {
+    assignment,
+    error,
+    submissionCount,
+    criteria: rubric?.criteria ?? [],
+  };
 }
 
 export default async function EditAssignmentPage({

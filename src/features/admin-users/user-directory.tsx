@@ -2,7 +2,14 @@
 
 import { PendingButton } from '@/components/ui/pending-button';
 
-import { useCallback, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminUser, AppRole } from './contracts';
 
@@ -149,11 +156,7 @@ async function throwRoleChangeError(response: Response): Promise<never> {
   throw new Error('The role could not be changed. Refresh and try again.');
 }
 
-function buildAdminUsersUrl(
-  after: string | null,
-  query: string,
-  role: string,
-) {
+function buildAdminUsersUrl(after: string | null, query: string, role: string) {
   const queryParts: string[] = [];
   if (after) queryParts.push(`after=${encodeURIComponent(after)}`);
   if (query.trim()) queryParts.push(`q=${encodeURIComponent(query.trim())}`);
@@ -206,7 +209,9 @@ function useFilteredSearch({
       setError(null);
       setIsSearching(true);
       try {
-        const page = await fetchUsersPage(buildAdminUsersUrl(null, query, role));
+        const page = await fetchUsersPage(
+          buildAdminUsersUrl(null, query, role),
+        );
         if (isSubscribed) onLoaded(page);
       } catch (loadError) {
         if (isSubscribed) {
@@ -230,6 +235,45 @@ function useFilteredSearch({
   return isSearching;
 }
 
+type LoadMoreState = {
+  nextAfter: string | null;
+  debouncedQuery: string;
+  roleFilter: string;
+  queryGen: { current: number };
+  activeGen: number;
+  setError: (msg: string | null) => void;
+  setUsers: Dispatch<SetStateAction<AdminUser[]>>;
+  setNextAfter: (next: string | null) => void;
+  setIsLoadingMore: (loading: boolean) => void;
+};
+
+async function executeLoadMore(state: LoadMoreState) {
+  state.setIsLoadingMore(true);
+  try {
+    const page = await fetchUsersPage(
+      buildAdminUsersUrl(
+        state.nextAfter,
+        state.debouncedQuery,
+        state.roleFilter,
+      ),
+    );
+    if (state.queryGen.current !== state.activeGen) return;
+    state.setUsers((current) => [...current, ...page.users]);
+    state.setNextAfter(page.nextAfter);
+  } catch (loadError) {
+    if (state.queryGen.current === state.activeGen) {
+      state.setError(
+        loadError instanceof Error
+          ? loadError.message
+          : USER_DIRECTORY_LOAD_ERROR,
+      );
+    }
+  } finally {
+    if (state.queryGen.current === state.activeGen)
+      state.setIsLoadingMore(false);
+  }
+}
+
 function useDirectoryPages(
   initialUsers: AdminUser[],
   initialNextAfter: string | null,
@@ -242,6 +286,12 @@ function useDirectoryPages(
   const [roleFilter, setRoleFilter] = useState('');
   const debouncedQuery = useDebouncedSearch(search);
   const pageRequestInFlight = useRef(false);
+  const queryGen = useRef(0);
+
+  useEffect(() => {
+    queryGen.current += 1;
+    pageRequestInFlight.current = false;
+  }, [debouncedQuery, roleFilter]);
 
   const onLoaded = useCallback(
     (page: { users: AdminUser[]; nextAfter: string | null }) => {
@@ -259,26 +309,22 @@ function useDirectoryPages(
   });
 
   async function loadMore() {
-    if (!nextAfter) return;
+    if (!nextAfter || isSearching) return;
     setError(null);
-    await runSinglePageRequest(pageRequestInFlight, async () => {
-      setIsLoadingMore(true);
-      try {
-        const page = await fetchUsersPage(
-          buildAdminUsersUrl(nextAfter, debouncedQuery, roleFilter),
-        );
-        setUsers((current) => [...current, ...page.users]);
-        setNextAfter(page.nextAfter);
-      } catch (loadError) {
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : USER_DIRECTORY_LOAD_ERROR,
-        );
-      } finally {
-        setIsLoadingMore(false);
-      }
-    });
+    const activeGen = queryGen.current;
+    await runSinglePageRequest(pageRequestInFlight, () =>
+      executeLoadMore({
+        nextAfter,
+        debouncedQuery,
+        roleFilter,
+        queryGen,
+        activeGen,
+        setError,
+        setUsers,
+        setNextAfter,
+        setIsLoadingMore,
+      }),
+    );
   }
 
   return {
@@ -440,7 +486,7 @@ export function UserDirectory({
           pending={directory.isLoadingMore}
           className="rounded-md border px-4 py-2 text-sm"
           type="button"
-          disabled={directory.isLoadingMore}
+          disabled={directory.isLoadingMore || directory.isSearching}
           onClick={() => void directory.loadMore()}
         >
           {directory.isLoadingMore ? 'Loading users…' : 'Load more users'}

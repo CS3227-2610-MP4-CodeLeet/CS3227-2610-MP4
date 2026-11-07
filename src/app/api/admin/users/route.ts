@@ -30,7 +30,7 @@ function pageResult(data: unknown) {
       'directory_failed',
       'The user directory could not be loaded.',
       500,
-      );
+    );
   const hasMore = parsed.data.length > pageSize;
   const users = parsed.data.slice(0, pageSize);
   return privateJson({

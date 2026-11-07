@@ -50,6 +50,11 @@
    - Discovered and fixed PostgreSQL function overload parameter default collision in migration `20261107180000_admin_user_search_and_filter.sql`.
    - Discovered and fixed missing `cleanup()` call in `afterEach` and contract shape in `course-directory.test.tsx`.
    - Ran full repository verification: lint, typecheck, unit tests (779 passed), production build, database pgTAP tests (455 passed), and OpenSpec validation.
+10. **PR Review Feedback & CI Fixes**:
+    - Addressed Codex review comment 1 in `user-directory.tsx`: added request generation counter to discard stale pagination responses when filter criteria change, and disabled pagination button while filtered search is in flight.
+    - Addressed Codex review comment 2 in `course-directory.tsx`: implemented `useFocusTrap` hook to trap Tab/Shift+Tab focus inside dialogs and restore focus to trigger button upon close.
+    - Resolved Applications workflow failure: formatted all files using `prettier --write .` and verified clean passing of `pnpm format:check`.
+    - Added unit test cases for modal focus trapping/restore and pagination invalidation upon filter modification (781 tests passing).
 
 ## Work and verification
 

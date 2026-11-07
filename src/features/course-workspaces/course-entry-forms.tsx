@@ -50,7 +50,10 @@ export function CourseCreateForm({
 }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const { error, busy, submit } = useCourseSubmission('/api/courses', onSuccess);
+  const { error, busy, submit } = useCourseSubmission(
+    '/api/courses',
+    onSuccess,
+  );
 
   function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

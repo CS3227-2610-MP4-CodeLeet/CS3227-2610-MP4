@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CourseSummary } from './contracts';
 import { CourseCard } from './course-card';
 import { CourseCreateForm, CourseJoinForm } from './course-entry-forms';
@@ -18,17 +18,9 @@ export function CourseDirectory({
   currentUserId,
   platformAdmin,
 }: Props) {
-  const [activeModal, setActiveModal] = useState<'none' | 'create' | 'join'>('none');
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setActiveModal('none');
-    }
-    if (activeModal !== 'none') {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [activeModal]);
+  const [activeModal, setActiveModal] = useState<'none' | 'create' | 'join'>(
+    'none',
+  );
 
   return (
     <main className="mx-auto max-w-6xl space-y-8 px-6 py-10">
@@ -88,11 +80,65 @@ function CourseDirectoryHeader() {
       </p>
       <h1 className="text-3xl font-semibold">Courses</h1>
       <p className="max-w-2xl text-sm text-muted-foreground">
-        Each course keeps its members, settings and work together. You can
-        have a different role in each course.
+        Each course keeps its members, settings and work together. You can have
+        a different role in each course.
       </p>
     </header>
   );
+}
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function trapTabKey(event: KeyboardEvent, container: HTMLElement) {
+  if (event.key !== 'Tab') return;
+  const focusables = Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+  );
+  if (focusables.length === 0) {
+    event.preventDefault();
+    return;
+  }
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function useFocusTrap(onClose: () => void) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const previousActive = document.activeElement as HTMLElement | null;
+    const container = containerRef.current;
+    if (container) {
+      const focusables =
+        container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      const first = focusables[0] ?? container;
+      first.focus();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        onClose();
+      } else if (container) {
+        trapTabKey(event, container);
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousActive?.focus();
+    };
+  }, [onClose]);
+
+  return containerRef;
 }
 
 function CourseActionModal({
@@ -102,6 +148,8 @@ function CourseActionModal({
   activeModal: 'create' | 'join';
   onClose: () => void;
 }) {
+  const containerRef = useFocusTrap(onClose);
+
   return (
     <div
       role="dialog"
@@ -111,7 +159,11 @@ function CourseActionModal({
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-xl">
+      <div
+        ref={containerRef}
+        tabIndex={-1}
+        className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-xl focus:outline-none"
+      >
         {activeModal === 'create' ? (
           <CourseCreateForm onSuccess={onClose} onCancel={onClose} />
         ) : (

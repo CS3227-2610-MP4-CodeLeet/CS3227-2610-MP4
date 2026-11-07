@@ -81,5 +81,7 @@ it('keeps archived assignments readable without offering a broken Edit action', 
 it('keeps the Edit action available for active course assignments', async () => {
   const html = await renderPage();
 
-  expect(html).toContain('/courses/course-1/instructor/assignments/assignment-1/edit');
+  expect(html).toContain(
+    '/courses/course-1/instructor/assignments/assignment-1/edit',
+  );
 });
