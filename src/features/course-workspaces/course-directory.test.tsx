@@ -67,22 +67,32 @@ describe('course directory', () => {
     expect(screen.getByText(/owner: unassigned/i)).toBeTruthy();
   });
 
-  it('creates a course and opens its workspace', async () => {
+  it('opens create course modal and submits new course', async () => {
     render(
       <CourseDirectory
-        initialCourses={[]}
+        initialCourses={courses}
         canCreate={true}
         currentUserId="owner-1"
         platformAdmin={false}
       />,
     );
+    // Modal is initially closed
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // Click right-aligned header button to open modal
+    fireEvent.click(screen.getByRole('button', { name: 'Create course' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
     fireEvent.change(screen.getByLabelText('Course title'), {
       target: { value: 'Data Structures' },
     });
     fireEvent.change(screen.getByLabelText('Description'), {
       target: { value: 'Spring term' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Create course' }));
+    // Submit the form inside the modal
+    const submitBtn = screen.getByRole('button', { name: 'Save course' });
+    fireEvent.click(submitBtn);
+
     await waitFor(() =>
       expect(mocks.push).toHaveBeenCalledWith(
         '/courses/00000000-0000-4000-8000-000000000003',
@@ -100,7 +110,7 @@ describe('course directory', () => {
     );
   });
 
-  it('joins a course by code and provides an empty state for new students', async () => {
+  it('opens join course modal and submits join code', async () => {
     render(
       <CourseDirectory
         initialCourses={[]}
@@ -110,10 +120,20 @@ describe('course directory', () => {
       />,
     );
     expect(screen.getByText(/no courses yet/i)).toBeTruthy();
+    // Modal is initially closed
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // Click right-aligned header button to open modal
+    fireEvent.click(screen.getByRole('button', { name: 'Join course' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
     fireEvent.change(screen.getByLabelText('Join code'), {
       target: { value: 'synthetic-join-code-123456' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Join course' }));
+    // Submit button inside modal
+    const submitBtn = screen.getByRole('button', { name: 'Submit join code' });
+    fireEvent.click(submitBtn);
+
     await waitFor(() =>
       expect(mocks.push).toHaveBeenCalledWith(
         '/courses/00000000-0000-4000-8000-000000000003',
@@ -124,5 +144,21 @@ describe('course directory', () => {
       expect.objectContaining({ method: 'POST' }),
     );
     expect(screen.queryByRole('button', { name: 'Create course' })).toBeNull();
+  });
+
+  it('closes modal when cancel button is clicked', () => {
+    render(
+      <CourseDirectory
+        initialCourses={courses}
+        canCreate={true}
+        currentUserId="owner-1"
+        platformAdmin={false}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Create course' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
