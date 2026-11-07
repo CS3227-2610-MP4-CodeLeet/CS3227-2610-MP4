@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CourseSummary } from './contracts';
 import { CourseDirectory } from './course-directory';
 
@@ -17,48 +17,27 @@ const courses: CourseSummary[] = [
     title: 'Algorithms',
     description: 'Core concepts',
     lifecycle: 'active',
-    isLegacy: false,
+    is_legacy: false,
     role: 'instructor',
-    ownerId: 'owner-1',
-    features: {
-      assessments: true,
-      ai: true,
-      discussions: true,
-      xp: true,
-      leaderboard: true,
-    },
+    owner_id: 'owner-1',
   },
   {
     id: '00000000-0000-4000-8000-000000000002',
     title: 'Operating Systems',
-    description: null,
+    description: '',
     lifecycle: 'active',
-    isLegacy: false,
+    is_legacy: false,
     role: 'student',
-    ownerId: 'owner-2',
-    features: {
-      assessments: true,
-      ai: false,
-      discussions: true,
-      xp: false,
-      leaderboard: false,
-    },
+    owner_id: 'owner-2',
   },
   {
     id: '00000000-0000-4000-8000-000000000000',
     title: 'Legacy',
     description: 'Historical archive',
     lifecycle: 'archived',
-    isLegacy: true,
+    is_legacy: true,
     role: null,
-    ownerId: null,
-    features: {
-      assessments: true,
-      ai: true,
-      discussions: true,
-      xp: true,
-      leaderboard: true,
-    },
+    owner_id: null,
   },
 ];
 
@@ -70,13 +49,15 @@ beforeEach(() => {
     vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        course: { id: '00000000-0000-4000-8000-000000000003' },
+        courseId: '00000000-0000-4000-8000-000000000003',
       }),
     }),
   );
-  return () => {
-    vi.unstubAllGlobals();
-  };
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
 });
 
 const CREATE_COURSE_LABEL = 'Create course';
