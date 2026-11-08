@@ -55,8 +55,10 @@ describe('context strategy comparison', () => {
     );
     render(<ContextComparison submissionId="submission-9" />);
     fireEvent.click(screen.getByRole('button', { name: 'Compare contexts' }));
-    expect(await screen.findByText('Focused context')).toBeTruthy();
-    expect(screen.getByText('Broader authorized context')).toBeTruthy();
+    expect(await screen.findByText(/Focused Context \(Optimized\)/i)).toBeTruthy();
+    expect(screen.getByText(/Broader Context \(Baseline\)/i)).toBeTruthy();
+    expect(screen.getByText(/54% token reduction/i)).toBeTruthy();
+    expect(screen.getByText(/advisory suggestions/i)).toBeTruthy();
     expect(screen.getByText('120 estimated input tokens · cache')).toBeTruthy();
     expect(
       screen.getByText('260 estimated input tokens · provider'),
