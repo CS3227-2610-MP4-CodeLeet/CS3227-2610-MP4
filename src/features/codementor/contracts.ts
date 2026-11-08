@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { assignmentLanguages } from '@/features/student-assignments/types';
 import { dueAtSchema } from '@/features/assignment-deadlines/deadlines';
 import { maxXpSchema } from '@/features/assignment-xp/contracts';
+import { caseSetSchema } from '@/features/practice-test-authoring/contracts';
 
 export const assignmentLanguageSchema = z.enum(assignmentLanguages);
 
@@ -22,6 +23,7 @@ export const assignmentInputSchema = z
     language: assignmentLanguageSchema.default('python'),
     dueAt: dueAtSchema,
     maxXp: maxXpSchema.optional(),
+    cases: caseSetSchema.optional(),
     rubric: z
       .array(
         z

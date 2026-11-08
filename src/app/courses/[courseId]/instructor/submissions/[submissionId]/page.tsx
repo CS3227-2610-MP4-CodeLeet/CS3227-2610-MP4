@@ -11,6 +11,8 @@ import { PracticeRunner } from '@/features/student-submissions/practice-runner';
 import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
 import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { loadOwnerCases } from '@/features/practice-test-authoring/queries.server';
+import type { PracticeCase } from '@/features/student-submissions/practice-tests';
 
 type Criterion = {
   id: string;
@@ -30,17 +32,19 @@ function SubmissionCodeRunner({
   runnerOrigin,
   language,
   source,
+  cases,
 }: {
   runnerOrigin: string | null;
   language: 'python' | 'java';
   source: string;
+  cases: PracticeCase[];
 }) {
   return runnerOrigin ? (
     <PracticeRunner
       runnerOrigin={runnerOrigin}
       language={language}
       source={source}
-      cases={[]}
+      cases={cases}
     />
   ) : (
     <p className="text-sm text-muted-foreground">Code runner is unavailable.</p>
@@ -63,7 +67,7 @@ export default async function CourseInstructorSubmissionPage({
     .eq('id', submissionId)
     .maybeSingle();
   if (!submission) notFound();
-  const [{ data: assignment }, { data: rubric }, { data: grade }] =
+  const [{ data: assignment }, { data: rubric }, { data: grade }, ownerCases] =
     await Promise.all([
       supabase
         .from('assignments')
@@ -80,6 +84,7 @@ export default async function CourseInstructorSubmissionPage({
         .select('id,scores,feedback,total_score,published_at,version')
         .eq('submission_id', submissionId)
         .maybeSingle(),
+      loadOwnerCases(supabase, submission.assignment_id),
     ]);
   if (!assignment || !rubric || assignment.course_id !== courseId) notFound();
   const access = await readCourseAccess(
@@ -108,7 +113,7 @@ export default async function CourseInstructorSubmissionPage({
       />
       <Link
         className="text-sm underline"
-        href={`/courses/${courseId}/instructor/assignments/${assignment.id}/submissions`}
+        href={`/courses/${courseId}/instructor/submissions`}
       >
         Back to submissions
       </Link>
@@ -129,6 +134,7 @@ export default async function CourseInstructorSubmissionPage({
         runnerOrigin={resolveBrowserRunnerOrigin(process.env)}
         language={language}
         source={submission.source}
+        cases={ownerCases?.cases ?? []}
       />
       {access.lifecycle === 'active' ? (
         <>

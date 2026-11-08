@@ -5,6 +5,7 @@ import { requireMember } from '@/lib/auth/verified-user';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { readCourseAccess } from '@/lib/courses/access';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { loadOwnerCases } from '@/features/practice-test-authoring/queries.server';
 
 function hasInstructorAccess(
   access: Awaited<ReturnType<typeof readCourseAccess>>,
@@ -34,16 +35,20 @@ async function loadAssignmentData(
     .eq('assignment_id', assignmentId);
   if (submissionError)
     throw new Error('Assignment history could not be checked.');
-  const { data: rubric } = await supabase
-    .from('assignment_rubrics')
-    .select('criteria')
-    .eq('assignment_id', assignmentId)
-    .maybeSingle();
+  const [rubricResult, testCasesData] = await Promise.all([
+    supabase
+      .from('assignment_rubrics')
+      .select('criteria')
+      .eq('assignment_id', assignmentId)
+      .maybeSingle(),
+    loadOwnerCases(supabase, assignmentId),
+  ]);
   return {
     assignment,
     error,
     submissionCount,
-    criteria: rubric?.criteria ?? [],
+    criteria: rubricResult.data?.criteria ?? [],
+    cases: testCasesData?.cases ?? [],
   };
 }
 
@@ -54,7 +59,7 @@ export default async function EditAssignmentPage({
 }) {
   const { courseId, assignmentId } = await params;
   const { supabase, user } = await requireMember();
-  const { assignment, error, submissionCount, criteria } =
+  const { assignment, error, submissionCount, criteria, cases } =
     await loadAssignmentData(supabase, assignmentId);
   if (error || !assignment || assignment.course_id !== courseId) notFound();
   const access = await readCourseAccess(
@@ -74,12 +79,6 @@ export default async function EditAssignmentPage({
         Back to assignments
       </Link>
       <h1 className="text-3xl font-semibold">Edit assignment</h1>
-      <Link
-        className="inline-block text-sm underline"
-        href={`/courses/${courseId}/instructor/assignments/${assignmentId}/practice-tests`}
-      >
-        Practice tests
-      </Link>
       <AssignmentForm
         courseId={assignment.course_id}
         assignment={{
@@ -92,6 +91,7 @@ export default async function EditAssignmentPage({
             description: string;
             maxScore: number;
           }>,
+          cases,
         }}
       />
     </main>

@@ -12,7 +12,6 @@ import {
   ClipboardIcon,
   ClockIcon,
   HomeIcon,
-  PlusIcon,
   SparklesIcon,
   StarIcon,
   TrendingUpIcon,
@@ -39,7 +38,6 @@ type NavItem = {
   href: string;
   enabled: boolean;
   icon: (collapsed: boolean) => ReactNode;
-  primary?: boolean;
 };
 
 const SIDEBAR_STORAGE_KEY = 'codeleet:course-sidebar-collapsed';
@@ -96,9 +94,6 @@ function getInstructorNavItems(
   features: CourseFeatureSetting[],
 ): NavItem[] {
   if (archived) return [];
-  const hasAssessments = features.some(
-    (f) => f.feature === 'assessments' && f.enabled,
-  );
   const hasAi = features.some((f) => f.feature === 'ai' && f.enabled);
   return [
     {
@@ -106,13 +101,6 @@ function getInstructorNavItems(
       href: `/courses/${courseId}/instructor/ai-context`,
       enabled: hasAi,
       icon: () => <ArrowsRightLeftIcon />,
-    },
-    {
-      label: 'New assignment',
-      href: `/courses/${courseId}/instructor/assignments/new`,
-      enabled: hasAssessments,
-      primary: true,
-      icon: () => <PlusIcon />,
     },
   ];
 }
@@ -183,6 +171,16 @@ function buildNavItems(
       enabled: assessments,
       icon: () => <ClipboardIcon />,
     },
+    ...(role === 'instructor'
+      ? [
+          {
+            label: 'Submissions',
+            href: `/courses/${courseId}/instructor/submissions`,
+            enabled: assessments,
+            icon: () => <ClockIcon />,
+          },
+        ]
+      : []),
     ...(role === 'student'
       ? getStudentNavItems(courseId, archived, features)
       : []),
@@ -338,11 +336,9 @@ function SidebarNavLinks({
               icon={item.icon(isCollapsed)}
               hideLabel={isCollapsed}
               className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                item.primary
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                  : isActive
-                    ? 'bg-accent font-semibold text-accent-foreground'
-                    : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                isActive
+                  ? 'bg-accent font-semibold text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
               } ${isCollapsed ? 'justify-center px-2' : ''}`}
             >
               {item.label}

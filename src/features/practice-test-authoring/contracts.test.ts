@@ -10,6 +10,7 @@ const item = {
   name: 'Example',
   stdin: ' 2 3\r\n',
   expected_stdout: '5\n',
+  is_public: true,
 };
 it('uses Unicode code-point name limits and rejects nonstandard UUID bits or whitespace-only names', () => {
   expect(
@@ -60,13 +61,27 @@ it('rejects duplicate IDs, unknown fields, blank names, NUL and lone surrogates'
     expect(caseSetSchema.safeParse(cases).success).toBe(false);
 });
 it('bounds count, name and IDs', () => {
-  expect(caseSetSchema.safeParse(Array(6).fill(item)).success).toBe(false);
+  const makeCases = (count: number) =>
+    Array.from({ length: count }, (_, i) => ({
+      ...item,
+      id: `b1000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`,
+    }));
+  expect(caseSetSchema.safeParse(makeCases(25)).success).toBe(true);
+  expect(caseSetSchema.safeParse(makeCases(26)).success).toBe(false);
   expect(
     caseSetSchema.safeParse([{ ...item, name: 'a'.repeat(121) }]).success,
   ).toBe(false);
   expect(caseSetSchema.safeParse([{ ...item, id: 'fake' }]).success).toBe(
     false,
   );
+});
+it('supports is_public flag defaulting to true', () => {
+  const parsed = caseSetSchema.parse([
+    { ...item, is_public: false },
+    { ...item, id: 'b1000000-0000-4000-8000-000000000002' },
+  ]);
+  expect(parsed[0].is_public).toBe(false);
+  expect(parsed[1].is_public).toBe(true);
 });
 it('requires cases for save/publish and a nonempty publication', () => {
   expect(

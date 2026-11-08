@@ -24,11 +24,12 @@ export const practiceCaseSchema = z
       ),
     stdin: literal(4096),
     expected_stdout: literal(8192),
+    is_public: z.boolean().default(true),
   })
   .strict();
 export const caseSetSchema = z
   .array(practiceCaseSchema)
-  .max(5)
+  .max(25)
   .refine(
     (cases) =>
       new Set(cases.map((item) => item.id.toLowerCase())).size === cases.length,
