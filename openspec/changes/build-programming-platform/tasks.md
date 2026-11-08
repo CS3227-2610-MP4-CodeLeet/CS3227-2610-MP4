@@ -306,4 +306,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 36.3 Standardize all data-route `loading.tsx` fallbacks on `RouteLoading`, adding the missing routes (courses, course overview, admin, instructor, detail and editor pages).
 - [x] 36.4 Add a shared `AuthPageShell` giving sign-in, sign-up, forgot-password and reset-password pages a **Back to welcome page** button, with a unit test.
 - [x] 36.5 Verify typecheck, lint, format, full unit suite and production build; update User/Developer Guides and the dated log. Authenticated browser verification was not run (local Supabase/Docker unavailable).
-- [ ] 36.6 Push the branch and publish an issue-linked PR to develop after branch CI; human browser verification remains pending.
+- [x] 36.6 Push the branch and publish issue-linked PR #115 to develop after branch CI (application run 42437388796, scaffold run 42437391544 at b021910); human browser verification remains pending.

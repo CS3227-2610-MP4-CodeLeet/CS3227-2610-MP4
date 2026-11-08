@@ -6,7 +6,7 @@
 - GitHub issue: #114
 - OpenSpec change: build-programming-platform (task group 36; scenario "Pending navigation feedback" in `accounts-and-access`)
 - Branch and commits: `feat/114-navigation-pending-feedback` (commits listed on the PR)
-- Pull request: to be linked on publication
+- Pull request: #115 (to `develop`)
 - Human verification: pending
 - Verifier/date: pending
 
