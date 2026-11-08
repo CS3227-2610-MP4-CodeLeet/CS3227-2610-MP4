@@ -6,7 +6,7 @@
 - GitHub issue: #116
 - OpenSpec change: build-programming-platform
 - Branch and commits: feat/test-cases-and-submissions
-- Pull request: pending
+- Pull request: #118
 - Human verification: pending
 - Verifier/date:
 
