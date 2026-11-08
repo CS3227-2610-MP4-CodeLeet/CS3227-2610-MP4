@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { ResetPasswordForm } from '@/features/auth/reset-password-form';
+import { AuthPageShell } from '@/features/auth/auth-page-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ async function hasVerifiedSession() {
 export default async function ResetPasswordPage() {
   const verified = await hasVerifiedSession();
   return (
-    <main className="mx-auto flex min-h-dvh max-w-5xl items-center justify-center px-6 py-12">
+    <AuthPageShell>
       {verified ? (
         <ResetPasswordForm />
       ) : (
@@ -37,6 +38,6 @@ export default async function ResetPasswordPage() {
           </Link>
         </section>
       )}
-    </main>
+    </AuthPageShell>
   );
 }

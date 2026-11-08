@@ -1,4 +1,5 @@
 import { ForgotPasswordForm } from '@/features/auth/forgot-password-form';
+import { AuthPageShell } from '@/features/auth/auth-page-shell';
 
 export default async function ForgotPasswordPage({
   searchParams,
@@ -7,8 +8,8 @@ export default async function ForgotPasswordPage({
 }) {
   const { error } = await searchParams;
   return (
-    <main className="mx-auto flex min-h-dvh max-w-5xl items-center justify-center px-6 py-12">
+    <AuthPageShell>
       <ForgotPasswordForm invalidLink={error === 'invalid-link'} />
-    </main>
+    </AuthPageShell>
   );
 }
