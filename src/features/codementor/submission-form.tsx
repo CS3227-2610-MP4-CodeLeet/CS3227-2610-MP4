@@ -23,6 +23,7 @@ type SubmissionFormProps = {
   initialSource?: string;
   editingRevision?: number;
   draftContext?: DraftContext;
+  previewMode?: boolean;
 };
 
 function DraftStatus({ dirty }: { dirty: boolean }) {
@@ -75,21 +76,39 @@ function SubmissionFooter({
   busy,
   disabled,
   message,
+  previewMode = false,
 }: {
   busy: boolean;
   disabled: boolean;
   message: string;
+  previewMode?: boolean;
 }) {
   return (
     <footer className="space-y-3 border-t pt-5">
-      <PendingButton
-        pending={busy}
-        type="submit"
-        disabled={disabled}
-        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
-      >
-        {busy ? 'Saving…' : 'Submit revision'}
-      </PendingButton>
+      {previewMode ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <PendingButton
+            pending={false}
+            type="button"
+            disabled={true}
+            className="cursor-not-allowed rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground opacity-60"
+          >
+            Submit revision
+          </PendingButton>
+          <span className="text-xs text-muted-foreground">
+            Submissions disabled in preview mode
+          </span>
+        </div>
+      ) : (
+        <PendingButton
+          pending={busy}
+          type="submit"
+          disabled={disabled}
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+        >
+          {busy ? 'Saving…' : 'Submit revision'}
+        </PendingButton>
+      )}
       {message && (
         <p role="status" className="text-sm text-muted-foreground">
           {message}
@@ -107,6 +126,7 @@ export function SubmissionForm({
   initialSource = '',
   editingRevision,
   draftContext,
+  previewMode = false,
 }: SubmissionFormProps) {
   const router = useRouter();
   const draft = useSubmissionDraft(initialSource, draftContext);
@@ -116,7 +136,7 @@ export function SubmissionForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || !ready) return;
+    if (previewMode || busy || !ready) return;
     const submitted = submissionAttempt();
     setBusy(true);
     setMessage('');
@@ -158,6 +178,7 @@ export function SubmissionForm({
         busy={busy}
         disabled={!ready || busy || !source.trim()}
         message={message}
+        previewMode={previewMode}
       />
     </form>
   );
