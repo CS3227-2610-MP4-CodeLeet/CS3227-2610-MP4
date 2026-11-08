@@ -1,10 +1,5 @@
+import { RouteLoading } from '@/components/ui/route-loading';
+
 export default function ProfileLoading() {
-  return (
-    <p
-      role="status"
-      className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground"
-    >
-      Loading your profile…
-    </p>
-  );
+  return <RouteLoading label="your profile" />;
 }

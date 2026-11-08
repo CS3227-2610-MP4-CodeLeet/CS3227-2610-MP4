@@ -1,3 +1,5 @@
-export default function LoadingXp() {
-  return <p role="status">Loading XP…</p>;
+import { RouteLoading } from '@/components/ui/route-loading';
+
+export default function XpLoading() {
+  return <RouteLoading label="XP" />;
 }
