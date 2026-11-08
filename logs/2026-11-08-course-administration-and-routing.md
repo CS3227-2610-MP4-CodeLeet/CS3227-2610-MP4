@@ -17,7 +17,7 @@
   - `e958044` refactor(courses): satisfy strict lint rules and optimize component separation
   - `442764d` refactor(courses): satisfy strict lint rules and decompose complex components
   - `8c6a038` test(practice-tests): increase timeout for editor publishing test under load
-- Pull request: pending
+- Pull request: #121 (https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/121)
 - Human verification: pending
 - Verifier/date: John / 2026-11-08
 
