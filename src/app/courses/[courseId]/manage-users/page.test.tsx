@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   verified: vi.fn(),
@@ -51,6 +51,10 @@ beforeEach(() => {
   );
 });
 
+afterEach(() => {
+  cleanup();
+});
+
 function createManageUsersSupabase(courseId: string, role: string) {
   return {
     from: vi.fn((table: string) => {
@@ -95,9 +99,10 @@ function createManageUsersSupabase(courseId: string, role: string) {
   };
 }
 
-describe('ManageUsersPage', () => {
-  const courseId = 'test-course-id';
+const courseId = 'test-course-id';
+const studentJoinCodeHeading = 'Student join code';
 
+describe('ManageUsersPage active and authorization checks', () => {
   it('renders student join code above people for instructors', async () => {
     const supabase = createManageUsersSupabase(courseId, 'instructor');
 
@@ -115,13 +120,13 @@ describe('ManageUsersPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Manage Users' })).toBeTruthy();
     expect(
-      screen.getByRole('heading', { name: 'Student join code' }),
+      screen.getByRole('heading', { name: studentJoinCodeHeading }),
     ).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'People' })).toBeTruthy();
 
     // Verify Student join code appears above People in document order
     const joinCodeHeading = screen.getByRole('heading', {
-      name: 'Student join code',
+      name: studentJoinCodeHeading,
     });
     const peopleHeading = screen.getByRole('heading', { name: 'People' });
     expect(
@@ -142,5 +147,82 @@ describe('ManageUsersPage', () => {
     await expect(
       ManageUsersPage({ params: Promise.resolve({ courseId }) }),
     ).rejects.toThrow('NEXT_NOT_FOUND');
+  });
+});
+
+describe('ManageUsersPage archived view', () => {
+  it('renders read-only roster without join code or mutation controls for archived courses', async () => {
+    const supabase = {
+      from: vi.fn((table: string) => {
+        if (table === 'courses') {
+          return query({
+            data: {
+              id: courseId,
+              owner_id: 'owner-1',
+              title: 'Algorithms',
+              description: 'Fall',
+              lifecycle: 'archived',
+              is_legacy: false,
+            },
+            error: null,
+          });
+        }
+        if (table === 'course_memberships') {
+          return query({ data: { role: 'instructor' }, error: null });
+        }
+        return query({ data: [], error: null });
+      }),
+      rpc: mocks.rpc.mockImplementation(async (fn: string) => {
+        if (fn === 'list_course_members') {
+          return {
+            data: [
+              {
+                user_id: 'owner-1',
+                email: 'owner@example.test',
+                display_name: 'Owner',
+                role: 'instructor',
+                joined_at: '2026-01-01',
+              },
+              {
+                user_id: 'student-2',
+                email: 'student@example.test',
+                display_name: 'Student Two',
+                role: 'student',
+                joined_at: '2026-01-02',
+              },
+            ],
+            error: null,
+          };
+        }
+        return { data: [], error: null };
+      }),
+    };
+
+    mocks.verified.mockResolvedValue({
+      user: { id: 'owner-1' },
+      role: 'instructor',
+      supabase,
+    });
+
+    const element = await ManageUsersPage({
+      params: Promise.resolve({ courseId }),
+    });
+
+    render(element);
+
+    expect(screen.getByRole('heading', { name: 'Manage Users' })).toBeTruthy();
+    expect(
+      screen.queryByRole('heading', { name: studentJoinCodeHeading }),
+    ).toBeNull();
+    expect(screen.getByRole('heading', { name: 'People' })).toBeTruthy();
+    expect(
+      screen.getByText('This course is archived. Member roster is read-only.'),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('Email address')).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'Invite by email' }),
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull();
+    expect(screen.getByText('Student Two')).toBeTruthy();
   });
 });

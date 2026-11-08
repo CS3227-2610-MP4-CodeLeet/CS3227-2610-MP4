@@ -16,23 +16,32 @@ type Props = {
   isOwner: boolean;
   members: CourseMember[];
   invitations: CourseInvitation[];
+  readOnly?: boolean;
 };
 
 export function CoursePeople(props: Props) {
+  const isReadOnly = props.readOnly ?? props.course.lifecycle !== 'active';
   return (
     <section className="space-y-4 rounded-xl border p-5">
       <div>
         <h2 className="text-xl font-semibold">People</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Invite by email. The invited person must sign in and verify the
-          invited address.
-        </p>
+        {isReadOnly ? (
+          <p className="mt-1 text-sm text-muted-foreground">
+            This course is archived. Member roster is read-only.
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-muted-foreground">
+            Invite by email. The invited person must sign in and verify the
+            invited address.
+          </p>
+        )}
       </div>
-      <InvitationForm courseId={props.course.id} />
-      <MemberList {...props} />
+      {!isReadOnly && <InvitationForm courseId={props.course.id} />}
+      <MemberList {...props} readOnly={isReadOnly} />
       <PendingInvitations
         courseId={props.course.id}
         invitations={props.invitations}
+        readOnly={isReadOnly}
       />
     </section>
   );
@@ -122,7 +131,13 @@ function RoleSelect({
   );
 }
 
-function MemberList({ course, currentUserId, isOwner, members }: Props) {
+function MemberList({
+  course,
+  currentUserId,
+  isOwner,
+  members,
+  readOnly,
+}: Props & { readOnly: boolean }) {
   return (
     <ul className="divide-y">
       {members.map((member) => (
@@ -133,6 +148,7 @@ function MemberList({ course, currentUserId, isOwner, members }: Props) {
           currentUserId={currentUserId}
           isOwner={isOwner}
           member={member}
+          readOnly={readOnly}
         />
       ))}
     </ul>
@@ -145,18 +161,21 @@ function MemberRow({
   currentUserId,
   isOwner,
   member,
+  readOnly,
 }: {
   courseId: string;
   ownerId: string | null;
   currentUserId: string;
   isOwner: boolean;
   member: CourseMember;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isCourseOwner = member.user_id === ownerId;
   const canChange =
+    !readOnly &&
     !isCourseOwner &&
     member.user_id !== currentUserId &&
     (isOwner || member.role === 'student');
@@ -251,9 +270,11 @@ function MemberControls({
 function PendingInvitations({
   courseId,
   invitations,
+  readOnly,
 }: {
   courseId: string;
   invitations: CourseInvitation[];
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const active = invitations.filter(
@@ -268,6 +289,7 @@ function PendingInvitations({
           key={invitation.id}
           courseId={courseId}
           invitation={invitation}
+          readOnly={readOnly}
           onRevoked={() => router.refresh()}
         />
       ))}
@@ -278,10 +300,12 @@ function PendingInvitations({
 function InvitationRow({
   courseId,
   invitation,
+  readOnly,
   onRevoked,
 }: {
   courseId: string;
   invitation: CourseInvitation;
+  readOnly?: boolean;
   onRevoked: () => void;
 }) {
   const [error, setError] = useState<string | null>(null);
@@ -307,14 +331,16 @@ function InvitationRow({
         {invitation.email} · {invitation.role} · expires{' '}
         {new Date(invitation.expires_at).toLocaleDateString()}
       </span>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => void revoke()}
-        className="rounded-md border px-2 py-1"
-      >
-        Revoke
-      </button>
+      {!readOnly && (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void revoke()}
+          className="rounded-md border px-2 py-1"
+        >
+          Revoke
+        </button>
+      )}
       {error && (
         <p role="alert" className="w-full text-xs text-destructive">
           {error}

@@ -131,6 +131,7 @@ export default async function ManageUsersPage({
         isOwner={isOwner}
         members={members}
         invitations={invitations}
+        readOnly={course.lifecycle !== 'active'}
       />
     </main>
   );
