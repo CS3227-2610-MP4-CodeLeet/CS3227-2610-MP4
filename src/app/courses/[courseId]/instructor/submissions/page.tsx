@@ -35,6 +35,7 @@ type GradeRecord = {
   id: string;
   total_score: number | null;
   published_at: string | null;
+  rubric_snapshot?: RubricCriterion[] | null;
 };
 
 type SubmissionItem = {
@@ -80,6 +81,20 @@ function filterLatestSubmissions(
   return Array.from(latestMap.values());
 }
 
+function computeGradeMaxScore(
+  grade: GradeRecord | null | undefined,
+  fallbackMaxScore?: number,
+): number | undefined {
+  if (grade?.published_at && Array.isArray(grade.rubric_snapshot)) {
+    const sum = grade.rubric_snapshot.reduce(
+      (acc, c) => acc + Number(c.maxScore ?? c.max_score ?? 0),
+      0,
+    );
+    if (sum > 0) return sum;
+  }
+  return fallbackMaxScore;
+}
+
 // eslint-disable-next-line max-lines-per-function, max-statements, complexity, sonarjs/cognitive-complexity
 export default async function InstructorSubmissionsDashboardPage({
   params,
@@ -109,6 +124,10 @@ export default async function InstructorSubmissionsDashboardPage({
     supabase.rpc('list_course_members', { p_course: courseId }),
   ]);
 
+  if (assignmentsResult.error) {
+    throw new Error('Assignments could not be loaded');
+  }
+
   const assignments: AssignmentItem[] = parseAssignments(
     assignmentsResult.data,
   );
@@ -137,7 +156,7 @@ export default async function InstructorSubmissionsDashboardPage({
     const { data, error } = await supabase
       .from('submissions')
       .select(
-        'id,student_id,assignment_id,revision,created_at,is_late,due_at_submission,grades(id,total_score,published_at)',
+        'id,student_id,assignment_id,revision,created_at,is_late,due_at_submission,grades(id,total_score,published_at,rubric_snapshot)',
       )
       .in('assignment_id', targetAssignmentIds)
       .order('created_at', { ascending: false });
@@ -218,8 +237,8 @@ function SubmissionCard({
     member?.email ||
     `Student ${sub.student_id.slice(0, 8)}`;
   const assignmentTitle = assignment?.title ?? 'Unknown Assignment';
-  const maxRubricScore = assignment?.maxRubricScore;
   const grade = Array.isArray(sub.grades) ? sub.grades[0] : sub.grades;
+  const maxScore = computeGradeMaxScore(grade, assignment?.maxRubricScore);
 
   return (
     <article className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5 transition-shadow hover:shadow-sm">
@@ -234,7 +253,7 @@ function SubmissionCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-4 text-sm">
-        <GradeBadge grade={grade} maxScore={maxRubricScore} />
+        <GradeBadge grade={grade} maxScore={maxScore} />
         <SubmissionTiming isLate={sub.is_late} dueAt={sub.due_at_submission} />
         <time
           dateTime={sub.created_at}

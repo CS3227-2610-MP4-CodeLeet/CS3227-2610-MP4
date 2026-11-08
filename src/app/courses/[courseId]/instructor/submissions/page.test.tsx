@@ -323,3 +323,112 @@ it('falls back to all course assignments when assignmentId is invalid or out of 
   // targetAssignmentIds should fall back to assign1Id of the current course
   expect(inMock).toHaveBeenCalledWith('assignment_id', [assign1Id]);
 });
+
+it('throws an error when assignments fail to load', async () => {
+  const mockSupabase = {
+    rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+    from: vi.fn().mockImplementation((table) => {
+      if (table === 'assignments') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              order: vi.fn().mockResolvedValue({
+                data: null,
+                error: { message: 'Database query error' },
+              }),
+            }),
+          }),
+        };
+      }
+      return { select: vi.fn() };
+    }),
+  };
+
+  vi.mocked(requireMember).mockResolvedValue({
+    supabase: mockSupabase,
+    user: { id: instructorId },
+  } as never);
+
+  await expect(
+    InstructorSubmissionsDashboardPage({
+      params: Promise.resolve({ courseId }),
+      searchParams: Promise.resolve({}),
+    }),
+  ).rejects.toThrow('Assignments could not be loaded');
+});
+
+it('uses rubric_snapshot for grade denominator when present', async () => {
+  const mockSupabase = {
+    rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+    from: vi.fn().mockImplementation((table) => {
+      if (table === 'assignments') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              order: vi.fn().mockResolvedValue({
+                data: [
+                  {
+                    id: assign1Id,
+                    title: 'Current Assignment',
+                    max_xp: 50,
+                    assignment_rubrics: [
+                      {
+                        criteria: [{ id: 'c-curr', maxScore: 20 }],
+                      },
+                    ],
+                  },
+                ],
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === 'submissions') {
+        return {
+          select: vi.fn().mockReturnValue({
+            in: vi.fn().mockReturnValue({
+              order: vi.fn().mockResolvedValue({
+                data: [
+                  {
+                    id: 'sub-snapshot',
+                    student_id: student1Id,
+                    assignment_id: assign1Id,
+                    revision: 1,
+                    created_at: new Date().toISOString(),
+                    is_late: false,
+                    due_at_submission: null,
+                    grades: [
+                      {
+                        id: 'grade-snap',
+                        total_score: 8,
+                        published_at: new Date().toISOString(),
+                        rubric_snapshot: [{ id: 'c-old', maxScore: 10 }],
+                      },
+                    ],
+                  },
+                ],
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      return { select: vi.fn() };
+    }),
+  };
+
+  vi.mocked(requireMember).mockResolvedValue({
+    supabase: mockSupabase,
+    user: { id: instructorId },
+  } as never);
+
+  const element = await InstructorSubmissionsDashboardPage({
+    params: Promise.resolve({ courseId }),
+    searchParams: Promise.resolve({}),
+  });
+  render(element);
+
+  // Should use rubric_snapshot (10), not current assignment rubric (20)
+  expect(screen.getByText(/Graded: 8 \/ 10/)).toBeDefined();
+});

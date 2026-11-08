@@ -84,9 +84,7 @@ export default async function CourseInstructorSubmissionPage({
         .select('id,scores,feedback,total_score,published_at,version')
         .eq('submission_id', submissionId)
         .maybeSingle(),
-      Promise.resolve(loadOwnerCases(supabase, submission.assignment_id)).catch(
-        () => null,
-      ),
+      loadOwnerCases(supabase, submission.assignment_id),
     ]);
   if (!assignment || !rubric || assignment.course_id !== courseId) notFound();
   const access = await readCourseAccess(

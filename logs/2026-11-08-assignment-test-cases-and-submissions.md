@@ -79,6 +79,11 @@
     - Verified all 15 database pgTAP test files (463 tests, ALL PASS).
     - Verified `pnpm typecheck`, `pnpm lint`, and `pnpm format:check` (ALL PASS).
     - Removed redundant "+ New assignment" button from the course instructor sidebar (`course-sidebar.tsx`), keeping sidebar strictly navigational while preserving the primary "New assignment" action on the instructor Assignments page. Verified `course-sidebar.test.tsx` (7 tests, ALL PASS).
+  - Second Review Comments Resolution:
+    - Comment A (4505714437): Selected `rubric_snapshot` on submissions query in instructor dashboard and calculated grade denominator from the historical snapshot when published.
+    - Comment B (4505714439): Removed `.catch(() => null)` from `loadOwnerCases` in instructor review submission page to surface query/parse failures rather than rendering zero test cases.
+    - Comment C (4505714442): Checked `assignmentsResult.error` in instructor submissions dashboard and threw on failure rather than rendering an empty dashboard.
+    - Verified all unit tests, format, lint, and typecheck (ALL PASS).
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
