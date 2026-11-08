@@ -67,24 +67,36 @@ async function loadOwnedSubmission(
   return error ? null : data;
 }
 
+type PublishedGradeCriterion = {
+  id: string;
+  title: string;
+  description: string;
+  maxScore: number;
+  score: number;
+};
+
+type PublishedGrade = {
+  id: string;
+  total_score: number;
+  feedback: string;
+  published_at: string;
+  criteria?: PublishedGradeCriterion[];
+  scores?: Record<string, number>;
+};
+
 async function loadPublishedGrade(
   supabase: Awaited<ReturnType<typeof requireMember>>['supabase'],
   submissionId: string,
-) {
-  const { data } = await supabase
-    .from('grades')
-    .select('scores,feedback,total_score,published_at')
-    .eq('submission_id', submissionId)
-    .not('published_at', 'is', null)
-    .maybeSingle();
-  return data;
+): Promise<PublishedGrade | null> {
+  const { data, error } = await supabase.rpc('get_published_submission_grade', {
+    p_submission_id: submissionId,
+  });
+  if (error || !data) return null;
+  return data as PublishedGrade;
 }
 
 type SubmissionRecord = NonNullable<
   Awaited<ReturnType<typeof loadOwnedSubmission>>
->;
-type PublishedGrade = NonNullable<
-  Awaited<ReturnType<typeof loadPublishedGrade>>
 >;
 
 function SubmissionContent({
@@ -136,20 +148,67 @@ function SubmissionContent({
         <ReviewButton role="student" submissionId={submission.id} />
       )}
       {grade ? (
-        <section className="space-y-3 rounded-xl border bg-card p-5">
-          <h2 className="font-semibold">
-            Published grade: {grade.total_score}
-          </h2>
-          <p className="whitespace-pre-wrap">{grade.feedback}</p>
-          <ul>
-            {Object.entries(grade.scores as Record<string, unknown>).map(
-              ([key, score]) => (
+        <section className="space-y-4 rounded-xl border bg-card p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Instructor Grade
+              </p>
+              <h2 className="text-xl font-bold">
+                Published grade: {grade.total_score}
+              </h2>
+            </div>
+            {grade.published_at && (
+              <span className="text-xs text-muted-foreground">
+                Published {new Date(grade.published_at).toLocaleString()}
+              </span>
+            )}
+          </div>
+          {grade.feedback && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">Feedback</p>
+              <p className="whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm">
+                {grade.feedback}
+              </p>
+            </div>
+          )}
+          {grade.criteria && grade.criteria.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Rubric Criteria Breakdown
+              </p>
+              <div className="grid gap-2">
+                {grade.criteria.map((criterion) => (
+                  <div
+                    key={criterion.id}
+                    className="flex items-center justify-between gap-4 rounded-lg border bg-background/50 p-3"
+                  >
+                    <div>
+                      <p className="font-medium text-sm">{criterion.title}</p>
+                      {criterion.description && (
+                        <p className="text-xs text-muted-foreground">
+                          {criterion.description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold text-sm">
+                        {criterion.score} / {criterion.maxScore}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : grade.scores ? (
+            <ul className="text-sm">
+              {Object.entries(grade.scores).map(([key, score]) => (
                 <li key={key}>
                   {key}: {String(score)}
                 </li>
-              ),
-            )}
-          </ul>
+              ))}
+            </ul>
+          ) : null}
         </section>
       ) : (
         <p className="text-sm text-muted-foreground">
