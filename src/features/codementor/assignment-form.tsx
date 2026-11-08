@@ -170,7 +170,7 @@ function makeSubmit(
         ...buildPayload(new FormData(event.currentTarget), assignment, cases),
         courseId,
       });
-      router.push(`/courses/${courseId}/instructor`);
+      router.push(`/courses/${courseId}/assignments`);
       router.refresh();
     } catch (error) {
       setMessage(
