@@ -22,7 +22,7 @@ export function StudentGradesList({
   filters: ListFilters;
   courseId: string;
 }) {
-  const listPath = `/student/grades?courseId=${encodeURIComponent(courseId)}`;
+  const listPath = `/courses/${courseId}/grades`;
   return (
     <section className="space-y-6" aria-labelledby="my-grades-heading">
       <header className="space-y-2">
@@ -37,9 +37,8 @@ export function StudentGradesList({
         </p>
       </header>
       <ListFilterControls
-        path="/student/grades"
+        path={`/courses/${courseId}/grades`}
         filters={filters}
-        courseId={courseId}
       />
       {grades.rows.length ? (
         <ol aria-label="Published grades" className="space-y-4">
@@ -105,7 +104,7 @@ function GradeCard({ row, courseId }: { row: GradeItem; courseId: string }) {
       </details>
       <Link
         prefetch={false}
-        href={`/student/submissions/${row.submissionId}?courseId=${encodeURIComponent(courseId)}`}
+        href={`/courses/${courseId}/submissions/${row.submissionId}`}
         className="inline-flex rounded-md border px-3 py-2 text-sm font-medium hover:bg-accent"
         aria-label={`View ${row.title}, revision ${row.revision}`}
       >
@@ -129,8 +128,8 @@ function GradesEmpty({ page, courseId }: { page: number; courseId: string }) {
       <Link
         href={
           page === 1
-            ? `/student/assignments?courseId=${encodeURIComponent(courseId)}`
-            : `/student/grades?courseId=${encodeURIComponent(courseId)}`
+            ? `/courses/${courseId}/assignments`
+            : `/courses/${courseId}/grades`
         }
         className="inline-flex text-sm font-medium underline underline-offset-4"
       >

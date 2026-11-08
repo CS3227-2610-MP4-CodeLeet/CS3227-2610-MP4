@@ -1,4 +1,3 @@
-import { loadPublishedAssignments } from '@/features/assignment-deadlines/assignments.server';
 import { AssignmentList } from '@/features/student-assignments/components';
 import {
   listPreviewAssignments,
@@ -6,7 +5,6 @@ import {
 } from '@/features/student-assignments/preview.server';
 import { isAssignmentPreviewEnabled } from '@/features/student-assignments/selectors';
 import { requireMember } from '@/lib/auth/verified-user';
-import { readCourseAccess } from '@/lib/courses/access';
 import { notFound, redirect } from 'next/navigation';
 import {
   matchesListFilters,
@@ -48,35 +46,18 @@ export default async function AssignmentListPage({
       />
     );
   }
-  const { supabase, user } = await requireMember();
+  await requireMember();
   if (!courseId) redirect('/courses');
-  const access = await readCourseAccess(
-    supabase,
-    user.id,
-    courseId,
-    'assessments',
-  );
-  if (
-    !access ||
-    access.role !== 'student' ||
-    (access.lifecycle === 'active' && !access.featureEnabled)
-  )
-    notFound();
-  const assignments = await loadPublishedAssignments(
-    supabase,
-    user.id,
-    courseId,
-    filters,
-  );
-  if (!assignments)
-    throw new Error('Published assignments could not be loaded');
-  return (
-    <div>
-      <AssignmentList
-        assignments={assignments}
-        filters={filters}
-        courseId={courseId}
-      />
-    </div>
+
+  // Redirect legacy query-string course routes to canonical path
+  const search = new URLSearchParams();
+  for (const [key, val] of Object.entries(params)) {
+    if (key !== 'courseId' && typeof val === 'string') {
+      search.set(key, val);
+    }
+  }
+  const queryStr = search.toString();
+  redirect(
+    `/courses/${encodeURIComponent(courseId)}/assignments${queryStr ? `?${queryStr}` : ''}`,
   );
 }

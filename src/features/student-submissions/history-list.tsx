@@ -28,7 +28,7 @@ export function SubmissionHistoryList({
   filters?: ListFilters;
   courseId: string;
 }) {
-  const listPath = `/student/submissions?courseId=${encodeURIComponent(courseId)}`;
+  const listPath = `/courses/${courseId}/submissions`;
   return (
     <section className="space-y-6" aria-labelledby="my-submissions-heading">
       <header className="space-y-2">
@@ -44,9 +44,8 @@ export function SubmissionHistoryList({
         </p>
       </header>
       <ListFilterControls
-        path="/student/submissions"
+        path={`/courses/${courseId}/submissions`}
         filters={filters}
-        courseId={courseId}
       />
       {history.rows.length ? (
         <HistoryTable rows={history.rows} courseId={courseId} />
@@ -81,8 +80,8 @@ function HistoryEmpty({ page, courseId }: { page: number; courseId: string }) {
       <Link
         href={
           page === 1
-            ? `/student/assignments?courseId=${encodeURIComponent(courseId)}`
-            : `/student/submissions?courseId=${encodeURIComponent(courseId)}`
+            ? `/courses/${courseId}/assignments`
+            : `/courses/${courseId}/submissions`
         }
         className={linkStyle}
       >
@@ -137,7 +136,7 @@ function HistoryRow({ row, courseId }: { row: HistoryItem; courseId: string }) {
       <td className="min-w-44 max-w-sm px-4 py-4 break-words">
         <Link
           prefetch={false}
-          href={`/student/submissions/${row.id}?courseId=${encodeURIComponent(courseId)}`}
+          href={`/courses/${courseId}/submissions/${row.id}`}
           className="font-medium text-cyan-800 underline-offset-4 hover:underline dark:text-cyan-300"
           aria-label={`View ${row.title}, revision ${row.revision}`}
         >

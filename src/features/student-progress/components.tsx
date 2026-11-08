@@ -29,7 +29,8 @@ const submissionsPath = '/student/submissions';
 const gradesPath = '/student/grades';
 
 function courseHref(path: string, courseId: string) {
-  return `${path}?courseId=${encodeURIComponent(courseId)}`;
+  const cleanPath = path.replace(/^\/student/, '');
+  return `/courses/${courseId}${cleanPath}`;
 }
 
 export function ProgressOverview({
