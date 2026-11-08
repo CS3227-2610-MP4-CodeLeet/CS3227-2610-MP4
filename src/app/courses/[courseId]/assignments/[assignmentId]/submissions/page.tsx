@@ -8,8 +8,7 @@ import {
 } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
-// eslint-disable-next-line max-lines-per-function -- page markup stays with its server-side course context.
-export default async function InstructorSubmissionsPage({
+export default async function AssignmentSubmissionsPage({
   params,
 }: {
   params: Promise<{ courseId: string; assignmentId: string }>;
@@ -45,7 +44,7 @@ export default async function InstructorSubmissionsPage({
       <BreadcrumbSetter title={`Submissions: ${assignment.title}`} />
       <Link
         className="text-sm underline"
-        href={`/courses/${courseId}/instructor`}
+        href={`/courses/${courseId}/assignments`}
       >
         Back to assignments
       </Link>
@@ -68,9 +67,6 @@ export default async function InstructorSubmissionsPage({
           >
             <div>
               <h2 className="font-medium">Revision {submission.revision}</h2>
-              <p className="text-xs text-muted-foreground">
-                Student {submission.student_id}
-              </p>
             </div>
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <SubmissionTiming
@@ -82,7 +78,7 @@ export default async function InstructorSubmissionsPage({
               </time>
               <Link
                 className="underline"
-                href={`/courses/${courseId}/instructor/submissions/${submission.id}`}
+                href={`/courses/${courseId}/submissions/${submission.id}`}
               >
                 Review
               </Link>

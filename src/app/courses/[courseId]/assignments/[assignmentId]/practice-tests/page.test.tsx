@@ -20,6 +20,6 @@ it('redirects to the unified assignment edit page', async () => {
   });
 
   expect(redirect).toHaveBeenCalledWith(
-    `/courses/${courseId}/instructor/assignments/${assignmentId}/edit`,
+    `/courses/${courseId}/assignments/${assignmentId}/edit`,
   );
 });
