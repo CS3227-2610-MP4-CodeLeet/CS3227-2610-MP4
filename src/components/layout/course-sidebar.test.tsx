@@ -76,11 +76,7 @@ describe('CourseSidebar - basic navigation', () => {
         .getByRole('link', { name: /context comparison/i })
         .getAttribute('href'),
     ).toBe('/courses/course-123/instructor/ai-context');
-    expect(
-      screen
-        .getByRole('link', { name: /new assignment/i })
-        .getAttribute('href'),
-    ).toBe('/courses/course-123/instructor/assignments/new');
+    expect(screen.queryByRole('link', { name: /new assignment/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /my xp/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /my progress/i })).toBeNull();
   });

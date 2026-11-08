@@ -78,6 +78,7 @@
     - Comment 5 (4505462164): Validated `currentAssignmentId` against course `assignmentMap` in instructor submissions dashboard, falling back safely to `'all'` on invalid or cross-course IDs.
     - Verified all 15 database pgTAP test files (463 tests, ALL PASS).
     - Verified `pnpm typecheck`, `pnpm lint`, and `pnpm format:check` (ALL PASS).
+    - Removed redundant "+ New assignment" button from the course instructor sidebar (`course-sidebar.tsx`), keeping sidebar strictly navigational while preserving the primary "New assignment" action on the instructor Assignments page. Verified `course-sidebar.test.tsx` (7 tests, ALL PASS).
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
