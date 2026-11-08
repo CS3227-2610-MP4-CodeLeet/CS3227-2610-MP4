@@ -18,11 +18,7 @@ describe('isNavItemActive', () => {
       true,
     );
     expect(
-      isNavItemActive(
-        asgHref,
-        `/courses/${CID}/assignments/a1/edit`,
-        CID,
-      ),
+      isNavItemActive(asgHref, `/courses/${CID}/assignments/a1/edit`, CID),
     ).toBe(true);
     expect(
       isNavItemActive(
@@ -33,11 +29,7 @@ describe('isNavItemActive', () => {
     ).toBe(true);
     // Excludes new assignment action (has own nav button) and context-comparison
     expect(
-      isNavItemActive(
-        asgHref,
-        `/courses/${CID}/assignments/new`,
-        CID,
-      ),
+      isNavItemActive(asgHref, `/courses/${CID}/assignments/new`, CID),
     ).toBe(false);
     expect(
       isNavItemActive(asgHref, `/courses/${CID}/context-comparison`, CID),

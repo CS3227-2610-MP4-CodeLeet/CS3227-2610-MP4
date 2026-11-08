@@ -47,11 +47,12 @@ export default async function ContextComparisonPage({
         <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
           Compare how different prompt engineering strategies affect AI feedback
           quality, latency, and token consumption. Condition A (Focused Context)
-          optimizes resource usage by providing only the assignment instructions,
-          rubric criteria, and student code. Condition B (Broader Context) includes
-          ambient metadata (timestamps, publication statuses, revision numbers)
-          to demonstrate prompt bloat. AI suggestions are exploratory recommendations
-          and never publish or modify official student grades.
+          optimizes resource usage by providing only the assignment
+          instructions, rubric criteria, and student code. Condition B (Broader
+          Context) includes ambient metadata (timestamps, publication statuses,
+          revision numbers) to demonstrate prompt bloat. AI suggestions are
+          exploratory recommendations and never publish or modify official
+          student grades.
         </p>
       </header>
 

@@ -81,8 +81,8 @@ function InstructorPreviewBanner({ isPreview }: { isPreview: boolean }) {
       <p className="font-semibold">Preview Mode (Instructor)</p>
       <p className="mt-1 text-xs text-muted-foreground">
         You are viewing this assignment from the student&apos;s perspective.
-        Code execution in the browser runner is active for testing.
-        Submissions are disabled in preview mode.
+        Code execution in the browser runner is active for testing. Submissions
+        are disabled in preview mode.
       </p>
     </div>
   );
@@ -132,7 +132,12 @@ function AssignmentWorkspaceView({
   archived: boolean;
   isPreview: boolean;
 }) {
-  const formKey = resolveFormKey(studentId, assignmentId, detail.language, draft?.id);
+  const formKey = resolveFormKey(
+    studentId,
+    assignmentId,
+    detail.language,
+    draft?.id,
+  );
   const draftContext = resolveDraftContext({
     isPreview,
     studentId,

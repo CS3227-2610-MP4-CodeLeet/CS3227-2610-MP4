@@ -121,7 +121,9 @@ describe('CourseAssignmentsPage - instructor role', () => {
     expect(html).toContain(`/courses/${testCourseId}/assignments/new`);
     expect(html).toContain(`/courses/${testCourseId}/assignments/asg-1`); // Preview
     expect(html).toContain(`/courses/${testCourseId}/assignments/asg-1/edit`); // Edit
-    expect(html).toContain(`/courses/${testCourseId}/submissions?assignmentId=asg-1`); // Submissions
+    expect(html).toContain(
+      `/courses/${testCourseId}/submissions?assignmentId=asg-1`,
+    ); // Submissions
     expect(html).not.toContain('← Course workspace');
   });
 

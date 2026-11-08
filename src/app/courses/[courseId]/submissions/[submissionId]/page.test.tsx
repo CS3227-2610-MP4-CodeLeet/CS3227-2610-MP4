@@ -237,5 +237,7 @@ it('renders instructor review view with grade form and test runner when user is 
   expect(screen.getByTestId('practice-runner')).toBeDefined();
 
   const backLink = screen.getByRole('link', { name: /Back to submissions/i });
-  expect(backLink.getAttribute('href')).toBe(`/courses/${courseId}/submissions`);
+  expect(backLink.getAttribute('href')).toBe(
+    `/courses/${courseId}/submissions`,
+  );
 });

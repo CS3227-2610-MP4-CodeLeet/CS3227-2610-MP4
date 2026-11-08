@@ -55,7 +55,9 @@ describe('context strategy comparison', { timeout: 15000 }, () => {
     );
     render(<ContextComparison submissionId="submission-9" />);
     fireEvent.click(screen.getByRole('button', { name: 'Compare contexts' }));
-    expect(await screen.findByText(/Focused Context \(Optimized\)/i)).toBeTruthy();
+    expect(
+      await screen.findByText(/Focused Context \(Optimized\)/i),
+    ).toBeTruthy();
     expect(screen.getByText(/Broader Context \(Baseline\)/i)).toBeTruthy();
     expect(screen.getByText(/54% token reduction/i)).toBeTruthy();
     expect(screen.getByText(/advisory suggestions/i)).toBeTruthy();

@@ -116,7 +116,9 @@ describe('CourseAssignmentDetailPage - Instructor Preview', () => {
     render(page);
 
     expect(screen.getByText('Preview Mode (Instructor)')).toBeTruthy();
-    expect(screen.getByText(/Submissions disabled in preview mode/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Submissions disabled in preview mode/i),
+    ).toBeTruthy();
     expect(screen.queryByText(/Your revisions/i)).toBeNull();
   });
 
@@ -144,4 +146,3 @@ describe('CourseAssignmentDetailPage - Instructor Preview', () => {
     ).rejects.toThrow('NEXT_NOT_FOUND');
   });
 });
-

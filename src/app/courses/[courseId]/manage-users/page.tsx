@@ -12,7 +12,9 @@ import type {
 export const dynamic = 'force-dynamic';
 
 async function loadCourseRoster(
-  supabase: NonNullable<Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']>,
+  supabase: NonNullable<
+    Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']
+  >,
   courseId: string,
   course: CourseWorkspaceRecord,
 ) {
@@ -43,7 +45,9 @@ async function loadCourseRoster(
 }
 
 async function loadManageUsersData(
-  supabase: NonNullable<Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']>,
+  supabase: NonNullable<
+    Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']
+  >,
   courseId: string,
   userId: string,
 ) {
@@ -131,4 +135,3 @@ export default async function ManageUsersPage({
     </main>
   );
 }
-

@@ -99,9 +99,7 @@ function buildBreadcrumbs(
         : isDynamicIdentifier(segment)
           ? 'Details'
           : formatSegmentLabel(segment);
-    const href = isLast
-      ? undefined
-      : resolveAncestorHref(courseId, segment);
+    const href = isLast ? undefined : resolveAncestorHref(courseId, segment);
     crumbs.push({
       label,
       href,

@@ -114,11 +114,15 @@ describe('ManageUsersPage', () => {
     render(element);
 
     expect(screen.getByRole('heading', { name: 'Manage Users' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Student join code' })).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { name: 'Student join code' }),
+    ).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'People' })).toBeTruthy();
 
     // Verify Student join code appears above People in document order
-    const joinCodeHeading = screen.getByRole('heading', { name: 'Student join code' });
+    const joinCodeHeading = screen.getByRole('heading', {
+      name: 'Student join code',
+    });
     const peopleHeading = screen.getByRole('heading', { name: 'People' });
     expect(
       joinCodeHeading.compareDocumentPosition(peopleHeading) &

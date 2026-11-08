@@ -46,8 +46,8 @@ function InstructorAssignmentCard({
       <div>
         <h2 className="font-semibold">{assignment.title}</h2>
         <p className="text-sm text-muted-foreground">
-          {assignment.publication_status} · {languageLabel(assignment.language)} · updated{' '}
-          {new Date(assignment.updated_at).toLocaleDateString()}
+          {assignment.publication_status} · {languageLabel(assignment.language)}{' '}
+          · updated {new Date(assignment.updated_at).toLocaleDateString()}
         </p>
         <p className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
           <AssignmentDueDate dueAt={assignment.due_at} />

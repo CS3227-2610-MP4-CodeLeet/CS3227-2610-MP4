@@ -138,8 +138,8 @@ function ComparisonSummary({
           {tokenSavingsPercent}% token reduction
         </span>
         <span className="text-muted-foreground">
-          ({optimizedTokens.toLocaleString()} vs {broaderTokens.toLocaleString()}{' '}
-          tokens)
+          ({optimizedTokens.toLocaleString()} vs{' '}
+          {broaderTokens.toLocaleString()} tokens)
         </span>
       </div>
       <span className="text-xs text-muted-foreground">

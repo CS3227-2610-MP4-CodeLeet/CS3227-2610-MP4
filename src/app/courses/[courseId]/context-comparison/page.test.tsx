@@ -75,7 +75,9 @@ describe('instructor Context Comparison page', () => {
     expect(html).toContain('Object Assignment · revision 1');
     expect(html).toContain('Array Assignment · revision 2');
     expect(html).toContain('AI Context Strategy Comparison');
-    expect(html).toContain('Context Engineering &amp; Resource-Aware Evaluation');
+    expect(html).toContain(
+      'Context Engineering &amp; Resource-Aware Evaluation',
+    );
     expect(html).not.toContain('/instructor');
   });
 
