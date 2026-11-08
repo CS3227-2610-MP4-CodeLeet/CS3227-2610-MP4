@@ -9,6 +9,7 @@ import { loadThreads } from '@/features/forums/data.server';
 import { ForumPager, PostAuthor } from '@/features/forums/components';
 import { parseForumSearch } from '@/features/forums/search';
 import { ForumSearchControls } from '@/features/forums/search-controls';
+import { PendingLink } from '@/components/ui/pending-link';
 
 export default async function CourseForumsPage({
   params,
@@ -38,12 +39,12 @@ export default async function CourseForumsPage({
           </p>
         </div>
         {access.lifecycle === 'active' && (
-          <Link
+          <PendingLink
             href={`/courses/${courseId}/forums/new`}
-            className="rounded-md bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800"
+            className="inline-flex items-center gap-2 rounded-md bg-cyan-700 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-800"
           >
             New discussion
-          </Link>
+          </PendingLink>
         )}
       </div>
       <ForumSearchControls query={query} courseId={courseId} />

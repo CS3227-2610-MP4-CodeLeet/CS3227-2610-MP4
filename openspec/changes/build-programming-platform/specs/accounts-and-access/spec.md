@@ -126,3 +126,8 @@ Every protected student operation SHALL use a request-scoped cookie-based Supaba
 - **WHEN** an account request or an asynchronous save, post, review, practice run or form search is pending
 - **THEN** its action button exposes a disabled busy state and visible spinner; account buttons use action-specific progress text, retain progress during destination navigation, and display a slow-request notice after ten seconds
 - **AND** a failed request restores retry controls with a safe message without automatically repeating the mutation
+
+#### Scenario: Pending navigation feedback
+- **WHEN** a user activates a header, course sidebar, breadcrumb, course card, pagination or other button-styled navigation link
+- **THEN** that link shows a spinner and a screen-reader loading cue until navigation commits, header Courses/Profile/User roles render as shared button-styled links, and every data route renders a shared named loading status while its server data loads
+- **AND** sign-in, sign-up and password recovery pages offer a button-styled link back to the welcome page

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { PendingLink } from '@/components/ui/pending-link';
 import { usePathname } from 'next/navigation';
 import { useBreadcrumbTitle } from './breadcrumb-context';
 
@@ -171,12 +171,12 @@ export function CourseBreadcrumbs({
                   {crumb.label}
                 </span>
               ) : crumb.href ? (
-                <Link
+                <PendingLink
                   href={crumb.href}
-                  className="truncate hover:text-foreground hover:underline"
+                  className="inline-flex min-w-0 items-center gap-1.5 hover:text-foreground hover:underline"
                 >
                   {crumb.label}
-                </Link>
+                </PendingLink>
               ) : (
                 <span className="truncate text-muted-foreground">
                   {crumb.label}

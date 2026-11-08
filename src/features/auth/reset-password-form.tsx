@@ -7,6 +7,7 @@ import { AuthCard } from './auth-form';
 import { PasswordField } from './password-field';
 import { SignOutButton } from './sign-out-button';
 import { clearBrowserDrafts } from '@/features/student-submissions/draft-storage';
+import { ButtonLink } from '@/components/ui/pending-link';
 
 async function finishRecovery() {
   try {
@@ -61,12 +62,9 @@ export function ResetPasswordForm() {
             : 'Your password was updated. Please sign out before signing in again.'}
         </p>
         {!signedOut && <SignOutButton />}
-        <Link
-          href="/sign-in"
-          className="inline-block rounded-md bg-primary px-4 py-2 text-primary-foreground"
-        >
+        <ButtonLink href="/sign-in" variant="primary" size="lg">
           Sign in
-        </Link>
+        </ButtonLink>
       </section>
     );
   return (

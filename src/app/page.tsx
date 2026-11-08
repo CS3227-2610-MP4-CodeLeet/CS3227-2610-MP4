@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
+import { ButtonLink } from '@/components/ui/pending-link';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,18 +25,12 @@ export default async function Home() {
         feedback.
       </p>
       <div className="flex flex-wrap gap-3">
-        <Link
-          href="/sign-up"
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-        >
+        <ButtonLink href="/sign-up" variant="primary" size="lg">
           Create student account
-        </Link>
-        <Link
-          href="/sign-in"
-          className="rounded-md border px-4 py-2 text-sm font-medium"
-        >
+        </ButtonLink>
+        <ButtonLink href="/sign-in" size="lg">
           Sign in
-        </Link>
+        </ButtonLink>
       </div>
     </main>
   );

@@ -1,9 +1,10 @@
 import { AuthForm } from '@/features/auth/auth-form';
+import { AuthPageShell } from '@/features/auth/auth-page-shell';
 
 export default function SignUpPage() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-5xl items-center justify-center px-6 py-12">
+    <AuthPageShell>
       <AuthForm mode="sign-up" />
-    </main>
+    </AuthPageShell>
   );
 }

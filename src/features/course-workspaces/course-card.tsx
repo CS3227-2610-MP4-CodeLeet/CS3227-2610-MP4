@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LinkPendingSpinner } from '@/components/ui/pending-link';
 import type { CourseSummary } from './contracts';
 
 export function CourseCard({
@@ -32,6 +33,11 @@ export function CourseCard({
         ) : course.owner_id === currentUserId ? (
           <span>Owner: You</span>
         ) : null}
+        {canOpen && (
+          <span className="ml-auto">
+            <LinkPendingSpinner label="Opening" />
+          </span>
+        )}
       </div>
     </div>
   );

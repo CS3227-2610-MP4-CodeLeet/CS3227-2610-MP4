@@ -10,6 +10,7 @@ import {
   type ListFilters,
 } from '@/features/student-lists/filters';
 import type { GradeItem, GradesPage } from './grades';
+import { ButtonLink } from '@/components/ui/pending-link';
 
 export function StudentGradesList({
   grades,
@@ -102,14 +103,14 @@ function GradeCard({ row, courseId }: { row: GradeItem; courseId: string }) {
           {row.feedback || 'No written feedback.'}
         </p>
       </details>
-      <Link
+      <ButtonLink
         prefetch={false}
         href={`/courses/${courseId}/submissions/${row.submissionId}`}
-        className="inline-flex rounded-md border px-3 py-2 text-sm font-medium hover:bg-accent"
+        className="self-start"
         aria-label={`View ${row.title}, revision ${row.revision}`}
       >
         View revision
-      </Link>
+      </ButtonLink>
     </article>
   );
 }

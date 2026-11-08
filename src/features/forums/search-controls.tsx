@@ -1,6 +1,6 @@
 import { FormSubmitButton } from '@/components/ui/pending-button';
 import Form from 'next/form';
-import Link from 'next/link';
+import { PendingLink } from '@/components/ui/pending-link';
 
 export function ForumSearchControls({
   query,
@@ -39,12 +39,12 @@ export function ForumSearchControls({
         Search
       </FormSubmitButton>
       {query && (
-        <Link
+        <PendingLink
           href={`/courses/${courseId}/forums`}
-          className="px-3 py-2 text-sm font-medium underline underline-offset-4"
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium underline underline-offset-4"
         >
           Clear search
-        </Link>
+        </PendingLink>
       )}
     </Form>
   );
