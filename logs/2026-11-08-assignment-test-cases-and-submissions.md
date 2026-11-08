@@ -95,6 +95,13 @@
     - CodeQL Root Cause & Fix:
       - Root cause: GitHub dynamic Default Setup used `codeql-action/init@v4` targeting CodeQL bundle 2.27.4. Because `ubuntu-latest` has CodeQL 2.27.3 preinstalled, the runner deleted 2.27.3 and attempted to download 2.27.4 from `https://github.com/github/codeql-action/releases/download/...`, which repeatedly failed with `HTTP 504 Gateway Time-out` on the runner.
       - Fix: Added `.github/workflows/codeql.yml` leveraging `github/codeql-action/init@v3` (which matches the runner toolcache's pre-installed 2.27.3 bundle, completely bypassing release CDN downloads), and disabled the duplicate dynamic default setup via GitHub API.
+      - Pushed commit `bb14030` and verified all CI runs:
+        - `CodeQL`: PASS (Run 42469508223 — Analyze actions 59s, Analyze javascript-typescript 1m 25s, CodeQL check 4s)
+        - `database`: PASS (2m 38s, ID 128696772194)
+        - `application`: PASS (4m 47s, ID 128696771985 — format, lint, typecheck, AI eval, unit tests, build, Chromium browser tests)
+        - `scaffold`: PASS (46s, ID 128696771868)
+        - `coverage-report`: PASS (7s, ID 128697903111)
+        - `Vercel Preview`: PASS (Deployment completed)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
   - Initial `application` CI check failed due to formatting; fixed via `pnpm prettier --write .`.
