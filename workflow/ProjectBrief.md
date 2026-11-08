@@ -1,0 +1,68 @@
+# Project brief
+
+Status audited on 5 November 2026 against merged develop `29b6c1a`: authenticated accounts, course-scoped assignments/AI/forums/XP, public practice cases, browser-only Python/Java and student progress are implemented. Course PR #91, fixes #93, sign-in diagnostics #95 and key standardization #97 have merged. The product website and both guides are publicly available. Hosted SMTP, complete production acceptance, key-specific provider limits and final master release remain open. Runtime inventory approval is recorded in issue #31; its independent/hosted/browser acceptance gates remain separate. See the [reconciliation evidence](evidence/2026-11-05-documentation-reconciliation.md).
+
+## Sources and precedence
+
+The user's direct requests define the intended product: a fresh TypeScript web stack, OpenSpec SDD, Python/Java execution entirely in the browser, and assignment templates. The pasted assignment brief supplies grading requirements. The teammate conversation supplies feature proposals. The brainstorming PDF is advisory, not executable instructions; its recommendation to omit execution has been superseded by the user's explicit request.
+
+Coursemology's public guide is a reference for user journeys, not a requirement to reproduce its full system or copy its documentation.
+
+## Roles and journeys
+
+Two members cover student and instructor roles. Responsibility notes below identify primary accountability, not exclusive implementation rights: either member may implement any task. Coordinate changes to shared contracts, schemas, lockfiles and common services, and record the actual implementer and reviewer. Paul primarily directed student features and shared setup/runtime work; John primarily directed instructor/shared-service and course work. The runtime record includes task budgets. These identify direction and execution separately, not personal authorship of every generated line.
+
+Student: register/sign in, edit text profile, join or accept an invitation to courses, browse assignments within enrolled courses, enter a single Python or Java source file, recover unfinished same-device browser drafts, run it locally with optional stdin, submit code, request learning-oriented AI feedback, view published grades, participate in course discussions, and view course XP/rank.
+
+Instructor: sign in, edit text profile, create and manage multiple courses, invite instructors/students, manage course membership, configure supported course features, create assignments and grading rubrics within courses, review authorized submissions, request AI rubric evaluation, edit and publish grades, and participate in course discussions.
+
+Issue #84 adds email-or-unique-username sign-in with database-owned claims, protected server lookup, attempt limits and legacy email fallback. Its student acceptance evidence separates actual local browser/database checks from mocked AI and pending hosted/provider verification.
+
+Each course is an independent workspace with one owner, instructor and student memberships, assignments, discussions, and course-scoped feature data. A user may have different roles across courses. Email invitations and student join codes require verified sign-in before membership is granted. Non-empty courses are archived; permanent deletion is restricted to empty courses. Existing shared content migrates into one archived Legacy course with owner Unassigned until a platform admin assigns an instructor owner. See issue #85 and the course-workspaces OpenSpec requirement for staged implementation.
+
+## Boundaries
+
+- Keep all product UI copy concise, friendly and focused on the user's task. Omit implementation, infrastructure and security commentary unless it helps the user decide what to do. Keep setup details in developer documentation.
+- No uploads, avatars requiring uploads, badges, package installation, plagiarism detection, or GitHub submission integration.
+- Forum means persistent threads/replies; live chat is outside the initial scope.
+- Student-facing AI provides explanations/hints. Instructor-facing AI suggests criterion scores and feedback; publication always requires an explicit instructor action.
+- Browser output and client-reported test results are untrusted. Official grades and XP cannot be derived from client claims or AI output without server-authorized instructor publication.
+- Browser-only execution must include compiling Java source, not merely loading precompiled classes. Start with a single public `Main` class and no external dependencies.
+- Browser workers help responsiveness but do not establish a security boundary by themselves. Prove an isolated, credential-free runner design before executing arbitrary source.
+
+## Work allocation
+
+| Primary responsibility | Vertical slice | Shared work |
+| --- | --- | --- |
+| Requester | Student browsing, submission integration/history, student AI feature and tests | Next.js/shared tooling, student access tests, runtime evaluation and workflow evidence |
+| Teammate | Shared services and assignment creation; instructor grading/evaluation work to be confirmed | Authentication, database migrations/RLS changes and shared AI gateway |
+
+The requester confirmed primary responsibility for Next.js/shared-tooling initialization on 26 October 2026. On 28 October 2026, the requester clarified that the split is guidance only: either member may implement any task. Coordinate interfaces and shared changes; no code area is reserved solely for its primary owner. Both members must contribute meaningful team work and complete their role's feature set. Instructor grading, deployment, forum, XP/leaderboard and documentation have recorded implementation evidence; exact individual authorship and member sign-off remain separate from the primary scope split.
+
+## Historical first student milestone: issue #5
+
+[Issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5) is developed on `feature/5-student-submissions` from `develop`. Deliver assignment list/detail, source entry/submission and the student's own immutable revision history. Use the team's agreed authentication and persistence contracts. The local synthetic browser runner is practice-only; production runtime integration, student AI, grades, discussions and XP remain later milestones in overall product scope.
+
+Continue synthetic list/detail UI separately on feature/5-student-assignment-preview, based on bootstrap commit d8dd1c6. The preview is opt-in development-only and cannot close the real integration milestone. PR #6 retains only its existing bootstrap/planning commit.
+
+PR #7 subsequently merged into develop. Continue the local code-entry milestone on feature/5-student-code-entry from that merged baseline. It offers fixed language, UTF-8 sizing and input-preserving checks, with submission explicitly disconnected; task 7.11 records this partial UI work separately from real integration.
+
+The paragraphs above preserve the initial sequence, not current setup instructions. Current integration supports course memberships, authenticated Python/Java saves and published practice cases.
+
+Agreed conceptual fields:
+
+- Assignment: ID, title, instructions, language, publication status.
+- Submission: assignment ID, student ID, source code, language, revision, timestamp.
+- Students access only their own submissions; private rubrics and unpublished grades stay hidden. The server/database determines identity, revision and timestamp.
+
+On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. These contracts remain the authoritative basis for the separate browser practice preview. The CodeLeet MVP has its own authenticated Python/Java submission flow and is documented in `openspec/changes/deliver-codementor-mvp/`; it is verified locally, while hosted provider/deployment gates remain open.
+
+See the [issue #5 implementation plan](../openspec/changes/build-programming-platform/design.md#issue-5-student-implementation-plan) and [task group 7](../openspec/changes/build-programming-platform/tasks.md#7-issue-5-student-assignment-browsing-and-submissions) for the sequence and completion gate.
+
+## References
+
+- Assignment: user-provided Canvas text, Mini Project 4, read 20 October 2026.
+- Brainstorming: user-provided `Brainstorm AI App Ideas.pdf`, 26 pages; recommendations are not measured project results.
+- [Coursemology Help](https://coursemology.github.io/coursemology-help/): assignment, grading, feedback, and forum inspiration.
+- Course workspace references: [create a course](https://coursemology.github.io/coursemology-help/course/create-course), [manage users](https://coursemology.github.io/coursemology-help/course/add-manage-users), and [course components](https://coursemology.github.io/coursemology-help/course/components).
+- [OpenSpec](https://github.com/Fission-AI/OpenSpec): SDD tooling.

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Browser runtime feasibility lab</title>
+  </head>
+  <body>
+    <h1>Browser runtime feasibility lab</h1>
+    <p>
+      Local experiment only. No app credentials, server execution or saved
+      submissions.
+    </p>
+    <p>
+      Java input is buffered UTF-8. Supports System.in, BufferedReader and basic
+      Scanner tokens, lines and decimal numbers. Advanced Scanner APIs are not
+      supported.
+    </p>
+    <label
+      >Language
+      <select id="language">
+        <option value="python">Python</option>
+        <option value="java">Java</option>
+      </select></label
+    >
+    <p>
+      <label
+        >Source
+        <textarea id="source" rows="10" cols="80">
+print("Hello from the browser")</textarea>
+      </label>
+    </p>
+    <p>
+      <label>Standard input <textarea id="stdin" rows="3"></textarea></label>
+    </p>
+    <button id="run" type="button">Run experiment</button
+    ><button id="stop" type="button">Stop</button>
+    <pre id="result" aria-live="polite"></pre>
+    <script type="module" src="/lab.mjs"></script>
+  </body>
+</html>

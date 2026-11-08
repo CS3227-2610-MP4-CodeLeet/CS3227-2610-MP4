@@ -1,0 +1,114 @@
+name: Application checks
+on:
+  pull_request:
+  push:
+    branches: [master, develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+  OPENSPEC_TELEMETRY: '0'
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: Verify Node.js 24
+        run: node --eval "if (process.versions.node.split('.')[0] !== '24') process.exit(1)"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:start
+      - run: pnpm db:test
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm db:stop
+
+  application:
+    runs-on: ubuntu-latest
+    # Match @playwright/test in package.json. Browsers and OS libraries are
+    # preinstalled, avoiding apt mirror/network stalls during every CI run.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    timeout-minutes: 15
+    outputs:
+      coverage_artifact: ${{ steps.upload-coverage.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: Verify Node.js 24
+        run: node --eval "if (process.versions.node.split('.')[0] !== '24') process.exit(1)"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - name: Offline AI security evaluation
+        run: pnpm ai:promptfoo
+      - name: Unit tests
+        run: pnpm test:unit:coverage
+      - name: Prepare Vitest config for coverage reporter
+        if: ${{ always() && hashFiles('coverage/coverage-summary.json') != '' && hashFiles('coverage/coverage-final.json') != '' }}
+        run: cp vitest.config.ts coverage/vitest.config.ts
+      - name: Upload Vitest coverage reports
+        id: upload-coverage
+        if: ${{ always() && hashFiles('coverage/coverage-summary.json') != '' && hashFiles('coverage/coverage-final.json') != '' && hashFiles('coverage/vitest.config.ts') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: vitest-coverage
+          path: |
+            coverage/coverage-summary.json
+            coverage/coverage-final.json
+            coverage/vitest.config.ts
+          if-no-files-found: error
+          retention-days: 7
+      - run: pnpm build
+      - name: Product website build
+        run: pnpm site:build
+      - name: Browser tests (preinstalled Chromium)
+        timeout-minutes: 5
+        run: pnpm test:e2e
+      - name: Upload failed browser traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-test-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  coverage-report:
+    needs: application
+    if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && needs.application.outputs.coverage_artifact == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout the trusted base revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: Download Vitest coverage reports
+        uses: actions/download-artifact@v8
+        with:
+          name: vitest-coverage
+          path: coverage
+      - name: Comment coverage on the pull request
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          json-summary-path: coverage/coverage-summary.json
+          json-final-path: coverage/coverage-final.json
+          vite-config-path: coverage/vitest.config.ts
+          file-coverage-mode: changes
+          file-coverage-expanded: true
+          file-coverage-root-path: /__w/CS3227-2610-MP4/CS3227-2610-MP4

@@ -1,0 +1,34 @@
+TeaVM-javac browser compiler and runtime
+========================================
+
+This deployment redistributes these existing TeaVM-javac playground files.
+Their exact bytes are approved in the repository's distribution review and
+are pinned by SHA-256 in workflow/evidence/runtime-feasibility/assets.json:
+
+- compiler.wasm: a79245353ac623df4fde5740bb2bedacedc9c98544253f01aa4b63268f9cb8ba
+- compiler.wasm-runtime.js: 75b2b94394f162c384d42d540836375cdbb0207e6e5605b92a18ce56eb158741
+- compile-classlib-teavm.bin: 4ed72de9e6ea1b58adfaa1b75c30379d7bccde71c529f795df383d62045367d9
+- runtime-classlib-teavm.bin: e62ab99ce291a3379abc0756a1e80f4796f00c60fee655e488b82e37b469d5b7
+
+The TeaVM-javac project is licensed under Apache License 2.0. Its upstream
+README states that OpenJDK compiler sources may be compiled to bytecode for
+inclusion in the WebAssembly output under the GNU General Public License,
+version 2, with the Classpath Exception. TeaVM-javac also includes TeaVM
+components under Apache License 2.0. No claim is made that the mutable upstream
+playground URLs are immutable release URLs; the build rejects any bytes that do
+not match the reviewed inventory above.
+
+Upstream project and license materials:
+- TeaVM-javac source/build instructions: https://github.com/konsoletyper/teavm-javac
+- TeaVM-javac license and OpenJDK notice: https://github.com/konsoletyper/teavm-javac#license
+- TeaVM license: https://github.com/konsoletyper/teavm/blob/master/LICENSE
+- OpenJDK GPLv2 with Classpath Exception: https://openjdk.org/legal/gplv2+ce.html
+- Apache License 2.0 text: https://www.apache.org/licenses/LICENSE-2.0
+
+Distribution review
+-------------------
+On 2026-10-31, the user confirmed that their completed distribution
+review approves the exact existing runtime asset inventory identified by
+workflow/runtime-runner/distribution-approval.json. Every app build
+requires this approval record and verifies every downloaded file against the
+manifest's byte count and SHA-256 before packaging.

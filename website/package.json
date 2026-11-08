@@ -1,0 +1,17 @@
+{
+  "name": "@cs3227/mp4-website",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node ../workflow/scripts/prepare-site-docs.mjs && docusaurus start",
+    "build": "node ../workflow/scripts/prepare-site-docs.mjs && docusaurus build",
+    "serve": "docusaurus serve"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@mdx-js/react": "3.1.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}

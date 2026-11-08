@@ -1,0 +1,47 @@
+name: Publish product website
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - 'website/**'
+      - 'docs/UserGuide.md'
+      - 'docs/DeveloperGuide.md'
+      - 'workflow/scripts/prepare-site-docs.*'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'package.json'
+      - '.node-version'
+      - '.github/workflows/pages.yml'
+permissions:
+  contents: read
+concurrency:
+  group: product-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm site:build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: website/build
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

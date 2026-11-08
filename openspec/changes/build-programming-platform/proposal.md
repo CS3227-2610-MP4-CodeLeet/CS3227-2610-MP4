@@ -1,0 +1,41 @@
+## Why
+
+Students need simple programming practice and submission workflows; instructors need controlled AI assistance for feedback and grading. CS3227 MP4 requires demonstrated SDD, specialist-agent coordination, AI security, context engineering, and resource-aware use.
+
+## What Changes
+
+- Add student/instructor authentication, trusted instructor provisioning, and text profiles.
+- Add instructor-owned assignments, private rubrics, immutable code revisions, and explicit grade publication.
+- Add single-file Python execution and Java source compilation/execution entirely in the browser, with stdin, diagnostics, cancellation and verified isolation. Support public teacher-published stdin/expected-stdout practice cases with bounded execution and deterministic comparison; student results never establish official grades/XP. Select packages only after feasibility experiments.
+- Add distinct SoCLaaS student hints and instructor grading suggestions with authorization, validated output, quotas, scoped caching and usage metadata.
+- Add discussion threads/replies, server-controlled XP awards and a seeded leaderboard.
+- Add multi-course workspaces with per-course membership/roles, verified email invitations, student join codes, owner transfer, archive/empty-only deletion, per-course feature controls, and course-scoped assignments, discussions, AI, XP and leaderboards. Backfill current shared data into an archived Legacy course whose owner remains Unassigned until platform admin assignment.
+- Establish specialist coordination evidence, security/resource experiments, guides and separate deployment environments.
+- Standardize repository tooling on the latest Node.js 24 patch with direct pnpm commands, and use an issue-linked OpenSpec/Superpowers workflow with incremental commits, sanitized per-change summaries and a PR closeout.
+
+Exclude uploads, badges, arbitrary student dependencies, server execution and autonomous AI grade publication. Core product capabilities are implemented in merged develop as audited on 5 November 2026; task-level evidence and remaining hosted/human release gates are tracked separately. This active change is not archived or a release approval.
+
+First student delivery is [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/5): published assignment browsing, source submission and own revision history. The initial responsibility split identifies primary accountability only; either member may implement any task, coordinating shared interfaces and recording actual handoffs. The requester-authorized student contract v1 selects verified cookie sessions, student API routes, a 32 KiB UTF-8 source bound, structured errors and idempotent retries. The design and task group 7 record the contracts and delivery gates. The local browser runner is practice-only and does not replace the production integration milestone.
+
+## Capabilities
+
+### New Capabilities
+
+- `accounts-and-access`: Identity, profiles, trusted roles, and ownership boundaries.
+- `assignments-and-grading`: Assignment lifecycle, immutable submission revisions and approved grades.
+- `browser-code-execution`: Client-only Python and Java practice, isolation, diagnostics and cancellation.
+- `role-aware-ai`: SoCLaaS assistance with private-context separation and resource controls.
+- `community-and-xp`: Text discussions, idempotent XP and deterministic leaderboard ordering.
+- `course-workspaces`: Per-course roles, enrollment, lifecycle, feature controls and historical migration.
+- `engineering-and-delivery`: SDD/agent evidence, experiments, deployment and submission artifacts.
+
+### Modified Capabilities
+
+- accounts-and-access: separate platform administration from per-course student/instructor membership.
+- assignments-and-grading: scope assignment and grading access to course membership.
+- community-and-xp: scope forums, XP totals and leaderboard to a course.
+- role-aware-ai: require course membership and enabled AI feature for AI workflows.
+
+## Impact
+
+Creates a fresh Next.js/Supabase application, browser adapters, SoCLaaS gateway, tests and deployment. Verify runtime compatibility, Java compilation, licensing, download size and provider limits before dependency selection. No previous MP implementation is reused.

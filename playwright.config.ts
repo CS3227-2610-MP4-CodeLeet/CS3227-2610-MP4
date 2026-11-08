@@ -1,0 +1,69 @@
+import { defineConfig, devices } from '@playwright/test';
+
+const productionTestUrl = 'http://127.0.0.1:3100';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  forbidOnly: Boolean(process.env.CI),
+  retries: 0,
+  workers: 1,
+  timeout: 60_000,
+  reporter: process.env.CI ? 'github' : 'list',
+  use: { baseURL: productionTestUrl, trace: 'retain-on-failure' },
+  projects: [
+    {
+      name: 'chromium',
+      testIgnore: [
+        '**/assignment-preview.spec.ts',
+        '**/browser-runtime.spec.ts',
+        '**/local-runtime-startup.spec.ts',
+        '**/workspace-layout.spec.ts',
+      ],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'student-preview',
+      testMatch: [
+        '**/assignment-preview.spec.ts',
+        '**/browser-runtime.spec.ts',
+        '**/local-runtime-startup.spec.ts',
+        '**/workspace-layout.spec.ts',
+      ],
+      use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:3101' },
+    },
+  ],
+  // Optional local workaround when sandboxed Windows process-tree teardown stalls.
+  webServer:
+    process.env.PLAYWRIGHT_MANUAL_SERVERS === '1' && !process.env.CI
+      ? []
+      : [
+          {
+            command:
+              'node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3100',
+            url: productionTestUrl,
+            reuseExistingServer: false,
+            timeout: 60_000,
+            // Even accidentally setting this flag must not enable fixtures in production.
+            env: {
+              APP_SITE_URL: productionTestUrl,
+              PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
+              MP4_E2E_SERVICE_ROLE_KEY: '',
+            },
+          },
+          {
+            command:
+              'node workflow/scripts/dev.mjs --hostname 127.0.0.1 --port 3101',
+            url: 'http://127.0.0.1:3101',
+            reuseExistingServer: false,
+            timeout: 60_000,
+            env: {
+              PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
+              PLAYWRIGHT_PREVIEW: 'true',
+              MP4_DEV_SKIP_RUNTIME_FETCH:
+                process.env.RUN_BROWSER_RUNTIME_TESTS === '1'
+                  ? 'false'
+                  : 'true',
+            },
+          },
+        ],
+});

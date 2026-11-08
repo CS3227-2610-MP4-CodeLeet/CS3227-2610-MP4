@@ -1,0 +1,18 @@
+packages:
+  - '.'
+  - 'website'
+
+engineStrict: true
+savePrefix: ''
+
+allowBuilds:
+  '@tailwindcss/oxide': true
+  esbuild: true
+  sharp: true
+  # Optional completion tip; native resolver uses its platform package.
+  '@fission-ai/openspec': false
+  unrs-resolver: false
+  # Only prints a donation banner and writes a temporary banner cache.
+  core-js: false
+patchedDependencies:
+  promptfoo@0.125.1: patches/promptfoo@0.125.1.patch
