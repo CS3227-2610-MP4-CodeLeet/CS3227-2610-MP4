@@ -32,6 +32,16 @@ describe('AppHeader', () => {
     expect(screen.getByRole('button', { name: 'Toggle theme' })).toBeDefined();
   });
 
+  it('renders Courses and Profile as button-styled navigation links', () => {
+    render(<AppHeader role="student" />);
+    for (const name of ['Courses', 'Profile']) {
+      const link = screen.getByRole('link', { name });
+      expect(link.className).toContain('rounded-md');
+      expect(link.className).toContain('border');
+      expect(link.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+    }
+  });
+
   it('renders brand, Courses link, and User roles link for admin role', () => {
     render(<AppHeader role="admin" />);
     expect(
