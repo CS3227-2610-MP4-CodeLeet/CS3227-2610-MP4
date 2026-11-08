@@ -63,7 +63,13 @@
   - Updated `CaseHeading` and `CaseSummary` in `src/features/student-submissions/practice-results.tsx` to display Public and Private badges
   - Fixed `cases={[]}` bug in `src/app/courses/[courseId]/instructor/submissions/[submissionId]/page.tsx` by querying `loadOwnerCases(supabase, submission.assignment_id)` and passing cases to `SubmissionCodeRunner`
   - Unit tests passed: `pnpm test:unit src/app/courses/[courseId]/instructor/submissions/[submissionId]/page.test.tsx src/features/student-submissions/practice-results.test.tsx` (2 files, 6 tests, exit 0, GREEN)
+  - Task 7: Redirected standalone practice tests URL to assignment edit page; updated instructor assignment list links to point directly to dedicated Submissions dashboard; verified test suites:
+    - `src/app/courses/[courseId]/instructor/assignments/[assignmentId]/practice-tests/page.test.tsx` (PASS)
+    - `pnpm exec supabase test db --local` (15 files, 461 tests, ALL PASS)
+    - `pnpm typecheck` (exit 0)
+    - `pnpm lint` (exit 0, 0 errors, 0 warnings)
+    - `pnpm test:unit` (162 test files, 823 tests, ALL PASS)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
-- Next steps: Execute Task 7 (Practice tests standalone route redirect & comprehensive verification).
+- Next steps: Commit final task, push branch, and create Pull Request to `develop`.

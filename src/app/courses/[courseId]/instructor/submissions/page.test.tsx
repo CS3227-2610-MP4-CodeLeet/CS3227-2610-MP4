@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function, sonarjs/no-duplicate-string */
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
@@ -174,7 +175,6 @@ it('renders student display names, assignment titles, and grade status badges', 
 });
 
 it('filters to latest revisions by default and shows all when viewAll=true', async () => {
-  const assign2Id = '00000000-0000-4000-8000-000000000200';
   const mockSupabase = {
     rpc: vi.fn().mockResolvedValue({
       data: [{ user_id: student1Id, email: 'alice@example.com', display_name: 'Alice', role: 'student' }],

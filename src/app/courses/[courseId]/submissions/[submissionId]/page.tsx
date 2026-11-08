@@ -148,73 +148,79 @@ function SubmissionContent({
         <ReviewButton role="student" submissionId={submission.id} />
       )}
       {grade ? (
-        <section className="space-y-4 rounded-xl border bg-card p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Instructor Grade
-              </p>
-              <h2 className="text-xl font-bold">
-                Published grade: {grade.total_score}
-              </h2>
-            </div>
-            {grade.published_at && (
-              <span className="text-xs text-muted-foreground">
-                Published {new Date(grade.published_at).toLocaleString()}
-              </span>
-            )}
-          </div>
-          {grade.feedback && (
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">Feedback</p>
-              <p className="whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm">
-                {grade.feedback}
-              </p>
-            </div>
-          )}
-          {grade.criteria && grade.criteria.length > 0 ? (
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Rubric Criteria Breakdown
-              </p>
-              <div className="grid gap-2">
-                {grade.criteria.map((criterion) => (
-                  <div
-                    key={criterion.id}
-                    className="flex items-center justify-between gap-4 rounded-lg border bg-background/50 p-3"
-                  >
-                    <div>
-                      <p className="font-medium text-sm">{criterion.title}</p>
-                      {criterion.description && (
-                        <p className="text-xs text-muted-foreground">
-                          {criterion.description}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <span className="font-semibold text-sm">
-                        {criterion.score} / {criterion.maxScore}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : grade.scores ? (
-            <ul className="text-sm">
-              {Object.entries(grade.scores).map(([key, score]) => (
-                <li key={key}>
-                  {key}: {String(score)}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
+        <PublishedGradeSection grade={grade} />
       ) : (
         <p className="text-sm text-muted-foreground">
           No grade has been published for this revision.
         </p>
       )}
+    </section>
+  );
+}
+
+function PublishedGradeSection({ grade }: { grade: PublishedGrade }) {
+  return (
+    <section className="space-y-4 rounded-xl border bg-card p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Instructor Grade
+          </p>
+          <h2 className="text-xl font-bold">
+            Published grade: {grade.total_score}
+          </h2>
+        </div>
+        {grade.published_at && (
+          <span className="text-xs text-muted-foreground">
+            Published {new Date(grade.published_at).toLocaleString()}
+          </span>
+        )}
+      </div>
+      {grade.feedback && (
+        <div className="space-y-1">
+          <p className="text-xs font-medium text-muted-foreground">Feedback</p>
+          <p className="whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm">
+            {grade.feedback}
+          </p>
+        </div>
+      )}
+      {grade.criteria && grade.criteria.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Rubric Criteria Breakdown
+          </p>
+          <div className="grid gap-2">
+            {grade.criteria.map((criterion) => (
+              <div
+                key={criterion.id}
+                className="flex items-center justify-between gap-4 rounded-lg border bg-background/50 p-3"
+              >
+                <div>
+                  <p className="font-medium text-sm">{criterion.title}</p>
+                  {criterion.description && (
+                    <p className="text-xs text-muted-foreground">
+                      {criterion.description}
+                    </p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className="font-semibold text-sm">
+                    {criterion.score} / {criterion.maxScore}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : grade.scores ? (
+        <ul className="text-sm">
+          {Object.entries(grade.scores).map(([key, score]) => (
+            <li key={key}>
+              {key}: {String(score)}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
 }

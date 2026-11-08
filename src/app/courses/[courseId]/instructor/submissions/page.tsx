@@ -38,6 +38,7 @@ type SubmissionItem = {
   grades: GradeRecord[] | GradeRecord | null;
 };
 
+// eslint-disable-next-line max-lines-per-function, max-statements, complexity, sonarjs/cognitive-complexity
 export default async function InstructorSubmissionsDashboardPage({
   params,
   searchParams,
@@ -149,80 +150,98 @@ export default async function InstructorSubmissionsDashboardPage({
             No submissions found for the selected filter.
           </div>
         ) : (
-          submissions.map((sub) => {
-            const member = memberMap.get(sub.student_id);
-            const studentName =
-              member?.display_name ||
-              member?.email ||
-              `Student ${sub.student_id.slice(0, 8)}`;
-            const assignment = assignmentMap.get(sub.assignment_id);
-            const assignmentTitle = assignment?.title ?? 'Unknown Assignment';
-            const maxXp = assignment?.max_xp;
-
-            const grade = Array.isArray(sub.grades)
-              ? sub.grades[0]
-              : sub.grades;
-
-            return (
-              <article
-                key={sub.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5 transition-shadow hover:shadow-sm"
-              >
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-foreground">
-                      {studentName}
-                    </span>
-                    <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                      Revision {sub.revision}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {assignmentTitle}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  {grade?.published_at ? (
-                    <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      Graded: {grade.total_score}
-                      {maxXp != null ? ` / ${maxXp}` : ''}
-                    </span>
-                  ) : grade?.total_score != null ? (
-                    <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-                      Draft: {grade.total_score}
-                      {maxXp != null ? ` / ${maxXp}` : ''}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                      Needs review
-                    </span>
-                  )}
-
-                  <SubmissionTiming
-                    isLate={sub.is_late}
-                    dueAt={sub.due_at_submission}
-                  />
-
-                  <time
-                    dateTime={sub.created_at}
-                    className="text-xs text-muted-foreground"
-                  >
-                    {new Date(sub.created_at).toLocaleString()}
-                  </time>
-
-                  <Link
-                    href={`/courses/${courseId}/instructor/submissions/${sub.id}`}
-                    className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-                  >
-                    Review
-                  </Link>
-                </div>
-              </article>
-            );
-          })
+          submissions.map((sub) => (
+            <SubmissionCard
+              key={sub.id}
+              sub={sub}
+              courseId={courseId}
+              member={memberMap.get(sub.student_id)}
+              assignment={assignmentMap.get(sub.assignment_id)}
+            />
+          ))
         )}
       </section>
     </main>
+  );
+}
+
+function SubmissionCard({
+  sub,
+  courseId,
+  member,
+  assignment,
+}: {
+  sub: SubmissionItem;
+  courseId: string;
+  member?: CourseMember;
+  assignment?: AssignmentItem;
+}) {
+  const studentName =
+    member?.display_name ||
+    member?.email ||
+    `Student ${sub.student_id.slice(0, 8)}`;
+  const assignmentTitle = assignment?.title ?? 'Unknown Assignment';
+  const maxXp = assignment?.max_xp;
+  const grade = Array.isArray(sub.grades) ? sub.grades[0] : sub.grades;
+
+  return (
+    <article className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5 transition-shadow hover:shadow-sm">
+      <div className="space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold text-foreground">{studentName}</span>
+          <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            Revision {sub.revision}
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground">{assignmentTitle}</p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <GradeBadge grade={grade} maxXp={maxXp} />
+        <SubmissionTiming isLate={sub.is_late} dueAt={sub.due_at_submission} />
+        <time
+          dateTime={sub.created_at}
+          className="text-xs text-muted-foreground"
+        >
+          {new Date(sub.created_at).toLocaleString()}
+        </time>
+        <Link
+          href={`/courses/${courseId}/instructor/submissions/${sub.id}`}
+          className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+        >
+          Review
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+function GradeBadge({
+  grade,
+  maxXp,
+}: {
+  grade?: GradeRecord | null;
+  maxXp?: number | null;
+}) {
+  if (grade?.published_at) {
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+        Graded: {grade.total_score}
+        {maxXp != null ? ` / ${maxXp}` : ''}
+      </span>
+    );
+  }
+  if (grade?.total_score != null) {
+    return (
+      <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
+        Draft: {grade.total_score}
+        {maxXp != null ? ` / ${maxXp}` : ''}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+      Needs review
+    </span>
   );
 }

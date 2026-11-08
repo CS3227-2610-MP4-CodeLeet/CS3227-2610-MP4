@@ -83,12 +83,6 @@ export default async function CourseInstructorPage({
                 </p>
               </div>
               <div className="flex gap-4 text-sm">
-                <Link
-                  className="underline"
-                  href={`/courses/${courseId}/instructor/assignments/${assignment.id}/practice-tests`}
-                >
-                  Practice tests
-                </Link>
                 {access.lifecycle === 'active' && (
                   <Link
                     className="underline"
@@ -99,7 +93,7 @@ export default async function CourseInstructorPage({
                 )}
                 <Link
                   className="underline"
-                  href={`/courses/${courseId}/instructor/assignments/${assignment.id}/submissions`}
+                  href={`/courses/${courseId}/instructor/submissions?assignmentId=${assignment.id}`}
                 >
                   Submissions
                 </Link>
