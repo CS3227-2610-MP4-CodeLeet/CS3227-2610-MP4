@@ -49,7 +49,12 @@
   - Task 3 TDD: created failing test `src/app/courses/[courseId]/submissions/[submissionId]/page.test.tsx` asserting rubric criteria breakdown (RED)
   - Implemented `get_published_submission_grade` RPC invocation and criterion score/maxScore breakdown in `CourseSubmissionPage`
   - Unit tests passed: `pnpm test:unit src/app/courses/[courseId]/submissions/page.test.tsx src/app/courses/[courseId]/submissions/[submissionId]/compare/page.test.tsx src/app/courses/[courseId]/submissions/[submissionId]/page.test.tsx` (3 files, 6 tests, exit 0, GREEN)
+  - Task 4 TDD: added failing test in `src/components/layout/course-sidebar.test.tsx` for Instructor "Submissions" nav link (RED)
+  - Added "Submissions" navigation item in `src/components/layout/course-sidebar.tsx`
+  - Created failing test `src/app/courses/[courseId]/instructor/submissions/page.test.tsx` testing role access, student name resolution via `list_course_members`, assignment filter, latest revisions toggle, and grading status badges (RED)
+  - Created `src/app/courses/[courseId]/instructor/submissions/page.tsx`, `loading.tsx`, and `submission-filters.tsx`
+  - Unit tests passed: `pnpm test:unit src/components/layout/course-sidebar.test.tsx src/app/courses/[courseId]/instructor/submissions/page.test.tsx` (2 files, 10 tests, exit 0, GREEN)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
-- Next steps: Execute Task 4 (Instructor dedicated submissions view & sidebar navigation).
+- Next steps: Execute Task 5 (Assignment Form Test Case Authoring & In-Place Visibility Toggle).

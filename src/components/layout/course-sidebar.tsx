@@ -183,6 +183,16 @@ function buildNavItems(
       enabled: assessments,
       icon: () => <ClipboardIcon />,
     },
+    ...(role === 'instructor'
+      ? [
+          {
+            label: 'Submissions',
+            href: `/courses/${courseId}/instructor/submissions`,
+            enabled: assessments,
+            icon: () => <ClockIcon />,
+          },
+        ]
+      : []),
     ...(role === 'student'
       ? getStudentNavItems(courseId, archived, features)
       : []),

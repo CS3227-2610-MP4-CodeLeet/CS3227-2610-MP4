@@ -70,6 +70,11 @@ describe('CourseSidebar - basic navigation', () => {
     expect(screen.getByText(/instructor/i)).toBeDefined();
     expect(
       screen
+        .getByRole('link', { name: /^submissions/i })
+        .getAttribute('href'),
+    ).toBe('/courses/course-123/instructor/submissions');
+    expect(
+      screen
         .getByRole('link', { name: /context comparison/i })
         .getAttribute('href'),
     ).toBe('/courses/course-123/instructor/ai-context');
