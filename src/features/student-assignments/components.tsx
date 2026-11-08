@@ -17,6 +17,7 @@ import {
   AssignmentDueDate,
   SubmissionStatusBadge,
 } from '@/features/assignment-deadlines/components';
+import { PendingLink } from '@/components/ui/pending-link';
 
 const linkStyle =
   'inline-flex items-center gap-2 rounded-md text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring';
@@ -181,14 +182,19 @@ function AssignmentRow({
         />
       </td>
       <td className="px-3 py-5 text-right sm:px-6">
-        <Link
+        <PendingLink
           href={href}
           aria-label={`View assignment: ${assignment.title}`}
           className="inline-flex items-center gap-1 rounded-md border border-cyan-200 dark:border-cyan-800 px-2.5 py-1.5 text-xs font-medium text-cyan-800 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          trailingIcon={
+            <ArrowRight
+              aria-hidden="true"
+              className="hidden size-3.5 sm:block"
+            />
+          }
         >
           View
-          <ArrowRight aria-hidden="true" className="hidden size-3.5 sm:block" />
-        </Link>
+        </PendingLink>
       </td>
     </tr>
   );

@@ -12,6 +12,7 @@ import { languageLabels } from '@/features/student-assignments/types';
 import { revisionEditorPath } from '@/features/student-submissions/revision-selection';
 import { SubmissionTimingDetails } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { ButtonLink } from '@/components/ui/pending-link';
 
 export default async function CourseSubmissionPage({
   params,
@@ -120,13 +121,13 @@ function SubmissionContent({
       </div>
       <div className="flex flex-wrap gap-3">
         <ContinueEditing submission={submission} courseId={courseId} />
-        <Link
+        <ButtonLink
           href={`/courses/${courseId}/submissions/${submission.id}/compare`}
           prefetch={false}
-          className="inline-flex rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+          size="lg"
         >
           Compare revisions
-        </Link>
+        </ButtonLink>
       </div>
       <pre className="overflow-x-auto rounded-xl border bg-card p-5 text-sm">
         <code>{submission.source}</code>

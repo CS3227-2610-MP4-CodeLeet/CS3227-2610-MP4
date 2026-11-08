@@ -1,7 +1,7 @@
 import { FormSubmitButton } from '@/components/ui/pending-button';
-import Link from 'next/link';
 import Form from 'next/form';
 import { hasListFilters, type ListFilters } from './filters';
+import { PendingLink } from '@/components/ui/pending-link';
 
 export function ListFilterControls({
   path,
@@ -62,12 +62,12 @@ export function ListFilterControls({
         Apply filters
       </FormSubmitButton>
       {hasListFilters(filters) && (
-        <Link
+        <PendingLink
           href={clearPath}
-          className="rounded-md px-3 py-2 text-sm font-medium underline underline-offset-4"
+          className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium underline underline-offset-4"
         >
           Clear filters
-        </Link>
+        </PendingLink>
       )}
     </Form>
   );

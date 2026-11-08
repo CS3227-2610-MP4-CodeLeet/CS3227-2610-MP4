@@ -7,6 +7,7 @@ import { languageLabels } from '@/features/student-assignments/types';
 import { AssignmentDueDate } from '@/features/assignment-deadlines/components';
 import { AssignmentXp } from '@/features/assignment-xp/components';
 import { redirect } from 'next/navigation';
+import { ButtonLink } from '@/components/ui/pending-link';
 
 export const dynamic = 'force-dynamic';
 function languageLabel(language: unknown) {
@@ -49,12 +50,13 @@ export default async function CourseInstructorPage({
           <h1 className="text-3xl font-semibold">Assignments</h1>
         </div>
         {access.lifecycle === 'active' && (
-          <Link
-            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
+          <ButtonLink
+            variant="primary"
+            size="lg"
             href={`/courses/${courseId}/instructor/assignments/new`}
           >
             New assignment
-          </Link>
+          </ButtonLink>
         )}
       </header>
       <section className="space-y-3">
