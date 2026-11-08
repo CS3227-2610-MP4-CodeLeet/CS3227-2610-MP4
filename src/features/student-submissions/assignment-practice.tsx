@@ -58,8 +58,8 @@ function resolvePracticeCases(
 function resolveRefreshHandler(
   assignmentId: string | undefined,
   showingExamples: boolean,
-  refresh: () => Promise<unknown>,
-) {
+  refresh: (signal: AbortSignal) => Promise<readonly PracticeCase[]>,
+): ((signal: AbortSignal) => Promise<readonly PracticeCase[]>) | undefined {
   if (assignmentId && !showingExamples) {
     return refresh;
   }
