@@ -84,7 +84,17 @@
     - Comment B (4505714439): Removed `.catch(() => null)` from `loadOwnerCases` in instructor review submission page to surface query/parse failures rather than rendering zero test cases.
     - Comment C (4505714442): Checked `assignmentsResult.error` in instructor submissions dashboard and threw on failure rather than rendering an empty dashboard.
     - Verified all unit tests, format, lint, and typecheck (ALL PASS).
+    - Pushed commit `84872a4` to `feat/test-cases-and-submissions`.
+    - Posted in-thread replies to comments 4505714437, 4505714439, and 4505714442 via GitHub API and resolved all 8 review threads on PR #118.
+    - Verified CI runs for commit `84872a4`:
+      - `database`: PASS (2m 12s, ID 128691540115)
+      - `application`: PASS (4m 38s, ID 128691540219 - format, lint, typecheck, AI security eval, unit tests, build, Chromium browser tests)
+      - `coverage-report`: PASS (10s, ID 128692571077)
+      - `scaffold`: PASS (24s, run 42467894291)
+      - `Vercel Preview`: PASS (Deployment completed)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
+  - Initial `application` CI check failed due to formatting; fixed via `pnpm prettier --write .`.
+  - Initial PR comments and replies had mangled backticks from PowerShell string interpolation; fixed by using `--input <file>` via GitHub CLI and resolved all threads.
 - Resource measurements and unavailable fields: None
-- Next steps: Push branch, reply to review comments, and resolve comment threads.
+- Next steps: Await human verification and teammate review on PR #118 for merge into `develop`.
