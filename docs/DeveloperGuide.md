@@ -103,6 +103,8 @@ Recovery uses Supabase PKCE through `/auth/callback?next=/reset-password`; arbit
 
 `PendingButton` exposes a decorative spinner, disabled pending state and `aria-busy`. `FormSubmitButton` uses `useFormStatus` for Next Form searches/comparison. Account navigation uses React transitions; a notice appears after ten seconds. Errors restore retry controls without automatic mutation retries. The shared theme and password visibility controls remain immediate.
 
+Navigation feedback is standardized in `src/components/ui`. `buttonVariants` (CVA) holds the shared button look (`primary`, `outline`, `ghost`; `sm`/`md`/`lg`). `PendingLink` wraps `next/link` and uses `useLinkStatus` to swap its leading icon for a spinner and add a screen-reader "(loading)" suffix while pending; `ButtonLink` combines it with `buttonVariants`; `LinkPendingSpinner` serves custom link markup such as course cards. Every data route has a `loading.tsx` that renders `RouteLoading`, so navigation shows a named `status` fallback immediately. Use `ButtonLink`/`PendingLink` for new navigation controls and `RouteLoading` for new data routes rather than ad hoc spinners or plain underlined links.
+
 ## 4. Student data and grading contracts
 
 | Capability         | Current contract/boundary                                                                                                                                                                             |
