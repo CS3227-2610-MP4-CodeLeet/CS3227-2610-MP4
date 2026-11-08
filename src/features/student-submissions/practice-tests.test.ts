@@ -51,7 +51,15 @@ describe('practice output contract', () => {
   it('bounds cases, distinct IDs, UTF-8 input and expected output', () => {
     expect(() =>
       validateCases(
-        Array.from({ length: 6 }, (_, index) => ({
+        Array.from({ length: 25 }, (_, index) => ({
+          ...cases[0],
+          id: `${index}`,
+        })),
+      ),
+    ).not.toThrow();
+    expect(() =>
+      validateCases(
+        Array.from({ length: 26 }, (_, index) => ({
           ...cases[0],
           id: `${index}`,
         })),

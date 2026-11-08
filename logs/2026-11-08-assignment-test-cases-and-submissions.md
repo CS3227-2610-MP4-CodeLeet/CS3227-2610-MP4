@@ -43,7 +43,10 @@
   - Created migration `supabase/migrations/20261108150000_expand_test_cases_and_visibility.sql`
   - `pnpm exec supabase db reset --local --no-seed` (exit 0)
   - `pnpm exec supabase test db --local` (15 test files, 461 tests passed, exit 0)
+  - Task 2 TDD: failing tests in `contracts.test.ts`, `practice-tests.test.ts`, and `codementor/contracts.test.ts` (4 failed, RED as expected)
+  - Updated `practiceCaseSchema` with `is_public` (default true) and `caseSetSchema` max 25, `validateCases` max 25, `assignmentInputSchema` with optional `cases`
+  - Unit tests passed: `pnpm test:unit src/features/practice-test-authoring/contracts.test.ts src/features/student-submissions/practice-tests.test.ts src/features/codementor/contracts.test.ts` (3 files, 30 tests, exit 0, GREEN)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
-- Next steps: Execute Task 2 (Zod validation contracts & practice tests engine updates).
+- Next steps: Execute Task 3 (Student published grade breakdown view).

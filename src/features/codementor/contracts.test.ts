@@ -59,6 +59,45 @@ it('rejects unsupported assignment languages and forged submission language', ()
   ).toBe(false);
 });
 
+it('accepts optional test cases within ceiling', () => {
+  const result = assignmentInputSchema.safeParse({
+    courseId: '00000000-0000-4000-8000-000000000003',
+    title: 'Loops with Tests',
+    instructions: 'Read input.',
+    language: 'python',
+    rubric: [
+      {
+        id: crypto.randomUUID(),
+        title: 'Output',
+        description: 'Correct result',
+        maxScore: 10,
+      },
+    ],
+    cases: [
+      {
+        id: crypto.randomUUID(),
+        name: 'Case 1',
+        stdin: '1 2\n',
+        expected_stdout: '3\n',
+        is_public: true,
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Hidden Case 2',
+        stdin: '5 5\n',
+        expected_stdout: '10\n',
+        is_public: false,
+      },
+    ],
+  });
+  expect(result.success).toBe(true);
+  if (result.success) {
+    expect(result.data.cases).toHaveLength(2);
+    expect(result.data.cases?.[0].is_public).toBe(true);
+    expect(result.data.cases?.[1].is_public).toBe(false);
+  }
+});
+
 it('rejects assignment fields outside the published contract', () => {
   expect(
     assignmentInputSchema.safeParse({
