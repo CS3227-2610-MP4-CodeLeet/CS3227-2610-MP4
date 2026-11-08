@@ -106,13 +106,14 @@ function CaseHeading({
   action: ReactNode;
 }) {
   const count = cases.length;
+  const hasPrivate = cases.some((c) => c.is_public === false);
   const summary = results.length
     ? `${passed} of ${count} passed · ${results.length} run`
-    : `${count} ${kind === 'examples' ? 'example' : 'public'} ${count === 1 ? 'case' : 'cases'}`;
+    : `${count} ${hasPrivate ? 'total' : kind === 'examples' ? 'example' : 'public'} ${count === 1 ? 'case' : 'cases'}`;
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h4 className="text-sm font-semibold">
-        {kind === 'examples' ? 'Example test cases' : 'Published test cases'}
+        {hasPrivate ? 'Test cases' : kind === 'examples' ? 'Example test cases' : 'Published test cases'}
       </h4>
       <div className="flex flex-wrap items-center gap-3">
         <p
@@ -171,6 +172,17 @@ function CaseSummary({
         <span className="font-medium text-slate-700 dark:text-slate-200">
           {item.name}
         </span>
+        {item.is_public !== undefined && (
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+              item.is_public
+                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+            }`}
+          >
+            {item.is_public ? 'Public' : 'Private'}
+          </span>
+        )}
       </span>
       <span className="flex items-center gap-3">
         <span className={statusStyle}>

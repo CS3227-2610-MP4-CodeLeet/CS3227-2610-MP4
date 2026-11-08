@@ -59,7 +59,11 @@
   - Forwarded `cases` in `src/app/api/assignments/route.ts` and increased JSON body limits
   - Loaded test cases via `loadOwnerCases` in `EditAssignmentPage` (`src/app/courses/[courseId]/instructor/assignments/[assignmentId]/edit/page.tsx`)
   - Unit tests passed: `pnpm test:unit src/app/api/assignments/route.test.ts src/app/api/assignments/[id]/route.test.ts src/features/codementor/assignment-form.test.tsx` (3 files, 11 tests, exit 0, GREEN)
+  - Task 6 TDD: created failing tests in `practice-results.test.tsx` (asserting `[Public]` / `[Private]` badges and total count) and `instructor/submissions/[submissionId]/page.test.tsx` (asserting test cases loaded from `loadOwnerCases` and passed to `PracticeRunner`) (RED)
+  - Updated `CaseHeading` and `CaseSummary` in `src/features/student-submissions/practice-results.tsx` to display Public and Private badges
+  - Fixed `cases={[]}` bug in `src/app/courses/[courseId]/instructor/submissions/[submissionId]/page.tsx` by querying `loadOwnerCases(supabase, submission.assignment_id)` and passing cases to `SubmissionCodeRunner`
+  - Unit tests passed: `pnpm test:unit src/app/courses/[courseId]/instructor/submissions/[submissionId]/page.test.tsx src/features/student-submissions/practice-results.test.tsx` (2 files, 6 tests, exit 0, GREEN)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
-- Next steps: Execute Task 6 (Instructor Review Submission Bug Fix & Public/Private Badge in Practice Results).
+- Next steps: Execute Task 7 (Practice tests standalone route redirect & comprehensive verification).
