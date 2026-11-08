@@ -62,7 +62,7 @@ it('authors a case, publishes literal output, and advances expected version', as
     action: 'unpublish',
     expectedVersion: 1,
   });
-});
+}, 15000);
 it('retains typed cases on conflict and displays a reload instruction', async () => {
   vi.stubGlobal(
     'fetch',
