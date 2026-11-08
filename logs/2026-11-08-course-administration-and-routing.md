@@ -23,6 +23,7 @@
   - `9aaeee1` fix(sidebar): keep manage users visible in administration section for archived courses
   - `7e48c1a` docs(user-guide): document manage users, instructor preview mode, and administration navigation
   - `bf39766` style: format codebase with prettier to satisfy ci application check
+  - `278d85b` fix(practice-tests): explicitly type refresh handler parameter in practice runner helper
 - Pull request: #121 (https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/121)
 - Human verification: pending
 - Verifier/date: John / 2026-11-08
