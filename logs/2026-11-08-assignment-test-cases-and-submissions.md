@@ -1,0 +1,49 @@
+# Session: 2026-11-08 Assignment Test Cases, Submissions Dashboard, and Rubric Grading Display
+
+- Timezone: Asia/Singapore (SGT)
+- Participants/actual agent IDs: John, Antigravity
+- AI tools/models, where known: Gemini 3.8 Flash (High)
+- GitHub issue: #116
+- OpenSpec change: build-programming-platform
+- Branch and commits: feat/test-cases-and-submissions
+- Pull request: pending
+- Human verification: pending
+- Verifier/date:
+
+## Prompt and interaction summaries
+
+1. **User Request**: Inquiries and improvements requested:
+   - Student submission view: Show rubric criteria title, score, and maxScore (`Correctness: 3/5`) instead of raw UUIDs.
+   - Course instructor view: Add dedicated Submissions page/view with link in the sidebar.
+   - Assignment authoring: Merge test cases editing into Assignment form with public/private per-case toggles instead of bulk publish/unpublish.
+   - Test cases limit: Remove 5-case limit and allow up to 25 cases.
+   - Review submission bug: Fix issue where test cases are not displayed on instructor review submission page.
+2. **Brainstorming & Sizing**:
+   - Researched existing codebase: identified `valid_practice_cases` check in PostgreSQL, `cases={[]}` bug in review page, RLS constraints on `assignment_rubrics` and `assignment_practice_sets`.
+   - Discussed tradeoffs and recommended Approach 1 (Unified schema evolution with in-place JSONB test cases, 25-case ceiling, and dedicated submissions view).
+   - User confirmed Approach 1 with a 25-case ceiling.
+3. **Specification & Review**:
+   - Wrote design doc `docs/superpowers/specs/2026-11-08-assignment-test-cases-and-submissions-design.md`.
+   - Executed builder review check via subagent; resolved RLS protection for private test cases (students select only `assignment_practice_sets` holding public cases), atomic save via `save_course_assignment`, and student name resolution via `list_course_members`.
+   - User approved design document.
+4. **Implementation Planning**:
+   - Created plan `docs/superpowers/plans/2026-11-08-assignment-test-cases-and-submissions.md`.
+   - User selected Native execution.
+
+## Work and verification
+
+- Files and requirement links:
+  - `docs/superpowers/specs/2026-11-08-assignment-test-cases-and-submissions-design.md`
+  - `docs/superpowers/plans/2026-11-08-assignment-test-cases-and-submissions.md`
+  - GitHub Issue #116
+- Commands/checks actually run and outcomes:
+  - Git branch checkout `feat/test-cases-and-submissions`
+  - GitHub issue create #116
+  - pgTAP test `supabase/tests/database/test_cases_expansion.test.sql` RED (failed tests 1, 2, 6 as expected before migration)
+  - Created migration `supabase/migrations/20261108150000_expand_test_cases_and_visibility.sql`
+  - `pnpm exec supabase db reset --local --no-seed` (exit 0)
+  - `pnpm exec supabase test db --local` (15 test files, 461 tests passed, exit 0)
+- Failures, retries, unresolved issues:
+  - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
+- Resource measurements and unavailable fields: None
+- Next steps: Execute Task 2 (Zod validation contracts & practice tests engine updates).
