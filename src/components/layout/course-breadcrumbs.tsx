@@ -53,16 +53,9 @@ export function isDynamicIdentifier(segment: string): boolean {
   );
 }
 
-const INSTRUCTOR_DASHBOARD_SEGMENTS = new Set([
-  'instructor',
-  'assignments',
-  'submissions',
-]);
-
 function resolveAncestorHref(
   courseId: string,
   segment: string,
-  _isInstructor: boolean,
 ): string | undefined {
   if (segment === 'instructor') {
     return `/courses/${courseId}/assignments`;
@@ -98,8 +91,6 @@ function buildBreadcrumbs(
     return isLast || !isDynamicIdentifier(segment);
   });
 
-  const isInstructor = courseSubSegments[0] === 'instructor';
-
   displaySegments.forEach((segment, idx) => {
     const isLast = idx === displaySegments.length - 1;
     const label =
@@ -110,7 +101,7 @@ function buildBreadcrumbs(
           : formatSegmentLabel(segment);
     const href = isLast
       ? undefined
-      : resolveAncestorHref(courseId, segment, isInstructor);
+      : resolveAncestorHref(courseId, segment);
     crumbs.push({
       label,
       href,

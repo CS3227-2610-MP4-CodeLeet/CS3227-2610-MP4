@@ -18,7 +18,6 @@ import { CourseWorkspace } from './course-workspace';
 import { CourseDetails } from './course-details';
 
 type WorkspaceProps = ComponentProps<typeof CourseWorkspace>;
-const inviteButtonName = 'Invite by email';
 const archiveButtonName = 'Archive course';
 
 const course = {

@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, expect, it, describe, vi } from 'vitest';
 

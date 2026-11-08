@@ -42,84 +42,7 @@ export default async function CourseAssignmentsPage({
   if (access.lifecycle === 'active' && !access.featureEnabled) notFound();
 
   if (access.role === 'instructor') {
-    const { data: assignments, error } = await supabase
-      .from('assignments')
-      .select(
-        'id,course_id,title,language,publication_status,updated_at,version,due_at,max_xp',
-      )
-      .eq('course_id', courseId)
-      .order('updated_at', { ascending: false });
-
-    if (error) throw new Error('Assignments could not be loaded');
-
-    return (
-      <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Course instructor</p>
-            <h1 className="text-3xl font-semibold">Assignments</h1>
-          </div>
-          {access.lifecycle === 'active' && (
-            <ButtonLink
-              variant="primary"
-              size="lg"
-              href={`/courses/${courseId}/assignments/new`}
-            >
-              New assignment
-            </ButtonLink>
-          )}
-        </header>
-        <section className="space-y-3">
-          {!assignments?.length ? (
-            <p className="rounded-xl border p-6 text-muted-foreground">
-              No assignments in this course yet.
-            </p>
-          ) : (
-            assignments.map((assignment) => (
-              <article
-                key={assignment.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5"
-              >
-                <div>
-                  <h2 className="font-semibold">{assignment.title}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {assignment.publication_status} ·{' '}
-                    {languageLabel(assignment.language)} · updated{' '}
-                    {new Date(assignment.updated_at).toLocaleDateString()}
-                  </p>
-                  <p className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    <AssignmentDueDate dueAt={assignment.due_at} />
-                    <AssignmentXp value={assignment.max_xp} />
-                  </p>
-                </div>
-                <div className="flex gap-4 text-sm">
-                  <Link
-                    className="underline"
-                    href={`/courses/${courseId}/assignments/${assignment.id}`}
-                  >
-                    Preview
-                  </Link>
-                  {access.lifecycle === 'active' && (
-                    <Link
-                      className="underline"
-                      href={`/courses/${courseId}/assignments/${assignment.id}/edit`}
-                    >
-                      Edit
-                    </Link>
-                  )}
-                  <Link
-                    className="underline"
-                    href={`/courses/${courseId}/submissions?assignmentId=${assignment.id}`}
-                  >
-                    Submissions
-                  </Link>
-                </div>
-              </article>
-            ))
-          )}
-        </section>
-      </main>
-    );
+    return renderInstructorView({ courseId, supabase, access });
   }
 
   // Student view
@@ -145,5 +68,121 @@ export default async function CourseAssignmentsPage({
         courseId={courseId}
       />
     </main>
+  );
+}
+
+type InstructorAssignment = {
+  id: string;
+  course_id: string;
+  title: string;
+  language: string;
+  publication_status: string;
+  updated_at: string;
+  version: number;
+  due_at: string | null;
+  max_xp: number | null;
+};
+
+async function renderInstructorView({
+  courseId,
+  supabase,
+  access,
+}: {
+  courseId: string;
+  supabase: Awaited<ReturnType<typeof requireMember>>['supabase'];
+  access: NonNullable<Awaited<ReturnType<typeof readCourseAccess>>>;
+}) {
+  const { data: assignments, error } = await supabase
+    .from('assignments')
+    .select(
+      'id,course_id,title,language,publication_status,updated_at,version,due_at,max_xp',
+    )
+    .eq('course_id', courseId)
+    .order('updated_at', { ascending: false });
+
+  if (error) throw new Error('Assignments could not be loaded');
+
+  return (
+    <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground">Course instructor</p>
+          <h1 className="text-3xl font-semibold">Assignments</h1>
+        </div>
+        {access.lifecycle === 'active' && (
+          <ButtonLink
+            variant="primary"
+            size="lg"
+            href={`/courses/${courseId}/assignments/new`}
+          >
+            New assignment
+          </ButtonLink>
+        )}
+      </header>
+      <section className="space-y-3">
+        {!assignments?.length ? (
+          <p className="rounded-xl border p-6 text-muted-foreground">
+            No assignments in this course yet.
+          </p>
+        ) : (
+          assignments.map((assignment) => (
+            <InstructorAssignmentCard
+              key={assignment.id}
+              assignment={assignment}
+              courseId={courseId}
+              canEdit={access.lifecycle === 'active'}
+            />
+          ))
+        )}
+      </section>
+    </main>
+  );
+}
+
+function InstructorAssignmentCard({
+  assignment,
+  courseId,
+  canEdit,
+}: {
+  assignment: InstructorAssignment;
+  courseId: string;
+  canEdit: boolean;
+}) {
+  return (
+    <article className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5">
+      <div>
+        <h2 className="font-semibold">{assignment.title}</h2>
+        <p className="text-sm text-muted-foreground">
+          {assignment.publication_status} · {languageLabel(assignment.language)}{' '}
+          · updated {new Date(assignment.updated_at).toLocaleDateString()}
+        </p>
+        <p className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <AssignmentDueDate dueAt={assignment.due_at} />
+          <AssignmentXp value={assignment.max_xp ?? undefined} />
+        </p>
+      </div>
+      <div className="flex gap-4 text-sm">
+        <Link
+          className="underline"
+          href={`/courses/${courseId}/assignments/${assignment.id}`}
+        >
+          Preview
+        </Link>
+        {canEdit && (
+          <Link
+            className="underline"
+            href={`/courses/${courseId}/assignments/${assignment.id}/edit`}
+          >
+            Edit
+          </Link>
+        )}
+        <Link
+          className="underline"
+          href={`/courses/${courseId}/submissions?assignmentId=${assignment.id}`}
+        >
+          Submissions
+        </Link>
+      </div>
+    </article>
   );
 }

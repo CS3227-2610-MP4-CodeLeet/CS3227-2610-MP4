@@ -11,6 +11,42 @@ import type {
 
 export const dynamic = 'force-dynamic';
 
+async function loadCourseRoster(
+  supabase: NonNullable<Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']>,
+  courseId: string,
+  course: CourseWorkspaceRecord,
+) {
+  if (course.is_legacy) {
+    return {
+      members: [] as CourseMember[],
+      invitations: [] as CourseInvitation[],
+    };
+  }
+
+  const membersResult = await supabase.rpc('list_course_members', {
+    p_course: courseId,
+  });
+  if (membersResult.error) {
+    throw new Error('Course members could not be loaded.');
+  }
+
+  let invitations: CourseInvitation[] = [];
+  if (course.lifecycle === 'active') {
+    const invitationResult = await supabase.rpc('list_course_invitations', {
+      p_course: courseId,
+    });
+    if (invitationResult.error) {
+      throw new Error('Course invitations could not be loaded.');
+    }
+    invitations = (invitationResult.data ?? []) as CourseInvitation[];
+  }
+
+  return {
+    members: (membersResult.data ?? []) as CourseMember[],
+    invitations,
+  };
+}
+
 async function loadManageUsersData(
   supabase: NonNullable<Awaited<ReturnType<typeof getVerifiedUserRole>>['supabase']>,
   courseId: string,
@@ -43,29 +79,11 @@ async function loadManageUsersData(
   }
 
   const course = courseResult.data as CourseWorkspaceRecord;
-
-  let members: CourseMember[] = [];
-  let invitations: CourseInvitation[] = [];
-
-  if (!course.is_legacy) {
-    const membersResult = await supabase.rpc('list_course_members', {
-      p_course: courseId,
-    });
-    if (membersResult.error) {
-      throw new Error('Course members could not be loaded.');
-    }
-    members = (membersResult.data ?? []) as CourseMember[];
-
-    if (course.lifecycle === 'active') {
-      const invitationResult = await supabase.rpc('list_course_invitations', {
-        p_course: courseId,
-      });
-      if (invitationResult.error) {
-        throw new Error('Course invitations could not be loaded.');
-      }
-      invitations = (invitationResult.data ?? []) as CourseInvitation[];
-    }
-  }
+  const { members, invitations } = await loadCourseRoster(
+    supabase,
+    courseId,
+    course,
+  );
 
   return {
     course,

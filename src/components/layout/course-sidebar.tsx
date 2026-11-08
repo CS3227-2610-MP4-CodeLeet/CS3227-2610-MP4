@@ -34,51 +34,20 @@ export type CourseSidebarProps = {
   onCloseMobile?: () => void;
 };
 
+import {
+  getServerSidebarSnapshot,
+  getSidebarSnapshot,
+  setSidebarCollapsed,
+  subscribeSidebar,
+} from './course-sidebar-storage';
+import { MobileSidebarDrawer } from './mobile-sidebar-drawer';
+
 type NavItem = {
   label: string;
   href: string;
   enabled: boolean;
   icon: (collapsed: boolean) => ReactNode;
 };
-
-const SIDEBAR_STORAGE_KEY = 'codeleet:course-sidebar-collapsed';
-const listeners = new Set<() => void>();
-
-function subscribeSidebar(callback: () => void) {
-  listeners.add(callback);
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === SIDEBAR_STORAGE_KEY) {
-      callback();
-    }
-  };
-  window.addEventListener('storage', onStorage);
-  return () => {
-    listeners.delete(callback);
-    window.removeEventListener('storage', onStorage);
-  };
-}
-
-function getSidebarSnapshot(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
-function getServerSidebarSnapshot(): boolean {
-  return false;
-}
-
-function setSidebarCollapsed(value: boolean) {
-  try {
-    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, value ? 'true' : 'false');
-  } catch {
-    // Ignore local storage errors
-  }
-  listeners.forEach((listener) => listener());
-}
 
 function isFeatureEnabled(
   features: CourseFeatureSetting[],
@@ -304,6 +273,36 @@ function SidebarUserProfile({
   );
 }
 
+function SidebarLinkItem({
+  item,
+  isActive,
+  isCollapsed,
+  onCloseMobile,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  isCollapsed: boolean;
+  onCloseMobile?: () => void;
+}) {
+  return (
+    <PendingLink
+      href={item.href}
+      onClick={onCloseMobile}
+      title={isCollapsed ? item.label : undefined}
+      aria-current={isActive ? 'page' : undefined}
+      icon={item.icon(isCollapsed)}
+      hideLabel={isCollapsed}
+      className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+        isActive
+          ? 'bg-accent font-semibold text-accent-foreground'
+          : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+      } ${isCollapsed ? 'justify-center px-2' : ''}`}
+    >
+      {item.label}
+    </PendingLink>
+  );
+}
+
 function SidebarNavLinks({
   courseId,
   navItems,
@@ -328,28 +327,15 @@ function SidebarNavLinks({
     >
       {navItems
         .filter((item) => item.enabled)
-        .map((item) => {
-          const isActive = isNavItemActive(item.href, pathname, courseId);
-
-          return (
-            <PendingLink
-              key={item.href}
-              href={item.href}
-              onClick={onCloseMobile}
-              title={isCollapsed ? item.label : undefined}
-              aria-current={isActive ? 'page' : undefined}
-              icon={item.icon(isCollapsed)}
-              hideLabel={isCollapsed}
-              className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                isActive
-                  ? 'bg-accent font-semibold text-accent-foreground'
-                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-              } ${isCollapsed ? 'justify-center px-2' : ''}`}
-            >
-              {item.label}
-            </PendingLink>
-          );
-        })}
+        .map((item) => (
+          <SidebarLinkItem
+            key={item.href}
+            item={item}
+            isActive={isNavItemActive(item.href, pathname, courseId)}
+            isCollapsed={isCollapsed}
+            onCloseMobile={onCloseMobile}
+          />
+        ))}
 
       {visibleAdminItems.length > 0 && (
         <div className="pt-4">
@@ -361,79 +347,19 @@ function SidebarNavLinks({
             <hr className="my-2 border-border" />
           )}
           <div className="space-y-1">
-            {visibleAdminItems.map((item) => {
-              const isActive = isNavItemActive(item.href, pathname, courseId);
-
-              return (
-                <PendingLink
-                  key={item.href}
-                  href={item.href}
-                  onClick={onCloseMobile}
-                  title={isCollapsed ? item.label : undefined}
-                  aria-current={isActive ? 'page' : undefined}
-                  icon={item.icon(isCollapsed)}
-                  hideLabel={isCollapsed}
-                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                    isActive
-                      ? 'bg-accent font-semibold text-accent-foreground'
-                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                  } ${isCollapsed ? 'justify-center px-2' : ''}`}
-                >
-                  {item.label}
-                </PendingLink>
-              );
-            })}
+            {visibleAdminItems.map((item) => (
+              <SidebarLinkItem
+                key={item.href}
+                item={item}
+                isActive={isNavItemActive(item.href, pathname, courseId)}
+                isCollapsed={isCollapsed}
+                onCloseMobile={onCloseMobile}
+              />
+            ))}
           </div>
         </div>
       )}
     </nav>
-  );
-}
-
-function MobileSidebarDrawer({
-  isOpen,
-  onClose,
-  children,
-}: {
-  isOpen: boolean;
-  onClose?: () => void;
-  children: ReactNode;
-}) {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex md:hidden">
-      <div
-        className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <aside className="relative flex w-4/5 max-w-xs flex-col border-r bg-background shadow-xl">
-        <div className="absolute right-3 top-3">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close navigation menu"
-            className="rounded p-1 text-muted-foreground hover:bg-accent"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        {children}
-      </aside>
-    </div>
   );
 }
 

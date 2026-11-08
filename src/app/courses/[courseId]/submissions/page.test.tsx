@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import { beforeEach, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import CourseSubmissionsPage from './page';

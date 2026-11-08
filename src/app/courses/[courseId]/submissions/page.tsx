@@ -155,7 +155,7 @@ export default async function CourseSubmissionsPage({
   );
 }
 
-// eslint-disable-next-line max-lines-per-function, max-statements, complexity, sonarjs/cognitive-complexity
+// eslint-disable-next-line max-lines-per-function, max-statements, complexity
 async function renderInstructorSubmissionsView({
   courseId,
   supabase,

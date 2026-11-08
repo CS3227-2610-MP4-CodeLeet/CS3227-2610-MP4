@@ -37,7 +37,7 @@ async function courseForAssignment(
   );
   return Boolean(
     access &&
-    (access.role === audience || (!writable && access.role === 'instructor')) &&
+    access.role === audience &&
     !(access.lifecycle === 'active' && !access.featureEnabled) &&
     !(writable && (access.lifecycle !== 'active' || !access.featureEnabled)),
   );
@@ -54,21 +54,10 @@ export async function readCases(
   if (!(await courseForAssignment(supabase, user.id, id, audience, false)))
     return unavailable();
   try {
-    let data: unknown =
+    const data =
       audience === 'student'
         ? await loadPublicCases(supabase, id)
         : await loadOwnerCases(supabase, id);
-    if (!data && audience === 'student') {
-      const ownerCases = await loadOwnerCases(supabase, id);
-      if (ownerCases) {
-        data = {
-          assignment_id: id,
-          assignment_revision: 1,
-          test_set_revision: 1,
-          cases: ownerCases.cases,
-        };
-      }
-    }
     return data ? privateJson({ data }) : unavailable();
   } catch {
     return failure(
