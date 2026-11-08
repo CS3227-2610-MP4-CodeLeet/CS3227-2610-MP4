@@ -130,3 +130,4 @@ Every protected student operation SHALL use a request-scoped cookie-based Supaba
 #### Scenario: Pending navigation feedback
 - **WHEN** a user activates a header, course sidebar, breadcrumb, course card, pagination or other button-styled navigation link
 - **THEN** that link shows a spinner and a screen-reader loading cue until navigation commits, header Courses/Profile/User roles render as shared button-styled links, and every data route renders a shared named loading status while its server data loads
+- **AND** sign-in, sign-up and password recovery pages offer a button-styled link back to the welcome page

@@ -34,6 +34,8 @@ Account buttons show a spinner and progress such as **Signing in…** or **Sendi
 
 The top bar shows **Courses**, **Profile** and, for admins, **User roles** as buttons. When you choose one of these, a course sidebar section, a breadcrumb, a course card, a paging control or another button-style link, a spinner appears on it until the next page starts. The page area then shows a **Loading …** message such as **Loading courses…** while its data arrives. A collapsed sidebar still names each section for screen readers.
 
+The sign-in, account creation and password recovery pages have a **Back to welcome page** button above the form that returns to the welcome page.
+
 Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Usernames must be unique regardless of capitalization, contain 1–80 characters and exclude @ or line breaks. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. In **Email or username**, enter either identifier with your password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. Use **Sign out** when finished; a failure lets you retry.
 
 For a forgotten password, choose **Forgot password?**, enter your email and select **Send reset link**. The acknowledgement does not reveal whether an account exists. Open the newest email link in the same browser, enter matching passwords of at least eight characters and choose **Update password**. Then sign in again. Invalid/expired/reused links offer **Request a new link**. Resend delays or provider limits may require a wait. Local emails appear in [Mailpit](http://localhost:54324); hosted delivery is unverified.
