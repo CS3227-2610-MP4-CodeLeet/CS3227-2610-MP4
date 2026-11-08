@@ -1,5 +1,5 @@
 begin;
-select plan(6);
+select plan(8);
 
 -- 1. 25 cases with is_public boolean are accepted
 select ok(public.valid_practice_cases((
@@ -44,6 +44,12 @@ select ok(not public.valid_practice_cases(jsonb_build_array(
 
 -- 6. RPC get_published_submission_grade exists
 select has_function('public', 'get_published_submission_grade', array['uuid'], 'get_published_submission_grade function exists');
+
+-- 7. public.grades has rubric_snapshot column
+select has_column('public', 'grades', 'rubric_snapshot', 'grades table has rubric_snapshot column');
+
+-- 8. public.save_practice_tests exists with 4 args
+select has_function('public', 'save_practice_tests', array['uuid', 'integer', 'text', 'jsonb'], 'save_practice_tests function exists');
 
 select * from finish();
 rollback;

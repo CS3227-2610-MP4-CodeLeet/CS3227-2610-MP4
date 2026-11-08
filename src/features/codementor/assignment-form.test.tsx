@@ -179,7 +179,9 @@ describe('instructor assignment form', () => {
 
     // Initial case rendered
     expect(screen.getByDisplayValue('Sample Case')).toBeDefined();
-    const publicCheckbox = screen.getByLabelText('Public (visible to students)') as HTMLInputElement;
+    const publicCheckbox = screen.getByLabelText(
+      'Public (visible to students)',
+    ) as HTMLInputElement;
     expect(publicCheckbox.checked).toBe(true);
 
     // Toggle to private
@@ -194,7 +196,9 @@ describe('instructor assignment form', () => {
 
     // Submit form
     fireEvent.click(screen.getByRole('button', { name: 'Save assignment' }));
-    expect(await screen.findByRole('button', { name: 'Save assignment' })).toBeTruthy();
+    expect(
+      await screen.findByRole('button', { name: 'Save assignment' }),
+    ).toBeTruthy();
 
     const payload = JSON.parse(fetch.mock.calls[0][1].body as string);
     expect(payload.cases).toHaveLength(2);

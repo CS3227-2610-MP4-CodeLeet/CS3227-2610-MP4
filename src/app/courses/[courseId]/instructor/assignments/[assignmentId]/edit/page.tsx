@@ -41,7 +41,7 @@ async function loadAssignmentData(
       .select('criteria')
       .eq('assignment_id', assignmentId)
       .maybeSingle(),
-    loadOwnerCases(supabase, assignmentId).catch(() => null),
+    loadOwnerCases(supabase, assignmentId),
   ]);
   return {
     assignment,

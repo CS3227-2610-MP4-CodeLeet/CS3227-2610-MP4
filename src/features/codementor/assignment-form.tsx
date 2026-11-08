@@ -193,12 +193,13 @@ export function AssignmentForm({
 }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
-  const [cases, setCases] = useState<AuthoredCase[]>(() =>
-    assignment?.cases?.map((c) => ({
-      ...c,
-      id: c.id || crypto.randomUUID(),
-      is_public: c.is_public ?? true,
-    })) ?? [],
+  const [cases, setCases] = useState<AuthoredCase[]>(
+    () =>
+      assignment?.cases?.map((c) => ({
+        ...c,
+        id: c.id || crypto.randomUUID(),
+        is_public: c.is_public ?? true,
+      })) ?? [],
   );
   const router = useRouter();
   return (

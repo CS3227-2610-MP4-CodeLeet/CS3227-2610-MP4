@@ -44,9 +44,12 @@ export function TestCasesFields({
   return (
     <fieldset className="space-y-4 rounded-lg border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <legend className="px-1 font-medium">Test cases ({cases.length}/25)</legend>
+        <legend className="px-1 font-medium">
+          Test cases ({cases.length}/25)
+        </legend>
         <span className="text-xs text-muted-foreground">
-          Public cases are visible to students; private cases are used for instructor evaluation.
+          Public cases are visible to students; private cases are used for
+          instructor evaluation.
         </span>
       </div>
 

@@ -69,7 +69,16 @@
     - `pnpm typecheck` (exit 0)
     - `pnpm lint` (exit 0, 0 errors, 0 warnings)
     - `pnpm test:unit` (162 test files, 823 tests, ALL PASS)
+  - PR #118 Review Comments & CI Resolution:
+    - Fixed Prettier code style via `pnpm format` across 10 files to resolve the `application` CI check (`pnpm format:check`).
+    - Comment 1 (4505462153): Updated `save_practice_tests` to filter out private cases (`(elem->>'is_public')::boolean is not false`) when inserting into `assignment_practice_sets` on publish.
+    - Comment 2 (4505462157): Removed `.catch(() => null)` from `loadOwnerCases` in `edit/page.tsx` so failures throw cleanly and do not overwrite authored test cases with an empty array.
+    - Comment 3 (4505462158): Added `rubric_snapshot` column to `public.grades`, updated `save_grade` to snapshot rubric criteria upon publication, and updated `get_published_submission_grade` to use the snapshot and preserve all scored keys.
+    - Comment 4 (4505462161): Queried `assignment_rubrics(criteria)` in instructor submissions dashboard and updated `GradeBadge` to show actual rubric maximum points rather than `max_xp`.
+    - Comment 5 (4505462164): Validated `currentAssignmentId` against course `assignmentMap` in instructor submissions dashboard, falling back safely to `'all'` on invalid or cross-course IDs.
+    - Verified all 15 database pgTAP test files (463 tests, ALL PASS).
+    - Verified `pnpm typecheck`, `pnpm lint`, and `pnpm format:check` (ALL PASS).
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
-- Next steps: Commit final task, push branch, and create Pull Request to `develop`.
+- Next steps: Push branch, reply to review comments, and resolve comment threads.

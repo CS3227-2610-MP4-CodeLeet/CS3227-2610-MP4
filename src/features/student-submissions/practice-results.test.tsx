@@ -92,8 +92,20 @@ describe('practice result presentation', () => {
 
   it('renders Public and Private visibility badges when is_public is set', () => {
     const mixedCases: PracticeCase[] = [
-      { id: 'case-pub', name: 'Public Sample', stdin: '1', expected_stdout: '1', is_public: true },
-      { id: 'case-priv', name: 'Private Hidden', stdin: '2', expected_stdout: '2', is_public: false },
+      {
+        id: 'case-pub',
+        name: 'Public Sample',
+        stdin: '1',
+        expected_stdout: '1',
+        is_public: true,
+      },
+      {
+        id: 'case-priv',
+        name: 'Private Hidden',
+        stdin: '2',
+        expected_stdout: '2',
+        is_public: false,
+      },
     ];
     const html = renderToStaticMarkup(
       <CaseResults cases={mixedCases} results={[]} />,

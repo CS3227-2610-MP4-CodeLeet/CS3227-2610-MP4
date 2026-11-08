@@ -23,9 +23,13 @@ vi.mock('@/components/layout/breadcrumb-context', () => ({
   BreadcrumbSetter: () => null,
 }));
 vi.mock('@/components/ui/pending-link', () => ({
-  ButtonLink: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+  ButtonLink: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
 }));
 vi.mock('@/features/codementor/review-button', () => ({
   ReviewButton: () => <button>Request Review</button>,
@@ -127,10 +131,6 @@ it('renders rubric criteria title, description, and score / maxScore breakdown i
   expect(screen.getByText('3 / 5')).toBeDefined();
 
   // Raw criteria UUIDs should not be displayed
-  expect(
-    screen.queryByText(/93000000-0000-4000-8000-000000000026/),
-  ).toBeNull();
-  expect(
-    screen.queryByText(/93000000-0000-4000-8000-000000000027/),
-  ).toBeNull();
+  expect(screen.queryByText(/93000000-0000-4000-8000-000000000026/)).toBeNull();
+  expect(screen.queryByText(/93000000-0000-4000-8000-000000000027/)).toBeNull();
 });

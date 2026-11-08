@@ -113,7 +113,11 @@ function CaseHeading({
   return (
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h4 className="text-sm font-semibold">
-        {hasPrivate ? 'Test cases' : kind === 'examples' ? 'Example test cases' : 'Published test cases'}
+        {hasPrivate
+          ? 'Test cases'
+          : kind === 'examples'
+            ? 'Example test cases'
+            : 'Published test cases'}
       </h4>
       <div className="flex flex-wrap items-center gap-3">
         <p

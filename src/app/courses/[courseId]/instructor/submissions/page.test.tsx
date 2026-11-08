@@ -88,7 +88,18 @@ it('renders student display names, assignment titles, and grade status badges', 
             eq: vi.fn().mockReturnValue({
               order: vi.fn().mockResolvedValue({
                 data: [
-                  { id: assign1Id, title: 'Palindrome Number', max_xp: 15 },
+                  {
+                    id: assign1Id,
+                    title: 'Palindrome Number',
+                    max_xp: 100,
+                    assignment_rubrics: [
+                      {
+                        criteria: [
+                          { id: 'c1', title: 'Correctness', maxScore: 15 },
+                        ],
+                      },
+                    ],
+                  },
                 ],
                 error: null,
               }),
@@ -177,7 +188,14 @@ it('renders student display names, assignment titles, and grade status badges', 
 it('filters to latest revisions by default and shows all when viewAll=true', async () => {
   const mockSupabase = {
     rpc: vi.fn().mockResolvedValue({
-      data: [{ user_id: student1Id, email: 'alice@example.com', display_name: 'Alice', role: 'student' }],
+      data: [
+        {
+          user_id: student1Id,
+          email: 'alice@example.com',
+          display_name: 'Alice',
+          role: 'student',
+        },
+      ],
       error: null,
     }),
     from: vi.fn().mockImplementation((table) => {
@@ -253,4 +271,55 @@ it('filters to latest revisions by default and shows all when viewAll=true', asy
   render(allElement);
   expect(screen.getByText('Revision 2')).toBeDefined();
   expect(screen.getByText('Revision 1')).toBeDefined();
+});
+
+it('falls back to all course assignments when assignmentId is invalid or out of scope', async () => {
+  const inMock = vi.fn().mockReturnValue({
+    order: vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    }),
+  });
+
+  const mockSupabase = {
+    rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+    from: vi.fn().mockImplementation((table) => {
+      if (table === 'assignments') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              order: vi.fn().mockResolvedValue({
+                data: [
+                  { id: assign1Id, title: 'Palindrome Number', max_xp: 15 },
+                ],
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (table === 'submissions') {
+        return {
+          select: vi.fn().mockReturnValue({
+            in: inMock,
+          }),
+        };
+      }
+      return { select: vi.fn() };
+    }),
+  };
+
+  vi.mocked(requireMember).mockResolvedValue({
+    supabase: mockSupabase,
+    user: { id: instructorId },
+  } as never);
+
+  const element = await InstructorSubmissionsDashboardPage({
+    params: Promise.resolve({ courseId }),
+    searchParams: Promise.resolve({ assignmentId: 'invalid-or-foreign-id' }),
+  });
+  render(element);
+
+  // targetAssignmentIds should fall back to assign1Id of the current course
+  expect(inMock).toHaveBeenCalledWith('assignment_id', [assign1Id]);
 });

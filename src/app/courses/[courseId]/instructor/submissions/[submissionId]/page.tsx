@@ -67,31 +67,27 @@ export default async function CourseInstructorSubmissionPage({
     .eq('id', submissionId)
     .maybeSingle();
   if (!submission) notFound();
-  const [
-    { data: assignment },
-    { data: rubric },
-    { data: grade },
-    ownerCases,
-  ] = await Promise.all([
-    supabase
-      .from('assignments')
-      .select('id,course_id,title')
-      .eq('id', submission.assignment_id)
-      .maybeSingle(),
-    supabase
-      .from('assignment_rubrics')
-      .select('criteria')
-      .eq('assignment_id', submission.assignment_id)
-      .maybeSingle(),
-    supabase
-      .from('grades')
-      .select('id,scores,feedback,total_score,published_at,version')
-      .eq('submission_id', submissionId)
-      .maybeSingle(),
-    Promise.resolve(
-      loadOwnerCases(supabase, submission.assignment_id),
-    ).catch(() => null),
-  ]);
+  const [{ data: assignment }, { data: rubric }, { data: grade }, ownerCases] =
+    await Promise.all([
+      supabase
+        .from('assignments')
+        .select('id,course_id,title')
+        .eq('id', submission.assignment_id)
+        .maybeSingle(),
+      supabase
+        .from('assignment_rubrics')
+        .select('criteria')
+        .eq('assignment_id', submission.assignment_id)
+        .maybeSingle(),
+      supabase
+        .from('grades')
+        .select('id,scores,feedback,total_score,published_at,version')
+        .eq('submission_id', submissionId)
+        .maybeSingle(),
+      Promise.resolve(loadOwnerCases(supabase, submission.assignment_id)).catch(
+        () => null,
+      ),
+    ]);
   if (!assignment || !rubric || assignment.course_id !== courseId) notFound();
   const access = await readCourseAccess(
     supabase,

@@ -15,10 +15,20 @@ type CourseMember = {
   role: string;
 };
 
+type RubricCriterion = {
+  maxScore?: number;
+  max_score?: number;
+};
+
 type AssignmentItem = {
   id: string;
   title: string;
   max_xp: number | null;
+  assignment_rubrics?:
+    | { criteria?: RubricCriterion[] }
+    | { criteria?: RubricCriterion[] }[]
+    | null;
+  maxRubricScore?: number;
 };
 
 type GradeRecord = {
@@ -37,6 +47,38 @@ type SubmissionItem = {
   due_at_submission: string | null;
   grades: GradeRecord[] | GradeRecord | null;
 };
+
+function parseAssignments(data: unknown[] | null): AssignmentItem[] {
+  return (data ?? []).map((item) => {
+    const a = item as AssignmentItem;
+    const rawRubric = Array.isArray(a.assignment_rubrics)
+      ? a.assignment_rubrics[0]
+      : a.assignment_rubrics;
+    const criteria = (rawRubric?.criteria as RubricCriterion[]) ?? [];
+    const maxRubricScore = criteria.reduce(
+      (sum: number, c: RubricCriterion) =>
+        sum + Number(c.maxScore ?? c.max_score ?? 0),
+      0,
+    );
+    return {
+      ...a,
+      maxRubricScore: maxRubricScore > 0 ? maxRubricScore : undefined,
+    };
+  });
+}
+
+function filterLatestSubmissions(
+  submissions: SubmissionItem[],
+): SubmissionItem[] {
+  const latestMap = new Map<string, SubmissionItem>();
+  for (const sub of submissions) {
+    const key = `${sub.student_id}:${sub.assignment_id}`;
+    if (!latestMap.has(key)) {
+      latestMap.set(key, sub);
+    }
+  }
+  return Array.from(latestMap.values());
+}
 
 // eslint-disable-next-line max-lines-per-function, max-statements, complexity, sonarjs/cognitive-complexity
 export default async function InstructorSubmissionsDashboardPage({
@@ -58,39 +100,39 @@ export default async function InstructorSubmissionsDashboardPage({
   if (!access || access.role !== 'instructor') notFound();
   if (access.lifecycle === 'active' && !access.featureEnabled) notFound();
 
-  const urlParams = await searchParams;
-  const currentAssignmentId =
-    typeof urlParams.assignmentId === 'string' ? urlParams.assignmentId : 'all';
-  const showAllRevisions = urlParams.viewAll === 'true';
-
   const [assignmentsResult, membersResult] = await Promise.all([
     supabase
       .from('assignments')
-      .select('id,title,max_xp')
+      .select('id,title,max_xp,assignment_rubrics(criteria)')
       .eq('course_id', courseId)
       .order('title'),
     supabase.rpc('list_course_members', { p_course: courseId }),
   ]);
 
-  const assignments: AssignmentItem[] = assignmentsResult.data ?? [];
+  const assignments: AssignmentItem[] = parseAssignments(
+    assignmentsResult.data,
+  );
   const members: CourseMember[] = membersResult.data ?? [];
 
   const memberMap = new Map<string, CourseMember>();
-  for (const m of members) {
-    memberMap.set(m.user_id, m);
-  }
+  for (const m of members) memberMap.set(m.user_id, m);
 
   const assignmentMap = new Map<string, AssignmentItem>();
-  for (const a of assignments) {
-    assignmentMap.set(a.id, a);
-  }
+  for (const a of assignments) assignmentMap.set(a.id, a);
+
+  const urlParams = await searchParams;
+  const rawAssignmentId =
+    typeof urlParams.assignmentId === 'string' ? urlParams.assignmentId : 'all';
+  const isSelectedValid =
+    rawAssignmentId !== 'all' && assignmentMap.has(rawAssignmentId);
+  const currentAssignmentId = isSelectedValid ? rawAssignmentId : 'all';
+  const showAllRevisions = urlParams.viewAll === 'true';
 
   let submissions: SubmissionItem[] = [];
   if (assignments.length > 0) {
-    const targetAssignmentIds =
-      currentAssignmentId !== 'all'
-        ? [currentAssignmentId]
-        : assignments.map((a) => a.id);
+    const targetAssignmentIds = isSelectedValid
+      ? [currentAssignmentId]
+      : assignments.map((a) => a.id);
 
     const { data, error } = await supabase
       .from('submissions')
@@ -107,14 +149,7 @@ export default async function InstructorSubmissionsDashboardPage({
   }
 
   if (!showAllRevisions) {
-    const latestMap = new Map<string, SubmissionItem>();
-    for (const sub of submissions) {
-      const key = `${sub.student_id}:${sub.assignment_id}`;
-      if (!latestMap.has(key)) {
-        latestMap.set(key, sub);
-      }
-    }
-    submissions = Array.from(latestMap.values());
+    submissions = filterLatestSubmissions(submissions);
   }
 
   return (
@@ -128,7 +163,9 @@ export default async function InstructorSubmissionsDashboardPage({
           >
             ← Back to assignments
           </Link>
-          <p className="mt-1 text-sm text-muted-foreground">Course instructor</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Course instructor
+          </p>
           <h1 className="text-3xl font-bold tracking-tight">Submissions</h1>
         </div>
         <p className="text-sm font-medium text-muted-foreground">
@@ -181,7 +218,7 @@ function SubmissionCard({
     member?.email ||
     `Student ${sub.student_id.slice(0, 8)}`;
   const assignmentTitle = assignment?.title ?? 'Unknown Assignment';
-  const maxXp = assignment?.max_xp;
+  const maxRubricScore = assignment?.maxRubricScore;
   const grade = Array.isArray(sub.grades) ? sub.grades[0] : sub.grades;
 
   return (
@@ -197,7 +234,7 @@ function SubmissionCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-4 text-sm">
-        <GradeBadge grade={grade} maxXp={maxXp} />
+        <GradeBadge grade={grade} maxScore={maxRubricScore} />
         <SubmissionTiming isLate={sub.is_late} dueAt={sub.due_at_submission} />
         <time
           dateTime={sub.created_at}
@@ -218,16 +255,16 @@ function SubmissionCard({
 
 function GradeBadge({
   grade,
-  maxXp,
+  maxScore,
 }: {
   grade?: GradeRecord | null;
-  maxXp?: number | null;
+  maxScore?: number | null;
 }) {
   if (grade?.published_at) {
     return (
       <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
         Graded: {grade.total_score}
-        {maxXp != null ? ` / ${maxXp}` : ''}
+        {maxScore != null ? ` / ${maxScore}` : ''}
       </span>
     );
   }
@@ -235,7 +272,7 @@ function GradeBadge({
     return (
       <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
         Draft: {grade.total_score}
-        {maxXp != null ? ` / ${maxXp}` : ''}
+        {maxScore != null ? ` / ${maxScore}` : ''}
       </span>
     );
   }
