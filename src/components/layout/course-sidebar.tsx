@@ -63,7 +63,6 @@ function buildAdminNavItems(
   archived: boolean,
   features: CourseFeatureSetting[],
 ): NavItem[] {
-  if (archived) return [];
   const hasAi = features.some((f) => f.feature === 'ai' && f.enabled);
   return [
     {
@@ -75,7 +74,7 @@ function buildAdminNavItems(
     {
       label: 'Context comparison',
       href: `/courses/${courseId}/context-comparison`,
-      enabled: hasAi,
+      enabled: !archived && hasAi,
       icon: () => <ArrowsRightLeftIcon />,
     },
   ];
@@ -318,7 +317,9 @@ function SidebarNavLinks({
   isCollapsed: boolean;
   onCloseMobile?: () => void;
 }) {
-  const visibleAdminItems = (adminNavItems ?? []).filter((item) => item.enabled);
+  const visibleAdminItems = (adminNavItems ?? []).filter(
+    (item) => item.enabled,
+  );
 
   return (
     <nav

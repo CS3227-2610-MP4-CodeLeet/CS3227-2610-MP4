@@ -83,6 +83,27 @@ describe('CourseSidebar - basic navigation', () => {
     expect(screen.queryByRole('link', { name: /my xp/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /my progress/i })).toBeNull();
   });
+
+  it('renders Manage Users in administration section for instructor when course is archived, but excludes active-only context comparison', () => {
+    const archivedInstructorProps = {
+      ...defaultProps,
+      course: {
+        ...defaultProps.course,
+        lifecycle: 'archived',
+      },
+      role: 'instructor' as const,
+      totalXp: null,
+    };
+    render(<CourseSidebar {...archivedInstructorProps} />);
+
+    expect(screen.getByText('Administration')).toBeDefined();
+    expect(
+      screen.getByRole('link', { name: /manage users/i }).getAttribute('href'),
+    ).toBe('/courses/course-123/manage-users');
+    expect(
+      screen.queryByRole('link', { name: /context comparison/i }),
+    ).toBeNull();
+  });
 });
 
 describe('CourseSidebar - feature gating', () => {
