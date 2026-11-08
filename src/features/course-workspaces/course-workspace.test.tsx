@@ -91,14 +91,13 @@ afterEach(() => {
 });
 
 describe('course workspace management', () => {
-  it('lets course instructors invite students and configure shipped features', async () => {
+  it('lets course instructors manage users link and configure shipped features', async () => {
     renderWorkspace({
       role: 'instructor',
       currentUserId: 'teacher-2',
       initialMembers: members,
     });
-    expect(screen.getByText('Student', { selector: 'p' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: inviteButtonName })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /manage users/i })).toBeTruthy();
     expect(
       screen.queryByRole('button', { name: 'Transfer ownership' }),
     ).toBeNull();
@@ -120,7 +119,7 @@ describe('course workspace management', () => {
 
   it('keeps membership and settings controls away from students', () => {
     renderWorkspace();
-    expect(screen.queryByRole('button', { name: inviteButtonName })).toBeNull();
+    expect(screen.queryByRole('link', { name: /manage users/i })).toBeNull();
     expect(screen.queryByRole('switch')).toBeNull();
     expect(
       screen.queryByRole('button', { name: archiveButtonName }),
@@ -153,7 +152,7 @@ describe('course workspace management', () => {
       currentUserId: 'owner-1',
       initialMembers: [members[0]],
     });
-    expect(screen.queryByRole('button', { name: inviteButtonName })).toBeNull();
+    expect(screen.queryByRole('link', { name: /manage users/i })).toBeNull();
     expect(screen.getByText(/read-only/i)).toBeTruthy();
   });
 });

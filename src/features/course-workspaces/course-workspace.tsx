@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type {
   CourseFeatureSetting,
   CourseInvitation,
@@ -10,7 +11,6 @@ import type {
 import { CourseAccess } from './course-access';
 import { CourseDetails } from './course-details';
 import { CourseFeatures } from './course-features';
-import { CoursePeople } from './course-people';
 
 type Props = {
   course: CourseWorkspaceRecord;
@@ -94,7 +94,6 @@ function ManagementPanels({
   isOwner,
   features,
   members,
-  invitations,
 }: {
   course: CourseWorkspaceRecord;
   currentUserId: string;
@@ -110,18 +109,31 @@ function ManagementPanels({
         <CourseFeatures course={course} initialFeatures={features} />
       </section>
       <section className="grid gap-6 lg:grid-cols-2">
-        <CoursePeople
-          course={course}
-          currentUserId={currentUserId}
-          isOwner={isOwner}
-          members={members}
-          invitations={invitations}
-        />
-        <CourseAccess
-          course={course}
-          currentUserId={currentUserId}
-          members={members}
-        />
+        <section className="space-y-4 rounded-xl border bg-card p-5">
+          <div>
+            <h2 className="text-xl font-semibold">User Administration</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage course staff, enrolled students, invitations, and
+              self-service student join codes.
+            </p>
+          </div>
+          <div>
+            <Link
+              href={`/courses/${course.id}/manage-users`}
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-accent"
+            >
+              Manage users & join code →
+            </Link>
+          </div>
+        </section>
+        {isOwner && (
+          <CourseAccess
+            course={course}
+            currentUserId={currentUserId}
+            members={members}
+            showJoinCode={false}
+          />
+        )}
       </section>
     </>
   );
