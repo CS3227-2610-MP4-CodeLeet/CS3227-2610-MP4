@@ -57,9 +57,11 @@ describe('CourseSidebar - basic navigation', () => {
     expect(
       screen.getByRole('link', { name: /my xp/i }).getAttribute('href'),
     ).toBe('/courses/course-123/xp');
+    expect(screen.queryByText('Administration')).toBeNull();
+    expect(screen.queryByRole('link', { name: /manage users/i })).toBeNull();
   });
 
-  it('renders instructor links for instructor role', () => {
+  it('renders instructor links and administration section for instructor role', () => {
     const instructorProps = {
       ...defaultProps,
       role: 'instructor' as const,
@@ -68,14 +70,15 @@ describe('CourseSidebar - basic navigation', () => {
     render(<CourseSidebar {...instructorProps} />);
 
     expect(screen.getByText(/instructor/i)).toBeDefined();
+    expect(screen.getByText('Administration')).toBeDefined();
     expect(
-      screen.getByRole('link', { name: /^submissions/i }).getAttribute('href'),
-    ).toBe('/courses/course-123/instructor/submissions');
+      screen.getByRole('link', { name: /manage users/i }).getAttribute('href'),
+    ).toBe('/courses/course-123/manage-users');
     expect(
       screen
         .getByRole('link', { name: /context comparison/i })
         .getAttribute('href'),
-    ).toBe('/courses/course-123/instructor/ai-context');
+    ).toBe('/courses/course-123/context-comparison');
     expect(screen.queryByRole('link', { name: /new assignment/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /my xp/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /my progress/i })).toBeNull();

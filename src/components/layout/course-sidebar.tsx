@@ -16,6 +16,7 @@ import {
   StarIcon,
   TrendingUpIcon,
   TrophyIcon,
+  UserGearIcon,
 } from './course-sidebar-icons';
 import { isNavItemActive } from './course-sidebar-nav';
 
@@ -88,7 +89,7 @@ function isFeatureEnabled(
   return features.some((f) => f.feature === feature && f.enabled);
 }
 
-function getInstructorNavItems(
+function buildAdminNavItems(
   courseId: string,
   archived: boolean,
   features: CourseFeatureSetting[],
@@ -97,8 +98,14 @@ function getInstructorNavItems(
   const hasAi = features.some((f) => f.feature === 'ai' && f.enabled);
   return [
     {
+      label: 'Manage Users',
+      href: `/courses/${courseId}/manage-users`,
+      enabled: true,
+      icon: () => <UserGearIcon />,
+    },
+    {
       label: 'Context comparison',
-      href: `/courses/${courseId}/instructor/ai-context`,
+      href: `/courses/${courseId}/context-comparison`,
       enabled: hasAi,
       icon: () => <ArrowsRightLeftIcon />,
     },
@@ -153,10 +160,7 @@ function buildNavItems(
   const leaderboard = isFeatureEnabled(features, 'leaderboard', archived);
   const ai = isFeatureEnabled(features, 'ai', archived);
 
-  const assignmentsHref =
-    role === 'student'
-      ? `/courses/${courseId}/assignments`
-      : `/courses/${courseId}/instructor`;
+  const assignmentsHref = `/courses/${courseId}/assignments`;
 
   return [
     {
@@ -175,7 +179,7 @@ function buildNavItems(
       ? [
           {
             label: 'Submissions',
-            href: `/courses/${courseId}/instructor/submissions`,
+            href: `/courses/${courseId}/submissions`,
             enabled: assessments,
             icon: () => <ClockIcon />,
           },
@@ -202,9 +206,6 @@ function buildNavItems(
       enabled: ai,
       icon: () => <SparklesIcon />,
     },
-    ...(role === 'instructor'
-      ? getInstructorNavItems(courseId, archived, features)
-      : []),
   ];
 }
 
@@ -306,16 +307,20 @@ function SidebarUserProfile({
 function SidebarNavLinks({
   courseId,
   navItems,
+  adminNavItems,
   pathname,
   isCollapsed,
   onCloseMobile,
 }: {
   courseId: string;
   navItems: NavItem[];
+  adminNavItems?: NavItem[];
   pathname: string;
   isCollapsed: boolean;
   onCloseMobile?: () => void;
 }) {
+  const visibleAdminItems = (adminNavItems ?? []).filter((item) => item.enabled);
+
   return (
     <nav
       aria-label="Course section links"
@@ -345,6 +350,42 @@ function SidebarNavLinks({
             </PendingLink>
           );
         })}
+
+      {visibleAdminItems.length > 0 && (
+        <div className="pt-4">
+          {!isCollapsed ? (
+            <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Administration
+            </p>
+          ) : (
+            <hr className="my-2 border-border" />
+          )}
+          <div className="space-y-1">
+            {visibleAdminItems.map((item) => {
+              const isActive = isNavItemActive(item.href, pathname, courseId);
+
+              return (
+                <PendingLink
+                  key={item.href}
+                  href={item.href}
+                  onClick={onCloseMobile}
+                  title={isCollapsed ? item.label : undefined}
+                  aria-current={isActive ? 'page' : undefined}
+                  icon={item.icon(isCollapsed)}
+                  hideLabel={isCollapsed}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                    isActive
+                      ? 'bg-accent font-semibold text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                  } ${isCollapsed ? 'justify-center px-2' : ''}`}
+                >
+                  {item.label}
+                </PendingLink>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
@@ -403,6 +444,7 @@ function SidebarContent({
   totalXp,
   xpEnabled,
   navItems,
+  adminNavItems,
   pathname,
   isCollapsed,
   toggleCollapse,
@@ -414,6 +456,7 @@ function SidebarContent({
   totalXp?: string | null;
   xpEnabled: boolean;
   navItems: NavItem[];
+  adminNavItems?: NavItem[];
   pathname: string;
   isCollapsed: boolean;
   toggleCollapse?: () => void;
@@ -436,6 +479,7 @@ function SidebarContent({
       <SidebarNavLinks
         courseId={course.id}
         navItems={navItems}
+        adminNavItems={adminNavItems}
         pathname={pathname}
         isCollapsed={isCollapsed}
         onCloseMobile={onCloseMobile}
@@ -466,6 +510,10 @@ export function CourseSidebar({
 
   const xpEnabled = features.some((f) => f.feature === 'xp' && f.enabled);
   const navItems = buildNavItems(course.id, role, course.lifecycle, features);
+  const adminNavItems =
+    role === 'instructor'
+      ? buildAdminNavItems(course.id, course.lifecycle === 'archived', features)
+      : [];
 
   return (
     <>
@@ -481,6 +529,7 @@ export function CourseSidebar({
           totalXp={totalXp}
           xpEnabled={xpEnabled}
           navItems={navItems}
+          adminNavItems={adminNavItems}
           pathname={pathname}
           isCollapsed={isCollapsed}
           toggleCollapse={toggleCollapse}
@@ -494,6 +543,7 @@ export function CourseSidebar({
           totalXp={totalXp}
           xpEnabled={xpEnabled}
           navItems={navItems}
+          adminNavItems={adminNavItems}
           pathname={pathname}
           isCollapsed={false}
           onCloseMobile={onCloseMobile}

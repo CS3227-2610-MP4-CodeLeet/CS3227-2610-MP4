@@ -20,6 +20,8 @@ const segmentLabelMap: Record<string, string> = {
   leaderboard: 'Leaderboard',
   'ai-usage': 'AI Usage',
   'ai-context': 'Context Comparison',
+  'context-comparison': 'Context Comparison',
+  'manage-users': 'Manage Users',
   instructor: 'Instructor',
   edit: 'Edit',
   new: 'New',
@@ -60,17 +62,14 @@ const INSTRUCTOR_DASHBOARD_SEGMENTS = new Set([
 function resolveAncestorHref(
   courseId: string,
   segment: string,
-  isInstructor: boolean,
+  _isInstructor: boolean,
 ): string | undefined {
-  if (isInstructor) {
-    if (INSTRUCTOR_DASHBOARD_SEGMENTS.has(segment)) {
-      return `/courses/${courseId}/instructor`;
-    }
-    return segment === 'ai-context'
-      ? `/courses/${courseId}/instructor/ai-context`
-      : undefined;
+  if (segment === 'instructor') {
+    return `/courses/${courseId}/assignments`;
   }
-
+  if (segment === 'ai-context') {
+    return `/courses/${courseId}/context-comparison`;
+  }
   return `/courses/${courseId}/${segment}`;
 }
 
