@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, expect, it, describe, vi } from 'vitest';
 
@@ -34,6 +33,7 @@ vi.mock('next/navigation', () => ({
 import CourseAssignmentsPage from './page';
 
 const testCourseId = 'course-123';
+const testTitle = 'Algorithm Problem 1';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -45,7 +45,7 @@ beforeEach(() => {
         {
           id: 'asg-1',
           course_id: testCourseId,
-          title: 'Algorithm Problem 1',
+          title: testTitle,
           language: 'python',
           publication_status: 'published',
           updated_at: '2026-11-01T00:00:00Z',
@@ -116,7 +116,7 @@ describe('CourseAssignmentsPage - instructor role', () => {
     });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain('Algorithm Problem 1');
+    expect(html).toContain(testTitle);
     expect(html).toContain('New assignment');
     expect(html).toContain(`/courses/${testCourseId}/assignments/new`);
     expect(html).toContain(`/courses/${testCourseId}/assignments/asg-1`); // Preview
@@ -138,7 +138,7 @@ describe('CourseAssignmentsPage - instructor role', () => {
     });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain('Algorithm Problem 1');
+    expect(html).toContain(testTitle);
     expect(html).not.toContain('New assignment');
     expect(html).not.toContain('/edit');
   });

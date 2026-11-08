@@ -8,6 +8,43 @@ import {
 } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
+function SubmissionCard({
+  submission,
+  courseId,
+}: {
+  submission: {
+    id: string;
+    revision: number;
+    is_late: boolean;
+    due_at_submission: string | null;
+    created_at: string;
+  };
+  courseId: string;
+}) {
+  return (
+    <article className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5">
+      <div>
+        <h2 className="font-medium">Revision {submission.revision}</h2>
+      </div>
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <SubmissionTiming
+          isLate={submission.is_late}
+          dueAt={submission.due_at_submission}
+        />
+        <time dateTime={submission.created_at}>
+          {new Date(submission.created_at).toLocaleString()}
+        </time>
+        <Link
+          className="underline"
+          href={`/courses/${courseId}/submissions/${submission.id}`}
+        >
+          Review
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 export default async function AssignmentSubmissionsPage({
   params,
 }: {
@@ -61,7 +98,7 @@ export default async function AssignmentSubmissionsPage({
         </p>
       ) : (
         submissions.map((submission) => (
-          <SubmissionRow
+          <SubmissionCard
             key={submission.id}
             submission={submission}
             courseId={courseId}
@@ -72,39 +109,3 @@ export default async function AssignmentSubmissionsPage({
   );
 }
 
-function SubmissionRow({
-  submission,
-  courseId,
-}: {
-  submission: {
-    id: string;
-    revision: number;
-    created_at: string;
-    is_late: boolean;
-    due_at_submission: string | null;
-  };
-  courseId: string;
-}) {
-  return (
-    <article className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5">
-      <div>
-        <h2 className="font-medium">Revision {submission.revision}</h2>
-      </div>
-      <div className="flex flex-wrap items-center gap-4 text-sm">
-        <SubmissionTiming
-          isLate={submission.is_late}
-          dueAt={submission.due_at_submission}
-        />
-        <time dateTime={submission.created_at}>
-          {new Date(submission.created_at).toLocaleString()}
-        </time>
-        <Link
-          className="underline"
-          href={`/courses/${courseId}/submissions/${submission.id}`}
-        >
-          Review
-        </Link>
-      </div>
-    </article>
-  );
-}

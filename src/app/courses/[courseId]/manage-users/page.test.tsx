@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -52,51 +51,55 @@ beforeEach(() => {
   );
 });
 
+function createManageUsersSupabase(courseId: string, role: string) {
+  return {
+    from: vi.fn((table: string) => {
+      if (table === 'courses') {
+        return query({
+          data: {
+            id: courseId,
+            owner_id: 'owner-1',
+            title: 'Algorithms',
+            description: 'Fall',
+            lifecycle: 'active',
+            is_legacy: false,
+          },
+          error: null,
+        });
+      }
+      if (table === 'course_memberships') {
+        return query({ data: { role }, error: null });
+      }
+      return query({ data: [], error: null });
+    }),
+    rpc: mocks.rpc.mockImplementation(async (fn: string) => {
+      if (fn === 'list_course_members') {
+        return {
+          data: [
+            {
+              user_id: 'owner-1',
+              email: 'owner@example.test',
+              display_name: 'Owner',
+              role: 'instructor',
+              joined_at: '2026-01-01',
+            },
+          ],
+          error: null,
+        };
+      }
+      if (fn === 'list_course_invitations') {
+        return { data: [], error: null };
+      }
+      return { data: null, error: null };
+    }),
+  };
+}
+
 describe('ManageUsersPage', () => {
   const courseId = 'test-course-id';
 
   it('renders student join code above people for instructors', async () => {
-    const supabase = {
-      from: vi.fn((table: string) => {
-        if (table === 'courses') {
-          return query({
-            data: {
-              id: courseId,
-              owner_id: 'owner-1',
-              title: 'Algorithms',
-              description: 'Fall',
-              lifecycle: 'active',
-              is_legacy: false,
-            },
-            error: null,
-          });
-        }
-        if (table === 'course_memberships') {
-          return query({ data: { role: 'instructor' }, error: null });
-        }
-        return query({ data: [], error: null });
-      }),
-      rpc: mocks.rpc.mockImplementation(async (fn: string) => {
-        if (fn === 'list_course_members') {
-          return {
-            data: [
-              {
-                user_id: 'owner-1',
-                email: 'owner@example.test',
-                display_name: 'Owner',
-                role: 'instructor',
-                joined_at: '2026-01-01',
-              },
-            ],
-            error: null,
-          };
-        }
-        if (fn === 'list_course_invitations') {
-          return { data: [], error: null };
-        }
-        return { data: null, error: null };
-      }),
-    };
+    const supabase = createManageUsersSupabase(courseId, 'instructor');
 
     mocks.verified.mockResolvedValue({
       user: { id: 'owner-1' },
@@ -124,28 +127,7 @@ describe('ManageUsersPage', () => {
   });
 
   it('triggers notFound when a student visits manage-users', async () => {
-    const supabase = {
-      from: vi.fn((table: string) => {
-        if (table === 'courses') {
-          return query({
-            data: {
-              id: courseId,
-              owner_id: 'owner-1',
-              title: 'Algorithms',
-              description: 'Fall',
-              lifecycle: 'active',
-              is_legacy: false,
-            },
-            error: null,
-          });
-        }
-        if (table === 'course_memberships') {
-          return query({ data: { role: 'student' }, error: null });
-        }
-        return query({ data: [], error: null });
-      }),
-      rpc: mocks.rpc,
-    };
+    const supabase = createManageUsersSupabase(courseId, 'student');
 
     mocks.verified.mockResolvedValue({
       user: { id: 'student-1' },

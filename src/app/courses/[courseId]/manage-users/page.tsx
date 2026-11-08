@@ -17,10 +17,7 @@ async function loadCourseRoster(
   course: CourseWorkspaceRecord,
 ) {
   if (course.is_legacy) {
-    return {
-      members: [] as CourseMember[],
-      invitations: [] as CourseInvitation[],
-    };
+    return { members: [], invitations: [] };
   }
 
   const membersResult = await supabase.rpc('list_course_members', {
@@ -29,6 +26,7 @@ async function loadCourseRoster(
   if (membersResult.error) {
     throw new Error('Course members could not be loaded.');
   }
+  const members = (membersResult.data ?? []) as CourseMember[];
 
   let invitations: CourseInvitation[] = [];
   if (course.lifecycle === 'active') {
@@ -41,10 +39,7 @@ async function loadCourseRoster(
     invitations = (invitationResult.data ?? []) as CourseInvitation[];
   }
 
-  return {
-    members: (membersResult.data ?? []) as CourseMember[],
-    invitations,
-  };
+  return { members, invitations };
 }
 
 async function loadManageUsersData(
@@ -136,3 +131,4 @@ export default async function ManageUsersPage({
     </main>
   );
 }
+

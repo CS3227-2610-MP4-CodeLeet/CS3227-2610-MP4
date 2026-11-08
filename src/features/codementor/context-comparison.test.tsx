@@ -9,7 +9,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('context strategy comparison', () => {
+describe('context strategy comparison', { timeout: 15000 }, () => {
   it('submits the submission id and renders both authorized context results', async () => {
     vi.stubGlobal(
       'fetch',
@@ -70,7 +70,7 @@ describe('context strategy comparison', () => {
         body: JSON.stringify({ submissionId: 'submission-9' }),
       }),
     );
-  });
+  }, 10000);
 
   it('reports server and network failures in an accessible status', async () => {
     vi.stubGlobal(

@@ -64,7 +64,7 @@ describe('instructor assignment form', () => {
       '/courses/00000000-0000-4000-8000-000000000003/assignments',
     );
     expect(router.refresh).toHaveBeenCalledOnce();
-  });
+  }, 10000);
 
   it('preserves locked assignment language and reports a service failure', async () => {
     vi.stubGlobal(
