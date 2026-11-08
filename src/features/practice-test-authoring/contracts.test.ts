@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import {
   caseSetSchema,
+  ownerSetSchema,
   practiceUpdateSchema,
   publicSetSchema,
 } from './contracts';
@@ -138,5 +139,21 @@ it('validates the public projection without leaking draft fields', () => {
   expect(publicSetSchema.parse(data)).toEqual(data);
   expect(
     publicSetSchema.safeParse({ ...data, draft_cases: [item] }).success,
+  ).toBe(false);
+});
+
+it('validates the owner test set contract with version and publication timestamps', () => {
+  const ownerData = {
+    assignment_id: item.id,
+    title: 'Assignment Title',
+    language: 'python',
+    version: 2,
+    cases: [item],
+    published_revision: 1,
+    published_at: '2026-11-08T12:00:00Z',
+  };
+  expect(ownerSetSchema.parse(ownerData)).toEqual(ownerData);
+  expect(
+    ownerSetSchema.safeParse({ ...ownerData, unexpected_field: true }).success,
   ).toBe(false);
 });

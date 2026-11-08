@@ -62,6 +62,18 @@ export const publicSetSchema = z
     cases: caseSetSchema,
   })
   .strict();
+export const ownerSetSchema = z
+  .object({
+    assignment_id: z.uuid(),
+    title: z.string(),
+    language: z.string(),
+    version: z.number().int().nonnegative(),
+    cases: caseSetSchema,
+    published_revision: z.number().int().nonnegative(),
+    published_at: z.string().nullable(),
+  })
+  .strict();
 export type AuthoredCase = z.infer<typeof practiceCaseSchema>;
 export type PublicTestSet = z.infer<typeof publicSetSchema>;
+export type OwnerTestSet = z.infer<typeof ownerSetSchema>;
 export type PracticeUpdate = z.infer<typeof practiceUpdateSchema>;

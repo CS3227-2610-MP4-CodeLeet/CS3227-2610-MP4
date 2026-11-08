@@ -173,6 +173,7 @@ export function SubmissionForm({
         source={source}
         language={language}
         examples={testExamples}
+        previewMode={previewMode}
       />
       <SubmissionFooter
         busy={busy}
