@@ -54,7 +54,12 @@
   - Created failing test `src/app/courses/[courseId]/instructor/submissions/page.test.tsx` testing role access, student name resolution via `list_course_members`, assignment filter, latest revisions toggle, and grading status badges (RED)
   - Created `src/app/courses/[courseId]/instructor/submissions/page.tsx`, `loading.tsx`, and `submission-filters.tsx`
   - Unit tests passed: `pnpm test:unit src/components/layout/course-sidebar.test.tsx src/app/courses/[courseId]/instructor/submissions/page.test.tsx` (2 files, 10 tests, exit 0, GREEN)
+  - Task 5 TDD: created failing test in `src/features/codementor/assignment-form.test.tsx` asserting test case authoring and public/private visibility toggle (RED)
+  - Integrated `TestCasesFields` into `AssignmentForm` (`src/features/codementor/assignment-form.tsx`)
+  - Forwarded `cases` in `src/app/api/assignments/route.ts` and increased JSON body limits
+  - Loaded test cases via `loadOwnerCases` in `EditAssignmentPage` (`src/app/courses/[courseId]/instructor/assignments/[assignmentId]/edit/page.tsx`)
+  - Unit tests passed: `pnpm test:unit src/app/api/assignments/route.test.ts src/app/api/assignments/[id]/route.test.ts src/features/codementor/assignment-form.test.tsx` (3 files, 11 tests, exit 0, GREEN)
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
 - Resource measurements and unavailable fields: None
-- Next steps: Execute Task 5 (Assignment Form Test Case Authoring & In-Place Visibility Toggle).
+- Next steps: Execute Task 6 (Instructor Review Submission Bug Fix & Public/Private Badge in Practice Results).

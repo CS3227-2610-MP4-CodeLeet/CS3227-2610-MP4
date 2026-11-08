@@ -15,6 +15,7 @@ import {
   languageLabels,
   type AssignmentLanguage,
 } from '@/features/student-assignments/types';
+import type { AuthoredCase } from '@/features/practice-test-authoring/contracts';
 
 type Criterion = {
   id: string;
@@ -33,9 +34,11 @@ type AssignmentDraft = {
   publication_status: 'draft' | 'published';
   version: number;
   criteria?: Criterion[];
+  cases?: AuthoredCase[];
 };
-type AssignmentFieldsData = Omit<AssignmentDraft, 'criteria'> & {
+type AssignmentFieldsData = Omit<AssignmentDraft, 'criteria' | 'cases'> & {
   criteria: Criterion[];
+  cases: AuthoredCase[];
 };
 type Payload = {
   courseId: string;
@@ -47,6 +50,7 @@ type Payload = {
   dueAt: string | null;
   maxXp: number;
   expectedVersion?: number;
+  cases?: AuthoredCase[];
 };
 type AssignmentPayloadFields = Omit<Payload, 'courseId'>;
 const defaultCriterion: Criterion = {
@@ -63,6 +67,7 @@ const blankAssignment: AssignmentFieldsData = {
   publication_status: 'draft',
   version: 0,
   criteria: [defaultCriterion],
+  cases: [],
 };
 
 function assignmentFieldsData(
@@ -74,6 +79,7 @@ function assignmentFieldsData(
     criteria: assignment.criteria?.length
       ? assignment.criteria
       : [defaultCriterion],
+    cases: assignment.cases ?? [],
   };
 }
 
@@ -98,6 +104,7 @@ function criteriaFor(form: FormData): Criterion[] {
 function buildPayload(
   form: FormData,
   assignment?: AssignmentDraft,
+  cases?: AuthoredCase[],
 ): AssignmentPayloadFields {
   const payload: AssignmentPayloadFields = {
     title: readText(form, 'title'),
@@ -107,6 +114,7 @@ function buildPayload(
     publicationStatus: readText(form, 'publicationStatus') || 'draft',
     dueAt: readDeadline(form, assignment),
     maxXp: readMaxXp(form),
+    cases,
   };
   if (assignment) payload.expectedVersion = assignment.version;
   return payload;
@@ -147,6 +155,7 @@ function readDeadline(form: FormData, assignment?: AssignmentDraft) {
 function makeSubmit(
   assignment: AssignmentDraft | undefined,
   courseId: string,
+  cases: AuthoredCase[],
   setBusy: (busy: boolean) => void,
   setMessage: (message: string) => void,
   router: ReturnType<typeof useRouter>,
@@ -157,7 +166,7 @@ function makeSubmit(
     setMessage('');
     try {
       await sendAssignment(assignment, {
-        ...buildPayload(new FormData(event.currentTarget), assignment),
+        ...buildPayload(new FormData(event.currentTarget), assignment, cases),
         courseId,
       });
       router.push(`/courses/${courseId}/instructor`);
@@ -183,13 +192,31 @@ export function AssignmentForm({
 }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [cases, setCases] = useState<AuthoredCase[]>(() =>
+    assignment?.cases?.map((c) => ({
+      ...c,
+      id: c.id || crypto.randomUUID(),
+      is_public: c.is_public ?? true,
+    })) ?? [],
+  );
   const router = useRouter();
   return (
     <form
-      onSubmit={makeSubmit(assignment, courseId, setBusy, setMessage, router)}
+      onSubmit={makeSubmit(
+        assignment,
+        courseId,
+        cases,
+        setBusy,
+        setMessage,
+        router,
+      )}
       className="max-w-3xl space-y-5 rounded-xl border bg-card p-6"
     >
-      <AssignmentFields assignment={assignmentFieldsData(assignment)} />
+      <AssignmentFields
+        assignment={assignmentFieldsData(assignment)}
+        cases={cases}
+        setCases={setCases}
+      />
       <MaximumXpField value={assignment?.max_xp} />
       <div className="space-y-2 text-sm">
         <label htmlFor="assignment-due-at" className="block">
@@ -218,8 +245,12 @@ export function AssignmentForm({
 
 function AssignmentFields({
   assignment,
+  cases,
+  setCases,
 }: {
   assignment: AssignmentFieldsData;
+  cases: AuthoredCase[];
+  setCases: React.Dispatch<React.SetStateAction<AuthoredCase[]>>;
 }) {
   return (
     <>
@@ -246,6 +277,7 @@ function AssignmentFields({
       </label>
       <AssignmentLanguageField assignment={assignment} />
       <PrivateRubricFields criteria={assignment.criteria} />
+      <TestCasesFields cases={cases} setCases={setCases} />
       <label className="block space-y-2 text-sm">
         Status
         <select
@@ -385,6 +417,131 @@ function RubricCriterionFields({
         Remove criterion
       </button>
     </div>
+  );
+}
+
+function TestCasesFields({
+  cases,
+  setCases,
+}: {
+  cases: AuthoredCase[];
+  setCases: React.Dispatch<React.SetStateAction<AuthoredCase[]>>;
+}) {
+  function updateCase(index: number, patch: Partial<AuthoredCase>) {
+    setCases((current) =>
+      current.map((item, currentIndex) =>
+        currentIndex === index ? { ...item, ...patch } : item,
+      ),
+    );
+  }
+
+  function addCase() {
+    setCases((current) =>
+      current.length >= 25
+        ? current
+        : [
+            ...current,
+            {
+              id: crypto.randomUUID(),
+              name: `Test case ${current.length + 1}`,
+              stdin: '',
+              expected_stdout: '',
+              is_public: true,
+            },
+          ],
+    );
+  }
+
+  function removeCase(index: number) {
+    setCases((current) =>
+      current.filter((_, currentIndex) => currentIndex !== index),
+    );
+  }
+
+  return (
+    <fieldset className="space-y-4 rounded-lg border p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <legend className="px-1 font-medium">Test cases ({cases.length}/25)</legend>
+        <span className="text-xs text-muted-foreground">
+          Public cases are visible to students; private cases are used for instructor evaluation.
+        </span>
+      </div>
+
+      {cases.map((c, index) => (
+        <div key={c.id} className="space-y-3 rounded-md border bg-card/50 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+            <h3 className="font-medium text-sm">Test case {index + 1}</h3>
+            <div className="flex items-center gap-3">
+              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium">
+                <input
+                  type="checkbox"
+                  checked={c.is_public}
+                  onChange={(e) =>
+                    updateCase(index, { is_public: e.target.checked })
+                  }
+                  className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span>Public (visible to students)</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => removeCase(index)}
+                className="text-xs text-destructive hover:underline"
+                aria-label={`Remove test case ${index + 1}`}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <label className="block space-y-1 text-sm">
+            <span>Test case {index + 1} name</span>
+            <input
+              required
+              maxLength={120}
+              value={c.name}
+              onChange={(e) => updateCase(index, { name: e.target.value })}
+              className="w-full rounded-md border bg-background px-3 py-1.5 text-sm"
+            />
+          </label>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block space-y-1 text-sm">
+              <span>Standard input (stdin)</span>
+              <textarea
+                rows={3}
+                value={c.stdin}
+                onChange={(e) => updateCase(index, { stdin: e.target.value })}
+                className="w-full font-mono text-xs rounded-md border bg-background px-3 py-1.5"
+                placeholder="Optional program input"
+              />
+            </label>
+
+            <label className="block space-y-1 text-sm">
+              <span>Expected output (stdout)</span>
+              <textarea
+                rows={3}
+                value={c.expected_stdout}
+                onChange={(e) =>
+                  updateCase(index, { expected_stdout: e.target.value })
+                }
+                className="w-full font-mono text-xs rounded-md border bg-background px-3 py-1.5"
+                placeholder="Expected standard output"
+              />
+            </label>
+          </div>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        disabled={cases.length >= 25}
+        onClick={addCase}
+        className="text-sm underline disabled:opacity-50"
+      >
+        Add test case
+      </button>
+    </fieldset>
   );
 }
 

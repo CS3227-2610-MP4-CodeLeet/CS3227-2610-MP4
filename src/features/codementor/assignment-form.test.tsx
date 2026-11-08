@@ -147,4 +147,66 @@ describe('instructor assignment form', () => {
       ).disabled,
     ).toBe(true);
   });
+
+  it('authors test cases with public/private visibility and includes them in payload', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValue(new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', fetch);
+    render(
+      <AssignmentForm
+        courseId="00000000-0000-4000-8000-000000000003"
+        assignment={{
+          id: 'assign-test',
+          title: 'Testing Cases',
+          instructions: 'Solve it',
+          language: 'python',
+          publication_status: 'draft',
+          version: 1,
+          max_xp: 10,
+          cases: [
+            {
+              id: 'case-1',
+              name: 'Sample Case',
+              stdin: '1 2\n',
+              expected_stdout: '3\n',
+              is_public: true,
+            },
+          ],
+        }}
+      />,
+    );
+
+    // Initial case rendered
+    expect(screen.getByDisplayValue('Sample Case')).toBeDefined();
+    const publicCheckbox = screen.getByLabelText('Public (visible to students)') as HTMLInputElement;
+    expect(publicCheckbox.checked).toBe(true);
+
+    // Toggle to private
+    fireEvent.click(publicCheckbox);
+    expect(publicCheckbox.checked).toBe(false);
+
+    // Add a second test case
+    fireEvent.click(screen.getByRole('button', { name: 'Add test case' }));
+    const caseNameInputs = screen.getAllByLabelText(/Test case \d+ name/);
+    expect(caseNameInputs.length).toBe(2);
+    fireEvent.change(caseNameInputs[1], { target: { value: 'Edge Case 2' } });
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: 'Save assignment' }));
+    expect(await screen.findByRole('button', { name: 'Save assignment' })).toBeTruthy();
+
+    const payload = JSON.parse(fetch.mock.calls[0][1].body as string);
+    expect(payload.cases).toHaveLength(2);
+    expect(payload.cases[0]).toMatchObject({
+      name: 'Sample Case',
+      stdin: '1 2\n',
+      expected_stdout: '3\n',
+      is_public: false,
+    });
+    expect(payload.cases[1]).toMatchObject({
+      name: 'Edge Case 2',
+      is_public: true,
+    });
+  });
 });
