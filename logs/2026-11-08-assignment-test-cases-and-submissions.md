@@ -92,9 +92,13 @@
       - `coverage-report`: PASS (10s, ID 128692571077)
       - `scaffold`: PASS (24s, run 42467894291)
       - `Vercel Preview`: PASS (Deployment completed)
+    - CodeQL Root Cause & Fix:
+      - Root cause: GitHub dynamic Default Setup used `codeql-action/init@v4` targeting CodeQL bundle 2.27.4. Because `ubuntu-latest` has CodeQL 2.27.3 preinstalled, the runner deleted 2.27.3 and attempted to download 2.27.4 from `https://github.com/github/codeql-action/releases/download/...`, which repeatedly failed with `HTTP 504 Gateway Time-out` on the runner.
+      - Fix: Added `.github/workflows/codeql.yml` leveraging `github/codeql-action/init@v3` (which matches the runner toolcache's pre-installed 2.27.3 bundle, completely bypassing release CDN downloads), and disabled the duplicate dynamic default setup via GitHub API.
 - Failures, retries, unresolved issues:
   - Function overloading resolution conflict for `save_course_assignment` when called with 12 arguments; resolved by removing default argument from the 13-arg overload and adding explicit 12-arg wrapper function.
   - Initial `application` CI check failed due to formatting; fixed via `pnpm prettier --write .`.
   - Initial PR comments and replies had mangled backticks from PowerShell string interpolation; fixed by using `--input <file>` via GitHub CLI and resolved all threads.
+  - CodeQL dynamic default setup hit 504 Gateway Time-out downloading CodeQL 2.27.4 bundle; fixed by configuring `.github/workflows/codeql.yml` with `@v3` using pre-cached runner toolcache.
 - Resource measurements and unavailable fields: None
 - Next steps: Await human verification and teammate review on PR #118 for merge into `develop`.
