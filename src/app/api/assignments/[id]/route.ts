@@ -40,7 +40,7 @@ export async function PATCH(
     );
   const { id } = await context.params;
   if (!z.uuid().safeParse(id).success) return unavailable();
-  const body = await readJsonBody(request, 18_000);
+  const body = await readJsonBody(request, 250_000);
   if (!body.ok)
     return privateJson(
       {

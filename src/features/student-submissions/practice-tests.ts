@@ -5,6 +5,7 @@ export type PracticeCase = {
   name: string;
   stdin: string;
   expected_stdout: string;
+  is_public?: boolean;
 };
 export type PracticeCaseKind = 'published' | 'examples';
 export type BrowserRun = {
@@ -46,7 +47,7 @@ export function verdict(result: BrowserRun, expected: string) {
 export function validateCases(cases: readonly PracticeCase[]) {
   const bytes = (value: string) => new TextEncoder().encode(value).length;
   if (
-    cases.length > 5 ||
+    cases.length > 25 ||
     new Set(cases.map((item) => item.id)).size !== cases.length ||
     cases.some(
       (item) =>

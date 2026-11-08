@@ -81,6 +81,7 @@ export async function saveCourseAssignment(
     p_update_due_at: input.dueAt !== undefined,
     p_max_xp: input.maxXp ?? null,
     p_update_max_xp: input.maxXp !== undefined,
+    p_cases: input.cases ? JSON.parse(JSON.stringify(input.cases)) : null,
   });
   if (error)
     return privateJson(
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
       { error: { code: 'unauthorized', message: 'Sign in required.' } },
       401,
     );
-  const body = await readJsonBody(request, 18_000);
+  const body = await readJsonBody(request, 250_000);
   if (!body.ok)
     return privateJson(
       {

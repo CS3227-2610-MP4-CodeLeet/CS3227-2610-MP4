@@ -146,5 +146,11 @@ function SaveStatus({ busy, message }: { busy: boolean; message: string }) {
   );
 }
 function blankCase(): AuthoredCase {
-  return { id: crypto.randomUUID(), name: '', stdin: '', expected_stdout: '' };
+  return {
+    id: crypto.randomUUID(),
+    name: '',
+    stdin: '',
+    expected_stdout: '',
+    is_public: true,
+  };
 }

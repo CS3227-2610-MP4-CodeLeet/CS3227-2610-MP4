@@ -15,6 +15,8 @@ import {
   languageLabels,
   type AssignmentLanguage,
 } from '@/features/student-assignments/types';
+import type { AuthoredCase } from '@/features/practice-test-authoring/contracts';
+import { TestCasesFields } from './test-cases-fields';
 
 type Criterion = {
   id: string;
@@ -33,9 +35,11 @@ type AssignmentDraft = {
   publication_status: 'draft' | 'published';
   version: number;
   criteria?: Criterion[];
+  cases?: AuthoredCase[];
 };
-type AssignmentFieldsData = Omit<AssignmentDraft, 'criteria'> & {
+type AssignmentFieldsData = Omit<AssignmentDraft, 'criteria' | 'cases'> & {
   criteria: Criterion[];
+  cases: AuthoredCase[];
 };
 type Payload = {
   courseId: string;
@@ -47,6 +51,7 @@ type Payload = {
   dueAt: string | null;
   maxXp: number;
   expectedVersion?: number;
+  cases?: AuthoredCase[];
 };
 type AssignmentPayloadFields = Omit<Payload, 'courseId'>;
 const defaultCriterion: Criterion = {
@@ -63,6 +68,7 @@ const blankAssignment: AssignmentFieldsData = {
   publication_status: 'draft',
   version: 0,
   criteria: [defaultCriterion],
+  cases: [],
 };
 
 function assignmentFieldsData(
@@ -74,6 +80,7 @@ function assignmentFieldsData(
     criteria: assignment.criteria?.length
       ? assignment.criteria
       : [defaultCriterion],
+    cases: assignment.cases ?? [],
   };
 }
 
@@ -98,6 +105,7 @@ function criteriaFor(form: FormData): Criterion[] {
 function buildPayload(
   form: FormData,
   assignment?: AssignmentDraft,
+  cases?: AuthoredCase[],
 ): AssignmentPayloadFields {
   const payload: AssignmentPayloadFields = {
     title: readText(form, 'title'),
@@ -107,6 +115,7 @@ function buildPayload(
     publicationStatus: readText(form, 'publicationStatus') || 'draft',
     dueAt: readDeadline(form, assignment),
     maxXp: readMaxXp(form),
+    cases,
   };
   if (assignment) payload.expectedVersion = assignment.version;
   return payload;
@@ -147,6 +156,7 @@ function readDeadline(form: FormData, assignment?: AssignmentDraft) {
 function makeSubmit(
   assignment: AssignmentDraft | undefined,
   courseId: string,
+  cases: AuthoredCase[],
   setBusy: (busy: boolean) => void,
   setMessage: (message: string) => void,
   router: ReturnType<typeof useRouter>,
@@ -157,7 +167,7 @@ function makeSubmit(
     setMessage('');
     try {
       await sendAssignment(assignment, {
-        ...buildPayload(new FormData(event.currentTarget), assignment),
+        ...buildPayload(new FormData(event.currentTarget), assignment, cases),
         courseId,
       });
       router.push(`/courses/${courseId}/instructor`);
@@ -183,13 +193,32 @@ export function AssignmentForm({
 }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [cases, setCases] = useState<AuthoredCase[]>(
+    () =>
+      assignment?.cases?.map((c) => ({
+        ...c,
+        id: c.id || crypto.randomUUID(),
+        is_public: c.is_public ?? true,
+      })) ?? [],
+  );
   const router = useRouter();
   return (
     <form
-      onSubmit={makeSubmit(assignment, courseId, setBusy, setMessage, router)}
+      onSubmit={makeSubmit(
+        assignment,
+        courseId,
+        cases,
+        setBusy,
+        setMessage,
+        router,
+      )}
       className="max-w-3xl space-y-5 rounded-xl border bg-card p-6"
     >
-      <AssignmentFields assignment={assignmentFieldsData(assignment)} />
+      <AssignmentFields
+        assignment={assignmentFieldsData(assignment)}
+        cases={cases}
+        setCases={setCases}
+      />
       <MaximumXpField value={assignment?.max_xp} />
       <div className="space-y-2 text-sm">
         <label htmlFor="assignment-due-at" className="block">
@@ -218,8 +247,12 @@ export function AssignmentForm({
 
 function AssignmentFields({
   assignment,
+  cases,
+  setCases,
 }: {
   assignment: AssignmentFieldsData;
+  cases: AuthoredCase[];
+  setCases: React.Dispatch<React.SetStateAction<AuthoredCase[]>>;
 }) {
   return (
     <>
@@ -246,6 +279,7 @@ function AssignmentFields({
       </label>
       <AssignmentLanguageField assignment={assignment} />
       <PrivateRubricFields criteria={assignment.criteria} />
+      <TestCasesFields cases={cases} setCases={setCases} />
       <label className="block space-y-2 text-sm">
         Status
         <select
