@@ -1,4 +1,5 @@
 import 'server-only';
+import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
@@ -17,6 +18,7 @@ import {
   type PrivateRubricContext,
 } from './context';
 import { requestSoCLaaS, SoCLaaSError } from '@/lib/ai/soclaas';
+import { createPrivilegedMetadataClient } from '@/lib/supabase/metadata.server';
 
 const rubricSchema = z
   .object({
@@ -162,9 +164,16 @@ export async function performReview(
     promptTokens,
   });
   if (cachedResult) return { result: cachedResult, cacheHit: true };
-  const usageId = await reserveUsage(supabase, reviewType, submissionId);
+  const usageClient = createPrivilegedMetadataClient();
+  const reservation = await reserveUsage(
+    usageClient,
+    userId,
+    reviewType,
+    submissionId,
+  );
   return generateAndRecordReview(supabase, {
-    usageId,
+    usageClient,
+    ...reservation,
     userId,
     reviewType,
     submissionId,
@@ -190,20 +199,7 @@ export async function performContextComparison(
     context.rubric,
     context.submission.source,
   );
-  const baselineMessages = instructorBaselineMessages(
-    {
-      ...context.assignment,
-      createdAt: context.rawAssignment.created_at,
-      updatedAt: context.rawAssignment.updated_at,
-      publicationStatus: context.rawAssignment.publication_status,
-    },
-    context.rubric,
-    context.submission.source,
-    {
-      revision: context.submission.revision,
-      createdAt: context.submission.created_at,
-    },
-  );
+  const baselineMessages = buildBaselineMessages(context);
   const optimizedTokens = promptTokenEstimate(optimizedMessages);
   const baselineTokens = promptTokenEstimate(baselineMessages);
   if (optimizedTokens > 8_000 || baselineTokens > 8_000)
@@ -229,24 +225,55 @@ export async function performContextComparison(
     submissionId,
     promptTokens: baselineTokens,
   });
-  const broader = cached
-    ? { result: cached, cacheHit: true }
-    : await generateBaselineReview(supabase, {
-        usageId: await reserveUsage(supabase, reviewType, submissionId),
-        userId,
-        reviewType,
-        submissionId,
-        role,
-        context,
-        messages: baselineMessages,
-        promptTokens: baselineTokens,
-        cacheKey,
-        promptVersion: `${promptVersionForRole(role)}/broader-authorized-v1`,
-      });
+  let broader: { result: unknown; cacheHit: boolean };
+  if (cached) {
+    broader = { result: cached, cacheHit: true };
+  } else {
+    const usageClient = createPrivilegedMetadataClient();
+    const reservation = await reserveUsage(
+      usageClient,
+      userId,
+      reviewType,
+      submissionId,
+    );
+    broader = await generateBaselineReview(supabase, {
+      usageClient,
+      ...reservation,
+      userId,
+      reviewType,
+      submissionId,
+      role,
+      context,
+      messages: baselineMessages,
+      promptTokens: baselineTokens,
+      cacheKey,
+      promptVersion: `${promptVersionForRole(role)}/broader-authorized-v1`,
+    });
+  }
   return {
     optimized: { ...optimized, inputTokens: optimizedTokens },
     broader: { ...broader, inputTokens: baselineTokens },
   };
+}
+
+type LoadedReviewContext = Awaited<ReturnType<typeof loadContext>>;
+
+function buildBaselineMessages(context: LoadedReviewContext) {
+  if (!context.rubric) throw new ReviewServiceError('not_found');
+  return instructorBaselineMessages(
+    {
+      ...context.assignment,
+      createdAt: context.rawAssignment.created_at,
+      updatedAt: context.rawAssignment.updated_at,
+      publicationStatus: context.rawAssignment.publication_status,
+    },
+    context.rubric,
+    context.submission.source,
+    {
+      revision: context.submission.revision,
+      createdAt: context.submission.created_at,
+    },
+  );
 }
 
 async function generateBaselineReview(
@@ -276,36 +303,52 @@ async function readCachedReview(
     .maybeSingle();
   if (!data) return null;
   const result = readCachedResult(data.result, input.role, input.criteria);
-  await supabase.rpc('record_ai_cache_hit', {
-    p_review_type: input.reviewType,
-    p_submission_id: input.submissionId,
-    p_input_tokens: input.promptTokens,
-    p_output_tokens: Math.ceil(
-      new TextEncoder().encode(JSON.stringify(result)).byteLength / 3,
-    ),
-  });
+  const { error } = await createPrivilegedMetadataClient().rpc(
+    'record_ai_cache_hit',
+    {
+      p_requester_id: input.userId,
+      p_review_type: input.reviewType,
+      p_submission_id: input.submissionId,
+      p_cache_key: input.cacheKey,
+      p_input_tokens: input.promptTokens,
+      p_output_tokens: Math.ceil(
+        new TextEncoder().encode(JSON.stringify(result)).byteLength / 3,
+      ),
+    },
+  );
+  if (error) {
+    if (error.message.includes('cache_hit_not_allowed'))
+      throw new ReviewServiceError('not_found');
+    throw new ReviewServiceError('provider_error');
+  }
   return result;
 }
 
 async function reserveUsage(
   supabase: SupabaseClient,
+  userId: string,
   reviewType: string,
   submissionId: string,
 ) {
+  const completionToken = randomBytes(32).toString('hex');
   const { data, error } = await supabase.rpc('reserve_ai_request', {
+    p_requester_id: userId,
     p_review_type: reviewType,
     p_submission_id: submissionId,
+    p_completion_token: completionToken,
   });
   if (error?.message.includes('daily_quota_exceeded'))
     throw new ReviewServiceError('quota_exceeded');
   if (error || !data) throw new ReviewServiceError('not_found');
-  return data;
+  return { usageId: data as string, completionToken };
 }
 
 async function generateAndRecordReview(
   supabase: SupabaseClient,
   input: {
+    usageClient: SupabaseClient;
     usageId: string;
+    completionToken: string;
     userId: string;
     reviewType: string;
     submissionId: string;
@@ -318,6 +361,7 @@ async function generateAndRecordReview(
   },
 ) {
   const started = Date.now();
+  let usageFinalized = false;
   try {
     const provider = await requestSoCLaaS(input.messages);
     const result = readModelResult(
@@ -325,34 +369,41 @@ async function generateAndRecordReview(
       input.role,
       input.context.rubric?.criteria ?? [],
     );
-    await storeReview(supabase, input, provider.model, result);
     const counts = resolveTokenCounts(
       provider.inputTokens,
       provider.outputTokens,
       input.promptTokens,
       provider.content,
     );
-    await finishUsage(supabase, {
+    await finishUsage(input.usageClient, {
       usageId: input.usageId,
+      userId: input.userId,
+      completionToken: input.completionToken,
       succeeded: true,
       latencyMs: Date.now() - started,
       ...counts,
     });
+    usageFinalized = true;
+    await storeReview(input.usageClient, input, provider.model, result);
     return { result, cacheHit: false };
   } catch (error) {
-    await finishUsage(supabase, {
-      usageId: input.usageId,
-      succeeded: false,
-      latencyMs: Date.now() - started,
-      inputTokens: input.promptTokens,
-      tokenSource: 'estimate',
-      errorCategory:
-        error instanceof ReviewServiceError
-          ? error.code
-          : error instanceof SoCLaaSError
-            ? error.category
-            : 'provider_error',
-    });
+    if (!usageFinalized) {
+      await finishUsage(input.usageClient, {
+        usageId: input.usageId,
+        userId: input.userId,
+        completionToken: input.completionToken,
+        succeeded: false,
+        latencyMs: Date.now() - started,
+        inputTokens: input.promptTokens,
+        tokenSource: 'estimate',
+        errorCategory:
+          error instanceof ReviewServiceError
+            ? error.code
+            : error instanceof SoCLaaSError
+              ? error.category
+              : 'provider_error',
+      }).catch(() => undefined);
+    }
     throw asFailure(error);
   }
 }
@@ -401,6 +452,8 @@ async function finishUsage(
   supabase: SupabaseClient,
   input: {
     usageId: string;
+    userId: string;
+    completionToken: string;
     succeeded: boolean;
     latencyMs: number;
     inputTokens?: number;
@@ -409,8 +462,10 @@ async function finishUsage(
     errorCategory?: string;
   },
 ) {
-  await supabase.rpc('finish_ai_request', {
+  const { error } = await supabase.rpc('finish_ai_request', {
     p_usage_id: input.usageId,
+    p_requester_id: input.userId,
+    p_completion_token: input.completionToken,
     p_succeeded: input.succeeded,
     p_error_category: input.errorCategory,
     p_latency_ms: input.latencyMs,
@@ -418,6 +473,7 @@ async function finishUsage(
     p_output_tokens: input.outputTokens,
     p_token_source: input.tokenSource,
   });
+  if (error) throw new ReviewServiceError('provider_error');
 }
 
 function readCachedResult(

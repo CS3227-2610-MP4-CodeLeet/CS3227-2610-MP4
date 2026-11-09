@@ -3,7 +3,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const mocks = vi.hoisted(() => ({ requestSoCLaaS: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  requestSoCLaaS: vi.fn(),
+  metadataClient: null as unknown,
+}));
+
+vi.mock('@/lib/supabase/metadata.server', () => ({
+  createPrivilegedMetadataClient: () => mocks.metadataClient,
+}));
 
 vi.mock('@/lib/ai/soclaas', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/ai/soclaas')>();
@@ -46,6 +53,8 @@ function makeSupabase(
     reserveError?: { message: string } | null;
     reserveData?: string | null;
     insertError?: { message: string } | null;
+    finishError?: { message: string } | null;
+    cacheHitError?: { message: string } | null;
   } = {},
 ) {
   const submission =
@@ -95,6 +104,20 @@ function makeSupabase(
   const filters: Array<{ table: string; column: string; value: unknown }> = [];
   let cacheRead = 0;
 
+  const rpc = async (name: string, args: unknown) => {
+    rpcCalls.push({ name, args });
+    if (name === 'reserve_ai_request')
+      return {
+        data:
+          options.reserveData === undefined ? 'usage-1' : options.reserveData,
+        error: options.reserveError ?? null,
+      };
+    if (name === 'finish_ai_request')
+      return { data: null, error: options.finishError ?? null };
+    if (name === 'record_ai_cache_hit')
+      return { data: null, error: options.cacheHitError ?? null };
+    return { data: null, error: null };
+  };
   const client = {
     from(table: string) {
       const query = {
@@ -141,17 +164,9 @@ function makeSupabase(
       };
       return query;
     },
-    async rpc(name: string, args: unknown) {
-      rpcCalls.push({ name, args });
-      if (name === 'reserve_ai_request')
-        return {
-          data:
-            options.reserveData === undefined ? 'usage-1' : options.reserveData,
-          error: options.reserveError ?? null,
-        };
-      return { data: null, error: null };
-    },
+    rpc,
   };
+  mocks.metadataClient = client as unknown as SupabaseClient;
 
   return {
     supabase: client as unknown as SupabaseClient,
@@ -176,6 +191,43 @@ beforeEach(() => {
 });
 
 describe('performReview', () => {
+  it('keeps one unpredictable completion capability between reservation and finalization', async () => {
+    const db = makeSupabase();
+    await performReview(db.supabase, userId, 'student', submissionId);
+    const reserve = db.rpcCalls.find(
+      (call) => call.name === 'reserve_ai_request',
+    )!;
+    const finish = db.rpcCalls.find(
+      (call) => call.name === 'finish_ai_request',
+    )!;
+    const token = (reserve.args as Record<string, unknown>).p_completion_token;
+    expect(token).toEqual(expect.stringMatching(/^[a-f0-9]{64}$/));
+    expect(finish.args).toMatchObject({ p_completion_token: token });
+    expect(JSON.stringify(db.inserts)).not.toContain(token);
+    expect(JSON.stringify(mocks.requestSoCLaaS.mock.calls)).not.toContain(
+      token,
+    );
+  });
+
+  it('rejects a review when usage finalization fails', async () => {
+    const db = makeSupabase({ finishError: { message: 'usage_not_allowed' } });
+    await expect(
+      performReview(db.supabase, userId, 'student', submissionId),
+    ).rejects.toMatchObject({ code: 'provider_error' });
+    expect(db.inserts).toEqual([]);
+  });
+
+  it('rejects a cached review when current authorization cannot record its cache hit', async () => {
+    const db = makeSupabase({
+      cached: feedback,
+      cacheHitError: { message: 'cache_hit_not_allowed' },
+    });
+    await expect(
+      performReview(db.supabase, userId, 'student', submissionId),
+    ).rejects.toMatchObject({ code: 'not_found' });
+    expect(mocks.requestSoCLaaS).not.toHaveBeenCalled();
+  });
+
   it('generates, validates, stores, and records an uncached student review', async () => {
     const db = makeSupabase();
 
@@ -235,8 +287,10 @@ describe('performReview', () => {
     expect(db.rpcCalls[0]).toMatchObject({
       name: 'record_ai_cache_hit',
       args: {
+        p_requester_id: userId,
         p_review_type: 'student_feedback',
         p_submission_id: submissionId,
+        p_cache_key: expect.any(String),
       },
     });
   });
@@ -397,7 +451,7 @@ describe('performReview', () => {
     });
   });
 
-  it('maps provider and persistence failures to a stable provider error', async () => {
+  it('maps provider and persistence failures while accounting each provider call once', async () => {
     const providerFailure = makeSupabase();
     mocks.requestSoCLaaS.mockRejectedValueOnce(new Error('network detail'));
     await expect(
@@ -419,10 +473,15 @@ describe('performReview', () => {
     expect(persistenceFailure.rpcCalls).toContainEqual({
       name: 'finish_ai_request',
       args: expect.objectContaining({
-        p_succeeded: false,
-        p_error_category: 'provider_error',
+        p_succeeded: true,
+        p_token_source: 'provider',
       }),
     });
+    expect(
+      persistenceFailure.rpcCalls.filter(
+        (call) => call.name === 'finish_ai_request',
+      ),
+    ).toHaveLength(1);
   });
 });
 
