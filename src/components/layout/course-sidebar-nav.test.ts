@@ -12,51 +12,44 @@ describe('isNavItemActive', () => {
     );
   });
 
-  it('limits instructor assignments highlight to assignment routes excluding actions', () => {
-    const asgHref = `/courses/${CID}/instructor`;
-    expect(isNavItemActive(asgHref, `/courses/${CID}/instructor`, CID)).toBe(
+  it('limits assignments highlight to assignment routes excluding new action', () => {
+    const asgHref = `/courses/${CID}/assignments`;
+    expect(isNavItemActive(asgHref, `/courses/${CID}/assignments`, CID)).toBe(
       true,
     );
     expect(
-      isNavItemActive(
-        asgHref,
-        `/courses/${CID}/instructor/assignments/a1/edit`,
-        CID,
-      ),
+      isNavItemActive(asgHref, `/courses/${CID}/assignments/a1/edit`, CID),
     ).toBe(true);
     expect(
       isNavItemActive(
         asgHref,
-        `/courses/${CID}/instructor/assignments/a1/practice-tests`,
+        `/courses/${CID}/assignments/a1/practice-tests`,
         CID,
       ),
     ).toBe(true);
+    // Excludes new assignment action (has own nav button) and context-comparison
     expect(
-      isNavItemActive(
-        asgHref,
-        `/courses/${CID}/instructor/submissions/s1`,
-        CID,
-      ),
-    ).toBe(true);
-    // Excludes new assignment action (has own nav button) and ai-context
-    expect(
-      isNavItemActive(
-        asgHref,
-        `/courses/${CID}/instructor/assignments/new`,
-        CID,
-      ),
+      isNavItemActive(asgHref, `/courses/${CID}/assignments/new`, CID),
     ).toBe(false);
     expect(
-      isNavItemActive(asgHref, `/courses/${CID}/instructor/ai-context`, CID),
+      isNavItemActive(asgHref, `/courses/${CID}/context-comparison`, CID),
     ).toBe(false);
   });
 
   it('handles standard feature and action matching', () => {
-    const newHref = `/courses/${CID}/instructor/assignments/new`;
+    const newHref = `/courses/${CID}/assignments/new`;
     expect(isNavItemActive(newHref, newHref, CID)).toBe(true);
 
-    const contextHref = `/courses/${CID}/instructor/ai-context`;
+    const contextHref = `/courses/${CID}/context-comparison`;
     expect(isNavItemActive(contextHref, contextHref, CID)).toBe(true);
+
+    const manageUsersHref = `/courses/${CID}/manage-users`;
+    expect(isNavItemActive(manageUsersHref, manageUsersHref, CID)).toBe(true);
+
+    const submissionsHref = `/courses/${CID}/submissions`;
+    expect(isNavItemActive(submissionsHref, `${submissionsHref}/s1`, CID)).toBe(
+      true,
+    );
 
     const forumsHref = `/courses/${CID}/forums`;
     expect(isNavItemActive(forumsHref, `${forumsHref}/thread-1`, CID)).toBe(

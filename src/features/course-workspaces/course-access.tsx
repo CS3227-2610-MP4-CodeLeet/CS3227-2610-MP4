@@ -9,15 +9,18 @@ export function CourseAccess({
   course,
   currentUserId,
   members,
+  showJoinCode = true,
 }: {
   course: CourseWorkspaceRecord;
   currentUserId: string;
   members: CourseMember[];
+  showJoinCode?: boolean;
 }) {
   const isOwner = course.owner_id === currentUserId;
+  if (!isOwner && !showJoinCode) return null;
   return (
     <section className="space-y-5 rounded-xl border p-5">
-      <JoinCodeManagement courseId={course.id} />
+      {showJoinCode && <JoinCodeManagement courseId={course.id} />}
       {isOwner && (
         <OwnershipTransfer
           courseId={course.id}
@@ -32,7 +35,7 @@ export function CourseAccess({
   );
 }
 
-function JoinCodeManagement({ courseId }: { courseId: string }) {
+export function JoinCodeManagement({ courseId }: { courseId: string }) {
   const [code, setCode] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

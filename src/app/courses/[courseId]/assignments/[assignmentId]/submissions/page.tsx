@@ -8,8 +8,44 @@ import {
 } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 
-// eslint-disable-next-line max-lines-per-function -- page markup stays with its server-side course context.
-export default async function InstructorSubmissionsPage({
+function SubmissionCard({
+  submission,
+  courseId,
+}: {
+  submission: {
+    id: string;
+    revision: number;
+    is_late: boolean;
+    due_at_submission: string | null;
+    created_at: string;
+  };
+  courseId: string;
+}) {
+  return (
+    <article className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5">
+      <div>
+        <h2 className="font-medium">Revision {submission.revision}</h2>
+      </div>
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <SubmissionTiming
+          isLate={submission.is_late}
+          dueAt={submission.due_at_submission}
+        />
+        <time dateTime={submission.created_at}>
+          {new Date(submission.created_at).toLocaleString()}
+        </time>
+        <Link
+          className="underline"
+          href={`/courses/${courseId}/submissions/${submission.id}`}
+        >
+          Review
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+export default async function AssignmentSubmissionsPage({
   params,
 }: {
   params: Promise<{ courseId: string; assignmentId: string }>;
@@ -45,7 +81,7 @@ export default async function InstructorSubmissionsPage({
       <BreadcrumbSetter title={`Submissions: ${assignment.title}`} />
       <Link
         className="text-sm underline"
-        href={`/courses/${courseId}/instructor`}
+        href={`/courses/${courseId}/assignments`}
       >
         Back to assignments
       </Link>
@@ -62,32 +98,11 @@ export default async function InstructorSubmissionsPage({
         </p>
       ) : (
         submissions.map((submission) => (
-          <article
+          <SubmissionCard
             key={submission.id}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5"
-          >
-            <div>
-              <h2 className="font-medium">Revision {submission.revision}</h2>
-              <p className="text-xs text-muted-foreground">
-                Student {submission.student_id}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-4 text-sm">
-              <SubmissionTiming
-                isLate={submission.is_late}
-                dueAt={submission.due_at_submission}
-              />
-              <time dateTime={submission.created_at}>
-                {new Date(submission.created_at).toLocaleString()}
-              </time>
-              <Link
-                className="underline"
-                href={`/courses/${courseId}/instructor/submissions/${submission.id}`}
-              >
-                Review
-              </Link>
-            </div>
-          </article>
+            submission={submission}
+            courseId={courseId}
+          />
         ))
       )}
     </main>

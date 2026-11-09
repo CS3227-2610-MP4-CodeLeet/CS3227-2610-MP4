@@ -33,7 +33,7 @@ export function SubmissionFilters({
     const query = params.toString();
     startTransition(() => {
       router.push(
-        `/courses/${courseId}/instructor/submissions${query ? `?${query}` : ''}`,
+        `/courses/${courseId}/submissions${query ? `?${query}` : ''}`,
       );
     });
   }

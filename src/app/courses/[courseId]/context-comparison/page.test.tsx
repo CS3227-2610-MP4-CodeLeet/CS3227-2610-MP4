@@ -12,6 +12,9 @@ vi.mock('@/lib/courses/access', () => ({ readCourseAccess: mocks.access }));
 vi.mock('@/features/codementor/context-comparison', () => ({
   ContextComparison: () => null,
 }));
+vi.mock('@/components/layout/breadcrumb-context', () => ({
+  BreadcrumbSetter: () => null,
+}));
 vi.mock('next/navigation', () => ({
   notFound: () => {
     throw new Error('NEXT_NOT_FOUND');
@@ -21,7 +24,7 @@ vi.mock('next/navigation', () => ({
   },
 }));
 
-import AIContextPage from './page';
+import ContextComparisonPage from './page';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -44,7 +47,7 @@ beforeEach(() => {
   });
 });
 
-describe('instructor AI context page', () => {
+describe('instructor Context Comparison page', () => {
   it('renders assignment title when assignments relation is an object or an array', async () => {
     mocks.submissions = [
       {
@@ -64,12 +67,31 @@ describe('instructor AI context page', () => {
     ];
 
     const html = renderToStaticMarkup(
-      await AIContextPage({
+      await ContextComparisonPage({
         params: Promise.resolve({ courseId: 'c1' }),
       }),
     );
 
     expect(html).toContain('Object Assignment · revision 1');
     expect(html).toContain('Array Assignment · revision 2');
+    expect(html).toContain('AI Context Strategy Comparison');
+    expect(html).toContain(
+      'Context Engineering &amp; Resource-Aware Evaluation',
+    );
+    expect(html).not.toContain('/instructor');
+  });
+
+  it('rejects access when user is not an instructor', async () => {
+    mocks.access.mockResolvedValue({
+      role: 'student',
+      lifecycle: 'active',
+      featureEnabled: true,
+    });
+
+    await expect(
+      ContextComparisonPage({
+        params: Promise.resolve({ courseId: 'c1' }),
+      }),
+    ).rejects.toThrow('NEXT_NOT_FOUND');
   });
 });

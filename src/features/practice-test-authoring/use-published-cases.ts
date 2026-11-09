@@ -1,9 +1,9 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AuthoredCase } from './contracts';
-import { fetchPublicCases } from './public-client';
+import { fetchInstructorPreviewCases, fetchPublicCases } from './public-client';
 
-export function usePublishedCases(assignmentId?: string) {
+export function usePublishedCases(assignmentId?: string, previewMode = false) {
   const [cases, setCases] = useState<AuthoredCase[]>([]);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
@@ -16,7 +16,10 @@ export function usePublishedCases(assignmentId?: string) {
       if (!assignmentId) return [];
       const request = ++generation.current;
       try {
-        const data = await fetchPublicCases(assignmentId, signal);
+        const fetcher = previewMode
+          ? fetchInstructorPreviewCases
+          : fetchPublicCases;
+        const data = await fetcher(assignmentId, signal);
         if (signal?.aborted || request !== generation.current)
           return data.cases;
         setCases(data.cases);
@@ -32,7 +35,7 @@ export function usePublishedCases(assignmentId?: string) {
         throw cause;
       }
     },
-    [assignmentId],
+    [assignmentId, previewMode],
   );
   useEffect(() => {
     if (!assignmentId) return;

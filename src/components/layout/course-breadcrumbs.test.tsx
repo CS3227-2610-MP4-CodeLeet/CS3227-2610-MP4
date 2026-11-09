@@ -61,7 +61,7 @@ describe('CourseBreadcrumbs', () => {
 
   it('omits non-routable dynamic intermediate segments from breadcrumbs', () => {
     mockUsePathname.mockReturnValue(
-      '/courses/course-123/instructor/assignments/asg-456/edit',
+      '/courses/course-123/assignments/asg-456/edit',
     );
     render(
       <BreadcrumbProvider>
@@ -70,11 +70,8 @@ describe('CourseBreadcrumbs', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: 'Instructor' }).getAttribute('href'),
-    ).toBe('/courses/course-123/instructor');
-    expect(
       screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
-    ).toBe('/courses/course-123/instructor');
+    ).toBe('/courses/course-123/assignments');
     expect(screen.queryByText('Asg 456')).toBeNull();
     expect(screen.getByText('Edit')).toBeDefined();
   });

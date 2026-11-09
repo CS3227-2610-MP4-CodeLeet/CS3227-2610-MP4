@@ -6,5 +6,5 @@ export default async function PracticeTestsPage({
   params: Promise<{ courseId: string; assignmentId: string }>;
 }) {
   const { courseId, assignmentId } = await params;
-  redirect(`/courses/${courseId}/instructor/assignments/${assignmentId}/edit`);
+  redirect(`/courses/${courseId}/assignments/${assignmentId}/edit`);
 }

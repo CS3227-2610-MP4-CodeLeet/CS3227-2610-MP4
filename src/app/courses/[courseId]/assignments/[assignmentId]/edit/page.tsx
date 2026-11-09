@@ -74,7 +74,7 @@ export default async function EditAssignmentPage({
       <BreadcrumbSetter title={`Edit: ${assignment.title}`} />
       <Link
         className="text-sm underline"
-        href={`/courses/${courseId}/instructor`}
+        href={`/courses/${courseId}/assignments`}
       >
         Back to assignments
       </Link>

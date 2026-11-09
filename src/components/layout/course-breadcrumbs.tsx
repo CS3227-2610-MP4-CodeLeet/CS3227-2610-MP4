@@ -20,6 +20,8 @@ const segmentLabelMap: Record<string, string> = {
   leaderboard: 'Leaderboard',
   'ai-usage': 'AI Usage',
   'ai-context': 'Context Comparison',
+  'context-comparison': 'Context Comparison',
+  'manage-users': 'Manage Users',
   instructor: 'Instructor',
   edit: 'Edit',
   new: 'New',
@@ -51,26 +53,16 @@ export function isDynamicIdentifier(segment: string): boolean {
   );
 }
 
-const INSTRUCTOR_DASHBOARD_SEGMENTS = new Set([
-  'instructor',
-  'assignments',
-  'submissions',
-]);
-
 function resolveAncestorHref(
   courseId: string,
   segment: string,
-  isInstructor: boolean,
 ): string | undefined {
-  if (isInstructor) {
-    if (INSTRUCTOR_DASHBOARD_SEGMENTS.has(segment)) {
-      return `/courses/${courseId}/instructor`;
-    }
-    return segment === 'ai-context'
-      ? `/courses/${courseId}/instructor/ai-context`
-      : undefined;
+  if (segment === 'instructor') {
+    return `/courses/${courseId}/assignments`;
   }
-
+  if (segment === 'ai-context') {
+    return `/courses/${courseId}/context-comparison`;
+  }
   return `/courses/${courseId}/${segment}`;
 }
 
@@ -99,8 +91,6 @@ function buildBreadcrumbs(
     return isLast || !isDynamicIdentifier(segment);
   });
 
-  const isInstructor = courseSubSegments[0] === 'instructor';
-
   displaySegments.forEach((segment, idx) => {
     const isLast = idx === displaySegments.length - 1;
     const label =
@@ -109,9 +99,7 @@ function buildBreadcrumbs(
         : isDynamicIdentifier(segment)
           ? 'Details'
           : formatSegmentLabel(segment);
-    const href = isLast
-      ? undefined
-      : resolveAncestorHref(courseId, segment, isInstructor);
+    const href = isLast ? undefined : resolveAncestorHref(courseId, segment);
     crumbs.push({
       label,
       href,
