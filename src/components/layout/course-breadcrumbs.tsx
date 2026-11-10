@@ -7,6 +7,7 @@ import { useBreadcrumbTitle } from './breadcrumb-context';
 export type CourseBreadcrumbsProps = {
   courseId: string;
   courseTitle: string;
+  isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
 };
 
@@ -113,6 +114,7 @@ function buildBreadcrumbs(
 export function CourseBreadcrumbs({
   courseId,
   courseTitle,
+  isMobileSidebarOpen = false,
   onToggleMobileSidebar,
 }: CourseBreadcrumbsProps) {
   const pathname = usePathname();
@@ -126,7 +128,8 @@ export function CourseBreadcrumbs({
           type="button"
           onClick={onToggleMobileSidebar}
           aria-label="Open navigation menu"
-          aria-expanded={false}
+          aria-expanded={isMobileSidebarOpen}
+          aria-controls="course-mobile-navigation"
           className="rounded-md border p-1.5 text-muted-foreground hover:bg-accent md:hidden"
         >
           <svg
@@ -149,7 +152,10 @@ export function CourseBreadcrumbs({
       <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           {crumbs.map((crumb, idx) => (
-            <li key={idx} className="flex items-center gap-1.5">
+            <li
+              key={idx}
+              className="flex min-w-0 max-w-full items-center gap-1.5"
+            >
               {idx > 0 && <span aria-hidden="true">/</span>}
               {crumb.isCurrent ? (
                 <span

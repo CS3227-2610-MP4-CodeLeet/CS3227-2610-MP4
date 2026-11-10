@@ -282,6 +282,7 @@ async function loadWorkspace(
   }
 
   const isPreview = access.role === 'instructor';
+  if (isPreview && revisionId) notFound();
   const assignment = await loadAssignmentRecord(
     supabase,
     assignmentId,

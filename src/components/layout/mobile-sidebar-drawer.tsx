@@ -11,10 +11,15 @@ export function MobileSidebarDrawer({
 }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex md:hidden">
+    <div
+      id="course-mobile-navigation"
+      className="fixed inset-0 z-50 flex md:hidden"
+    >
       <div
         className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) onClose?.();
+        }}
         aria-hidden="true"
       />
       <aside className="relative flex w-4/5 max-w-xs flex-col border-r bg-background shadow-xl">

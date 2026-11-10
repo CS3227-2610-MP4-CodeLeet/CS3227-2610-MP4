@@ -14,7 +14,9 @@ test.use({
   baseURL: process.env.ACCOUNT_TEST_BASE_URL ?? 'http://127.0.0.1:3100',
 });
 const localServicesAvailable = Boolean(
-  supabaseUrl && publishableKey && serviceKey,
+  /^http:\/\/(localhost|127\.0\.0\.1):54321$/.test(supabaseUrl ?? '') &&
+  publishableKey &&
+  serviceKey,
 );
 const password = 'Local-MP4-Test-Password-482!';
 const revisionLinkName = 'Revision 1';
@@ -27,57 +29,86 @@ const secondRevisionSource =
 
 test('student and instructor complete the CodeLeet MVP journey', async ({
   page,
-  request,
+  playwright,
 }) => {
   test.skip(
     !localServicesAvailable,
     'Needs a running local Supabase stack and test-only admin key.',
   );
   const suffix = randomUUID();
+  const admin = await playwright.request.newContext({
+    extraHTTPHeaders: {
+      apikey: serviceKey!,
+      authorization: `Bearer ${serviceKey!}`,
+    },
+  });
   const fixture = {
     instructorId: '',
     assignmentId: '',
+    courseId: '',
     username: `MVP Test Student ${suffix}`,
   };
   try {
     const instructor = await createInstructor(
-      request,
+      admin,
       `instructor-${suffix}@example.test`,
       (id) => {
         fixture.instructorId = id;
       },
     );
-    const assignment = await createPublishedAssignment(
-      page,
-      instructor.email,
-      suffix,
-    );
-    fixture.assignmentId = assignment.assignmentId;
+    await page.goto('/sign-in');
+    await signIn(page, instructor.email);
+    await expect(page).toHaveURL(/\/courses$/);
+    const workspace = await createCourseWithAssignment(page, suffix);
+    fixture.courseId = workspace.courseId;
+    fixture.assignmentId = workspace.assignment.assignmentId;
     const studentEmail = `student-${suffix}@example.test`;
-    await studentSubmitsAndRequestsFeedback(page, studentEmail, suffix);
+    await studentSubmitsAndRequestsFeedback(page, admin, {
+      email: studentEmail,
+      suffix,
+      courseId: fixture.courseId,
+    });
     await instructorPublishesGrade(
       page,
       instructor.email,
-      assignment.criterionIds,
+      workspace.assignment.criterionIds,
+      fixture.courseId,
     );
     await studentSeesPublishedGrade(
       page,
       studentEmail,
-      assignment.assignmentId,
+      workspace.assignment.assignmentId,
+      fixture.courseId,
     );
   } finally {
-    await cleanMvpFixture(request, fixture);
+    try {
+      await cleanMvpFixture(admin, fixture);
+    } finally {
+      await admin.dispose();
+    }
   }
 });
 
+async function createCourseWithAssignment(page: Page, suffix: string) {
+  const response = await page.request.post('/api/courses', {
+    headers: { origin: new URL(page.url()).origin },
+    data: {
+      title: `MVP course ${suffix}`,
+      description: 'Synthetic MVP journey',
+    },
+  });
+  expect(response.status()).toBe(201);
+  const courseId = (await response.json()).courseId as string;
+  const assignment = await createPublishedAssignment(page, courseId, suffix);
+  return { courseId, assignment };
+}
+
 async function createPublishedAssignment(
   page: Page,
-  instructorEmail: string,
+  courseId: string,
   suffix: string,
 ) {
-  await page.goto('/sign-in');
-  await signIn(page, instructorEmail);
-  await expect(page).toHaveURL(/\/instructor$/);
+  await page.goto(`/courses/${courseId}/assignments`);
   await page.getByRole('link', { name: 'New assignment' }).click();
   await page.getByLabel('Maximum XP', { exact: true }).fill('0');
   await page.getByLabel('Title', { exact: true }).fill(`Loops ${suffix}`);
@@ -93,7 +124,8 @@ async function createPublishedAssignment(
   );
   await page.getByRole('button', { name: 'Save assignment' }).click();
   const payload = await assignmentRequestPayload(await saveResponse);
-  await expect(page).toHaveURL(/\/instructor$/);
+  expect(payload.courseId).toBe(courseId);
+  await expect(page).toHaveURL(`/courses/${courseId}/assignments`);
   const editUrl = await page
     .getByRole('link', { name: 'Edit', exact: true })
     .getAttribute('href');
@@ -114,6 +146,7 @@ async function assignmentRequestPayload(response: Response) {
     );
   }
   return response.request().postDataJSON() as {
+    courseId: string;
     rubric: Array<{ id: string }>;
   };
 }
@@ -131,21 +164,10 @@ async function addSecondRubricCriterion(page: Page) {
 
 async function studentSubmitsAndRequestsFeedback(
   page: Page,
-  email: string,
-  suffix: string,
+  admin: APIRequestContext,
+  journey: { email: string; suffix: string; courseId: string },
 ) {
-  await page.goto('/sign-up');
-  await page.getByLabel('Username').fill(`MVP Test Student ${suffix}`);
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByLabel('Confirm password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Create student account' }).click();
-  await expect(page).toHaveURL(/\/student\/assignments$/);
-  await verifySignedInWorkspace(page);
-  await page
-    .getByRole('link', { name: `Loops ${suffix}`, exact: true })
-    .click();
-  await page.getByLabel(sourceLabel).fill(firstRevisionSource);
+  await registerAndOpenAssignment(page, admin, journey);
   await verifyAuthenticatedPractice(page);
   await submitAndWaitForHistory(page);
   await verifySavedSource(page);
@@ -157,7 +179,44 @@ async function studentSubmitsAndRequestsFeedback(
   ).toBeVisible();
   await page.getByRole('link', { name: 'Back to assignment' }).click();
   await submitAndVerifySecondRevision(page);
-  await verifySignOutRecovery(page);
+  await verifySignOutRecovery(page, journey.courseId);
+}
+
+async function registerAndOpenAssignment(
+  page: Page,
+  admin: APIRequestContext,
+  journey: { email: string; suffix: string; courseId: string },
+) {
+  await page.goto('/sign-up');
+  await page.getByLabel('Username').fill(`MVP Test Student ${journey.suffix}`);
+  await page.getByLabel('Email').fill(journey.email);
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByLabel('Confirm password', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Create student account' }).click();
+  await expect(page).toHaveURL(/\/courses$/);
+  const found = await admin.get(
+    `${supabaseUrl}/rest/v1/profiles?select=id&login_username=eq.${encodeURIComponent(`MVP Test Student ${journey.suffix}`.toLowerCase())}`,
+  );
+  expect(found.ok()).toBeTruthy();
+  const students = (await found.json()) as Array<{ id: string }>;
+  expect(students).toHaveLength(1);
+  const enrolled = await admin.post(
+    `${supabaseUrl}/rest/v1/course_memberships`,
+    {
+      data: {
+        course_id: journey.courseId,
+        user_id: students[0].id,
+        role: 'student',
+      },
+    },
+  );
+  expect(enrolled.ok()).toBeTruthy();
+  await page.goto(`/courses/${journey.courseId}/assignments`);
+  await verifySignedInWorkspace(page);
+  await page
+    .getByRole('link', { name: `Loops ${journey.suffix}`, exact: true })
+    .click();
+  await page.getByLabel(sourceLabel).fill(firstRevisionSource);
 }
 
 async function verifyAuthenticatedPractice(page: Page) {
@@ -225,7 +284,7 @@ async function submitAndWaitForHistory(page: Page) {
   expect((await refreshed).ok()).toBeTruthy();
 }
 
-async function verifySignOutRecovery(page: Page) {
+async function verifySignOutRecovery(page: Page, courseId: string) {
   await page.route('**/auth/v1/logout*', (route) =>
     route.fulfill({
       status: 500,
@@ -241,7 +300,7 @@ async function verifySignOutRecovery(page: Page) {
   await page.unroute('**/auth/v1/logout*');
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
-  await page.goto('/student/assignments');
+  await page.goto(`/courses/${courseId}/assignments`);
   await expect(page).toHaveURL(/\/sign-in$/);
 }
 
@@ -281,10 +340,12 @@ async function instructorPublishesGrade(
   page: Page,
   email: string,
   criterionIds: string[],
+  courseId: string,
 ) {
   await page.goto('/sign-in');
   await signIn(page, email);
-  await page.getByRole('link', { name: 'Submissions' }).click();
+  await expect(page).toHaveURL(/\/courses$/);
+  await page.goto(`/courses/${courseId}/submissions`);
   await page.getByRole('link', { name: 'Review' }).first().click();
   await page.route('**/api/ai/instructor-review', (route) =>
     route.fulfill({
@@ -319,11 +380,12 @@ async function studentSeesPublishedGrade(
   page: Page,
   email: string,
   assignmentId: string,
+  courseId: string,
 ) {
   await page.goto('/sign-in');
   await signIn(page, email);
-  await expect(page).toHaveURL(/\/student\/assignments$/);
-  await page.goto(`/student/assignments/${assignmentId}`);
+  await expect(page).toHaveURL(/\/courses$/);
+  await page.goto(`/courses/${courseId}/assignments/${assignmentId}`);
   await page.getByRole('link', { name: 'Revision 2', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Published grade: 12' }),
@@ -369,7 +431,12 @@ async function createInstructor(
 
 async function cleanMvpFixture(
   request: APIRequestContext,
-  data: { instructorId: string; assignmentId: string; username: string },
+  data: {
+    instructorId: string;
+    assignmentId: string;
+    courseId: string;
+    username: string;
+  },
 ) {
   const headers = {
     apikey: serviceKey!,
@@ -381,11 +448,11 @@ async function cleanMvpFixture(
   );
   expect(found.ok()).toBeTruthy();
   const students = (await found.json()) as Array<{ id: string }>;
-  if (data.assignmentId) {
+  if (data.courseId) {
     expect(
       (
         await request.delete(
-          `${supabaseUrl}/rest/v1/submissions?assignment_id=eq.${data.assignmentId}`,
+          `${supabaseUrl}/rest/v1/submissions?course_id=eq.${data.courseId}`,
           { headers },
         )
       ).ok(),
@@ -393,11 +460,16 @@ async function cleanMvpFixture(
     expect(
       (
         await request.delete(
-          `${supabaseUrl}/rest/v1/assignments?id=eq.${data.assignmentId}`,
+          `${supabaseUrl}/rest/v1/assignments?course_id=eq.${data.courseId}`,
           { headers },
         )
       ).ok(),
     ).toBeTruthy();
+    const course = await request.delete(
+      `${supabaseUrl}/rest/v1/courses?id=eq.${data.courseId}`,
+      { headers },
+    );
+    expect(course.ok()).toBeTruthy();
   }
   for (const id of [
     ...students.map((student) => student.id),

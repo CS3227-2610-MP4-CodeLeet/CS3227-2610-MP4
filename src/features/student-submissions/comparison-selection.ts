@@ -20,7 +20,7 @@ export function comparisonPath(id: string, courseId?: string) {
   if (courseId) {
     return `/courses/${courseId}/submissions/${id}/compare`;
   }
-  return `/student/submissions/${id}/compare`;
+  return '/courses';
 }
 
 export type ComparisonSelection = { before?: number; after?: number };

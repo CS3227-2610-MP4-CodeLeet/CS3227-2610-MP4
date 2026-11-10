@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string -- repeated expected text documents the user-facing contract. */
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ThemeButton, useWorkspaceTheme } from './workspace-theme';
 
 function matchMedia(matches = false) {
@@ -32,9 +32,14 @@ function ThemeProbe() {
   return <span>{theme}</span>;
 }
 
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', () => matchMedia());
+});
+
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -50,6 +55,22 @@ describe('workspace theme preference', () => {
     );
     expect(screen.getByText('light')).toBeTruthy();
     view.unmount();
+  });
+
+  it('falls back to light mode when the system preference API is unavailable', () => {
+    vi.stubGlobal('matchMedia', undefined);
+    render(
+      <>
+        <ThemeProbe />
+        <ThemeButton theme="light" />
+      </>,
+    );
+
+    expect(screen.getByText('light')).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Switch to dark mode' }),
+    );
+    expect(screen.getByText('dark')).toBeTruthy();
   });
 
   it('persists a session choice, broadcasts it, and provides the reverse action', () => {

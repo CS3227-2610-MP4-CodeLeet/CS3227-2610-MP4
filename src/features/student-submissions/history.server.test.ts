@@ -6,6 +6,10 @@ const verifiedStudentId = 'verified-student';
 const courseId = 'course-a';
 const historySelect =
   'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)';
+const filteredHistorySelect = historySelect.replace(
+  'assignments(title)',
+  'assignments!inner(title)',
+);
 
 it('sends literal title/language filters before paging with verified ownership and visible-title joins', async () => {
   let requested!: URL;
@@ -36,7 +40,7 @@ it('sends literal title/language filters before paging with verified ownership a
   expect(requested.searchParams.get('assignments.title')).toBe(
     'imatch.A\\*%_\\[x\\]',
   );
-  expect(requested.searchParams.get('select')).toBe(historySelect);
+  expect(requested.searchParams.get('select')).toBe(filteredHistorySelect);
   expect(requested.searchParams.get('offset')).toBe('25');
   expect(requested.searchParams.get('limit')).toBe('26');
 });

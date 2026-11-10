@@ -82,7 +82,7 @@ describe('admin user directory', () => {
     });
     expect(save).toHaveBeenCalledOnce();
     expect(navigate).toHaveBeenCalledWith('/courses');
-    expect(destinationForRole('student')).toBe('/student/assignments');
+    expect(destinationForRole('student')).toBe('/courses');
   });
 
   it('ignores duplicate page loads while one request is pending and releases the guard', async () => {

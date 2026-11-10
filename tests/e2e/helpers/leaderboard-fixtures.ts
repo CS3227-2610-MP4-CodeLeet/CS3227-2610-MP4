@@ -32,6 +32,18 @@ export const test = base.extend<{
     const third = await created.json();
     const thirdId = third.id;
     draftFixture.users.push({ id: thirdId, email: third.email });
+    const membership = await comparisonFixture.admin.post(
+      `${serviceUrl}/rest/v1/course_memberships`,
+      {
+        headers,
+        data: {
+          course_id: draftFixture.courseId,
+          user_id: thirdId,
+          role: 'student',
+        },
+      },
+    );
+    expect(membership.ok()).toBeTruthy();
     for (const [index, id] of [
       draftFixture.users[1].id,
       comparisonFixture.peerId,

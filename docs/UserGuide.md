@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide was reconciled against merged develop `29b6c1a` on 5 November 2026, including course workspaces and subsequent fixes. Use the application address supplied by the team. Complete hosted account/email/AI acceptance is not established by this source audit; local setup is below.
+This guide was reconciled on 9 November 2026 against `develop` baseline `f6009a1`, including course workspaces and fixes merged through that baseline. Use the application address supplied by the team. Hosted account/email/AI acceptance is not established by this source audit; local setup is below.
 
 ## Choose where to start
 
@@ -12,7 +12,7 @@ This guide was reconciled against merged develop `29b6c1a` on 5 November 2026, i
 | Find saved code or request learning feedback         | **My submissions** → saved revision                            |
 | Read released feedback and scores                    | **My grades**                                                  |
 | See assignment XP and rank                           | **My XP** or **Leaderboard**                                   |
-| Ask or answer a question                             | **Forums**                                                     |
+| Ask or answer a question                             | **Discussions**                                                |
 | Change your username                                 | Student **Menu → Profile settings**, or instructor **Profile** |
 | Create an assignment or manage practice tests/grades | Instructor workspace; instructor access must be provisioned    |
 
@@ -184,7 +184,7 @@ Choose **Practice tests** on an assignment in your instructor list or from its e
 
 Only the owning instructor can manage these cases. Failed saves retain your inputs; if another edit changed the set, reload before saving again. Publishing tests does not grade student code.
 
-## Forums
+## Discussions
 
 Choose **Discussions** from the selected course's activity links. Instructors and students in that course share its discussions. Select **New discussion**, enter title/message, then **Create discussion**. In a discussion, use **Your reply → Post reply**.
 

@@ -49,3 +49,18 @@ Migration SHALL place current assignments, submissions, grades, AI records, foru
 #### Scenario: Unassigned legacy owner
 - **WHEN** the migration creates Legacy
 - **THEN** it is archived, displays Unassigned, and only platform admin can assign an instructor owner; it remains read-only
+
+### Requirement: Course navigation and legacy route compatibility
+Authenticated navigation SHALL link only to existing course-scoped routes. Legacy student and instructor URLs SHALL resolve to the corresponding authorized course route when their course context can be verified, or to the course directory when it cannot. Redirects SHALL preserve the existing authentication and course-membership checks and SHALL NOT accept an arbitrary redirect destination.
+
+#### Scenario: Course navigation without selected context
+- **WHEN** an authenticated member opens navigation without a selected course
+- **THEN** navigation offers the course directory rather than links to missing student routes
+
+#### Scenario: Legacy URL with authorized course context
+- **WHEN** an authenticated member opens a supported legacy URL for a record in an authorized course
+- **THEN** they are redirected to its canonical course-scoped route
+
+#### Scenario: Legacy URL without verifiable context
+- **WHEN** a legacy record or course context cannot be verified for the signed-in member
+- **THEN** the request returns not found or redirects to the course directory without disclosing the record

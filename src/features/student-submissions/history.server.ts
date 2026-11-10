@@ -27,10 +27,13 @@ export async function loadSubmissionHistory(
 ): Promise<HistoryPage | null> {
   try {
     const offset = (page - 1) * HISTORY_PAGE_SIZE;
+    const assignmentJoin = filters.q
+      ? 'assignments!inner(title)'
+      : 'assignments(title)';
     let query = client
       .from('submissions')
       .select(
-        'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)',
+        `id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,${assignmentJoin}`,
       )
       .eq('student_id', studentId)
       .eq('course_id', courseId);

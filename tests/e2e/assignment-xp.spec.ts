@@ -9,9 +9,8 @@ import {
   headers,
 } from './helpers/xp-fixtures';
 import { revisionSession } from './helpers/revision-session';
+import { coursePath } from './helpers/draft-fixtures';
 
-const xpPath = '/student/xp';
-const xpApi = '/api/student/xp';
 test.use({ baseURL: appUrl, actionTimeout: 10_000 });
 test.skip(
   !process.env.MP4_E2E_SERVICE_ROLE_KEY ||
@@ -30,18 +29,18 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
     const ids = fixture.ids[index];
     const criterionId = xpCriteria[index];
     await revisionSession(page, data.users[0].email, data.password);
-    const configured = await configure(page, assignmentId, 100);
+    const configured = await configure(page, data.courseId, assignmentId, 100);
     const first = await Promise.all([
       grade(page, ids[0], criterionId, { score: 8, version: 0 }),
       grade(page, ids[1], criterionId, { score: 9, version: 0 }),
     ]);
     expect(first.map((response) => response.status())).toEqual([200, 200]);
     await revisionSession(page, data.users[1].email, data.password);
-    await checkInitialXp(page, language);
+    await checkInitialXp(page, data.courseId, language);
     await revisionSession(page, data.users[0].email, data.password);
     await correctConcurrently(page, ids, criterionId, configured);
     await revisionSession(page, data.users[1].email, data.password);
-    await checkMobileXp(page);
+    await checkMobileXp(page, data.courseId);
     await revisionSession(page, data.users[0].email, data.password);
     expect(
       (
@@ -63,12 +62,18 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
     ).toBe(200);
     await checkLedger(fixture.admin, assignmentId);
     await revisionSession(page, data.users[1].email, data.password);
-    expect((await (await page.request.get(xpApi)).json()).data.total_xp).toBe(
-      '0',
-    );
     expect(
       (
-        await page.request.get(`/api/student/xp?studentId=${fixture.peerId}`)
+        await (
+          await page.request.get(`/api/student/xp?courseId=${data.courseId}`)
+        ).json()
+      ).data.total_xp,
+    ).toBe('0');
+    expect(
+      (
+        await page.request.get(
+          `/api/student/xp?courseId=${data.courseId}&studentId=${fixture.peerId}`,
+        )
       ).status(),
     ).toBe(400);
   });
@@ -81,13 +86,18 @@ test('XP field is required and a foreign instructor cannot configure or publish 
   xpCriteria,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
-  await page.goto('/instructor/assignments/new');
+  await page.goto(coursePath(data.courseId, '/assignments/new'));
   await expect(page.getByLabel(maxXpLabel, { exact: true })).toHaveValue('');
   await expect(page.getByLabel(maxXpLabel, { exact: true })).toHaveAttribute(
     'required',
     '',
   );
-  const configured = await configure(page, data.assignments[0], 100);
+  const configured = await configure(
+    page,
+    data.courseId,
+    data.assignments[0],
+    100,
+  );
   const role = await fixture.admin.patch(
     `${serviceUrl}/rest/v1/user_roles?user_id=eq.${fixture.peerId}`,
     { headers, data: { role: 'instructor' } },
@@ -117,25 +127,27 @@ test('XP field is required and a foreign instructor cannot configure or publish 
       },
     },
   );
-  expect(denied.status()).toBe(409);
+  expect(denied.status()).toBe(404);
   const stored = await fixture.admin.get(
     `${serviceUrl}/rest/v1/assignments?id=eq.${data.assignments[0]}&select=max_xp`,
     { headers },
   );
   expect(await stored.json()).toEqual([{ max_xp: 100 }]);
   await revisionSession(page, data.users[1].email, data.password);
-  await page.goto(xpPath);
+  await page.goto(coursePath(data.courseId, '/xp'));
   await expect(
     page.getByText('No XP awards yet.', { exact: true }),
   ).toBeVisible();
 });
 
-async function checkMobileXp(page: Page) {
-  const summary = await page.request.get(xpApi);
+async function checkMobileXp(page: Page, courseId: string) {
+  const summary = await page.request.get(
+    `/api/student/xp?courseId=${courseId}`,
+  );
   expect((await summary.json()).data.total_xp).toBe('120');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto(xpPath);
+  await page.goto(coursePath(courseId, '/xp'));
   await expect(
     page.getByRole('heading', { name: 'My XP', exact: true }),
   ).toBeVisible();
@@ -155,8 +167,8 @@ async function checkLedger(admin: APIRequestContext, assignmentId: string) {
   expect(deltas.reduce((sum, row) => sum + row.delta, 0)).toBe(0);
 }
 
-async function checkInitialXp(page: Page, language: string) {
-  await page.goto(xpPath);
+async function checkInitialXp(page: Page, courseId: string, language: string) {
+  await page.goto(coursePath(courseId, '/xp'));
   await expect(page.getByText('90', { exact: true })).toBeVisible();
   await page
     .getByRole('link', {
