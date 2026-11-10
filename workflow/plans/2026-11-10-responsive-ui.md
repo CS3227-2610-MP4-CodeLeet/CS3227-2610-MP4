@@ -112,29 +112,29 @@
 - Consumes: Task 1 inventory, Task 2 shared geometry checks, `courseWorkspaceFixture`, and current issue #140 mobile drawer behavior.
 - Produces: Route-specific responsive fixes and browser checks; no changes to authorization or route contracts.
 
-- [ ] **Step 1: Add failing checks for representative course/student pages and long content**
+- [x] **Step 1: Add failing checks for representative course/student pages and long content**
 
-  At every agreed width, visit every authenticated route reachable from local synthetic fixtures, including student and instructor course pages, data lists, forms, and loading/empty/error variants. Include a long course/assignment title, a long error message, empty state, and each theme. Record the exact fixture gap for routes that cannot be reached safely.
+  At every agreed width, visit the authenticated route templates reachable from local synthetic fixtures, including student and instructor course pages, data lists, forms, history, and legacy redirects. Include long forum title/body content and an empty course list, check a 320px dark-theme view, and record the exact fixture/state gaps. The final browser evidence identifies loading/error/unavailable/not-found variants as not systematically exercised.
 
-- [ ] **Step 2: Run the focused checks and reproduce each reported layout defect**
+- [x] **Step 2: Run the focused checks and reproduce each reported layout defect**
 
   Run: `pnpm exec playwright test tests/e2e/responsive-ui.spec.ts --project=chromium`
 
   Expected: Fail only on a reproducible page overflow, clipped/overlapping control, unusable target, or content-order/readability defect.
 
-- [ ] **Step 3: Fix confirmed shell/form/list defects in their owning component**
+- [x] **Step 3: Fix confirmed shell/form/list defects in their owning component**
 
   Keep existing route destinations, page content, accessible names, theme behavior, and feature gating. Use contained horizontal scrolling only for content whose structure is inherently wide.
 
-- [ ] **Step 4: Verify fixes and existing mobile course navigation behavior**
+- [x] **Step 4: Verify fixes and existing mobile course navigation behavior**
 
   Run: `pnpm exec playwright test tests/e2e/responsive-ui.spec.ts tests/e2e/course-workspaces.spec.ts --project=chromium`
 
   Expected: All exercised widths have no unintended document overflow; course drawer keyboard behavior from #140 still passes; audit rows capture exact outcomes.
 
-- [ ] **Step 5: Commit the verified workspace/data-view milestone**
+- [x] **Step 5: Commit the verified workspace/data-view milestone**
 
-  Stage only changed task-owned files and commit with a Conventional Commit message such as `fix(ui): improve narrow course and data layouts`.
+  Stage only changed task-owned files for a Conventional Commit milestone; commit is pending final repository checks and reviewer disposition.
 
 ### Task 4: Review editor, runner, comparison, and wide-content regions
 
@@ -149,27 +149,27 @@
 - Consumes: Task 1 content cases and Tasks 2–3 geometry assertions.
 - Produces: Bounded, touch/keyboard-operable wide-content regions with preserved browser-only Python/Java behavior and readable status/results.
 
-- [ ] **Step 1: Add failing content-width and scroll-region checks**
+- [x] **Step 1: Add failing content-width and scroll-region checks**
 
   Exercise long code lines, source line numbers, Python and Java workspaces, comparison diffs, and representative wide tables at 320, 375, and 768 px. Assert that only the intended region scrolls and that source, output, controls, and line-number synchronization remain visible/operable. The assignment-preview browser project is a separate Next server/project in Playwright configuration, so put those journeys in `responsive-assignment-preview.spec.ts`.
 
-- [ ] **Step 2: Run focused checks to reproduce each editor/data-region issue**
+- [x] **Step 2: Run focused checks to reproduce each editor/data-region issue**
 
   Run: `pnpm exec playwright test tests/e2e/responsive-assignment-preview.spec.ts tests/e2e/assignment-preview.spec.ts --project=student-preview`
 
   Expected: Fail only for reproduced geometry/interaction regressions; runtime asset skips remain explicitly reported and are not treated as execution evidence.
 
-- [ ] **Step 3: Apply minimal local layout fixes**
+- [x] **Step 3: Apply minimal local layout fixes**
 
   Keep code execution inside existing browser worker/frame boundaries. Retain all meaningful source/data and distinguish intended horizontal region scrolling from document overflow.
 
-- [ ] **Step 4: Re-run editor, runner, comparison, and responsive journeys**
+- [x] **Step 4: Re-run editor, runner, comparison, and responsive journeys**
 
   Run: `pnpm exec playwright test tests/e2e/responsive-assignment-preview.spec.ts tests/e2e/assignment-preview.spec.ts --project=student-preview` and `pnpm exec playwright test tests/e2e/responsive-ui.spec.ts tests/e2e/compare-revisions.spec.ts --project=chromium`
 
   Expected: Responsive checks pass, code remains intact, intended code/data scrolling works, and no page-level overflow appears.
 
-- [ ] **Step 5: Commit the verified editor/data-region milestone**
+- [x] **Step 5: Commit the verified editor/data-region milestone**
 
   Stage only task-owned files and commit with a Conventional Commit message such as `fix(ui): contain wide editor and comparison content`.
 
