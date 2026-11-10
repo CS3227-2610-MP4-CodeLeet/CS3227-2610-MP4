@@ -83,6 +83,10 @@ Authenticated navigation SHALL link only to existing course-scoped routes. Legac
 - **WHEN** an authenticated member opens navigation without a selected course
 - **THEN** navigation offers the course directory rather than links to missing student routes
 
+#### Scenario: Mobile course navigation
+- **WHEN** a member opens the course navigation drawer at a narrow viewport
+- **THEN** long course titles do not overlap the close control, keyboard focus moves into the drawer and remains within it, Escape closes it, and focus returns to the opener
+
 #### Scenario: Legacy URL with authorized course context
 - **WHEN** an authenticated member opens a supported legacy URL for a record in an authorized course
 - **THEN** they are redirected to its canonical course-scoped route

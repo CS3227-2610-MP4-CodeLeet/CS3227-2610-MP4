@@ -181,14 +181,18 @@ function SidebarHeader({
   course,
   isCollapsed,
   toggleCollapse,
+  mobile = false,
 }: {
   course: CourseSidebarProps['course'];
   isCollapsed: boolean;
   toggleCollapse: () => void;
+  mobile?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between border-b p-4">
-      <div className="flex min-w-0 items-center gap-3">
+    <div
+      className={`flex items-center justify-between border-b p-4 ${mobile ? 'pr-12' : ''}`}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary">
           {course.title.slice(0, 2).toUpperCase()}
         </div>
@@ -395,6 +399,7 @@ function SidebarContent({
         course={course}
         isCollapsed={isCollapsed}
         toggleCollapse={toggleCollapse ?? (() => {})}
+        mobile={Boolean(onCloseMobile)}
       />
       <SidebarUserProfile
         userName={userName}
