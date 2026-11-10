@@ -28,6 +28,7 @@ First student delivery is [issue #5](https://github.com/CS3227-2610-MP4-CodeLeet
 - `community-and-xp`: Text discussions, idempotent XP and deterministic leaderboard ordering.
 - `course-workspaces`: Per-course roles, enrollment, lifecycle, feature controls and historical migration.
 - `engineering-and-delivery`: SDD/agent evidence, experiments, deployment and submission artifacts.
+- `responsive-ui`: Responsive behavior, accessible navigation and usable content regions across current application routes.
 
 ### Modified Capabilities
 
