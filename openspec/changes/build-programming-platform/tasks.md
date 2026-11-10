@@ -312,12 +312,18 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 37.1 Replace authenticated navigation and student-history links that target removed legacy pages; add safe compatibility redirects that preserve verified course membership and canonicalize legacy record URLs.
 - [x] 37.2 Migrate the affected authenticated Playwright journeys to course-scoped routes and synthetic course memberships without weakening assertions or skipping authenticated scenarios. Local Chromium rerun: 77 passed, one local-email prerequisite skip.
-- [x] 37.3 Add a local-Supabase authenticated browser CI job that confines fixture credentials to test setup, strips them from the Next server, and avoids uploading traces or artifacts containing fixture authorization. Environment-isolation unit tests pass; branch CI remains pending.
-- [x] 37.4 Verify targeted routing regressions, authenticated browser journeys, full unit/build/type/lint/format/OpenSpec/scaffold checks and applicable database checks; record release gates and create linked PR #133 closing #129 after successful branch application CI run 42752213234, scaffold run 42752218345, and CodeQL run 42752216918. Final PR-head checks and hosted gates remain separate.
+- [x] 37.3 Add a local-Supabase authenticated browser CI job that confines fixture credentials to test setup, strips them from the Next server, and avoids uploading traces or artifacts containing fixture authorization. Environment-isolation unit tests and final-head PR #133 authenticated E2E job passed; the Supabase Preview check was skipped because preview branching was not configured.
+- [x] 37.4 Verify targeted routing regressions, authenticated browser journeys, full unit/build/type/lint/format/OpenSpec/scaffold checks and applicable database checks; record release gates and create linked PR #133 closing #129 after successful branch application CI run 42752213234, scaffold run 42752218345, and CodeQL run 42752216918. Final PR-head application, authenticated E2E, database, scaffold, CodeQL and coverage-report checks passed before merge at `66c6d62`; hosted gates remain separate.
 
 ## 38. Issue #130 role-aware AI usage and authorization audit
 
 - [x] 38.1 Make in-flight usage finalization server-authorized and replay-resistant; fail closed when completion or cached-use accounting fails.
 - [x] 38.2 Preserve student feedback history while requiring current instructor membership for instructor-only review reads.
-- [x] 38.3 Add failing-first service and database regressions for client-forged completion, replay/mismatch, failed accounting, forged reviews/cache hits and role removal; verify existing provider quotas and privacy behavior. Local pgTAP passes 482 assertions; final full suite pending.
-- [x] 38.4 Run focused and full relevant checks, update verified security evidence, and create linked PR #133 closing #130 after successful branch CI. Final PR-head checks and hosted/live-provider gates remain separate.
+- [x] 38.3 Add failing-first service and database regressions for client-forged completion, replay/mismatch, failed accounting, forged reviews/cache hits and role removal; verify existing provider quotas and privacy behavior. Post-review local verification passed 858 unit tests and 482 pgTAP assertions; final-head PR #133 application/database checks passed.
+- [x] 38.4 Run focused and full relevant checks, update verified security evidence, and create linked PR #133 closing #130 after successful branch CI. Final-head PR #133 checks passed and the PR merged into develop as `66c6d62`; hosted/live-provider gates remain separate.
+
+## 39. Issue #135 post-merge guides and reflection reconciliation
+
+- [x] 39.1 Reconcile canonical guides and repository status against merged PR #133 and current UI/source; preserve hosted release limits. Current instructor context-comparison UI and final PR-head checks were inspected; hosted verification stays open.
+- [x] 39.2 Refresh reflection evidence references and correct unsupported factual claims without approving either member's personal conclusions. Removed an unmeasured cache-hit latency claim and qualified declarative agent sandboxing/RLS statements.
+- [ ] 39.3 Verify guide links, site build, formatting, scaffold and strict OpenSpec; record a dated session summary and publish an issue-linked PR after branch CI.

@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide was reconciled on 9 November 2026 against `develop` baseline `f6009a1`, including course workspaces and fixes merged through that baseline. Use the application address supplied by the team. Hosted account/email/AI acceptance is not established by this source audit; local setup is below.
+This guide was reconciled on 10 November 2026 against merged `develop` commit `66c6d62`, including the routing and access fixes in [PR #133](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/133). Use the application address supplied by the team. Hosted account/email/AI acceptance is not established by this source audit; local setup is below.
 
 ## Choose where to start
 
@@ -174,7 +174,7 @@ Refresh or reopen the page after grades or maximum XP change to see updated tota
 5. Under **AI rubric suggestions**, choose **Request review** for advisory criterion scores/comments. Review them yourself; this does not save/publish a grade.
 6. Enter criterion scores and feedback. **Save draft** keeps the grade private. Select **Publish this grade to the student**, then **Save and publish**, to release it. If another edit changed the record, reload before retrying.
 
-Instructors can review submissions/private rubrics only for assignments in courses where they are instructors. AI cannot publish grades. Open **AI usage** from the selected course for your recent usage there. In an active AI-enabled instructor course, **Context comparison** is available under **Administration** from the sidebar (`/courses/<courseId>/context-comparison`). It provides educational side-by-side prompt analysis showing raw prompts alongside context-enriched student profile prompts, demonstrating context engineering, prompt efficiency, and token reduction. Counts may be estimates when provider counts are absent; two uncached comparisons can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
+Instructors can review submissions/private rubrics only for assignments in courses where they are instructors. AI cannot publish grades. Open **AI usage** from the selected course for your recent usage there. In an active AI-enabled instructor course, **Context comparison** is available under **Administration** from the sidebar (`/courses/<courseId>/context-comparison`) when an owned assignment has a submission and rubric. It shows the results of focused and broader authorized instructor contexts side by side with estimated input-token counts. Each uncached model run uses one instructor quota slot. The comparison does not expose raw prompts or a student profile. Configuration and experiment limits are in the [Developer Guide](DeveloperGuide.md).
 
 Publishing or correcting a grade updates the student's assignment XP automatically. Changing **Maximum XP** recalculates existing awards. Later rubric edits do not change the denominator captured with an earlier publication. Assignments created before XP was added start at zero; review and republish older grades before they can earn XP.
 
