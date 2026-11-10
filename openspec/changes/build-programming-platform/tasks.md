@@ -315,3 +315,11 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 37.3 Restrict ownership transfer to verified instructor members in the UI and database; add an admin-only read-only course overview route without widening member routes.
 - [x] 37.4 Add instructor code-copy UX and verify code visibility/denial, admin metadata-only access, and transfer behavior with unit and pgTAP tests.
 - [x] 37.5 Run applicable unit, database, type, lint, format, build and strict OpenSpec checks; record the dated log and publish issue-linked PR #132 to develop after branch CI. Keep human verification pending.
+
+## 38. Issue #134 illustrated empty states
+
+- [x] 38.1 Add the shared accessible illustrated empty-state component with local SVG variants and compact/standard layouts.
+- [x] 38.2 Cover successful empty collections and filtered no-results across directories, assignments, submissions, forums, grades, progress, AI usage, XP/leaderboard, context comparison, practice cases and ownership transfer; preserve view-specific copy/actions and role/lifecycle checks.
+- [x] 38.3 Keep loading, error, unavailable, not-found, editor-input and runtime-output states distinct; verify with focused behavior tests.
+- [x] 38.4 Audit all application data views and run unit, lint, type, format, strict OpenSpec and diff checks; record the dated log and self-review limitations.
+- [ ] 38.5 Commit the evidence, wait for branch CI, then push and create an issue-linked PR to develop; leave teammate review pending.

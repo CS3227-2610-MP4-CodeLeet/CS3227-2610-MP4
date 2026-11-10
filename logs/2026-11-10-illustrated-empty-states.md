@@ -1,0 +1,34 @@
+# Session: 2026-11-10 illustrated empty states
+
+- Timezone: Asia/Singapore
+- Participants/actual agent IDs: User and Codex; no specialist agents or handoffs were used.
+- AI tools/models, where known: Codex; exact model identifier unavailable.
+- GitHub issue: [#134 Add illustrated empty states across data views](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/134)
+- OpenSpec change: `build-programming-platform`
+- Branch and commits: `feature/134-illustrated-empty-states`; source commits `dc0e5ce`, `fa7b75d`, `ad353e2`, `df34a1b`; documentation/evidence commit includes this summary.
+- Pull request: Pending branch push and CI.
+- Human verification: pending
+- Verifier/date: Codex, 2026-11-10; teammate review remains pending.
+
+## Prompt and interaction summaries
+
+1. User requested a thorough source review and illustrated empty states for missing zero-data views across the project.
+2. User approved one accessible shared component with local inline SVG variants, role-aware view actions, and scope covering successful zero-item/zero-result/zero-activity data views. Loading, error, empty editor fields, and empty program output remain separate.
+3. User approved the implementation plan and native execution in the current checkout. No agent delegation was requested or used.
+4. Repository instructions were read from `AGENTS.md`, `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, and active OpenSpec change instructions/specs. Existing user modification `next-env.d.ts` was preserved.
+5. A scope-matched issue (#134) and branch from `develop` were created before implementation. A shared component and tests were implemented, followed by directory/assignment/forum/submission views, then activity/metrics/practice views. A final array-branch audit also found and covered the no-recipient ownership-transfer view.
+6. Full-suite failures exposed a timing-sensitive admin pending-search assertion and an unrelated assignment XP test timeout under unrestricted worker spawning. The admin assertion now waits for the actual search indicator. The XP test passed alone; the full suite passes with a worker cap. Component boundaries were split after lint/type checks identified file/function limits and a dynamic-heading type error.
+7. `pnpm typecheck` runs Next route type generation. It normalized the pre-existing `next-env.d.ts` working-tree difference; its current content matches `HEAD`. The earlier diff was not captured, so the exact generated-file change could not be reconstructed. Two unrelated workflow experiment JSON files also acquired timestamp-only modifications during this session; they were left untouched and unstaged.
+
+## Work and verification
+
+- Files and requirement links: Added `src/components/ui/illustrated-empty-state.tsx` and tests; updated course/admin directories and access, assignments, forum discussions/replies, student histories/grades/progress, instructor submissions, AI usage, XP/leaderboard, context comparison, and practice-case views. Added focused tests for empty, filtered, pending/error distinction, preserved actions, paging and permissions. Added the cross-cutting requirement and task 38 to `openspec/changes/build-programming-platform/`.
+- Design/plan: `docs/superpowers/specs/2026-11-10-illustrated-empty-states-design.md` and `docs/superpowers/plans/2026-11-10-illustrated-empty-states.md`.
+- Final source audit: successful data-empty collection branches use `IllustratedEmptyState`, including zero member/invitation, filtered search, assignment/submission/revision/grade, reply/thread, progress, AI review, award/ranking, context comparison, practice cases and ownership-recipient views. Remaining empty arrays were form/editor controls, runtime/stdout output, counters/pagination, or optional AI feedback subsections rather than standalone data views; they remain intentionally out of scope.
+- Focused checks: Component (3 tests), directory/assignment/forum/submission (14 files, 54 tests), activity/practice (7 files, 27 tests), and post-refactor focused group (9 files, 36 tests) passed. The ownership-transfer regression was observed failing before implementation and passing after it.
+- Full unit suite: An unrestricted `pnpm test:unit` run first produced 854/856 passing tests; the admin pending-state timing assertion and an assignment XP test timeout failed. The XP test passed in isolation. Final `pnpm run test:unit --maxWorkers=4` passed 166 files and 856 tests.
+- Other final checks: `pnpm lint` passed; `pnpm typecheck` passed; scoped Prettier check on branch-owned source and change artifacts passed; `pnpm exec openspec validate build-programming-platform --strict` passed.
+- Review: Codex performed a read-only self-review against the approved design, OpenSpec scenarios, view actions and zero-data source audit. No critical or important issue was found. No independent teammate or specialist review occurred; human review remains pending.
+- Limitations/retries: Repository-wide `pnpm format:check` scans ignored SDD scratch and another worktree's generated runtime assets; it initially also found owned source formatting issues, which were formatted. The scoped final check passed. An initial OpenSpec strict command without a change name was invalid and was rerun with the active change name. An unsupported Vitest `--minWorkers` option was rejected; the supported `--maxWorkers=4` script invocation passed. `next-env.d.ts` was normalized by Next type generation as described above. Two unrelated timestamp-only workflow artifact edits were preserved and excluded. Git diff checks passed. Evidence commit, push, branch CI and PR creation remain pending.
+- Resource measurements: Not reported by tools; no agent/tool budget metrics available.
+- Next steps: Commit this documentation/evidence summary, push the feature branch, wait for CI, then create the PR to `develop` linking issue #134, the active OpenSpec change, and this log. Human teammate review remains pending.
