@@ -5,10 +5,10 @@
 - GitHub issue: [#141](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/141)
 - OpenSpec change: `build-programming-platform`, task 33.6; task artifacts record completion
 - Branch: `docs/141-course-feature-toggle-audit` (created remotely; local `.git` is read-only)
-- Commits: [`4cc182d`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/4cc182df02aa8aa5efe8858563782e345b95c4a1) updates the User Guide; [`39c6dbb`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/39c6dbb474b4808d1536217592fa854981e2c5e4) adds the audit log
+- Commits: [`4cc182d`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/4cc182df02aa8aa5efe8858563782e345b95c4a1) updates the User Guide; [`39c6dbb`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/39c6dbb474b4808d1536217592fa854981e2c5e4) adds the audit log; the log was later updated with PR details
 - Pull request: [#143](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/143), open against `develop`
 - Human verification: pending
-- Verification: static source and migration review; no test suite run
+- Verification: static source and migration review; tests were not run locally
 
 ## Prompt and interaction summaries
 
@@ -35,15 +35,15 @@
 - Updated `docs/UserGuide.md`.
 - Added this dated audit record.
 - Reviewed `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, OpenSpec design/tasks for issue #85, course feature UI/contracts, course routes/APIs, feature access helpers, and relevant Supabase migrations.
-- `git diff --check`: passed for the tracked diff; the untracked log was separately checked for trailing whitespace.
+- `git diff --check`: passed for the tracked diff; the log was separately checked for trailing whitespace.
 - OpenSpec status CLI: attempted using the repository-pinned CLI; the restricted shell lacked `pnpm`/`node`, and the elevated invocation did not return usable status output. OpenSpec task completion was read from `openspec/changes/build-programming-platform/tasks.md`.
-- No tests or builds were run (documentation-only change). GitHub contents commits and PR creation were performed through the connected GitHub tools because local `.git` is read-only.
-- Vercel status succeeded for commit `39c6dbb474b4808d1536217592fa854981e2c5e4` before PR creation. PR-head checks after the final audit-log update are pending verification.
+- No tests or builds were run locally (documentation-only change). GitHub contents commits and PR creation were performed through the connected GitHub tools because local `.git` is read-only.
+- PR-head CI run [42802906711](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42802906711) passed Application, database, coverage-report and authenticated synthetic browser jobs for commit `08fb36b6cfce07e08b1a7521a89fb03148fdcd4e`; Scaffold [42802906816](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42802906816) and CodeQL [42802906464](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42802906464) also passed. Vercel succeeded on that commit. This evidence predates the final audit-log-only update; CI for that resulting head is pending.
 - Pre-existing edits in `workflow/experiments/2026-11-06-context-strategy-evaluation.json` and `workflow/experiments/2026-11-06-development-context-experiment.json` were preserved and not included in this work.
 
 ## Follow-up
 
 - Decide whether Context comparison should be hidden or display an explicit explanation when Assessments is disabled.
 - Decide whether XP off should also suppress leaderboard values, or retain the current independent-switch behavior.
-- Create the PR after branch CI completes; teammate review remains pending.
+- PR #143 is open; teammate review remains pending.
 
