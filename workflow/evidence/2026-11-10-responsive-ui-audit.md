@@ -56,7 +56,7 @@ There are 38 `page.tsx` routes. Dynamic routes below represent each App Router p
 
 | Component/state | Source or existing evidence | Responsive result |
 |---|---|---|
-| Authenticated app header | `src/components/layout/app-header.tsx`; Courses/Profile/User roles, sign out, theme | Source has wrapping top-level header; inner navigation groups are non-wrapping. Needs 320px browser check. |
+| Authenticated app header | `src/components/layout/app-header.tsx`; Courses/Profile/User roles, sign out, theme | Fixed: brand, primary, and account groups now wrap within narrow screens. Browser checked for student, instructor, and admin at all five target widths. |
 | Course breadcrumb and desktop/mobile sidebar | `src/components/layout/course-breadcrumbs.tsx`, `course-sidebar.tsx`, `mobile-sidebar-drawer.tsx`; issue #140 / PR #142 already covers long title/close overlap and keyboard dismissal | Existing 375px course journey; extend to 320, 768, 1024, and 1440 without duplicating the drawer fix. |
 | Student preview navigation and editor | `src/features/student-assignments/workspace-shell.tsx`, `src/features/student-submissions/code-editor.tsx`; `assignment-preview.spec.ts` | Existing browser checks use 375px/1280px paths; broaden widths and verify contained code scrolling. |
 | Admin user table | `src/features/admin-users/user-directory.tsx` | Horizontal scroller exists around four columns; touch scrolling/readability need browser verification. |
@@ -73,7 +73,7 @@ There are 38 `page.tsx` routes. Dynamic routes below represent each App Router p
 
 ## Initial static findings (not browser-confirmed)
 
-1. The shared `AppHeader` uses `flex-wrap` on the outer header while each navigation group is a non-wrapping flex row. At 320px, especially for admin controls, the controls may become cramped or overflow. Reproduce before changing it.
+1. Confirmed and fixed: before the change, the admin `/courses` header made the document 341px wide in a 320px viewport. Student and instructor layouts fit. The header now constrains and wraps each group and uses narrower phone padding.
 2. Admin and AI usage tables rely on touch/keyboard scrolling in an `overflow-x-auto` wrapper. Confirm whether labels/controls remain perceivable and operable; do not replace with cards unless the browser evidence justifies it.
 3. Wide code/diff regions already have local scrolling in parts of the app. Ensure added global checks distinguish intended region scrolling from document overflow.
 
@@ -81,7 +81,9 @@ There are 38 `page.tsx` routes. Dynamic routes below represent each App Router p
 
 | Route(s) | Role/theme/state | Viewport | Browser result | Action |
 |---|---|---:|---|---|
-| Pending | Pending | 320, 375, 768, 1024, 1440 | Browser host unavailable during initial reconnaissance; no rendered-page claim made. | Use local Playwright projects/CI fixtures and update this table with exact results. |
+| `/courses` | Student, instructor, admin; default theme; authenticated header | 320, 375, 768, 1024, 1440 | Playwright Chromium: 15 role-width combinations passed with no document overflow; Courses/Profile/User roles where applicable, Sign out and theme controls visible; every header target at least 24×24 CSS px; first keyboard Tab focuses CodeLeet. Before fix, admin header at 320px measured 341px document width. | Fixed in `app-header.tsx`; covered by `tests/e2e/responsive-ui.spec.ts`. |
+
+The public/auth header and other authenticated routes remain pending the broader route pass. The browser host in initial reconnaissance was unavailable; local Playwright became available after using the existing local Supabase stack without resetting or seeding it.
 
 ## Route layouts and async boundaries
 

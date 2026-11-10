@@ -76,21 +76,21 @@
 - Consumes: Task 1 route/viewport matrix and existing authenticated Playwright fixtures.
 - Produces: A responsive header whose destinations/account controls remain discoverable and operable; `expectNoDocumentOverflow(page: Page): Promise<void>` in `tests/e2e/helpers/responsive-layout.ts`, reused by Tasks 3–4.
 
-- [ ] **Step 1: Add failing geometry and access checks for the shared header**
+- [x] **Step 1: Add failing geometry and access checks for the shared header**
 
   Cover student/instructor header and admin header roles at 320, 375, 768, 1024, and 1440 CSS px. Assert visible destinations, keyboard/touch operation, and `document.documentElement.scrollWidth <= document.documentElement.clientWidth`.
 
-- [ ] **Step 2: Run the focused browser checks to confirm the current failure**
+- [x] **Step 2: Run the focused browser checks to confirm the current failure**
 
   Run: `pnpm exec playwright test tests/e2e/responsive-ui.spec.ts --project=chromium`
 
   Expected: Fail only on reproduced header overflow, clipping, or control reachability; fixture/setup failures are investigated separately.
 
-- [ ] **Step 3: Make the smallest responsive header change**
+- [x] **Step 3: Make the smallest responsive header change**
 
   Preserve the same destinations and account actions. At narrow widths, use a layout that fits the available space and retains accessible labels and keyboard behavior; do not hide a destination without an available, operable way to reach it.
 
-- [ ] **Step 4: Re-run the focused header and existing account/navigation checks**
+- [x] **Step 4: Re-run the focused header and existing account/navigation checks**
 
   Run: `pnpm exec playwright test tests/e2e/responsive-ui.spec.ts tests/e2e/account-controls.spec.ts --project=chromium`
 

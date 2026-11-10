@@ -9,14 +9,14 @@ const iconClassName = 'size-4 shrink-0';
 
 export function AppHeader({ role }: { role?: AppRole | null }) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 border-b px-6 py-4">
-      <div className="flex items-center gap-3">
+    <header className="flex flex-wrap items-center justify-between gap-4 border-b px-4 py-4 sm:px-6">
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3">
         <Link href="/courses" className="mr-2 font-semibold">
           CodeLeet
         </Link>
         <nav
           aria-label="Primary navigation"
-          className="flex items-center gap-2"
+          className="flex min-w-0 max-w-full flex-wrap items-center gap-2"
         >
           <ButtonLink
             href="/courses"
@@ -36,7 +36,10 @@ export function AppHeader({ role }: { role?: AppRole | null }) {
           )}
         </nav>
       </div>
-      <nav aria-label="Account navigation" className="flex items-center gap-2">
+      <nav
+        aria-label="Account navigation"
+        className="flex min-w-0 max-w-full flex-wrap items-center gap-2"
+      >
         <ButtonLink
           href="/profile"
           icon={<UserRound aria-hidden="true" className={iconClassName} />}
