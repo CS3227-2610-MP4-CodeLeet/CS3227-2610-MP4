@@ -327,3 +327,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 39.1 Reconcile canonical guides and repository status against merged PR #133 and current UI/source; preserve hosted release limits. Current instructor context-comparison UI and final PR-head checks were inspected; hosted verification stays open.
 - [x] 39.2 Refresh reflection evidence references and correct unsupported factual claims without approving either member's personal conclusions. Removed an unmeasured cache-hit latency claim and qualified declarative agent sandboxing/RLS statements.
 - [x] 39.3 Verify guide links, site build, formatting, scaffold and strict OpenSpec; record a dated session summary and publish issue-linked PR #136 after branch application/database/authenticated-E2E, scaffold and CodeQL checks passed. Final PR-head checks and human/hosted review remain separate.
+
+## 40. Issue #138 reflection claim and submission-readiness audit
+
+- [x] 40.1 Compare individual reflection claims with the assignment rubric, implemented prompt constructors and experiment records; qualify unsupported numerical or causal claims without asserting personal author approval.
+- [x] 40.2 Record the current `master`/`develop` and Production/Preview release gap in the assignment checklist without changing release branches or claiming hosted acceptance.
+- [ ] 40.3 Verify changed Markdown, links, strict OpenSpec and site build; record a dated log and publish a PR to `develop` for teammate review. Do not merge the PR.
