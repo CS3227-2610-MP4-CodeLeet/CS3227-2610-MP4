@@ -7,6 +7,7 @@ import { readCourseAccess } from '@/lib/courses/access';
 import { loadSubmissionHistory } from '@/features/student-submissions/history.server';
 
 const verifiedStudentId = 'verified-student';
+const instructorId = 'instructor-1';
 
 vi.mock('@/lib/auth/verified-user', () => ({ requireMember: vi.fn() }));
 vi.mock('@/lib/courses/access', () => ({ readCourseAccess: vi.fn() }));
@@ -80,7 +81,6 @@ it('fails closed when user has no access', async () => {
 });
 
 it('renders instructor dashboard when user is course instructor', async () => {
-  const instructorId = 'instructor-1';
   const mockSupabase = {
     rpc: vi.fn().mockImplementation((fn) => {
       if (fn === 'list_course_members') {
@@ -179,6 +179,37 @@ it('renders instructor dashboard when user is course instructor', async () => {
   expect(html).not.toContain('/courses/course-a/instructor/submissions');
 });
 
+it('illustrates an empty instructor submission queue', async () => {
+  const mockSupabase = {
+    rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+    from: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      }),
+    }),
+  };
+  vi.mocked(requireMember).mockResolvedValue({
+    supabase: mockSupabase,
+    user: { id: instructorId },
+  } as never);
+  vi.mocked(readCourseAccess).mockResolvedValue({
+    role: 'instructor',
+    lifecycle: 'active',
+    featureEnabled: true,
+  } as never);
+
+  const view = await CourseSubmissionsPage({
+    params: Promise.resolve({ courseId: 'course-a' }),
+    searchParams: Promise.resolve({}),
+  });
+  const html = renderToStaticMarkup(view);
+
+  expect(html).toContain('No submissions found for the selected filter.');
+  expect(html).toContain('data-illustration="code"');
+});
+
 it('filters to latest revisions by default and shows all when viewAll=true for instructors', async () => {
   const student1Id = 'student-1';
   const assign1Id = 'assign-1';
@@ -246,7 +277,7 @@ it('filters to latest revisions by default and shows all when viewAll=true for i
 
   vi.mocked(requireMember).mockResolvedValue({
     supabase: mockSupabase,
-    user: { id: 'instructor-1' },
+    user: { id: instructorId },
   } as never);
   vi.mocked(readCourseAccess).mockResolvedValue({
     role: 'instructor',

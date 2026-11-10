@@ -3,6 +3,7 @@ import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 import { ContextComparison } from '@/features/codementor/context-comparison';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,10 +58,11 @@ export default async function ContextComparisonPage({
       </header>
 
       {!submissions?.length ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-          Context comparison becomes available when an owned assignment has a
-          submission.
-        </p>
+        <IllustratedEmptyState
+          title="No submissions to compare yet."
+          description="Context comparison becomes available when an owned assignment has a submission."
+          illustration="code"
+        />
       ) : (
         submissions.map((submission) => {
           const assignment = Array.isArray(submission.assignments)
