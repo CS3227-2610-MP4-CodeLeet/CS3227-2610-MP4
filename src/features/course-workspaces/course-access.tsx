@@ -232,15 +232,50 @@ function OwnershipTransfer({
     <div className="space-y-3 border-t pt-5">
       <h3 className="font-semibold">Transfer ownership</h3>
       {candidates.length === 0 ? (
-        <IllustratedEmptyState
-          title="No other instructors are available yet."
-          description="Invite another instructor to this course before transferring ownership."
-          illustration="collection"
-          size="compact"
-          headingLevel={4}
-        />
+        <TransferEmptyState />
       ) : (
-        <>
+        <OwnershipTransferControls
+          candidates={candidates}
+          ownerId={ownerId}
+          onOwnerChange={setOwnerId}
+          error={error}
+          busy={busy}
+          onTransfer={transfer}
+        />
+      )}
+    </div>
+  );
+}
+
+function TransferEmptyState() {
+  return (
+    <IllustratedEmptyState
+      title="No other instructors are available yet."
+      description="Invite another instructor to this course before transferring ownership."
+      illustration="collection"
+      size="compact"
+      headingLevel={4}
+    />
+  );
+}
+
+function OwnershipTransferControls({
+  candidates,
+  ownerId,
+  onOwnerChange,
+  error,
+  busy,
+  onTransfer,
+}: {
+  candidates: CourseMember[];
+  ownerId: string;
+  onOwnerChange: (value: string) => void;
+  error: string | null;
+  busy: boolean;
+  onTransfer: () => Promise<void>;
+}) {
+  return (
+    <>
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}
@@ -250,7 +285,7 @@ function OwnershipTransfer({
         <span>New course owner</span>
         <select
           value={ownerId}
-          onChange={(event) => setOwnerId(event.target.value)}
+          onChange={(event) => onOwnerChange(event.target.value)}
           className="w-full rounded-md border bg-background px-3 py-2"
         >
           <option value="">Choose an instructor</option>
@@ -264,14 +299,12 @@ function OwnershipTransfer({
       <button
         type="button"
         disabled={busy || !ownerId}
-        onClick={() => void transfer()}
+        onClick={() => void onTransfer()}
         className="rounded-md border px-3 py-2 text-sm"
       >
         Transfer ownership
       </button>
-        </>
-      )}
-    </div>
+    </>
   );
 }
 

@@ -106,7 +106,9 @@ describe('course access management', () => {
       expect.objectContaining({ method: 'DELETE' }),
     );
   });
+});
 
+describe('ownership transfer', () => {
   it('limits ownership transfer to other course instructors', async () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
     renderCourseAccess();
@@ -142,10 +144,10 @@ describe('course access management', () => {
     expect(
       screen.getByText('No other instructors are available yet.'),
     ).toBeTruthy();
-    expect(document.querySelector('[data-illustration="collection"]')).toBeTruthy();
     expect(
-      screen.queryByLabelText('New course owner'),
-    ).toBeNull();
+      document.querySelector('[data-illustration="collection"]'),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('New course owner')).toBeNull();
   });
 
   it('does not expose owner-only controls to another instructor', () => {

@@ -54,19 +54,7 @@ export default async function CourseForumsPage({
         className="divide-y overflow-hidden rounded-xl border bg-background"
       >
         {!threads.rows.length && (
-          <IllustratedEmptyState
-            title={emptyMessage(query, page)}
-            description={
-              page > 1
-                ? 'Return to the first page to see the latest discussions.'
-                : query
-                  ? 'Try a different search, or clear your search to browse all discussions.'
-                  : 'Start a discussion to ask a question or share an idea.'
-            }
-            illustration="discussion"
-            size="compact"
-            headingLevel={2}
-          />
+          <DiscussionsEmptyState query={query} page={page} />
         )}
         {threads.rows.map((thread) => (
           <article key={thread.id} className="space-y-2 px-5 py-4">
@@ -100,4 +88,28 @@ function emptyMessage(query: string, page: number): string {
   return query
     ? 'No discussions matched your search.'
     : 'No discussions yet. Start the conversation!';
+}
+
+function DiscussionsEmptyState({
+  query,
+  page,
+}: {
+  query: string;
+  page: number;
+}) {
+  return (
+    <IllustratedEmptyState
+      title={emptyMessage(query, page)}
+      description={
+        page > 1
+          ? 'Return to the first page to see the latest discussions.'
+          : query
+            ? 'Try a different search, or clear your search to browse all discussions.'
+            : 'Start a discussion to ask a question or share an idea.'
+      }
+      illustration="discussion"
+      size="compact"
+      headingLevel={2}
+    />
+  );
 }

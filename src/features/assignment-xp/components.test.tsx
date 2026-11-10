@@ -49,5 +49,7 @@ it('illustrates a zero-award state without implying XP was earned', () => {
   );
 
   expect(screen.getByText('No XP awards yet.')).toBeTruthy();
-  expect(document.querySelector('svg[data-illustration="progress"]')).toBeTruthy();
+  expect(
+    document.querySelector('svg[data-illustration="progress"]'),
+  ).toBeTruthy();
 });

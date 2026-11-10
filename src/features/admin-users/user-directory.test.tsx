@@ -37,7 +37,11 @@ afterEach(() => {
 describe('admin user directory', () => {
   it('illustrates a genuinely empty account directory', () => {
     const markup = renderToStaticMarkup(
-      <UserDirectory currentUserId="admin" initialUsers={[]} initialNextAfter={null} />,
+      <UserDirectory
+        currentUserId="admin"
+        initialUsers={[]}
+        initialNextAfter={null}
+      />,
     );
 
     expect(markup).toContain('No registered users');
@@ -49,7 +53,10 @@ describe('admin user directory', () => {
     const pendingSearch = new Promise<Response>((resolve) => {
       finishSearch = resolve;
     });
-    vi.stubGlobal('fetch', vi.fn(() => pendingSearch));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => pendingSearch),
+    );
 
     render(
       <UserDirectory
@@ -62,8 +69,7 @@ describe('admin user directory', () => {
       target: { value: 'missing@example.test' },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    expect(screen.getByText('Searching…')).toBeTruthy();
+    expect(await screen.findByText('Searching…')).toBeTruthy();
     expect(document.querySelector('[data-illustration]')).toBeNull();
 
     finishSearch(

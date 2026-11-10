@@ -7,6 +7,7 @@ import { readCourseAccess } from '@/lib/courses/access';
 import { loadSubmissionHistory } from '@/features/student-submissions/history.server';
 
 const verifiedStudentId = 'verified-student';
+const instructorId = 'instructor-1';
 
 vi.mock('@/lib/auth/verified-user', () => ({ requireMember: vi.fn() }));
 vi.mock('@/lib/courses/access', () => ({ readCourseAccess: vi.fn() }));
@@ -80,7 +81,6 @@ it('fails closed when user has no access', async () => {
 });
 
 it('renders instructor dashboard when user is course instructor', async () => {
-  const instructorId = 'instructor-1';
   const mockSupabase = {
     rpc: vi.fn().mockImplementation((fn) => {
       if (fn === 'list_course_members') {
@@ -192,7 +192,7 @@ it('illustrates an empty instructor submission queue', async () => {
   };
   vi.mocked(requireMember).mockResolvedValue({
     supabase: mockSupabase,
-    user: { id: 'instructor-1' },
+    user: { id: instructorId },
   } as never);
   vi.mocked(readCourseAccess).mockResolvedValue({
     role: 'instructor',
@@ -277,7 +277,7 @@ it('filters to latest revisions by default and shows all when viewAll=true for i
 
   vi.mocked(requireMember).mockResolvedValue({
     supabase: mockSupabase,
-    user: { id: 'instructor-1' },
+    user: { id: instructorId },
   } as never);
   vi.mocked(readCourseAccess).mockResolvedValue({
     role: 'instructor',

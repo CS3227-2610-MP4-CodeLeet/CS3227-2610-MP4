@@ -33,7 +33,9 @@ export function LeaderboardView({
       </p>
       {!data.rows.length ? (
         <IllustratedEmptyState
-          title={data.page === 1 ? 'No rankings yet' : 'No students on this page.'}
+          title={
+            data.page === 1 ? 'No rankings yet' : 'No students on this page.'
+          }
           description={
             data.page === 1
               ? 'Students with positive course XP will appear here.'

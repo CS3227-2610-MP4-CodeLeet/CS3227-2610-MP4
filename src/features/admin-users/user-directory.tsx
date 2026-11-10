@@ -1,7 +1,7 @@
 'use client';
 
 import { PendingButton } from '@/components/ui/pending-button';
-import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
+import { DirectoryEmptyState } from './directory-empty-state';
 
 import {
   useCallback,
@@ -476,23 +476,11 @@ export function UserDirectory({
           busyUserIds={busyUserIds}
           changeRole={changeRole}
         />
-      ) : directory.isSearching ? (
-        <p role="status" className="text-sm text-muted-foreground">
-          Searching users…
-        </p>
-      ) : error ? null : (
-        <IllustratedEmptyState
-          title={
-            directory.search.trim() || directory.roleFilter
-              ? 'No users match your search.'
-              : 'No registered users.'
-          }
-          description={
-            directory.search.trim() || directory.roleFilter
-              ? 'Try a different name, email address, or role.'
-              : 'Registered students, instructors, and admins will appear here.'
-          }
-          illustration="collection"
+      ) : (
+        <DirectoryEmptyState
+          isSearching={directory.isSearching}
+          isFiltered={Boolean(directory.search.trim() || directory.roleFilter)}
+          hasError={Boolean(error)}
         />
       )}
       {directory.nextAfter && (

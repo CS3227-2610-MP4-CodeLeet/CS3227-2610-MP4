@@ -98,7 +98,9 @@ describe('course people active controls', () => {
       />,
     );
 
-    expect(view.container.querySelectorAll('[data-illustration]')).toHaveLength(2);
+    expect(view.container.querySelectorAll('[data-illustration]')).toHaveLength(
+      2,
+    );
     expect(view.container.textContent).toContain('No course members yet');
     expect(view.container.textContent).toContain('No pending invitations');
   });

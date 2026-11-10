@@ -82,20 +82,7 @@ function DiscussionContent({
       </article>
       <section aria-label="Replies" className="space-y-4">
         <h2 className="text-lg font-semibold tracking-tight">Replies</h2>
-        {!replies.rows.length && (
-          <IllustratedEmptyState
-            title={
-              page > 1 ? 'No more replies on this page.' : 'No replies yet.'
-            }
-            description={
-              page > 1
-                ? 'Return to the first page to read the latest replies.'
-                : 'Be the first to join the conversation!'
-            }
-            illustration="discussion"
-            size="compact"
-          />
-        )}
+        {!replies.rows.length && <RepliesEmptyState page={page} />}
         <div className="divide-y overflow-hidden rounded-xl border bg-background">
           {replies.rows.map((reply) => (
             <article key={reply.id} className="space-y-2 px-5 py-4">
@@ -123,5 +110,20 @@ function DiscussionContent({
         )}
       </section>
     </>
+  );
+}
+
+function RepliesEmptyState({ page }: { page: number }) {
+  return (
+    <IllustratedEmptyState
+      title={page > 1 ? 'No more replies on this page.' : 'No replies yet.'}
+      description={
+        page > 1
+          ? 'Return to the first page to read the latest replies.'
+          : 'Be the first to join the conversation!'
+      }
+      illustration="discussion"
+      size="compact"
+    />
   );
 }

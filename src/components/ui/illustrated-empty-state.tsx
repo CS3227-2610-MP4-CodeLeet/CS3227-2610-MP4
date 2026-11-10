@@ -19,8 +19,6 @@ export function IllustratedEmptyState({
   headingLevel?: HeadingLevel;
   action?: ReactNode;
 }) {
-  const Heading = { 2: 'h2', 3: 'h3', 4: 'h4' }[headingLevel];
-
   return (
     <div
       data-size={size}
@@ -29,13 +27,26 @@ export function IllustratedEmptyState({
       }`}
     >
       <EmptyIllustrationArt kind={illustration} size={size} />
-      <Heading className="font-semibold">{title}</Heading>
+      <EmptyStateHeading level={headingLevel}>{title}</EmptyStateHeading>
       <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground">
         {description}
       </p>
       {action && <div className="flex justify-center">{action}</div>}
     </div>
   );
+}
+
+function EmptyStateHeading({
+  level,
+  children,
+}: {
+  level: HeadingLevel;
+  children: string;
+}) {
+  const className = 'font-semibold';
+  if (level === 2) return <h2 className={className}>{children}</h2>;
+  if (level === 3) return <h3 className={className}>{children}</h3>;
+  return <h4 className={className}>{children}</h4>;
 }
 
 function EmptyIllustrationArt({
@@ -66,8 +77,16 @@ function EmptyIllustrationArt({
 
 function CollectionArt() {
   return (
-    <g className="stroke-current" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M37 41h36a5 5 0 0 1 5 5v34H42a5 5 0 0 1-5-5V41Z" className="fill-background" />
+    <g
+      className="stroke-current"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path
+        d="M37 41h36a5 5 0 0 1 5 5v34H42a5 5 0 0 1-5-5V41Z"
+        className="fill-background"
+      />
       <path d="M78 47h40a5 5 0 0 1 5 5v29H78V47Z" className="fill-card" />
       <path d="M48 53h20M48 62h20M88 59h23M88 68h17" />
       <path d="m58 34 5-5 5 5" />
@@ -79,10 +98,21 @@ function CollectionArt() {
 
 function DiscussionArt() {
   return (
-    <g className="stroke-current" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M39 37h51a8 8 0 0 1 8 8v23a8 8 0 0 1-8 8H62L49 87v-11h-2a8 8 0 0 1-8-8V37Z" className="fill-background" />
+    <g
+      className="stroke-current"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path
+        d="M39 37h51a8 8 0 0 1 8 8v23a8 8 0 0 1-8 8H62L49 87v-11h-2a8 8 0 0 1-8-8V37Z"
+        className="fill-background"
+      />
       <path d="M65 47h18M65 57h24" />
-      <path d="M93 59h24a7 7 0 0 1 7 7v16a7 7 0 0 1-7 7h-3v8l-10-8h-11a7 7 0 0 1-7-7v-9" className="fill-card" />
+      <path
+        d="M93 59h24a7 7 0 0 1 7 7v16a7 7 0 0 1-7 7h-3v8l-10-8h-11a7 7 0 0 1-7-7v-9"
+        className="fill-card"
+      />
       <path d="M102 71h12M102 79h7" />
     </g>
   );
@@ -90,8 +120,20 @@ function DiscussionArt() {
 
 function CodeArt() {
   return (
-    <g className="stroke-current" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="39" y="31" width="82" height="58" rx="8" className="fill-background" />
+    <g
+      className="stroke-current"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect
+        x="39"
+        y="31"
+        width="82"
+        height="58"
+        rx="8"
+        className="fill-background"
+      />
       <path d="M39 46h82M51 39h1m8 0h1m8 0h1" />
       <path d="m66 58-8 7 8 7m29-14 8 7-8 7m-9-15-6 16" />
       <path d="M49 99h62" />
@@ -101,7 +143,12 @@ function CodeArt() {
 
 function ProgressArt() {
   return (
-    <g className="stroke-current" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <g
+      className="stroke-current"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M42 85V48a6 6 0 0 1 6-6h49v43H42Z" className="fill-background" />
       <path d="M97 51h17a6 6 0 0 1 6 6v28H97V51Z" className="fill-card" />
       <path d="M52 75V63m12 12V55m12 20V68m12 7V59" />

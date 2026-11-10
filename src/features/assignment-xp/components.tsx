@@ -46,43 +46,7 @@ export function XpOverview({
           Your best published result for each assignment counts.
         </p>
       </div>
-      {!data.awards.length ? (
-        <IllustratedEmptyState
-          title="No XP awards yet."
-          description="Your earned XP will appear here when you receive an award."
-          illustration="progress"
-          size="compact"
-        />
-      ) : (
-        <ul className="space-y-3">
-          {data.awards.map((award) => (
-            <li
-              key={award.assignment_id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4"
-            >
-              {award.assignment_title ? (
-                <Link
-                  className="min-w-0 break-words underline"
-                  href={`/courses/${courseId}/assignments/${award.assignment_id}`}
-                >
-                  {award.assignment_title}
-                </Link>
-              ) : (
-                <span>Assignment unavailable</span>
-              )}
-              <p>
-                {formatXp(award.awarded_xp)} XP
-                {award.max_xp !== null && (
-                  <span className="text-sm text-muted-foreground">
-                    {' '}
-                    / {formatXp(award.max_xp)}
-                  </span>
-                )}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+      <AwardList awards={data.awards} courseId={courseId} />
       <nav aria-label="XP pages" className="flex justify-between text-sm">
         {data.page > 1 ? (
           <Link
@@ -104,5 +68,53 @@ export function XpOverview({
         )}
       </nav>
     </section>
+  );
+}
+
+function AwardList({
+  awards,
+  courseId,
+}: {
+  awards: XpSummary['awards'];
+  courseId: string;
+}) {
+  if (!awards.length)
+    return (
+      <IllustratedEmptyState
+        title="No XP awards yet."
+        description="Your earned XP will appear here when you receive an award."
+        illustration="progress"
+        size="compact"
+      />
+    );
+  return (
+    <ul className="space-y-3">
+      {awards.map((award) => (
+        <li
+          key={award.assignment_id}
+          className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4"
+        >
+          {award.assignment_title ? (
+            <Link
+              className="min-w-0 break-words underline"
+              href={`/courses/${courseId}/assignments/${award.assignment_id}`}
+            >
+              {award.assignment_title}
+            </Link>
+          ) : (
+            <span>Assignment unavailable</span>
+          )}
+          <p>
+            {formatXp(award.awarded_xp)} XP
+            {award.max_xp !== null && (
+              <span className="text-sm text-muted-foreground">
+                {' '}
+                / {formatXp(award.max_xp)}
+              </span>
+            )}
+          </p>
+        </li>
+      ))}
+    </ul>
   );
 }
