@@ -5,7 +5,13 @@
 - GitHub issue: [#141](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/141)
 - OpenSpec change: `build-programming-platform`, task 33.6; task artifacts record completion
 - Branch: `docs/141-course-feature-toggle-audit` (created remotely; local `.git` is read-only)
-- Commits: [`4cc182d`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/4cc182df02aa8aa5efe8858563782e345b95c4a1) updates the User Guide; [`39c6dbb`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/39c6dbb474b4808d1536217592fa854981e2c5e4) adds the audit log; the log was later updated with PR details
+- Commit history:
+  - [`4cc182d`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/4cc182df02aa8aa5efe8858563782e345b95c4a1) — User Guide feature-toggle details.
+  - [`39c6dbb`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/39c6dbb474b4808d1536217592fa854981e2c5e4) — initial audit log.
+  - [`08fb36b`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/08fb36b6cfce07e08b1a7521a89fb03148fdcd4e) — link PR details in the log.
+  - [`1317333`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/13173338d4341c4c1cd26b02bda0706ee67b5bd8) — record CI evidence.
+  - [`0a51800`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/0a5180004ff21cb4e74d114861146c91c20c89e1) — record the completed check run.
+  - [`0eaa1fa`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/0eaa1faeea9fb8be2199c752e72b2e6b29b6f9eb) — remove the User Guide's trailing carriage return.
 - Pull request: [#143](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/143), open against `develop`
 - Human verification: pending
 - Verification: static source and migration review; tests were not run locally
@@ -17,6 +23,7 @@
 3. Source review traced the settings UI/API, role/course access checks, feature navigation, pages, APIs, database policies/RPCs, archive behavior, and XP recomputation. No agents were delegated.
 4. The User Guide was updated with per-feature student/instructor effects, data retention, XP re-enable behavior, independent XP/Leaderboard behavior, progress dependencies, archive behavior, and the Context comparison interaction.
 5. User requested branch creation, push and PR. Issue #141 was created because the original course-workspaces issue #85 is closed. The remote branch was created from `develop`, the two files were committed separately, branch Vercel status succeeded, and PR #143 was opened against `develop` with `Closes #141`.
+6. User requested review-comment remediation. Two inline comments were fetched. Both were verified against the current branch: the committed Markdown files had a stray carriage return at EOF, and the audit log did not enumerate the full commit/CI/PR history. The guide newline was normalized, and this log is being corrected to include the full commit, push, CI and PR chronology.
 
 ## Review findings
 
@@ -35,10 +42,10 @@
 - Updated `docs/UserGuide.md`.
 - Added this dated audit record.
 - Reviewed `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, OpenSpec design/tasks for issue #85, course feature UI/contracts, course routes/APIs, feature access helpers, and relevant Supabase migrations.
-- `git diff --check`: passed for the tracked diff; the log was separately checked for trailing whitespace.
+- The earlier local `git diff --check` did not catch carriage returns present in the GitHub contents commits. Review comment `PRRC_kwDOVPCxNM8AAAABDabuxQ` reproduced the whitespace failure on the committed files. The correction normalizes both files and verifies the remote text and the updated local diff.
 - OpenSpec status CLI: attempted using the repository-pinned CLI; the restricted shell lacked `pnpm`/`node`, and the elevated invocation did not return usable status output. OpenSpec task completion was read from `openspec/changes/build-programming-platform/tasks.md`.
 - No tests or builds were run locally (documentation-only change). GitHub contents commits and PR creation were performed through the connected GitHub tools because local `.git` is read-only.
-- PR-head CI run [42803924546](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42803924546) passed Application, database, coverage-report and authenticated synthetic browser jobs for commit `13173338d4341c4c1cd26b02bda0706ee67b5bd8`; Scaffold [42803924675](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42803924675) and CodeQL [42803924629](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42803924629) also passed. Vercel succeeded on that commit. This evidence is for the branch before this audit-log evidence update.
+- PR-head CI run [42804971657](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42804971657) passed Application, database, coverage-report and authenticated synthetic browser jobs for commit `0a5180004ff21cb4e74d114861146c91c20c89e1`; Scaffold [42804971682](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42804971682) and CodeQL [42804972128](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42804972128) also passed. Vercel succeeded on that commit. Review-fix commits and their checks will be recorded in the follow-up commit history.
 - Pre-existing edits in `workflow/experiments/2026-11-06-context-strategy-evaluation.json` and `workflow/experiments/2026-11-06-development-context-experiment.json` were preserved and not included in this work.
 
 ## Follow-up
@@ -46,4 +53,3 @@
 - Decide whether Context comparison should be hidden or display an explicit explanation when Assessments is disabled.
 - Decide whether XP off should also suppress leaderboard values, or retain the current independent-switch behavior.
 - PR #143 is open; teammate review remains pending.
-
