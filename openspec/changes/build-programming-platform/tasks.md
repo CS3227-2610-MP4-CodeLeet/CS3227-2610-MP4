@@ -322,4 +322,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 38.2 Cover successful empty collections and filtered no-results across directories, assignments, submissions, forums, grades, progress, AI usage, XP/leaderboard, context comparison, practice cases and ownership transfer; preserve view-specific copy/actions and role/lifecycle checks.
 - [x] 38.3 Keep loading, error, unavailable, not-found, editor-input and runtime-output states distinct; verify with focused behavior tests.
 - [x] 38.4 Audit all application data views and run unit, lint, type, format, strict OpenSpec and diff checks; record the dated log and self-review limitations.
-- [ ] 38.5 Commit the evidence, wait for branch CI, then push and create an issue-linked PR to develop; leave teammate review pending.
+- [x] 38.5 Commit the evidence, push the issue-linked PR #137 to develop, and verify final-head CI on code commit `fbf93345` (Application #42766394468 passed after retrying a runner port conflict; Scaffold #42766396229 and CodeQL #42766397543 passed). The coverage-report job was skipped under `workflow_dispatch`; teammate review remains pending.
