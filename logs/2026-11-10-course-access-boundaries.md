@@ -5,8 +5,8 @@
 - AI tools/models, where known: Codex; exact model and token/cost measurements unavailable
 - GitHub issue: [#131](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/131)
 - OpenSpec change: [build-programming-platform](../openspec/changes/build-programming-platform/)
-- Branch and commits: `feat/131-course-access-controls` from `develop`; commits pending
-- Pull request: pending
+- Branch and commit: `feat/131-course-access-controls` from `develop`; `504d161` (`feat: clarify course access boundaries`)
+- Pull request: [#132](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/132), open against `develop`
 - Human verification: pending
 - Verifier/date: pending
 
@@ -26,5 +26,5 @@
 - Current database checks: `pnpm db:test` passed all 467 pgTAP assertions across 15 files after applying the new migration locally. No hosted database was modified.
 - Other final checks: `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm check:scaffold`, and `pnpm spec:validate` (11/11) passed. `pnpm build` completed, including optimized compilation, TypeScript, static page generation and route listing. `git diff --check` passed.
 - Full-suite retry: the final `pnpm test:unit` run printed the Vitest startup banner but made no further progress or test output; it was interrupted. A full run had passed 839 tests across 162 files before the final lint-only component extraction/helper refactor. Focused tests for all affected files passed after that refactor. An earlier 833-test/161-file baseline preceded implementation.
-- Remaining: inspect and stage only this issue's files, commit verified work, push, then create a PR to `develop` and report final-head CI. Human verification remains pending.
+- Branch CI at `504d161`: scaffold checks passed; Application checks and CodeQL were still running when this summary was updated. Record their final-head result before completing OpenSpec task 37.5. Human verification remains pending.
 - Failures, retries and limits: terminal Node/pnpm/OpenSpec and Git worktree operations required elevated permission. No production or deployment behavior was exercised. Exact provider/resource-cost metrics were unavailable.
