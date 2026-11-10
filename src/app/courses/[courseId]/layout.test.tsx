@@ -3,10 +3,14 @@ import { render, screen, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import CourseWorkspaceLayout from './layout';
 
+const COURSE_ID = 'course-123';
+
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
-  notFound: vi.fn(),
-  usePathname: () => '/courses/course-123',
+  notFound: () => {
+    throw new Error('NEXT_NOT_FOUND');
+  },
+  usePathname: () => `/courses/${COURSE_ID}`,
 }));
 
 vi.mock('@/lib/auth/verified-user', () => ({
@@ -18,7 +22,9 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function createMockSupabase() {
+function createMockSupabase(
+  membership: { role: string } | null = { role: 'student' },
+) {
   return {
     from: vi.fn((table: string) => {
       if (table === 'courses') {
@@ -27,7 +33,7 @@ function createMockSupabase() {
           eq: vi.fn().mockReturnThis(),
           maybeSingle: vi.fn().mockResolvedValue({
             data: {
-              id: 'course-123',
+              id: COURSE_ID,
               title: 'Intro to Python',
               lifecycle: 'active',
               is_legacy: false,
@@ -41,7 +47,7 @@ function createMockSupabase() {
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
           maybeSingle: vi.fn().mockResolvedValue({
-            data: { role: 'student' },
+            data: membership,
             error: null,
           }),
         };
@@ -90,7 +96,7 @@ describe('CourseWorkspaceLayout', () => {
 
     const element = await CourseWorkspaceLayout({
       children: <div>Course Page Content</div>,
-      params: Promise.resolve({ courseId: 'course-123' }),
+      params: Promise.resolve({ courseId: COURSE_ID }),
     });
 
     render(element);
@@ -100,5 +106,22 @@ describe('CourseWorkspaceLayout', () => {
       screen.getAllByText('Intro to Python').length,
     ).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('John Doe')).toBeDefined();
+  });
+
+  it('keeps nonmember platform admins out of the course-member route tree', async () => {
+    const { getVerifiedUserRole } = await import('@/lib/auth/verified-user');
+
+    vi.mocked(getVerifiedUserRole).mockResolvedValue({
+      user: { id: 'admin-1', email: 'admin@example.com' } as never,
+      role: 'admin',
+      supabase: createMockSupabase(null) as never,
+    });
+
+    await expect(
+      CourseWorkspaceLayout({
+        children: <div>Course Page Content</div>,
+        params: Promise.resolve({ courseId: COURSE_ID }),
+      }),
+    ).rejects.toThrow('NEXT_NOT_FOUND');
   });
 });

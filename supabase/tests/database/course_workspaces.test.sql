@@ -115,6 +115,8 @@ select is((select count(*)::integer from generate_series(1,9) where public.join_
 select is(public.join_course_by_code('synthetic-join-code-8a5xxxxxxxxxxxx'),null::uuid,'join-code attempts are capped after repeated guesses');
 select is((select role from public.course_memberships m join course_test_ids c on c.id=m.course_id where c.name='main' and m.user_id='8a500000-0000-4000-8000-000000000004'),'student','join code cannot grant instructor role');
 select throws_ok($$select * from public.course_join_codes$$,'42501',null,'join code hashes are not directly visible through the Data API');
+select throws_ok($$select public.rotate_course_join_code((select id from course_test_ids where name='main'),'synthetic-join-code-student-denied-xxxxxxxx')$$,'42501','course_staff_required','students cannot rotate course join codes');
+select throws_ok($$select public.revoke_course_join_code((select id from course_test_ids where name='main'))$$,'42501','course_staff_required','students cannot revoke course join codes');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001',true);
 select lives_ok($$select public.revoke_course_join_code((select id from course_test_ids where name='main'))$$,'staff can revoke a join code');
 select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000004',true);
@@ -123,15 +125,17 @@ select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000001'
 select lives_ok($$select public.set_course_feature((select id from course_test_ids where name='main'),'ai',false)$$,'staff can change shipped feature setting');
 select is((select enabled from public.course_features f join course_test_ids i on i.id=f.course_id where i.name='main' and f.feature='ai'),false,'feature setting is persisted');
 select is(course_private.can_use_feature((select id from course_test_ids where name='main'),'ai'),false,'disabled feature gate denies use');
-select throws_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000006')$$,'42501','course_member_required','owner cannot transfer a course to a verified non-member');
+select throws_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000006')$$,'42501','course_instructor_required','owner cannot transfer to a verified non-instructor member');
 select is((select count(*)::integer from public.course_memberships where course_id=(select id from course_test_ids where name='main') and user_id='8a500000-0000-4000-8000-000000000006'),0,'failed ownership transfer does not enroll a new member');
-select lives_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000004')$$,'owner can transfer ownership to an enrolled student');
-select is((select owner_id from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'8a500000-0000-4000-8000-000000000004'::uuid,'transfer updates course owner atomically');
-select is((select role from public.course_memberships m join course_test_ids i on i.id=m.course_id where i.name='main' and user_id='8a500000-0000-4000-8000-000000000004'),'instructor','ownership transfer promotes an existing student member');
+select throws_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000004')$$,'42501','course_instructor_required','owner cannot transfer ownership to an enrolled student');
+select is((select owner_id from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'8a500000-0000-4000-8000-000000000001'::uuid,'rejected student transfer leaves course owner unchanged');
+select lives_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000002')$$,'owner can transfer ownership to an enrolled instructor');
+select is((select owner_id from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'8a500000-0000-4000-8000-000000000002'::uuid,'transfer updates course owner atomically');
+select is((select role from public.course_memberships m join course_test_ids i on i.id=m.course_id where i.name='main' and user_id='8a500000-0000-4000-8000-000000000002'),'instructor','ownership transfer retains instructor recipient role');
 select is((select role from public.course_memberships m join course_test_ids i on i.id=m.course_id where i.name='main' and user_id='8a500000-0000-4000-8000-000000000001'),'instructor','former owner remains instructor');
 select throws_ok($$select public.transfer_course_ownership((select id from course_test_ids where name='main'),'8a500000-0000-4000-8000-000000000004')$$,'42501','course_owner_required','former owner cannot transfer ownership again');
 
-select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000004',true);
+select set_config('request.jwt.claim.sub','8a500000-0000-4000-8000-000000000002',true);
 select lives_ok($$select public.archive_course((select id from course_test_ids where name='main'))$$,'new owner can archive course');
 select is((select lifecycle from public.courses c join course_test_ids i on i.id=c.id where i.name='main'),'archived','archived course retains its lifecycle state');
 select is(course_private.can_use_feature((select id from course_test_ids where name='main'),'assessments'),false,'archived course denies activity');

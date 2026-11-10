@@ -2,6 +2,16 @@ import Link from 'next/link';
 import { LinkPendingSpinner } from '@/components/ui/pending-link';
 import type { CourseSummary } from './contracts';
 
+function courseCardHref(course: CourseSummary, platformAdmin: boolean) {
+  if (course.role) return `/courses/${course.id}`;
+  return platformAdmin ? `/admin/courses/${course.id}` : null;
+}
+
+function courseRoleLabel(course: CourseSummary, platformAdmin: boolean) {
+  if (course.role) return course.role;
+  return platformAdmin ? 'Platform admin' : 'Member';
+}
+
 export function CourseCard({
   course,
   currentUserId,
@@ -11,8 +21,9 @@ export function CourseCard({
   currentUserId: string;
   platformAdmin: boolean;
 }) {
-  const canOpen = course.role !== null;
-  const role = course.role ?? (platformAdmin ? 'Platform admin' : 'Member');
+  const href = courseCardHref(course, platformAdmin);
+  const canOpen = href !== null;
+  const role = courseRoleLabel(course, platformAdmin);
   const card = (
     <div className="h-full rounded-xl border p-5 transition-colors hover:bg-muted/30">
       <div className="flex items-start justify-between gap-3">
@@ -43,7 +54,7 @@ export function CourseCard({
   );
   return canOpen ? (
     <Link
-      href={`/courses/${course.id}`}
+      href={href}
       className="block rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       {card}
