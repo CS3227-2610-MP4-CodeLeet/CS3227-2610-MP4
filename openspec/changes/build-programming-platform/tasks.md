@@ -332,4 +332,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 40.1 Compare individual reflection claims with the assignment rubric, implemented prompt constructors and experiment records; qualify unsupported numerical or causal claims without asserting personal author approval.
 - [x] 40.2 Record the current `master`/`develop` and Production/Preview release gap in the assignment checklist without changing release branches or claiming hosted acceptance.
-- [ ] 40.3 Verify changed Markdown, links, strict OpenSpec and site build; record a dated log and publish a PR to `develop` for teammate review. Do not merge the PR.
+- [x] 40.3 Verify changed Markdown, links, strict OpenSpec and site build; record a dated log and publish PR #139 to `develop` for teammate review. The PR remains unmerged; final-head CI and human review are tracked separately.
