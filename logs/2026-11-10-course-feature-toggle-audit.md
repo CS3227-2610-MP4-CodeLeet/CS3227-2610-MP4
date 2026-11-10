@@ -5,7 +5,8 @@
 - GitHub issue: [#141](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/141)
 - OpenSpec change: `build-programming-platform`, task 33.6; task artifacts record completion
 - Branch: `docs/141-course-feature-toggle-audit` (created remotely; local `.git` is read-only)
-- Commit: [`4cc182d`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/4cc182df02aa8aa5efe8858563782e345b95c4a1) updates the User Guide; audit-log commit and PR pending
+- Commits: [`4cc182d`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/4cc182df02aa8aa5efe8858563782e345b95c4a1) updates the User Guide; [`39c6dbb`](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/commit/39c6dbb474b4808d1536217592fa854981e2c5e4) adds the audit log
+- Pull request: [#143](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/143), open against `develop`
 - Human verification: pending
 - Verification: static source and migration review; no test suite run
 
@@ -15,6 +16,7 @@
 2. Repository instructions and the project brief were read. The relevant OpenSpec course-workspaces section was reviewed; it specifies five implemented, independently controlled features, server/data enforcement, direct-call denial, retained records, and archived read-only history.
 3. Source review traced the settings UI/API, role/course access checks, feature navigation, pages, APIs, database policies/RPCs, archive behavior, and XP recomputation. No agents were delegated.
 4. The User Guide was updated with per-feature student/instructor effects, data retention, XP re-enable behavior, independent XP/Leaderboard behavior, progress dependencies, archive behavior, and the Context comparison interaction.
+5. User requested branch creation, push and PR. Issue #141 was created because the original course-workspaces issue #85 is closed. The remote branch was created from `develop`, the two files were committed separately, branch Vercel status succeeded, and PR #143 was opened against `develop` with `Closes #141`.
 
 ## Review findings
 
@@ -35,7 +37,8 @@
 - Reviewed `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, OpenSpec design/tasks for issue #85, course feature UI/contracts, course routes/APIs, feature access helpers, and relevant Supabase migrations.
 - `git diff --check`: passed for the tracked diff; the untracked log was separately checked for trailing whitespace.
 - OpenSpec status CLI: attempted using the repository-pinned CLI; the restricted shell lacked `pnpm`/`node`, and the elevated invocation did not return usable status output. OpenSpec task completion was read from `openspec/changes/build-programming-platform/tasks.md`.
-- No tests, builds, external GitHub actions, commit, push or PR were performed.
+- No tests or builds were run (documentation-only change). GitHub contents commits and PR creation were performed through the connected GitHub tools because local `.git` is read-only.
+- Vercel status succeeded for commit `39c6dbb474b4808d1536217592fa854981e2c5e4` before PR creation. PR-head checks after the final audit-log update are pending verification.
 - Pre-existing edits in `workflow/experiments/2026-11-06-context-strategy-evaluation.json` and `workflow/experiments/2026-11-06-development-context-experiment.json` were preserved and not included in this work.
 
 ## Follow-up
