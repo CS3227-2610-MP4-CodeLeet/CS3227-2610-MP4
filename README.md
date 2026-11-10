@@ -2,7 +2,7 @@
 
 CodeLeet is an AI assisted learning management platform for programming courses.
 
-This source was last reconciled on 9 November 2026 against `develop` baseline `f6009a1`. Authenticated accounts, course workspaces, assignments, browser-only Python/Java runs, practice tests, AI assistance, discussions, XP/leaderboards and personal progress are implemented. The release audit and its fixes are tracked in [issues #129 and #130](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/129) and documented in the [dated session log](logs/2026-11-09-project-release-audit.md). Hosted acceptance, provider limits, final `master` release and human contribution sign-off remain separate gates.
+This source was reconciled on 10 November 2026 against merged `develop` commit `66c6d62`. Authenticated accounts, course workspaces, assignments, browser-only Python/Java runs, practice tests, AI assistance, discussions, XP/leaderboards and personal progress are implemented. [PR #133](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/133) merged the routing, authenticated-browser-CI and AI authorization audit; its [dated session log](logs/2026-11-09-project-release-audit.md) records the local investigation and historical checks. Hosted acceptance, provider limits, final `master` release and human contribution sign-off remain separate gates.
 
 ## Features and boundaries
 

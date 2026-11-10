@@ -9,10 +9,11 @@ context: |
   No uploads, badges, server execution, arbitrary student dependencies or MP reuse.
   Browser results and AI suggestions cannot publish grades or award XP.
   Read workflow/ProjectBrief.md and workflow/AgentProcess.md for context.
-  Status audited 5 November 2026 at develop 29b6c1a: authenticated accounts,
+  Status reconciled 10 November 2026 at merged develop 66c6d62: authenticated accounts,
   course workspaces, Python/Java submissions and browser runs, role-aware SoCLaaS,
-  forums, XP/leaderboards and personal progress are implemented. Course PR 91
-  and fixes 93/95/97 have merged. GitHub Pages guides are publicly available.
+  forums, XP/leaderboards and personal progress are implemented. Course PR 91,
+  fixes 93/95/97, and routing/AI audit PR 133 have merged. GitHub Pages guides
+  were publicly available at the last recorded check.
   Local tests and bounded live AI evaluations are recorded separately from
   pending complete hosted acceptance, provider-key limits, human sign-off,
   supported-browser checks and the final tested master release.
