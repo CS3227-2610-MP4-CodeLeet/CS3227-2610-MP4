@@ -230,8 +230,7 @@ async function cleanFixture(data: Fixture) {
 
 export function coursePath(data: Pick<Fixture, 'courseId'>, path: string) {
   const url = new URL(path, 'http://course.test');
-  url.searchParams.set('courseId', data.courseId);
-  return `${url.pathname}?${url.searchParams.toString()}`;
+  return `/courses/${data.courseId}${url.pathname}${url.search}${url.hash}`;
 }
 
 export async function hideFixtureAssignment(data: Fixture) {

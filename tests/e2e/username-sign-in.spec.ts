@@ -12,6 +12,7 @@ const service = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.MP4_E2E_SERVICE_ROLE_KEY!;
 const headers = { apikey: key, authorization: `Bearer ${key}` };
 type Fixture = {
+  courseId: string;
   users: Array<{ id: string; email: string }>;
   password: string;
   assignments: string[];
@@ -84,9 +85,9 @@ test('successful sign-in stays busy until delayed destination navigation complet
   await expect(pending).toBeDisabled();
   await expect(pending).toHaveAttribute('aria-busy', 'true');
   release();
-  await expect(page).toHaveURL(/\/student\/assignments$/);
+  await expect(page).toHaveURL(/\/courses$/);
   await expect(
-    page.getByRole('heading', { name: 'Your assignments', exact: true }),
+    page.getByRole('heading', { name: 'Your courses', exact: true }),
   ).toBeVisible();
 });
 
@@ -102,8 +103,8 @@ async function addPeer(request: APIRequestContext, data: Fixture) {
   return peer;
 }
 for (const [index, destination] of [
-  [0, /\/instructor$/],
-  [1, /\/student\/assignments$/],
+  [0, /\/courses$/],
+  [1, /\/courses$/],
 ] as const) {
   test(`role ${index}: actual email and case-varied username logins create the correct session`, async ({
     page,
@@ -196,7 +197,7 @@ test('unknown and wrong-password responses are generic; lookup stays private and
     },
   );
   expect(lookup.ok()).toBe(false);
-  await page.goto('/student/assignments');
+  await page.goto(`/courses/${data.courseId}/assignments`);
   await expect(page).toHaveURL(/\/sign-in$/);
 });
 
@@ -290,7 +291,9 @@ test('signing into another account in a second tab stops the old student editor'
   const usernames = await names(request, data);
   const peer = await addPeer(request, data);
   await login(page, usernames[1], data.password);
-  await page.goto(`/student/assignments/${data.assignments[0]}`);
+  await page.goto(
+    `/courses/${data.courseId}/assignments/${data.assignments[0]}`,
+  );
   const oldEditor = page.getByLabel('Python source code', { exact: true });
   await oldEditor.fill('print("account A private draft")');
   await expect(

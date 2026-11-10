@@ -1,12 +1,16 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 const create = vi.hoisted(() => vi.fn());
+const privateSyntheticKey = 'private-synthetic';
 vi.mock('@supabase/supabase-js', () => ({ createClient: create }));
-import { createSignInClients } from './metadata.server';
+import {
+  createPrivilegedMetadataClient,
+  createSignInClients,
+} from './metadata.server';
 beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://synthetic.example.test');
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'public-synthetic');
-  vi.stubEnv('SUPABASE_SECRET_KEY', 'private-synthetic');
+  vi.stubEnv('SUPABASE_SECRET_KEY', privateSyntheticKey);
   vi.stubEnv(
     'AUTH_RATE_LIMIT_SECRET',
     'synthetic-hmac-secret-at-least-32-characters',
@@ -19,7 +23,7 @@ it('isolates metadata and stateless dummy clients and disables persisted session
   const clients = createSignInClients();
   clients.getDummyClient();
   expect(create.mock.calls.map((call) => call[1])).toEqual([
-    'private-synthetic',
+    privateSyntheticKey,
     'public-synthetic',
   ]);
   for (const call of create.mock.calls)
@@ -30,6 +34,22 @@ it('isolates metadata and stateless dummy clients and disables persisted session
         detectSessionInUrl: false,
       },
     });
+});
+it('creates a server metadata client without coupling it to sign-in throttling configuration', () => {
+  vi.stubEnv('AUTH_RATE_LIMIT_SECRET', '');
+  vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '');
+  expect(createPrivilegedMetadataClient()).toBeDefined();
+  expect(create).toHaveBeenCalledWith(
+    'https://synthetic.example.test',
+    privateSyntheticKey,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    },
+  );
 });
 it.each(['SUPABASE_SECRET_KEY', 'AUTH_RATE_LIMIT_SECRET'])(
   'fails closed without %s',

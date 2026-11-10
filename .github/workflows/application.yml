@@ -86,6 +86,39 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  authenticated-e2e:
+    # Supabase needs the host Docker daemon; the ordinary application job keeps
+    # its preinstalled-browser container and public/preview coverage.
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium (runner provides system libraries)
+        run: pnpm exec playwright install chromium
+      - name: Start isolated local Supabase
+        # Startup prints local keys, so capture privately and report only status.
+        run: |
+          if ! pnpm db:start > "$RUNNER_TEMP/mp4-supabase-start.log" 2>&1; then
+            echo 'Local Supabase startup failed.'
+            exit 1
+          fi
+      - name: Build with local public configuration
+        run: node workflow/scripts/run-authenticated-e2e.mjs build
+      - name: Authenticated synthetic browser journeys
+        run: node workflow/scripts/run-authenticated-e2e.mjs test
+      # No uploaded artifacts: fixture requests carry local admin authority.
+      - name: Stop local Supabase
+        if: always()
+        run: |
+          pnpm db:stop > "$RUNNER_TEMP/mp4-supabase-stop.log" 2>&1
+          rm -f "$RUNNER_TEMP/mp4-supabase-start.log" "$RUNNER_TEMP/mp4-supabase-stop.log"
+
   coverage-report:
     needs: application
     if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && needs.application.outputs.coverage_artifact == 'true' }}

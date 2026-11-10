@@ -55,7 +55,7 @@ it('filters ownership/publication/language/literal title before bounded determin
   const query = data.request().searchParams;
   expect(data.request().pathname).toBe('/rest/v1/grades');
   expect(query.get('select')).toBe(
-    'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
+    'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments!inner(title))',
   );
   expect(query.get('submissions.student_id')).toBe('eq.verified-student');
   expect(query.get('submissions.course_id')).toBe(`eq.${courseId}`);

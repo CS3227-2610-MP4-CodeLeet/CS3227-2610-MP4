@@ -3,8 +3,9 @@ import { expect, type Page } from '@playwright/test';
 import { test } from './helpers/leaderboard-fixtures';
 import { appUrl, serviceUrl, configure, grade } from './helpers/xp-fixtures';
 import { revisionSession } from './helpers/revision-session';
-const path = '/leaderboard';
+import { coursePath } from './helpers/draft-fixtures';
 const api = '/api/leaderboard';
+const leaderboardPath = '/leaderboard';
 test.use({ baseURL: appUrl, actionTimeout: 10000 });
 test.skip(
   !process.env.MP4_E2E_SERVICE_ROLE_KEY ||
@@ -20,13 +21,13 @@ test('shared ranks, own position and instructor corrections reflect trusted awar
   leaderboardFixture: board,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
-  await configure(page, data.assignments[0], 10000);
+  await configure(page, data.courseId, data.assignments[0], 10000);
   await publishGroup(page, {
     ids: [fixture.ids[0][0], fixture.peerRevision, board.thirdRevision],
     criterion: xpCriteria[0],
   });
   await revisionSession(page, data.users[1].email, data.password);
-  await checkRankedRows(page, board.names);
+  await checkRankedRows(page, data.courseId, board.names);
   await revisionSession(page, data.users[0].email, data.password);
   expect(
     (
@@ -36,9 +37,9 @@ test('shared ranks, own position and instructor corrections reflect trusted awar
       })
     ).status(),
   ).toBe(200);
-  await configure(page, data.assignments[0], 20000);
+  await configure(page, data.courseId, data.assignments[0], 20000);
   await revisionSession(page, data.users[1].email, data.password);
-  expect((await summary(page)).own?.total_xp).toBe('10000');
+  expect((await summary(page, data.courseId)).own?.total_xp).toBe('10000');
   await withdrawAndCheck(page, {
     data,
     id: fixture.ids[0][0],
@@ -53,25 +54,35 @@ test('private fields and forged selectors stay unavailable to members and signed
   xpCriteria,
   leaderboardFixture: board,
 }) => {
-  expect((await page.request.get(api)).status()).toBe(401);
-  await page.goto(path);
+  expect(
+    (await page.request.get(`${api}?courseId=${data.courseId}`)).status(),
+  ).toBe(401);
+  await page.goto(coursePath(data.courseId, leaderboardPath));
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[0].email, data.password);
-  await configure(page, data.assignments[0], 10000);
+  await configure(page, data.courseId, data.assignments[0], 10000);
   await publishGroup(page, {
     ids: [fixture.ids[0][0], fixture.peerRevision, board.thirdRevision],
     criterion: xpCriteria[0],
   });
-  await page.goto(path);
+  await page.goto(coursePath(data.courseId, leaderboardPath));
   await expect(page.getByText('Your rank', { exact: true })).toHaveCount(0);
-  expect((await summary(page)).own).toBeNull();
+  expect((await summary(page, data.courseId)).own).toBeNull();
   for (const query of ['studentId=peer', 'xp=999', 'rank=1', 'page=1&page=2'])
-    expect((await page.request.get(`${api}?${query}`)).status()).toBe(400);
+    expect(
+      (
+        await page.request.get(`${api}?courseId=${data.courseId}&${query}`)
+      ).status(),
+    ).toBe(400);
   expect(
-    (await page.request.post(api, { data: { xp: 999999 } })).status(),
+    (
+      await page.request.post(`${api}?courseId=${data.courseId}`, {
+        data: { xp: 999999 },
+      })
+    ).status(),
   ).toBe(405);
   await revisionSession(page, data.users[1].email, data.password);
-  const response = await page.request.get(api);
+  const response = await page.request.get(`${api}?courseId=${data.courseId}`);
   expect(response.headers()['cache-control']).toBe('private, no-store');
   const payload = await response.json();
   for (const id of [data.users[1].id, fixture.peerId, ...data.assignments])
@@ -93,7 +104,7 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
   leaderboardFixture: board,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
-  await configure(page, data.assignments[0], 10000);
+  await configure(page, data.courseId, data.assignments[0], 10000);
   await publishGroup(page, {
     ids: [fixture.ids[0][0], fixture.peerRevision, board.thirdRevision],
     criterion: xpCriteria[0],
@@ -101,9 +112,12 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
   await revisionSession(page, data.users[1].email, data.password);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: 'dark' });
-  const fixtureRows = await findFixtureRows(page, board.names);
+  const fixtureRows = await findFixtureRows(page, data.courseId, board.names);
   await page.goto(
-    `${path}?page=${Math.floor((fixtureRows[2].position - 1) / 25) + 1}`,
+    coursePath(
+      data.courseId,
+      `${leaderboardPath}?page=${Math.floor((fixtureRows[2].position - 1) / 25) + 1}`,
+    ),
   );
   await expect(page.getByText(board.names[2], { exact: true })).toBeVisible();
   await expect(page.locator('main img')).toHaveCount(0);
@@ -112,15 +126,18 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await page.goto(`${path}?page=9999`);
+  await page.goto(coursePath(data.courseId, `${leaderboardPath}?page=9999`));
   await expect(
     page.getByText('No students on this page.', { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'Previous', exact: true }),
-  ).toHaveAttribute('href', '/leaderboard?page=9998');
+  ).toHaveAttribute(
+    'href',
+    `/courses/${data.courseId}${leaderboardPath}?page=9998`,
+  );
   await revisionSession(page, data.users[0].email, data.password);
-  await page.goto(path);
+  await page.goto(coursePath(data.courseId, leaderboardPath));
   await expect(
     page.getByRole('heading', { name: 'Leaderboard', exact: true }),
   ).toBeVisible();
@@ -145,8 +162,14 @@ async function publishGroup(
       ).status(),
     ).toBe(200);
 }
-async function summary(page: Page, pageNumber = 1): Promise<Leaderboard> {
-  const response = await page.request.get(`${api}?page=${pageNumber}`);
+async function summary(
+  page: Page,
+  courseId: string,
+  pageNumber = 1,
+): Promise<Leaderboard> {
+  const response = await page.request.get(
+    `${api}?courseId=${courseId}&page=${pageNumber}`,
+  );
   expect(response.status()).toBe(200);
   return (await response.json()).data;
 }
@@ -157,7 +180,11 @@ async function withdrawAndCheck(
     id,
     criterion,
   }: {
-    data: { users: Array<{ email: string }>; password: string };
+    data: {
+      courseId: string;
+      users: Array<{ email: string }>;
+      password: string;
+    };
     id: string;
     criterion: string;
   },
@@ -169,15 +196,18 @@ async function withdrawAndCheck(
     ).status(),
   ).toBe(200);
   await revisionSession(page, data.users[1].email, data.password);
-  expect((await summary(page)).own).toEqual({ rank: null, total_xp: '0' });
-  await page.goto(path);
+  expect((await summary(page, data.courseId)).own).toEqual({
+    rank: null,
+    total_xp: '0',
+  });
+  await page.goto(coursePath(data.courseId, leaderboardPath));
   await expect(page.getByText('Unranked', { exact: true })).toBeVisible();
 }
 
-async function findFixtureRows(page: Page, names: string[]) {
+async function findFixtureRows(page: Page, courseId: string, names: string[]) {
   const found = new Map<string, Leaderboard['rows'][number]>();
   for (let number = 1; number <= 10000; number++) {
-    const data = await summary(page, number);
+    const data = await summary(page, courseId, number);
     for (const row of data.rows)
       if (names.includes(row.username)) found.set(row.username, row);
     if (found.size === names.length || !data.has_more) break;
@@ -185,10 +215,13 @@ async function findFixtureRows(page: Page, names: string[]) {
   expect(found.size).toBe(names.length);
   return names.map((name) => found.get(name)!);
 }
-async function checkRankedRows(page: Page, names: string[]) {
-  const rows = await findFixtureRows(page, names);
+async function checkRankedRows(page: Page, courseId: string, names: string[]) {
+  const rows = await findFixtureRows(page, courseId, names);
   await page.goto(
-    `${path}?page=${Math.floor((rows[0].position - 1) / 25) + 1}`,
+    coursePath(
+      courseId,
+      `${leaderboardPath}?page=${Math.floor((rows[0].position - 1) / 25) + 1}`,
+    ),
   );
   await expect(
     page.getByRole('heading', { name: 'Leaderboard', exact: true }),

@@ -14,5 +14,5 @@ export function revisionEditorPath(
   if (courseId) {
     return `/courses/${courseId}/assignments/${assignmentId}?fromRevision=${revisionId}`;
   }
-  return `/student/assignments/${assignmentId}?fromRevision=${revisionId}`;
+  return '/courses';
 }

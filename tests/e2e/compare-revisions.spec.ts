@@ -33,7 +33,7 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
   }) => {
     await revisionSession(page, data.users[1].email, data.password);
     const id = fixture.ids[index][1];
-    await page.goto(`/student/submissions/${id}`);
+    await page.goto(`/courses/${data.courseId}/submissions/${id}`);
     await page.getByRole('link', { name: compareName, exact: true }).click();
     await checkInitialComparison(page);
     const table = page.getByRole('table', { name: changesName });
@@ -66,7 +66,7 @@ test('default, hidden and single-revision states support mobile and both themes'
   comparisonFixture: fixture,
 }) => {
   await revisionSession(page, data.users[1].email, data.password);
-  const path = comparisonPath(fixture.ids[0][0]);
+  const path = comparisonPath(data.courseId, fixture.ids[0][0]);
   await page.goto(path);
   await expect(page.getByLabel(beforeName, { exact: true })).toHaveValue('1');
   await expect(page.getByLabel(afterName, { exact: true })).toHaveValue('3');
@@ -105,10 +105,10 @@ test('denies peer, malformed and unavailable selections and verifies identity an
   comparisonFixture: fixture,
 }) => {
   await revisionSession(page, data.users[1].email, data.password);
-  const path = comparisonPath(fixture.ids[0][1]);
+  const path = comparisonPath(data.courseId, fixture.ids[0][1]);
   for (const target of [
-    comparisonPath(fixture.peerRevision),
-    comparisonPath('bad-id'),
+    comparisonPath(data.courseId, fixture.peerRevision),
+    comparisonPath(data.courseId, 'bad-id'),
     `${path}?before=1&before=2`,
     `${path}?after=4`,
     `${path}?before=-1`,
@@ -130,11 +130,11 @@ test('denies peer, malformed and unavailable selections and verifies identity an
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[0].email, data.password);
   await page.goto(path);
-  await expect(page).toHaveURL(/\/unauthorized$/);
+  await expect(page.getByText('This page could not be found.')).toBeVisible();
 });
 
-function comparisonPath(id: string) {
-  return `/student/submissions/${id}/compare`;
+function comparisonPath(courseId: string, id: string) {
+  return `/courses/${courseId}/submissions/${id}/compare`;
 }
 
 async function checkInitialComparison(page: Page) {
@@ -176,14 +176,14 @@ async function checkMobileTheme(page: Page) {
   await page
     .getByRole('button', { name: 'Switch to dark mode', exact: true })
     .click();
-  await expect(page.locator('.student-workspace')).toHaveAttribute(
+  await expect(page.locator('.app-theme')).toHaveAttribute(
     'data-theme',
     'dark',
   );
   await page
     .getByRole('button', { name: 'Switch to light mode', exact: true })
     .click();
-  await expect(page.locator('.student-workspace')).toHaveAttribute(
+  await expect(page.locator('.app-theme')).toHaveAttribute(
     'data-theme',
     'light',
   );

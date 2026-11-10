@@ -26,7 +26,9 @@ export const test = base.extend<{ profileFixture: ProfileFixture }>({
                 email,
                 password,
                 email_confirm: true,
-                user_metadata: { display_name: `Profile ${role}` },
+                user_metadata: {
+                  display_name: `Profile ${role} ${crypto.randomUUID().slice(0, 8)}`,
+                },
               },
             },
           );

@@ -24,7 +24,7 @@ for (const [index, language, initial] of [
     draftFixture: data,
   }) => {
     await signIn(page, data);
-    const path = `/student/assignments/${data.assignments[index]}`;
+    const path = `/courses/${data.courseId}/assignments/${data.assignments[index]}`;
     await page
       .getByRole('link', {
         name: new RegExp(`Draft safeguard ${language.toLowerCase()}`),
@@ -49,7 +49,7 @@ for (const [index, language, initial] of [
     draftFixture: data,
   }) => {
     await signIn(page, data);
-    const path = `/student/assignments/${data.assignments[index]}`;
+    const path = `/courses/${data.courseId}/assignments/${data.assignments[index]}`;
     await page.goto(path);
     const editor = page.getByLabel(`${language} source code`, { exact: true });
     await editor.fill(initial);
@@ -70,7 +70,9 @@ for (const [index, language, initial] of [
   }) => {
     await signIn(page, data);
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto(`/student/assignments/${data.assignments[index]}`);
+    await page.goto(
+      `/courses/${data.courseId}/assignments/${data.assignments[index]}`,
+    );
     await sourceEditor(page).fill(initial);
     await checkNonNavigationControls(page, initial);
     await checkFailedSignOut(page, initial);
@@ -85,7 +87,7 @@ for (const [index, language, initial] of [
 }
 
 async function checkNonNavigationControls(page: Page, source: string) {
-  await page.getByLabel('Workspace menu', { exact: true }).click();
+  await page.getByLabel('Open navigation menu', { exact: true }).click();
   const opened = page.context().waitForEvent('page');
   await page
     .getByRole('link', { name: 'My submissions', exact: true })
@@ -93,7 +95,8 @@ async function checkNonNavigationControls(page: Page, source: string) {
     .click({ modifiers: ['ControlOrMeta'] });
   const popup = await opened;
   await popup.close();
-  await page.getByLabel('Workspace menu', { exact: true }).click();
+  const closeMenu = page.getByLabel('Close navigation menu', { exact: true });
+  if (await closeMenu.isVisible()) await closeMenu.click();
   await page.getByRole('button', { name: /Switch to .* mode/ }).click();
   await page.evaluate(() => {
     const link = document.createElement('a');
@@ -224,13 +227,14 @@ async function checkDelayedSuccess(
 
 async function signIn(
   page: Page,
-  data: { users: Array<{ email: string }>; password: string },
+  data: { courseId: string; users: Array<{ email: string }>; password: string },
 ) {
   await page.goto('/sign-in');
   await page.getByLabel('Email or username').fill(data.users[1].email);
   await page.getByLabel('Password', { exact: true }).fill(data.password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page).toHaveURL(/\/student\/assignments$/);
+  await expect(page).toHaveURL(/\/courses$/);
+  await page.goto(`/courses/${data.courseId}/assignments`);
 }
 
 async function save(page: Page) {

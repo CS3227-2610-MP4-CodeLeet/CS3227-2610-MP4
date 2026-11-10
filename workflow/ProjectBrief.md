@@ -1,6 +1,6 @@
 # Project brief
 
-Status audited on 5 November 2026 against merged develop `29b6c1a`: authenticated accounts, course-scoped assignments/AI/forums/XP, public practice cases, browser-only Python/Java and student progress are implemented. Course PR #91, fixes #93, sign-in diagnostics #95 and key standardization #97 have merged. The product website and both guides are publicly available. Hosted SMTP, complete production acceptance, key-specific provider limits and final master release remain open. Runtime inventory approval is recorded in issue #31; its independent/hosted/browser acceptance gates remain separate. See the [reconciliation evidence](evidence/2026-11-05-documentation-reconciliation.md).
+Status reconciled on 9 November 2026 against `develop` baseline `f6009a1`: authenticated accounts, course-scoped assignments/AI/discussions/XP, public practice cases, browser-only Python/Java and student progress are implemented. Course PR #91 and fixes #93/#95/#97 are merged; the release audit and routing/AI authorization fixes are tracked in issues #129/#130 and summarized in [the dated audit log](../logs/2026-11-09-project-release-audit.md). The product website and both guides are publicly available. Hosted SMTP, complete production acceptance, key-specific provider limits, final master release, and personal/team review remain open. Runtime inventory approval is recorded in issue #31; its independent/hosted/browser acceptance gates remain separate. The audit is not a guarantee of a grade or proof that no bugs remain.
 
 ## Sources and precedence
 

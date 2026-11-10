@@ -3,7 +3,6 @@ import { test as forumTest } from './helpers/forum-fixtures';
 import { revisionSession } from './helpers/revision-session';
 
 const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const path = '/forums';
 const discussionRegion = 'Discussions';
 const searchName = 'Search discussions';
 const clearName = 'Clear search';
@@ -101,17 +100,17 @@ test('members find title/opening-post matches before paging and retain search na
   searchData: search,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
-  await page.goto(path);
-  await applySearch(page, search.prefix);
+  await page.goto(forumsPath(data.courseId));
+  await applySearch(page, data.courseId, search.prefix);
   await expect(threads(page)).toHaveCount(25);
-  await checkPaging(page, search.prefix);
-  await checkSearchBack(page, search);
+  await checkPaging(page, data.courseId, search.prefix);
+  await checkSearchBack(page, data.courseId, search);
   await page.getByRole('link', { name: clearName, exact: true }).click();
-  await expect(page).toHaveURL(path);
+  await expect(page).toHaveURL(forumsPath(data.courseId));
   await page.context().clearCookies();
   await revisionSession(page, data.users[1].email, data.password);
-  await page.goto(path);
-  await applySearch(page, search.titleTerm);
+  await page.goto(forumsPath(data.courseId));
+  await applySearch(page, data.courseId, search.titleTerm);
   await expect(threads(page)).toHaveCount(1);
   await checkMobileSearch(page);
 });
@@ -122,25 +121,25 @@ test('search treats query grammar as literal text and keeps unauthorized access 
   searchData: search,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
-  await page.goto(path);
-  await applySearch(page, search.literalTerm);
+  await page.goto(forumsPath(data.courseId));
+  await applySearch(page, data.courseId, search.literalTerm);
   await expect(threads(page)).toHaveCount(1);
   await expect(page.locator('img')).toHaveCount(0);
-  await applySearch(page, search.replyTerm);
+  await applySearch(page, data.courseId, search.replyTerm);
   await expect(
-    page.getByText('No discussions match your search.', { exact: true }),
+    page.getByText('No discussions matched your search.', { exact: true }),
   ).toBeVisible();
-  await applySearch(page, '",id.not.is.null,title.imatch."');
+  await applySearch(page, data.courseId, '",id.not.is.null,title.imatch."');
   await expect(threads(page)).toHaveCount(0);
   await expect(
-    page.getByText('No discussions match your search.', { exact: true }),
+    page.getByText('No discussions matched your search.', { exact: true }),
   ).toBeVisible();
-  await checkInvalidSearches(page);
+  await checkInvalidSearches(page, data.courseId);
   await page.context().clearCookies();
-  await page.goto(searchPath(search.prefix));
+  await page.goto(searchPath(data.courseId, search.prefix));
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[2].email, data.password);
-  await page.goto(searchPath(search.prefix));
+  await page.goto(searchPath(data.courseId, search.prefix));
   await expect(page).toHaveURL(/\/unauthorized$/);
 });
 
@@ -152,31 +151,37 @@ function threads(page: Page) {
 function searchBox(page: Page) {
   return page.getByRole('searchbox', { name: searchName, exact: true });
 }
-function searchPath(query: string) {
-  return `${path}?${new URLSearchParams({ q: query })}`;
+function forumsPath(courseId: string) {
+  return `/courses/${courseId}/forums`;
 }
-async function applySearch(page: Page, query: string) {
+function searchPath(courseId: string, query: string) {
+  return `${forumsPath(courseId)}?${new URLSearchParams({ q: query })}`;
+}
+async function applySearch(page: Page, courseId: string, query: string) {
   await searchBox(page).fill(query);
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page).toHaveURL(
     (url) =>
-      url.pathname === path &&
+      url.pathname === forumsPath(courseId) &&
       url.searchParams.get('q') === query &&
       !url.searchParams.has('page'),
   );
 }
 
-async function checkPaging(page: Page, query: string) {
+async function checkPaging(page: Page, courseId: string, query: string) {
   const next = page.getByRole('link', { name: 'Next', exact: true });
-  await expect(next).toHaveAttribute('href', `${searchPath(query)}&page=2`);
+  await expect(next).toHaveAttribute(
+    'href',
+    `${searchPath(courseId, query)}&page=2`,
+  );
   await next.click();
-  await expect(page).toHaveURL(`${searchPath(query)}&page=2`);
+  await expect(page).toHaveURL(`${searchPath(courseId, query)}&page=2`);
   await expect(threads(page)).toHaveCount(4);
   await expect(
     threads(page).getByText(olderTitle, { exact: true }),
   ).toBeVisible();
   await page.getByRole('link', { name: 'Previous', exact: true }).click();
-  await expect(page).toHaveURL(`${searchPath(query)}&page=1`);
+  await expect(page).toHaveURL(`${searchPath(courseId, query)}&page=1`);
   await expect(threads(page)).toHaveCount(25);
 }
 
@@ -197,27 +202,31 @@ async function checkMobileSearch(page: Page) {
   });
 }
 
-async function checkSearchBack(page: Page, search: SearchData) {
-  await applySearch(page, search.bodyTerm.toUpperCase());
+async function checkSearchBack(
+  page: Page,
+  courseId: string,
+  search: SearchData,
+) {
+  await applySearch(page, courseId, search.bodyTerm.toUpperCase());
   await expect(threads(page)).toHaveCount(1);
   await threads(page)
     .getByRole('link', { name: olderTitle, exact: true })
     .click();
-  await expect(page).toHaveURL(`/forums/${search.bodyId}`);
+  await expect(page).toHaveURL(`/courses/${courseId}/forums/${search.bodyId}`);
   await page.goBack();
   await expect(searchBox(page)).toHaveValue(search.bodyTerm.toUpperCase());
   await page.reload();
   await expect(threads(page)).toHaveCount(1);
 }
 
-async function checkInvalidSearches(page: Page) {
+async function checkInvalidSearches(page: Page, courseId: string) {
   for (const query of [
     'q=a&q=b',
     'q=%0A',
     `q=${'a'.repeat(161)}`,
     'q=ok&page=0',
   ]) {
-    await page.goto(`${path}?${query}`);
+    await page.goto(`${forumsPath(courseId)}?${query}`);
     await expect(
       page.getByRole('heading', {
         name: 'Discussion unavailable',
@@ -225,7 +234,7 @@ async function checkInvalidSearches(page: Page) {
       }),
     ).toBeVisible();
   }
-  await page.goto(`${path}?q=+++`);
+  await page.goto(`${forumsPath(courseId)}?q=+++`);
   await expect(searchBox(page)).toHaveValue('');
   await expect(threads(page)).toHaveCount(25);
 }

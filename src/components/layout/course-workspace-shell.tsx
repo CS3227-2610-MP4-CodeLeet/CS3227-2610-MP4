@@ -37,6 +37,7 @@ export function CourseWorkspaceShell({
         <CourseBreadcrumbs
           courseId={course.id}
           courseTitle={course.title}
+          isMobileSidebarOpen={isMobileOpen}
           onToggleMobileSidebar={() => setIsMobileOpen(true)}
         />
         <div className="flex-1 overflow-y-auto">{children}</div>

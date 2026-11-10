@@ -19,10 +19,8 @@ it.each(['', 'not-a-uuid', [revisionId], [revisionId, revisionId]])(
   (value) => expect(revisionSelection(value).success).toBe(false),
 );
 
-it('uses only assignment/revision identifiers in edit links', () => {
-  expect(revisionEditorPath(assignmentId, revisionId)).toBe(
-    `/student/assignments/${assignmentId}?fromRevision=${revisionId}`,
-  );
+it('uses canonical course routes or returns to course discovery when context is absent', () => {
+  expect(revisionEditorPath(assignmentId, revisionId)).toBe('/courses');
   expect(revisionEditorPath(assignmentId, revisionId, 'course-a')).toBe(
     `/courses/course-a/assignments/${assignmentId}?fromRevision=${revisionId}`,
   );

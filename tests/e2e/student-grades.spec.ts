@@ -12,7 +12,7 @@ const headers = {
   apikey: process.env.MP4_E2E_SERVICE_ROLE_KEY!,
   authorization: `Bearer ${process.env.MP4_E2E_SERVICE_ROLE_KEY!}`,
 };
-const gradesPath = '/student/grades';
+const gradesPath = '/grades';
 const listName = 'Published grades';
 const titleSearch = 'Search by assignment title';
 const languageFilter = 'Language';
@@ -36,7 +36,7 @@ test('lists only own published feedback, links revision, handles hidden titles a
   historyFixture: data,
 }) => {
   await revisionSession(page, data.users[1].email, historyPassword);
-  await page.goto(coursePath(data, '/student/assignments'));
+  await page.goto(coursePath(data, '/assignments'));
   await page
     .getByRole('link', { name: 'My grades', exact: true })
     .first()
@@ -55,7 +55,7 @@ test('lists only own published feedback, links revision, handles hidden titles a
     .getByRole('link', { name: `View ${data.title}, revision 1`, exact: true })
     .click();
   await expect(page).toHaveURL(
-    coursePath(data, `/student/submissions/${data.rows[0].id}`),
+    coursePath(data, `/submissions/${data.rows[0].id}`),
   );
   await hideFixtureAssignment(data);
   await page.goto(coursePath(data, gradesPath));
@@ -86,14 +86,11 @@ test('filters before stable paging, preserves URL state and never loads draft or
   // Grade IDs below equal submission IDs, so hand-written tie ordering is testable.
   await expect(
     cards.first().getByRole('link', { name: /^View / }),
-  ).toHaveAttribute(
-    'href',
-    coursePath(data, `/student/submissions/${expected[0].id}`),
-  );
+  ).toHaveAttribute('href', coursePath(data, `/submissions/${expected[0].id}`));
   await page.getByRole('link', { name: 'Next', exact: true }).click();
   await expect(page).toHaveURL(coursePath(data, `${gradesPath}?page=2`));
   await expect(cards).toHaveCount(1);
-  await applyJavaFilter(page, data);
+  await applyJavaFilter(page);
   await expect(cards).toHaveCount(2);
   await expect(
     page.getByRole('navigation', { name: 'Grade pages' }),
@@ -187,13 +184,12 @@ async function seedPublishedGrades(data: HistoryFixture) {
   expect(created.ok()).toBeTruthy();
 }
 
-async function applyJavaFilter(page: Page, data: HistoryFixture) {
+async function applyJavaFilter(page: Page) {
   await page.getByLabel(languageFilter, { exact: true }).selectOption('java');
   await page.getByRole('button', { name: applyName }).click();
   await expect(page).toHaveURL(
     (url) =>
-      url.pathname === gradesPath &&
-      url.searchParams.get('courseId') === data.courseId &&
+      url.pathname.endsWith(gradesPath) &&
       url.searchParams.get('language') === 'java' &&
       !url.searchParams.has('page'),
   );
@@ -213,7 +209,7 @@ async function checkMobileTheme(page: Page) {
     exact: true,
   });
   await toggle.click();
-  await expect(page.locator('.student-workspace')).toHaveAttribute(
+  await expect(page.locator('.app-theme')).toHaveAttribute(
     'data-theme',
     'dark',
   );
@@ -234,7 +230,10 @@ async function checkRoleBoundaries(page: Page, data: HistoryFixture) {
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[0].email, historyPassword);
   await page.goto(coursePath(data, gradesPath));
-  await expect(page).toHaveURL(/\/unauthorized$/);
+  await expect(
+    page.getByRole('heading', { name: 'Grades page unavailable' }),
+  ).toBeVisible();
+  await expect(page.getByRole('list', { name: listName })).toHaveCount(0);
 }
 
 async function checkFilterState(page: Page, data: HistoryFixture) {
@@ -247,7 +246,6 @@ async function checkFilterState(page: Page, data: HistoryFixture) {
   await expect(page).toHaveURL(
     (url) =>
       url.searchParams.get('q') === 'HISTORY [literal]*%_ JAVA' &&
-      url.searchParams.get('courseId') === data.courseId &&
       url.searchParams.get('language') === 'java',
   );
   await expect(

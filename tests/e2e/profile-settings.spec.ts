@@ -22,7 +22,7 @@ async function signIn(page: Page, email: string, password: string) {
   await page.getByLabel('Email or username', { exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await page.waitForURL(/\/(student\/assignments|instructor)?$/);
+  await page.waitForURL(/\/courses$/);
 }
 
 test('both roles save private profiles and keep email/role readonly', async ({
@@ -33,7 +33,7 @@ test('both roles save private profiles and keep email/role readonly', async ({
   await expect(page).toHaveURL(/\/sign-in$/);
   for (const user of data.users.slice(0, 2)) {
     await signIn(page, user.email, data.password);
-    await openSettings(page, user.role);
+    await openSettings(page);
     await verifyReadOnly(page, user.email, user.role);
     await saveAndReload(page, user.role);
     await verifyProtectedFields(page, data, user.id);
@@ -42,13 +42,8 @@ test('both roles save private profiles and keep email/role readonly', async ({
   }
 });
 
-async function openSettings(page: Page, role: string) {
-  if (role === 'student') {
-    await page.getByLabel('Workspace menu', { exact: true }).click();
-    await page
-      .getByRole('link', { name: 'Profile settings', exact: true })
-      .click();
-  } else await page.getByRole('link', { name: 'Profile', exact: true }).click();
+async function openSettings(page: Page) {
+  await page.getByRole('link', { name: 'Profile', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Profile settings', exact: true }),
   ).toBeVisible();

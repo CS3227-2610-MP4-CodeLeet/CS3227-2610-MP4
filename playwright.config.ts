@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import { serverEnvironment } from './workflow/scripts/e2e-environment.mjs';
 
 const productionTestUrl = 'http://127.0.0.1:3100';
+const authenticatedCi = process.env.MP4_AUTHENTICATED_E2E === '1';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -9,7 +11,14 @@ export default defineConfig({
   workers: 1,
   timeout: 60_000,
   reporter: process.env.CI ? 'github' : 'list',
-  use: { baseURL: productionTestUrl, trace: 'retain-on-failure' },
+  use: {
+    baseURL: productionTestUrl,
+    // Fixture admin calls use Playwright's request context. Never record their
+    // authorization headers in authenticated CI traces or screenshots.
+    trace: authenticatedCi ? 'off' : 'retain-on-failure',
+    screenshot: 'off',
+    video: 'off',
+  },
   projects: [
     {
       name: 'chromium',
@@ -45,9 +54,9 @@ export default defineConfig({
             timeout: 60_000,
             // Even accidentally setting this flag must not enable fixtures in production.
             env: {
+              ...serverEnvironment(process.env),
               APP_SITE_URL: productionTestUrl,
               PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
-              MP4_E2E_SERVICE_ROLE_KEY: '',
             },
           },
           {
@@ -57,6 +66,7 @@ export default defineConfig({
             reuseExistingServer: false,
             timeout: 60_000,
             env: {
+              ...serverEnvironment(process.env),
               PLAYWRIGHT_ASSIGNMENT_FIXTURES: 'true',
               PLAYWRIGHT_PREVIEW: 'true',
               MP4_DEV_SKIP_RUNTIME_FETCH:
