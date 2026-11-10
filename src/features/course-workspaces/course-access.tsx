@@ -54,7 +54,7 @@ export function JoinCodeManagement({ courseId }: { courseId: string }) {
       setCode(typeof result.code === 'string' ? result.code : null);
       setNotice(
         method === 'PUT'
-          ? 'Share this student join code privately. It is shown only after you create or rotate it.'
+          ? 'Join code ready. Copy it to share with students.'
           : 'The student join code was revoked.',
       );
     } catch (requestError) {
@@ -64,12 +64,51 @@ export function JoinCodeManagement({ courseId }: { courseId: string }) {
     }
   }
 
+  async function copyCode() {
+    if (!code) return;
+    setError(null);
+    try {
+      await navigator.clipboard.writeText(code);
+      setNotice('Join code copied.');
+    } catch {
+      setError('Code could not be copied. Select and copy it manually.');
+    }
+  }
+
+  return (
+    <JoinCodePanel
+      code={code}
+      notice={notice}
+      error={error}
+      busy={busy}
+      onChange={change}
+      onCopy={copyCode}
+    />
+  );
+}
+
+function JoinCodePanel({
+  code,
+  notice,
+  error,
+  busy,
+  onChange,
+  onCopy,
+}: {
+  code: string | null;
+  notice: string | null;
+  error: string | null;
+  busy: boolean;
+  onChange: (method: 'PUT' | 'DELETE') => void;
+  onCopy: () => void;
+}) {
   return (
     <div className="space-y-3">
       <div>
         <h2 className="text-xl font-semibold">Student join code</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Students with a verified account can use the code to join this course.
+          Only course instructors can view or manage this code. Anyone with it
+          and a verified account can join as a student.
         </p>
       </div>
       {error && (
@@ -82,32 +121,66 @@ export function JoinCodeManagement({ courseId }: { courseId: string }) {
           {notice}
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void change('PUT')}
-          className="rounded-md border px-3 py-2 text-sm"
-        >
-          Create or rotate code
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void change('DELETE')}
-          className="rounded-md border px-3 py-2 text-sm"
-        >
-          Revoke code
-        </button>
-      </div>
-      {code && (
-        <p
-          className="break-all rounded-md bg-muted p-3 font-mono text-sm"
-          aria-label="New join code"
-        >
-          {code}
-        </p>
-      )}
+      <JoinCodeControls busy={busy} onChange={onChange} />
+      {code && <JoinCodeDisplay code={code} busy={busy} onCopy={onCopy} />}
+    </div>
+  );
+}
+
+function JoinCodeControls({
+  busy,
+  onChange,
+}: {
+  busy: boolean;
+  onChange: (method: 'PUT' | 'DELETE') => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => onChange('PUT')}
+        className="rounded-md border px-3 py-2 text-sm"
+      >
+        Create or rotate code
+      </button>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => onChange('DELETE')}
+        className="rounded-md border px-3 py-2 text-sm"
+      >
+        Revoke code
+      </button>
+    </div>
+  );
+}
+
+function JoinCodeDisplay({
+  code,
+  busy,
+  onCopy,
+}: {
+  code: string;
+  busy: boolean;
+  onCopy: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <p
+        className="min-w-0 flex-1 break-all rounded-md bg-muted p-3 font-mono text-sm"
+        aria-label="New join code"
+      >
+        {code}
+      </p>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={onCopy}
+        className="rounded-md border px-3 py-2 text-sm"
+      >
+        Copy code
+      </button>
     </div>
   );
 }
@@ -126,7 +199,8 @@ function OwnershipTransfer({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const candidates = members.filter(
-    (member) => member.user_id !== currentUserId,
+    (member) =>
+      member.user_id !== currentUserId && member.role === 'instructor',
   );
   if (!candidates.length) return null;
 
@@ -169,7 +243,7 @@ function OwnershipTransfer({
           onChange={(event) => setOwnerId(event.target.value)}
           className="w-full rounded-md border bg-background px-3 py-2"
         >
-          <option value="">Choose a course member</option>
+          <option value="">Choose an instructor</option>
           {candidates.map((member) => (
             <option key={member.user_id} value={member.user_id}>
               {member.display_name} · {member.email}
