@@ -81,23 +81,7 @@ async function checkFirstPage(page: Page, data: Fixture) {
     path: 'test-results/my-submissions-desktop.png',
     fullPage: true,
   });
-  await page.setViewportSize({ width: 375, height: 812 });
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
-  await page.getByLabel('Open navigation menu', { exact: true }).click();
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Course section links' })
-      .getByRole('link', { name: listName, exact: true }),
-  ).toHaveAttribute('href', coursePath(data, listPath));
-  await page.getByLabel('Close navigation menu', { exact: true }).click();
-  await page.screenshot({
-    path: 'test-results/my-submissions-mobile.png',
-    fullPage: true,
-  });
+  await checkMobileNavigation(page, data);
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(
     coursePath(data, `${listPath}?student_id=${data.users[2].id}`),
@@ -107,6 +91,45 @@ async function checkFirstPage(page: Page, data: Fixture) {
       `a[href="${coursePath(data, `${listPath}/${data.peerRow.id}`)}"]`,
     ),
   ).toHaveCount(0);
+}
+
+async function checkMobileNavigation(page: Page, data: Fixture) {
+  for (const width of [320, 375]) {
+    await page.setViewportSize({ width, height: 812 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    const opener = page.getByLabel('Open navigation menu', { exact: true });
+    await opener.click();
+    const mobileDrawer = page.getByRole('dialog', {
+      name: 'Course navigation',
+    });
+    const mobileTitle = await mobileDrawer.getByRole('heading').boundingBox();
+    const close = mobileDrawer.getByRole('button', {
+      name: 'Close navigation menu',
+    });
+    const closeButton = await close.boundingBox();
+    expect(
+      mobileTitle &&
+        closeButton &&
+        mobileTitle.x + mobileTitle.width < closeButton.x,
+    ).toBe(true);
+    await expect(close).toBeFocused();
+    await expect(
+      mobileDrawer
+        .getByRole('navigation', { name: 'Course section links' })
+        .getByRole('link', { name: listName, exact: true }),
+    ).toHaveAttribute('href', coursePath(data, listPath));
+    await page.keyboard.press('Escape');
+    await expect(mobileDrawer).not.toBeVisible();
+    await expect(opener).toBeFocused();
+  }
+  await page.screenshot({
+    path: 'test-results/my-submissions-mobile.png',
+    fullPage: true,
+  });
 }
 
 async function checkPagination(page: Page, ids: string[]) {

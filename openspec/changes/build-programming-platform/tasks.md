@@ -327,3 +327,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 39.1 Reconcile canonical guides and repository status against merged PR #133 and current UI/source; preserve hosted release limits. Current instructor context-comparison UI and final PR-head checks were inspected; hosted verification stays open.
 - [x] 39.2 Refresh reflection evidence references and correct unsupported factual claims without approving either member's personal conclusions. Removed an unmeasured cache-hit latency claim and qualified declarative agent sandboxing/RLS statements.
 - [x] 39.3 Verify guide links, site build, formatting, scaffold and strict OpenSpec; record a dated session summary and publish issue-linked PR #136 after branch application/database/authenticated-E2E, scaffold and CodeQL checks passed. Final PR-head checks and human/hosted review remain separate.
+
+## 40. Issue #140 mobile course navigation
+
+- [x] 40.1 Reproduce the long-title overlap and missing keyboard behavior; add failing-first focused regressions.
+- [x] 40.2 Reserve close-control space and add focus entry, Tab containment, Escape dismissal and focus restoration; verify focused and full unit suites, lint, typecheck and production build.
+- [ ] 40.3 Verify authenticated mobile browser geometry and keyboard navigation. The local Supabase proxy reported no published host port on 10 November; rerun the Playwright case when the local or CI fixture service is reachable.
+- [ ] 40.4 Record the dated session summary, push the issue-linked branch and create a PR to `develop`; verify final-head CI and leave merge to teammate review.

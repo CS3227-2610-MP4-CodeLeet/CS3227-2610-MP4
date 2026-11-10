@@ -1,4 +1,27 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
+
+const focusableSelector =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function keepTabInside(
+  event: KeyboardEvent<HTMLElement>,
+  drawer: HTMLElement | null,
+) {
+  if (event.key !== 'Tab' || !drawer) return;
+  const focusable = Array.from(
+    drawer.querySelectorAll<HTMLElement>(focusableSelector),
+  );
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (!first || !last) return;
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
 
 export function MobileSidebarDrawer({
   isOpen,
@@ -11,6 +34,40 @@ export function MobileSidebarDrawer({
 }) {
   if (!isOpen) return null;
   return (
+    <OpenMobileSidebarDrawer onClose={onClose}>
+      {children}
+    </OpenMobileSidebarDrawer>
+  );
+}
+
+function OpenMobileSidebarDrawer({
+  onClose,
+  children,
+}: {
+  onClose?: () => void;
+  children: ReactNode;
+}) {
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => {
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, []);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      onClose?.();
+      return;
+    }
+    keepTabInside(event, drawerRef.current);
+  }
+
+  return (
     <div
       id="course-mobile-navigation"
       className="fixed inset-0 z-50 flex md:hidden"
@@ -22,9 +79,17 @@ export function MobileSidebarDrawer({
         }}
         aria-hidden="true"
       />
-      <aside className="relative flex w-4/5 max-w-xs flex-col border-r bg-background shadow-xl">
+      <aside
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Course navigation"
+        onKeyDown={handleKeyDown}
+        className="relative flex w-4/5 max-w-xs flex-col border-r bg-background shadow-xl"
+      >
         <div className="absolute right-3 top-3">
           <button
+            ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Close navigation menu"
