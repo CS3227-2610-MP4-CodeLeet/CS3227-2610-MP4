@@ -333,4 +333,5 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 40.1 Reproduce the long-title overlap and missing keyboard behavior; add failing-first focused regressions.
 - [x] 40.2 Reserve close-control space and add focus entry, Tab containment, Escape dismissal and focus restoration; verify focused and full unit suites, lint, typecheck and production build.
 - [x] 40.3 Verify authenticated mobile browser geometry and keyboard navigation. Branch application workflow 42801276979 passed its authenticated E2E job with the 320px and 375px drawer checks. The local Supabase proxy could not publish its configured Windows host ports, so this browser evidence comes from CI.
-- [ ] 40.4 Record the dated session summary, push the issue-linked branch and create a PR to `develop`; verify final-head CI and leave merge to teammate review.
+- [x] 40.4 Record the dated session summary, push the issue-linked branch and open PR #142 to `develop` for teammate review.
+- [ ] 40.5 Verify final-head PR checks. Human review and merge remain separate decisions.
