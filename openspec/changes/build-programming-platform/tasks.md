@@ -307,3 +307,11 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 36.4 Add a shared `AuthPageShell` giving sign-in, sign-up, forgot-password and reset-password pages a **Back to welcome page** button, with a unit test.
 - [x] 36.5 Verify typecheck, lint, format, full unit suite and production build; update User/Developer Guides and the dated log. Authenticated browser verification was not run (local Supabase/Docker unavailable).
 - [x] 36.6 Push the branch and publish issue-linked PR #115 to develop after branch CI (application run 42437388796, scaffold run 42437391544 at b021910); human browser verification remains pending.
+
+## 37. Issue #131 course access and ownership boundaries
+
+- [x] 37.1 Record the approved instructor-only code visibility, read-only platform-admin overview, and instructor-only ownership-transfer requirements in the plan and course-workspaces design/spec.
+- [x] 37.2 Add failing UI/database regressions proving students cannot access join codes and student members cannot be selected as ownership-transfer recipients.
+- [x] 37.3 Restrict ownership transfer to verified instructor members in the UI and database; add an admin-only read-only course overview route without widening member routes.
+- [x] 37.4 Add instructor code-copy UX and verify code visibility/denial, admin metadata-only access, and transfer behavior with unit and pgTAP tests.
+- [ ] 37.5 Run applicable unit, database, type, lint, format, build and strict OpenSpec checks; record the dated log and publish an issue-linked PR to develop after branch CI. Keep human verification pending.
