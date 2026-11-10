@@ -2,6 +2,7 @@ import { FormSubmitButton } from '@/components/ui/pending-button';
 import Form from 'next/form';
 import { hasListFilters, type ListFilters } from './filters';
 import { PendingLink } from '@/components/ui/pending-link';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 export function ListFilterControls({
   path,
@@ -80,14 +81,17 @@ export function FilteredListEmpty({
   kind: 'assignments' | 'submissions' | 'grades';
   page?: number;
 }) {
+  const illustration =
+    kind === 'assignments'
+      ? 'collection'
+      : kind === 'submissions'
+        ? 'code'
+        : 'progress';
   return (
-    <div className="space-y-2 rounded-xl border bg-card p-8">
-      <h2 className="text-lg font-semibold">
-        {page > 1 ? 'No matches on this page' : `No matching ${kind}`}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        Try a different search or language, or clear your filters.
-      </p>
-    </div>
+    <IllustratedEmptyState
+      illustration={illustration}
+      title={page > 1 ? 'No matches on this page' : `No matching ${kind}`}
+      description="Try a different search or language, or clear your filters."
+    />
   );
 }

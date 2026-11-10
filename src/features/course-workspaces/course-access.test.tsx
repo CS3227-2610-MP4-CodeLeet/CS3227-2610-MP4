@@ -49,12 +49,15 @@ const members: CourseMember[] = [
     joined_at: '2026-01-03',
   },
 ];
-function renderCourseAccess(currentUserId = 'owner-1') {
+function renderCourseAccess(
+  currentUserId = 'owner-1',
+  courseMembers: CourseMember[] = members,
+) {
   render(
     <CourseAccess
       course={course}
       currentUserId={currentUserId}
-      members={members}
+      members={courseMembers}
     />,
   );
 }
@@ -103,7 +106,9 @@ describe('course access management', () => {
       expect.objectContaining({ method: 'DELETE' }),
     );
   });
+});
 
+describe('ownership transfer', () => {
   it('limits ownership transfer to other course instructors', async () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
     renderCourseAccess();
@@ -131,6 +136,18 @@ describe('course access management', () => {
         body: JSON.stringify({ newOwnerId: 'teacher-2' }),
       }),
     );
+  });
+
+  it('explains when no other instructor can receive ownership', () => {
+    renderCourseAccess('owner-1', [members[0]]);
+
+    expect(
+      screen.getByText('No other instructors are available yet.'),
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-illustration="collection"]'),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('New course owner')).toBeNull();
   });
 
   it('does not expose owner-only controls to another instructor', () => {

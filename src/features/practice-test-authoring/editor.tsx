@@ -10,6 +10,7 @@ import {
 } from './contracts';
 import type { OwnerTestSet } from './queries.server';
 import { CaseFields } from './editor-fields';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type Action = PracticeUpdate['action'];
 const buttonStyle = 'rounded-md border px-3 py-2 text-sm disabled:opacity-50';
@@ -73,6 +74,7 @@ export function PracticeTestEditor({ initial }: { initial: OwnerTestSet }) {
           ? 'Students can use the published tests. Draft edits stay private until published.'
           : 'Tests are not published.'}
       </p>
+      <CasesEmptyState hasCases={state.cases.length > 0} />
       {state.cases.map((item, index) => (
         <CaseFields
           key={item.id}
@@ -136,6 +138,19 @@ export function PracticeTestEditor({ initial }: { initial: OwnerTestSet }) {
       </div>
       <SaveStatus busy={state.busy} message={state.message} />
     </section>
+  );
+}
+
+function CasesEmptyState({ hasCases }: { hasCases: boolean }) {
+  if (hasCases) return null;
+  return (
+    <IllustratedEmptyState
+      title="No test cases added yet"
+      description="Add a test case to define sample input and expected output."
+      illustration="code"
+      size="compact"
+      headingLevel={3}
+    />
   );
 }
 function SaveStatus({ busy, message }: { busy: boolean; message: string }) {

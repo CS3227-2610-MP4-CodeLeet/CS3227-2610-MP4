@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, BookOpen, Code2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Code2 } from 'lucide-react';
 import type { AssignmentDetail, AssignmentSummary } from './types';
 import { languageLabels } from './types';
 import { AssignmentXp } from '@/features/assignment-xp/components';
@@ -18,6 +18,7 @@ import {
   SubmissionStatusBadge,
 } from '@/features/assignment-deadlines/components';
 import { PendingLink } from '@/components/ui/pending-link';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 const linkStyle =
   'inline-flex items-center gap-2 rounded-md text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring';
@@ -66,16 +67,11 @@ export function AssignmentList({
 
 function EmptyAssignments() {
   return (
-    <div className="rounded-xl border bg-card p-8 text-center">
-      <BookOpen
-        aria-hidden="true"
-        className="mx-auto mb-4 size-8 text-muted-foreground"
-      />
-      <h2 className="text-lg font-semibold">No assignments yet</h2>
-      <p className="mt-2 text-muted-foreground">
-        Published assignments will appear here when they are available.
-      </p>
-    </div>
+    <IllustratedEmptyState
+      title="No assignments yet"
+      description="Published assignments will appear here when they are available."
+      illustration="collection"
+    />
   );
 }
 

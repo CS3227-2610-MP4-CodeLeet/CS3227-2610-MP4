@@ -9,6 +9,7 @@ import SubmissionsError from './error';
 import { parseListFilters } from '@/features/student-lists/filters';
 import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 import { SubmissionFilters } from './submission-filters';
 
 export const dynamic = 'force-dynamic';
@@ -243,9 +244,12 @@ async function renderInstructorSubmissionsView({
 
       <section className="space-y-3">
         {submissions.length === 0 ? (
-          <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-            No submissions found for the selected filter.
-          </div>
+          <IllustratedEmptyState
+            title="No submissions found for the selected filter."
+            description="Choose another assignment or return to all submissions."
+            illustration="code"
+            size="compact"
+          />
         ) : (
           submissions.map((sub) => (
             <SubmissionCard

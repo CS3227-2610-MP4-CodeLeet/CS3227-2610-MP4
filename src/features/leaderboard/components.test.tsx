@@ -53,6 +53,9 @@ it('distinguishes a new student, empty board and an empty later page', () => {
   );
   expect(screen.getByText('Unranked')).toBeTruthy();
   expect(screen.getByText('No rankings yet')).toBeTruthy();
+  expect(
+    document.querySelector('svg[data-illustration="progress"]'),
+  ).toBeTruthy();
   view.rerender(
     <LeaderboardView
       courseId="course-1"
@@ -60,6 +63,9 @@ it('distinguishes a new student, empty board and an empty later page', () => {
     />,
   );
   expect(screen.getByText('No students on this page.')).toBeTruthy();
+  expect(
+    document.querySelector('svg[data-illustration="progress"]'),
+  ).toBeTruthy();
   expect(screen.queryByText('Your rank')).toBeNull();
   expect(
     screen.getByRole('link', { name: 'Previous' }).getAttribute('href'),

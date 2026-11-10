@@ -25,6 +25,7 @@ it('distinguishes empty work from completed work without inventing a percentage'
   expect(html).toContain('No upcoming deadlines');
   expect(html).toContain('No submissions yet');
   expect(html).toContain('No published grades yet');
+  expect(html.match(/data-illustration="progress"/g)).toHaveLength(4);
   expect(html).not.toContain('<progress');
   expect(html).not.toContain('100%');
 });

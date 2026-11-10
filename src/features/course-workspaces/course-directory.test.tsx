@@ -154,6 +154,9 @@ describe('course directory join and cancel modals', () => {
       />,
     );
     expect(screen.getByText(/no courses yet/i)).toBeTruthy();
+    expect(
+      document.querySelector('svg[data-illustration="collection"]'),
+    ).toBeTruthy();
     expect(screen.queryByRole('dialog')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Join course' }));

@@ -8,6 +8,7 @@ import {
   type PracticeCaseKind,
   type PracticeResult,
 } from './practice-tests';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 function ExecutionTime({ value }: { value: number | null }) {
   return (
@@ -295,9 +296,13 @@ export function CaseResults({
         action={action}
       />
       {!cases.length && (
-        <p className="rounded-md border p-4 text-sm text-slate-500 dark:text-slate-400">
-          No published test cases.
-        </p>
+        <IllustratedEmptyState
+          title="No published test cases."
+          description="This assignment does not have public examples yet."
+          illustration="code"
+          size="compact"
+          headingLevel={4}
+        />
       )}
       <ol className="space-y-2">
         {cases.map((item, index) => (

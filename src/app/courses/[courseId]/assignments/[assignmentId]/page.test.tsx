@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -19,6 +20,9 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('@/components/layout/breadcrumb-context', () => ({
   BreadcrumbSetter: () => null,
+}));
+vi.mock('@/features/codementor/submission-form', () => ({
+  SubmissionForm: () => <div>Submission editor</div>,
 }));
 vi.mock('@/features/student-submissions/assignment-practice', () => ({
   AssignmentPractice: () => <div data-testid="practice-runner" />,
@@ -91,6 +95,28 @@ function createPreviewSupabase() {
   };
 }
 
+function createStudentSupabase() {
+  return {
+    from: vi.fn((table: string) =>
+      table === 'assignments'
+        ? query({
+            data: {
+              id: testAssignmentId,
+              course_id: testCourseId,
+              title: 'Published assignment',
+              instructions: 'Write code',
+              language: 'python',
+              publication_status: 'published',
+              due_at: null,
+              max_xp: 10,
+            },
+            error: null,
+          })
+        : query({ data: [], error: null }),
+    ),
+  };
+}
+
 describe('CourseAssignmentDetailPage - Instructor Preview', () => {
   it('renders preview banner, practice runner, and disables submissions for instructors', async () => {
     const supabase = createPreviewSupabase();
@@ -117,7 +143,7 @@ describe('CourseAssignmentDetailPage - Instructor Preview', () => {
 
     expect(screen.getByText('Preview Mode (Instructor)')).toBeTruthy();
     expect(
-      screen.getByText(/Submissions disabled in preview mode/i),
+      screen.getByText(/Submissions.*disabled in preview mode/i),
     ).toBeTruthy();
     expect(screen.queryByText(/Your revisions/i)).toBeNull();
   });
@@ -144,5 +170,32 @@ describe('CourseAssignmentDetailPage - Instructor Preview', () => {
         searchParams: Promise.resolve({}),
       }),
     ).rejects.toThrow('NEXT_NOT_FOUND');
+  });
+});
+
+describe('CourseAssignmentDetailPage - student history', () => {
+  it('illustrates an empty revision history without removing the editor', async () => {
+    mocks.member.mockResolvedValue({
+      user: { id: 'student-1' },
+      supabase: createStudentSupabase(),
+    });
+    mocks.access.mockResolvedValue({
+      role: 'student',
+      lifecycle: 'active',
+      featureEnabled: true,
+    });
+
+    const page = await CourseAssignmentDetailPage({
+      params: Promise.resolve({
+        courseId: testCourseId,
+        assignmentId: testAssignmentId,
+      }),
+      searchParams: Promise.resolve({}),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain('No submissions yet.');
+    expect(html).toContain('data-illustration="code"');
+    expect(html).toContain('Submission editor');
   });
 });

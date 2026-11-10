@@ -46,6 +46,7 @@ it('distinguishes an unpublished empty account from a filtered no-match page', (
     />,
   );
   expect(empty).toContain('No published grades yet');
+  expect(empty).toContain('data-illustration="progress"');
   const filtered = renderToStaticMarkup(
     <StudentGradesList
       grades={{ rows: [], hasNext: false }}
@@ -55,4 +56,5 @@ it('distinguishes an unpublished empty account from a filtered no-match page', (
     />,
   );
   expect(filtered).toContain('No matching grades');
+  expect(filtered).toContain('data-illustration="progress"');
 });

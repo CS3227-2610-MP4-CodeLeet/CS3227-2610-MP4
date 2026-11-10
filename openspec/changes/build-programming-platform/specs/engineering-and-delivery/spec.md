@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Illustrated zero-data views
+User-facing data views SHALL provide an accessible illustrated empty state when a successful query returns no records, no filtered matches, or no activity. The state SHALL retain view-specific explanations and permitted next actions, and SHALL remain distinct from loading, failure, unavailable, and not-found states.
+
+#### Scenario: Successful empty data view
+- **WHEN** a page or embedded view successfully loads a data-backed collection with no records
+- **THEN** it presents semantic empty-state text with a decorative illustration and any existing role-appropriate next action
+
+#### Scenario: Filtered query has no matches
+- **WHEN** a successful search or filter has no matching records
+- **THEN** it explains that no results match the selected query and preserves the available filter-clearing action
+
+#### Scenario: Loading or failed query
+- **WHEN** data is still loading or the query fails
+- **THEN** the view presents its loading or error state without implying that the collection is empty
+
 ### Requirement: Actual specialist coordination evidence
 The process SHALL retain proposed specs before implementation and actual specialist triggers, bounded context, file ownership, handoffs, review outcomes and available usage metrics. Generated roles SHALL NOT be represented as executed coordination.
 

@@ -40,3 +40,16 @@ it('renders exact totals, available assignment links and hidden-title fallback w
     '/courses/course-1/xp?page=2',
   );
 });
+it('illustrates a zero-award state without implying XP was earned', () => {
+  render(
+    <XpOverview
+      courseId="course-1"
+      data={{ total_xp: '0', page: 1, has_more: false, awards: [] }}
+    />,
+  );
+
+  expect(screen.getByText('No XP awards yet.')).toBeTruthy();
+  expect(
+    document.querySelector('svg[data-illustration="progress"]'),
+  ).toBeTruthy();
+});

@@ -7,6 +7,7 @@ import {
   SubmissionTiming,
 } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 function SubmissionCard({
   submission,
@@ -93,9 +94,11 @@ export default async function AssignmentSubmissionsPage({
         </p>
       </div>
       {!submissions?.length ? (
-        <p className="rounded-xl border p-6 text-muted-foreground">
-          No submissions yet.
-        </p>
+        <IllustratedEmptyState
+          title="No submissions yet."
+          description="Student revisions will appear here as they submit their work."
+          illustration="code"
+        />
       ) : (
         submissions.map((submission) => (
           <SubmissionCard
