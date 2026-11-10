@@ -6,7 +6,7 @@
 - GitHub issue: [#140](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/140)
 - OpenSpec change: [build-programming-platform](../openspec/changes/build-programming-platform/)
 - Branch and commits: `fix/responsive-navigation`; `62af4bc` (`fix(ui): make mobile course navigation accessible`)
-- Pull request: pending
+- Pull request: pending after successful branch CI
 - Human verification: pending
 - Verifier/date: pending
 
@@ -17,11 +17,12 @@
 - The keyboard regression failed against the original drawer and passed after focus entry, Tab containment, Escape dismissal, focus restoration and header spacing changes. The agent corrected an initially invalid Vitest matcher before confirming the intended failing behavior.
 - GitHub access initially returned 401 in the restricted shell. The approved terminal exposed the configured GitHub CLI account; issue #140 was created. No PR was merged.
 - The agent removed its earlier untracked exploratory audit spec after it caused a full-lint failure; the focused regressions remain tracked in this branch.
+- Branch [application workflow 42801276979](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42801276979) passed application, database and authenticated E2E jobs. The coverage-report job was skipped by its workflow condition.
 
 ## Work and verification
 
 - Files and requirement links: `src/components/layout/mobile-sidebar-drawer.tsx`, `src/components/layout/course-sidebar.tsx`, their tests, `tests/e2e/my-submissions.spec.ts`, and the course navigation scenario in the linked OpenSpec change.
 - Commands/checks actually run and outcomes: focused Vitest 10/10 passed; full Vitest 865/865 passed after the final test adjustment; `next build`, TypeScript, full ESLint, full Prettier, strict OpenSpec validation (11 items), scaffold link checks and `git diff --check` passed. Focused ESLint initially reported four maintainability errors, then passed after refactoring.
-- Failures, retries, unresolved issues: authenticated Playwright was attempted twice but the local Supabase API refused connections on `127.0.0.1:54321`. A stop/start with preserved data then failed because Windows excluded ports 54305–54404, including the configured DB port 54322; the local stack is stopped pending port availability. Container inspection showed no published port despite a configured binding. The pinned runtime asset script reported `fetch failed` in both restricted and approved terminals; `next build` passed using the existing local assets. Browser geometry verification and CI remain pending. The exploratory audit spec was removed after use; `next-env.d.ts` and two experiment timestamp updates remain unrelated and are excluded from this change.
+- Failures, retries, unresolved issues: authenticated Playwright was attempted twice locally but the Supabase API refused connections on `127.0.0.1:54321`. A stop/start with preserved data then failed because Windows excluded ports 54305–54404, including the configured DB port 54322; the local stack is stopped pending port availability. Container inspection showed no published port despite a configured binding. The pinned runtime asset script reported `fetch failed` in both restricted and approved terminals; `next build` passed using existing local assets and the branch application CI build passed. CI verified the browser geometry and keyboard checks. The exploratory audit spec was removed after use; `next-env.d.ts` and two experiment timestamp updates remain unrelated and are excluded from this change.
 - Resource measurements and unavailable fields: no agent token, elapsed comparison, or provider measurements recorded.
-- Next steps: restore local browser fixture connectivity or rely on authenticated CI, verify the geometry case, then push and submit a PR for teammate review.
+- Next steps: publish the issue-linked PR to `develop`, inspect final-head checks, and hand it to a teammate for review. Restore local browser fixture connectivity before local reproduction.
