@@ -314,4 +314,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 37.2 Add failing UI/database regressions proving students cannot access join codes and student members cannot be selected as ownership-transfer recipients.
 - [x] 37.3 Restrict ownership transfer to verified instructor members in the UI and database; add an admin-only read-only course overview route without widening member routes.
 - [x] 37.4 Add instructor code-copy UX and verify code visibility/denial, admin metadata-only access, and transfer behavior with unit and pgTAP tests.
-- [ ] 37.5 Run applicable unit, database, type, lint, format, build and strict OpenSpec checks; record the dated log and publish an issue-linked PR to develop after branch CI. Keep human verification pending.
+- [x] 37.5 Run applicable unit, database, type, lint, format, build and strict OpenSpec checks; record the dated log and publish issue-linked PR #132 to develop after branch CI. Keep human verification pending.
