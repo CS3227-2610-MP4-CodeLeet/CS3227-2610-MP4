@@ -19,10 +19,16 @@ vi.mock('@/lib/supabase/server', () => ({
 import { GET } from './route';
 
 const base = 'http://localhost:3000';
+const signupCallback = `${base}/auth/callback?code=synthetic`;
+const verifiedLocation = `${base}/email-verified`;
+const referrerHeader = 'referrer-policy';
+const noReferrer = 'no-referrer';
 beforeEach(() => {
   mocks.exchange.mockResolvedValue({ error: null });
   mocks.getUser.mockResolvedValue({
-    data: { user: { id: 'synthetic-id' } },
+    data: {
+      user: { id: 'synthetic-id', email_confirmed_at: '2026-11-10T00:00:00Z' },
+    },
     error: null,
   });
   mocks.role.mockResolvedValue({ data: { role: 'student' }, error: null });
@@ -34,30 +40,28 @@ beforeEach(() => {
 afterEach(() => vi.clearAllMocks());
 
 describe('recovery callback boundary', () => {
-  it('routes instructors through course discovery after sign-in', async () => {
-    mocks.role.mockResolvedValue({ data: { role: 'instructor' }, error: null });
-    const response = await GET(
-      new NextRequest(`${base}/auth/callback?code=synthetic`),
-    );
-    expect(response.headers.get('location')).toBe(`${base}/courses`);
+  it('shows the email confirmation result without depending on role lookup', async () => {
+    const response = await GET(new NextRequest(signupCallback));
+    expect(response.headers.get('location')).toBe(verifiedLocation);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(response.headers.get(referrerHeader)).toBe(noReferrer);
+    expect(mocks.role).not.toHaveBeenCalled();
   });
-  it('routes admins through course discovery after sign-in', async () => {
-    mocks.role.mockResolvedValue({ data: { role: 'admin' }, error: null });
-    const response = await GET(
-      new NextRequest(`${base}/auth/callback?code=synthetic`),
+  it('does not claim success for an unconfirmed email', async () => {
+    mocks.getUser.mockResolvedValue({
+      data: { user: { id: 'synthetic-id', email_confirmed_at: null } },
+      error: null,
+    });
+    const response = await GET(new NextRequest(signupCallback));
+    expect(response.headers.get('location')).toBe(
+      `${base}/sign-in?confirmed=error`,
     );
-    expect(response.headers.get('location')).toBe(`${base}/courses`);
   });
-  it('routes students through course discovery after sign-in', async () => {
-    mocks.role.mockResolvedValue({ data: { role: 'student' }, error: null });
-    const response = await GET(
-      new NextRequest(`${base}/auth/callback?code=synthetic`),
-    );
-    expect(response.headers.get('location')).toBe(`${base}/courses`);
-  });
-  it('preserves the normal callback without a code', async () => {
+  it('explains a confirmation callback without a code', async () => {
     const response = await GET(new NextRequest(`${base}/auth/callback`));
-    expect(response.headers.get('location')).toBe(`${base}/sign-in`);
+    expect(response.headers.get('location')).toBe(
+      `${base}/sign-in?confirmed=error`,
+    );
   });
   it('routes verified recovery to the fixed password page', async () => {
     const response = await GET(
@@ -67,7 +71,7 @@ describe('recovery callback boundary', () => {
     );
     expect(response.headers.get('location')).toBe(`${base}/reset-password`);
     expect(response.headers.get('cache-control')).toBe('no-store');
-    expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(response.headers.get(referrerHeader)).toBe(noReferrer);
     expect(mocks.role).not.toHaveBeenCalled();
   });
   it('rejects a recovery callback without a code', async () => {
@@ -130,7 +134,7 @@ describe('callback failure and redirect handling', () => {
         `${base}/auth/callback?code=synthetic&next=${encodeURIComponent(next)}`,
       ),
     );
-    expect(response.headers.get('location')).toBe(`${base}/courses`);
+    expect(response.headers.get('location')).toBe(verifiedLocation);
   });
 });
 
@@ -147,7 +151,7 @@ describe('course invitation callback', () => {
     expect(mocks.rpc).toHaveBeenCalledWith('accept_course_invitation', {
       p_token: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN',
     });
-    expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(response.headers.get(referrerHeader)).toBe(noReferrer);
   });
   it('does not call the acceptance RPC without a valid token or verified session', async () => {
     const invalid = await GET(
