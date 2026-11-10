@@ -111,7 +111,11 @@ function InstructorAssignmentsView({
         {!assignments?.length ? (
           <IllustratedEmptyState
             title="No assignments in this course yet."
-            description="Create an assignment to give students work in this course."
+            description={
+              isLifecycleActive
+                ? 'Create an assignment to give students work in this course.'
+                : 'This archived course has no assignments.'
+            }
             illustration="collection"
           />
         ) : (

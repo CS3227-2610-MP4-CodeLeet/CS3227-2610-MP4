@@ -35,6 +35,7 @@ import CourseAssignmentsPage from './page';
 
 const testCourseId = 'course-123';
 const testTitle = 'Algorithm Problem 1';
+const newAssignmentLabel = 'New assignment';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -119,7 +120,7 @@ describe('CourseAssignmentsPage - instructor role', () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain(testTitle);
-    expect(html).toContain('New assignment');
+    expect(html).toContain(newAssignmentLabel);
     expect(html).toContain(`/courses/${testCourseId}/assignments/new`);
     expect(html).toContain(`/courses/${testCourseId}/assignments/asg-1`); // Preview
     expect(html).toContain(`/courses/${testCourseId}/assignments/asg-1/edit`); // Edit
@@ -143,7 +144,7 @@ describe('CourseAssignmentsPage - instructor role', () => {
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain(testTitle);
-    expect(html).not.toContain('New assignment');
+    expect(html).not.toContain(newAssignmentLabel);
     expect(html).not.toContain('/edit');
   });
 
@@ -164,5 +165,24 @@ describe('CourseAssignmentsPage - instructor role', () => {
     expect(html).toContain('No assignments in this course yet');
     expect(html).toContain('data-illustration="collection"');
     expect(html).toContain(`/courses/${testCourseId}/assignments/new`);
+  });
+
+  it('does not suggest creating assignments in an archived course', async () => {
+    mocks.access.mockResolvedValue({
+      role: 'instructor',
+      lifecycle: 'archived',
+      featureEnabled: false,
+    });
+    mocks.instructorAssignments = [];
+
+    const page = await CourseAssignmentsPage({
+      params: Promise.resolve({ courseId: testCourseId }),
+      searchParams: Promise.resolve({}),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain('This archived course has no assignments.');
+    expect(html).not.toContain('Create an assignment');
+    expect(html).not.toContain(newAssignmentLabel);
   });
 });
