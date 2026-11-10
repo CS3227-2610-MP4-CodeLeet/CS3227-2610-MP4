@@ -38,6 +38,18 @@ export const test = base.extend<{ comparisonFixture: ComparisonFixture }>({
       });
       expect(response.ok()).toBeTruthy();
       peerId = (await response.json()).id;
+      const membership = await admin.post(
+        `${serviceUrl}/rest/v1/course_memberships`,
+        {
+          headers: comparisonHeaders,
+          data: {
+            course_id: data.courseId,
+            user_id: peerId,
+            role: 'student',
+          },
+        },
+      );
+      expect(membership.ok()).toBeTruthy();
       const ids = comparisonSources.map(() =>
         Array.from({ length: 3 }, () => crypto.randomUUID()),
       );

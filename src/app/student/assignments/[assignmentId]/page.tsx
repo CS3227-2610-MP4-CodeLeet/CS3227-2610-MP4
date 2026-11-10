@@ -39,7 +39,6 @@ function SubmissionHistory({
   assignmentId: string;
   courseId: string;
 }) {
-  const courseQuery = `?courseId=${encodeURIComponent(courseId)}`;
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Your revisions</h2>
@@ -59,7 +58,7 @@ function SubmissionHistory({
             >
               <Link
                 className="underline"
-                href={`/student/submissions/${submission.id}${courseQuery}`}
+                href={`/courses/${encodeURIComponent(courseId)}/submissions/${encodeURIComponent(submission.id)}`}
               >
                 Revision {submission.revision}
               </Link>

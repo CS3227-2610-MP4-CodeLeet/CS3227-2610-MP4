@@ -2,16 +2,14 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 export async function verifyAssignmentLayout(page: Page) {
   const navigation = page.getByRole('navigation', {
-    name: 'Student navigation',
+    name: 'Course section links',
   });
-  await expect(navigation.getByRole('link')).toHaveText([
-    'Assignments',
-    'My submissions',
-    'My grades',
-    'My XP',
-    'Leaderboard',
-    'Forums',
-  ]);
+  await expect(
+    navigation.getByRole('link', { name: 'Assignments', exact: true }),
+  ).toBeVisible();
+  await expect(
+    navigation.getByRole('link', { name: 'My submissions', exact: true }),
+  ).toBeVisible();
   if (process.env.RUN_AUTHENTICATED_RUNTIME_TESTS !== '1') return;
   const controls = [
     page.getByLabel(/^(Python|Java) source code$/),

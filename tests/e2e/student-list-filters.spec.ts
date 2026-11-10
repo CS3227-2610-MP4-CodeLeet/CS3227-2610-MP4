@@ -12,8 +12,8 @@ import {
   type FilterFixture,
 } from './helpers/list-filter-fixtures';
 
-const assignmentPath = '/student/assignments';
-const historyPath = '/student/submissions';
+const assignmentPath = '/assignments';
+const historyPath = '/submissions';
 const searchLabel = 'Search by assignment title';
 const applyName = 'Apply filters';
 const clearName = 'Clear filters';
@@ -192,6 +192,7 @@ async function signIn(page: Page, email: string, data: FilterFixture) {
   await page.getByLabel('Email or username').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(historyPassword);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await page.waitForURL(/\/courses$/);
   await page.goto(coursePath(data, assignmentPath));
   await expect(page).toHaveURL(coursePath(data, assignmentPath));
 }

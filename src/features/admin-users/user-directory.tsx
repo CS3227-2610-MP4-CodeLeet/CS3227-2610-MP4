@@ -49,7 +49,8 @@ export async function confirmRoleChange({
 }
 
 export function destinationForRole(role: AppRole) {
-  return role === 'student' ? '/student/assignments' : '/courses';
+  void role;
+  return '/courses';
 }
 
 export async function runSinglePageRequest(

@@ -9,8 +9,8 @@ select ok(position('for share' in source)>0
 select has_table('public', 'forum_threads', 'threads persist');
 select has_table('public', 'forum_replies', 'replies persist');
 insert into auth.users (id,email,email_confirmed_at,raw_user_meta_data) values
-('f0300000-0000-4000-8000-000000000001','forum-student@example.test',now(),'{"display_name":"Forum Student","role":"instructor"}'),
-('f0300000-0000-4000-8000-000000000002','forum-teacher@example.test',now(),'{"display_name":"Forum Teacher"}'),
+('f0300000-0000-4000-8000-000000000001','forum-student@example.test',now(),'{"display_name":"Forum Student Fixture 0001","role":"instructor"}'),
+('f0300000-0000-4000-8000-000000000002','forum-teacher@example.test',now(),'{"display_name":"Forum Teacher Fixture 0002"}'),
 ('f0300000-0000-4000-8000-000000000003','forum-unprovisioned@example.test',now(),'{}');
 update public.user_roles set role='instructor' where user_id='f0300000-0000-4000-8000-000000000002';
 delete from public.user_roles where user_id='f0300000-0000-4000-8000-000000000003';
@@ -30,7 +30,7 @@ select lives_ok($$select public.create_forum_post('f0400000-0000-4000-8000-00000
 select throws_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000003',null,'Cross course','Denied',gen_random_uuid())$$,'42501','forum_member_required','student cannot post into another course');
 select is((select count(*)::int from public.forum_threads where course_id='f0400000-0000-4000-8000-000000000003'),0,'direct forum reads cannot cross course membership');
 select is((select author_role from public.forum_threads where title='Thread'),'student','ignores forged signup role');
-select is((select author_name from public.forum_threads where title='Thread'),'Forum Student','trusted profile snapshot');
+select is((select author_name from public.forum_threads where title='Thread'),'Forum Student Fixture 0001','trusted profile snapshot');
 select is((select body from public.forum_threads where title='Thread'),'<script>plain text</script>','stores plain text');
 select lives_ok($$select public.create_forum_post('f0400000-0000-4000-8000-000000000001',null,'Thread','<script>plain text</script>','f0300000-0000-4000-8000-000000000010')$$,'retry succeeds');
 select is((select count(*)::int from public.forum_threads where title='Thread'),1,'retry creates no duplicate');

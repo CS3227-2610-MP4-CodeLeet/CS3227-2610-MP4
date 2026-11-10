@@ -29,7 +29,7 @@ beforeEach(() => {
 });
 
 describe('student workspace shell', () => {
-  it.each([['/student/progress', 'My progress']])(
+  it.each([['/courses/course-a/progress', 'My progress']])(
     'uses the matching breadcrumb for %s',
     (path, label) => {
       mocks.pathname = path;
@@ -65,7 +65,20 @@ describe('student workspace shell', () => {
     expect(html).not.toContain('>Sign out<');
   });
 
-  it('adds authenticated workspace destinations and selects the matching section', () => {
+  it('uses only course-scoped authenticated destinations when a course is selected', () => {
+    mocks.pathname = '/courses/course-a/forums/thread-1';
+    mocks.searchParams = new URLSearchParams('courseId=course-a');
+    const html = renderToStaticMarkup(
+      <WorkspaceShell assignments={assignments} authenticated>
+        <p>Thread</p>
+      </WorkspaceShell>,
+    );
+    expectSelectedCourseNavigation(html);
+  });
+});
+
+describe('authenticated course navigation', () => {
+  it('offers only the course directory when authenticated navigation has no course context', () => {
     mocks.pathname = '/forums/thread-1';
     const html = renderToStaticMarkup(
       <WorkspaceShell assignments={assignments} authenticated>
@@ -73,8 +86,10 @@ describe('student workspace shell', () => {
       </WorkspaceShell>,
     );
     expect(html).not.toContain('Preview with sample assignments.');
-    expect(html).toContain('My submissions');
-    expect(html).toContain('My grades');
+    expect(html).toContain('href="/courses"');
+    expect(html).not.toContain('My submissions');
+    expect(html).not.toContain('My grades');
+    expect(html).not.toMatch(/href="\/student\//);
     expect(html).toContain('Profile settings');
     expect(html).toContain('Sign out');
     expect(html).not.toContain('href="/forums"');
@@ -82,26 +97,52 @@ describe('student workspace shell', () => {
   });
 
   it('uses the grades section for grade routes and omits a missing assignment crumb', () => {
-    mocks.pathname = '/student/grades';
+    mocks.pathname = '/courses/course-a/grades';
+    mocks.searchParams = new URLSearchParams('courseId=course-a');
     const html = renderToStaticMarkup(
       <WorkspaceShell assignments={assignments} authenticated>
         <p>Grades</p>
       </WorkspaceShell>,
     );
-    expect(html).toContain('href="/student/grades"');
+    expect(html).toContain('href="/courses/course-a/grades"');
     expect(html).toContain('>Grades</p>');
     expect(html).not.toContain('Loop practice');
   });
 
   it('keeps the selected course on assignment and course navigation', () => {
-    mocks.pathname = '/student/assignments/loops';
+    mocks.pathname = '/courses/course-a/assignments/loops';
     mocks.searchParams = new URLSearchParams('courseId=course-a');
     const html = renderToStaticMarkup(
       <WorkspaceShell assignments={assignments} authenticated>
         <p>Assignment</p>
       </WorkspaceShell>,
     );
-    expect(html).toContain('href="/student/assignments?courseId=course-a"');
+    expect(html).toContain('href="/courses/course-a/assignments"');
     expect(html).toContain('href="/courses"');
   });
+
+  it('uses the course in the URL path when a stale query names another course', () => {
+    mocks.pathname = '/courses/course-a/assignments';
+    mocks.searchParams = new URLSearchParams('courseId=course-b');
+    const html = renderToStaticMarkup(
+      <WorkspaceShell assignments={assignments} authenticated>
+        <p>Assignments</p>
+      </WorkspaceShell>,
+    );
+    expectSelectedCourseNavigation(html);
+    expect(html).not.toContain('href="/courses/course-b/');
+  });
 });
+
+function expectSelectedCourseNavigation(html: string) {
+  expect(html).toContain('href="/courses/course-a/assignments"');
+  expect(html).toContain('href="/courses/course-a/progress"');
+  expect(html).toContain('href="/courses/course-a/submissions"');
+  expect(html).toContain('href="/courses/course-a/grades"');
+  expect(html).toContain('href="/courses"');
+  expect(html).not.toMatch(/href="\/student\//);
+  expect(html).toContain('My submissions');
+  expect(html).toContain('My grades');
+  expect(html).toContain('Profile settings');
+  expect(html).toContain('Sign out');
+}

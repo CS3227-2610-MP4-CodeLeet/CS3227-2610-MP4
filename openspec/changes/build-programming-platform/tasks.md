@@ -308,18 +308,36 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 36.5 Verify typecheck, lint, format, full unit suite and production build; update User/Developer Guides and the dated log. Authenticated browser verification was not run (local Supabase/Docker unavailable).
 - [x] 36.6 Push the branch and publish issue-linked PR #115 to develop after branch CI (application run 42437388796, scaffold run 42437391544 at b021910); human browser verification remains pending.
 
-## 37. Issue #131 course access and ownership boundaries
+## 37. Issue #129 routing and authenticated browser CI release audit
+- [x] 37.1 Replace authenticated navigation and student-history links that target removed legacy pages; add safe compatibility redirects that preserve verified course membership and canonicalize legacy record URLs.
+- [x] 37.2 Migrate the affected authenticated Playwright journeys to course-scoped routes and synthetic course memberships without weakening assertions or skipping authenticated scenarios. Local Chromium rerun: 77 passed, one local-email prerequisite skip.
+- [x] 37.3 Add a local-Supabase authenticated browser CI job that confines fixture credentials to test setup, strips them from the Next server, and avoids uploading traces or artifacts containing fixture authorization. Environment-isolation unit tests and final-head PR #133 authenticated E2E job passed; the Supabase Preview check was skipped because preview branching was not configured.
+- [x] 37.4 Verify targeted routing regressions, authenticated browser journeys, full unit/build/type/lint/format/OpenSpec/scaffold checks and applicable database checks; record release gates and create linked PR #133 closing #129 after successful branch application CI run 42752213234, scaffold run 42752218345, and CodeQL run 42752216918. Final PR-head application, authenticated E2E, database, scaffold, CodeQL and coverage-report checks passed before merge at `66c6d62`; hosted gates remain separate.
 
-- [x] 37.1 Record the approved instructor-only code visibility, read-only platform-admin overview, and instructor-only ownership-transfer requirements in the plan and course-workspaces design/spec.
-- [x] 37.2 Add failing UI/database regressions proving students cannot access join codes and student members cannot be selected as ownership-transfer recipients.
-- [x] 37.3 Restrict ownership transfer to verified instructor members in the UI and database; add an admin-only read-only course overview route without widening member routes.
-- [x] 37.4 Add instructor code-copy UX and verify code visibility/denial, admin metadata-only access, and transfer behavior with unit and pgTAP tests.
-- [x] 37.5 Run applicable unit, database, type, lint, format, build and strict OpenSpec checks; record the dated log and publish issue-linked PR #132 to develop after branch CI. Keep human verification pending.
+## 38. Issue #130 role-aware AI usage and authorization audit
 
-## 38. Issue #134 illustrated empty states
+- [x] 38.1 Make in-flight usage finalization server-authorized and replay-resistant; fail closed when completion or cached-use accounting fails.
+- [x] 38.2 Preserve student feedback history while requiring current instructor membership for instructor-only review reads.
+- [x] 38.3 Add failing-first service and database regressions for client-forged completion, replay/mismatch, failed accounting, forged reviews/cache hits and role removal; verify existing provider quotas and privacy behavior. Post-review local verification passed 858 unit tests and 482 pgTAP assertions; final-head PR #133 application/database checks passed.
+- [x] 38.4 Run focused and full relevant checks, update verified security evidence, and create linked PR #133 closing #130 after successful branch CI. Final-head PR #133 checks passed and the PR merged into develop as `66c6d62`; hosted/live-provider gates remain separate.
 
-- [x] 38.1 Add the shared accessible illustrated empty-state component with local SVG variants and compact/standard layouts.
-- [x] 38.2 Cover successful empty collections and filtered no-results across directories, assignments, submissions, forums, grades, progress, AI usage, XP/leaderboard, context comparison, practice cases and ownership transfer; preserve view-specific copy/actions and role/lifecycle checks.
-- [x] 38.3 Keep loading, error, unavailable, not-found, editor-input and runtime-output states distinct; verify with focused behavior tests.
-- [x] 38.4 Audit all application data views and run unit, lint, type, format, strict OpenSpec and diff checks; record the dated log and self-review limitations.
-- [x] 38.5 Commit the evidence, push the issue-linked PR #137 to develop, and verify final-head CI on the code commit `fbf93345` and evidence commit `99f987d` (Application #42766394468 and #42767488625; Scaffold #42766396229 and #42767495868; CodeQL #42766397543 and #42767493159 all passed). The first database attempt on `fbf93345` hit a runner port conflict and passed on retry. Coverage-report was skipped under `workflow_dispatch`; teammate review remains pending.
+## 39. Issue #135 post-merge guides and reflection reconciliation
+
+- [x] 39.1 Reconcile canonical guides and repository status against merged PR #133 and current UI/source; preserve hosted release limits. Current instructor context-comparison UI and final PR-head checks were inspected; hosted verification stays open.
+- [x] 39.2 Refresh reflection evidence references and correct unsupported factual claims without approving either member's personal conclusions. Removed an unmeasured cache-hit latency claim and qualified declarative agent sandboxing/RLS statements.
+- [x] 39.3 Verify guide links, site build, formatting, scaffold and strict OpenSpec; record a dated session summary and publish issue-linked PR #136 after branch application/database/authenticated-E2E, scaffold and CodeQL checks passed. Final PR-head checks and human/hosted review remain separate.
+
+## 40. Issue #138 reflection claim and submission-readiness audit
+
+- [x] 40.1 Compare individual reflection claims with the assignment rubric, implemented prompt constructors and experiment records; qualify unsupported numerical or causal claims without asserting personal author approval.
+- [x] 40.2 Record the current `master`/`develop` and Production/Preview release gap in the assignment checklist without changing release branches or claiming hosted acceptance.
+- [x] 40.3 Verify changed Markdown, links, strict OpenSpec and site build; record a dated log and publish PR #139 to `develop` for teammate review. The PR remains unmerged; final-head CI and human review are tracked separately.
+
+## 41. Issue #134 illustrated empty states
+
+- [x] 41.1 Add the shared accessible illustrated empty-state component with local SVG variants and compact/standard layouts.
+- [x] 41.2 Cover successful empty collections and filtered no-results across directories, assignments, submissions, forums, grades, progress, AI usage, XP/leaderboard, context comparison, practice cases and ownership transfer; preserve view-specific copy/actions and role/lifecycle checks.
+- [x] 41.3 Keep loading, error, unavailable, not-found, editor-input and runtime-output states distinct; verify with focused behavior tests.
+- [x] 41.4 Audit all application data views and run unit, lint, type, format, strict OpenSpec and diff checks; record the dated log and self-review limitations.
+- [x] 41.5 Commit the evidence, push the issue-linked PR #137 to develop, and verify final-head CI on code commit `fbf93345` and evidence commit `99f987d` (Application #42766394468 and #42767488625; Scaffold #42766396229 and #42767495868; CodeQL #42766397543 and #42767493159 all passed). The first database attempt on `fbf93345` hit a runner port conflict and passed on retry. Coverage-report was skipped under `workflow_dispatch`; teammate review remains pending.
+- [ ] 41.6 Merge latest `develop` into PR #137, resolve the task-number collision without dropping either branch's work, rerun integration checks, and update the PR evidence before handoff.

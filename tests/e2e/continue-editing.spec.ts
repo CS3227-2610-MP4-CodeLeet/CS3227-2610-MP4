@@ -16,12 +16,14 @@ const savedThird = 'Saved revision 3.';
 const revisionOne = 'revision one';
 const revisionTwo = 'revision two';
 const endKey = 'Control+End';
+const notFoundMessage =
+  'This assignment could not be found or is not available.';
 const fixtures = [
-  { language: 'Python', source: 'print("revision one")\n\n' },
+  { language: 'Python', source: 'print("revision one")' },
   {
     language: 'Java',
     source:
-      'public class Main { public static void main(String[] args) { System.out.println("revision one"); } }\n\n',
+      'public class Main { public static void main(String[] args) { System.out.println("revision one"); } }',
   },
 ] as const;
 type RevisionData = {
@@ -120,10 +122,14 @@ for (const [index, fixture] of fixtures.entries()) {
       .getByRole('link', { name: 'My submissions', exact: true })
       .first()
       .click();
-    await page.locator(`a[href="/student/submissions/${id}"]`).click();
+    await page
+      .locator(`a[href="/courses/${data.courseId}/submissions/${id}"]`)
+      .click();
     await expect(page.locator('pre code')).toHaveText(fixture.source);
     await page.getByRole('link', { name: continueName, exact: true }).click();
-    await expect(page).toHaveURL(editorPath(data.assignments[index], id));
+    await expect(page).toHaveURL(
+      editorPath(data.courseId, data.assignments[index], id),
+    );
     const editor = page.getByLabel(`${fixture.language} source code`, {
       exact: true,
     });
@@ -139,6 +145,7 @@ for (const [index, fixture] of fixtures.entries()) {
     await page.getByRole('link', { name: 'Revision 1', exact: true }).click();
     await expect(page.locator('pre code')).toHaveText(fixture.source);
     await checkStoredRevisions(revisionData.admin, {
+      courseId: data.courseId,
       assignmentId: data.assignments[index],
       studentId: data.users[1].id,
       source: fixture.source,
@@ -154,13 +161,14 @@ for (const [index, fixture] of fixtures.entries()) {
   }) => {
     await signIn(page, data);
     const [first, second] = revisionData.revisions[index];
-    await page.goto(editorPath(data.assignments[index], first));
+    await page.goto(editorPath(data.courseId, data.assignments[index], first));
     await ensureInteractive(page);
     const editor = page.getByLabel(`${fixture.language} source code`, {
       exact: true,
     });
     await expect(editor).toHaveValue(fixture.source);
     await checkReplacement(page, {
+      courseId: data.courseId,
       assignmentId: data.assignments[index],
       first,
       second,
@@ -173,7 +181,9 @@ for (const [index, fixture] of fixtures.entries()) {
     await page
       .getByRole('link', { name: 'All assignments', exact: true })
       .click();
-    await page.goto(`/student/assignments/${data.assignments[index]}`);
+    await page.goto(
+      `/courses/${data.courseId}/assignments/${data.assignments[index]}`,
+    );
     await expect(editor).toHaveValue('');
   });
 }
@@ -181,6 +191,7 @@ for (const [index, fixture] of fixtures.entries()) {
 async function checkStoredRevisions(
   admin: APIRequestContext,
   data: {
+    courseId: string;
     assignmentId: string;
     studentId: string;
     source: string;
@@ -240,7 +251,13 @@ async function saveEditedRevision(page: Page, source: string) {
 
 async function checkReplacement(
   page: Page,
-  data: { assignmentId: string; first: string; second: string; source: string },
+  data: {
+    courseId: string;
+    assignmentId: string;
+    first: string;
+    second: string;
+    source: string;
+  },
 ) {
   const editor = sourceEditor(page);
   await expect(editor).toBeEnabled();
@@ -258,11 +275,15 @@ async function checkReplacement(
   expect(dialog.type()).toBe('confirm');
   await dialog.dismiss();
   await canceled;
-  await expect(page).toHaveURL(editorPath(data.assignmentId, data.first));
+  await expect(page).toHaveURL(
+    editorPath(data.courseId, data.assignmentId, data.first),
+  );
   await expect(editor).toHaveValue(data.source + '\n');
   page.once('dialog', (dialog) => void dialog.accept());
   await editSecond.click();
-  await expect(page).toHaveURL(editorPath(data.assignmentId, data.second));
+  await expect(page).toHaveURL(
+    editorPath(data.courseId, data.assignmentId, data.second),
+  );
   await expect(editor).toHaveValue(
     data.source.replace(revisionOne, revisionTwo),
   );
@@ -329,7 +350,11 @@ test('prefilled editor waits for hydration before accepting edits', async ({
   });
   try {
     await page.goto(
-      editorPath(data.assignments[0], revisionData.revisions[0][0]),
+      editorPath(
+        data.courseId,
+        data.assignments[0],
+        revisionData.revisions[0][0],
+      ),
       { waitUntil: 'commit' },
     );
     await expect(sourceEditor(page)).toBeDisabled();
@@ -353,6 +378,7 @@ test('denies peer, mismatched, invalid, unpublished and unauthorized revision lo
   await signIn(page, data);
   const own = revisionData.revisions[0][0];
   await checkDeniedSelections(page, {
+    courseId: data.courseId,
     assignmentId: data.assignments[0],
     own,
     peer: revisionData.peerRevision,
@@ -363,16 +389,15 @@ test('denies peer, mismatched, invalid, unpublished and unauthorized revision lo
     { headers, data: { publication_status: 'draft' } },
   );
   expect(updated.ok()).toBeTruthy();
-  await page.goto(`/student/submissions/${own}`);
+  await page.goto(`/courses/${data.courseId}/submissions/${own}`);
   await expect(page.locator('pre code')).toHaveText(fixtures[0].source);
   await expect(
     page.getByRole('link', { name: continueName, exact: true }),
   ).toHaveCount(0);
-  await page.goto(editorPath(data.assignments[0], own));
-  await expect(
-    page.getByRole('heading', { name: 'Assignment unavailable', exact: true }),
-  ).toBeVisible();
+  await page.goto(editorPath(data.courseId, data.assignments[0], own));
+  await expect(page.getByText(notFoundMessage)).toBeVisible();
   await checkUnauthorized(page, {
+    courseId: data.courseId,
     assignmentId: data.assignments[1],
     revisionId: revisionData.revisions[1][0],
     email: data.users[0].email,
@@ -382,9 +407,15 @@ test('denies peer, mismatched, invalid, unpublished and unauthorized revision lo
 
 async function checkDeniedSelections(
   page: Page,
-  data: { assignmentId: string; own: string; peer: string; other: string },
+  data: {
+    courseId: string;
+    assignmentId: string;
+    own: string;
+    peer: string;
+    other: string;
+  },
 ) {
-  const path = `/student/assignments/${data.assignmentId}`;
+  const path = `/courses/${data.courseId}/assignments/${data.assignmentId}`;
   for (const query of [
     data.peer,
     data.other,
@@ -394,12 +425,7 @@ async function checkDeniedSelections(
     `${data.own}&fromRevision=${data.own}`,
   ]) {
     await page.goto(`${path}?fromRevision=${query}`);
-    await expect(
-      page.getByRole('heading', {
-        name: 'Assignment unavailable',
-        exact: true,
-      }),
-    ).toBeVisible();
+    await expect(page.getByText(notFoundMessage)).toBeVisible();
     await expect(
       page.getByLabel('Python source code', { exact: true }),
     ).toHaveCount(0);
@@ -412,6 +438,7 @@ async function checkDeniedSelections(
 async function checkUnauthorized(
   page: Page,
   data: {
+    courseId: string;
     assignmentId: string;
     revisionId: string;
     email: string;
@@ -419,26 +446,38 @@ async function checkUnauthorized(
   },
 ) {
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-  await page.goto(editorPath(data.assignmentId, data.revisionId));
+  await page.goto(
+    editorPath(data.courseId, data.assignmentId, data.revisionId),
+  );
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.email, data.password);
-  await page.goto('/instructor');
-  await expect(page).toHaveURL(/\/instructor$/);
-  await page.goto(editorPath(data.assignmentId, data.revisionId));
-  await expect(page).toHaveURL(/\/unauthorized$/);
+  await page.goto(`/courses/${data.courseId}/assignments`);
+  await expect(page).toHaveURL(
+    new RegExp(`/courses/${data.courseId}/assignments$`),
+  );
+  await page.goto(
+    editorPath(data.courseId, data.assignmentId, data.revisionId),
+  );
+  await expect(page.getByText(notFoundMessage)).toBeVisible();
 }
 
-function editorPath(assignmentId: string, revisionId: string) {
-  return `/student/assignments/${assignmentId}?fromRevision=${revisionId}`;
+function editorPath(
+  courseId: string,
+  assignmentId: string,
+  revisionId: string,
+) {
+  return `/courses/${courseId}/assignments/${assignmentId}?fromRevision=${revisionId}`;
 }
 
 async function signIn(
   page: Page,
-  data: { users: Array<{ email: string }>; password: string },
+  data: { courseId: string; users: Array<{ email: string }>; password: string },
 ) {
   await revisionSession(page, data.users[1].email, data.password);
-  await page.goto('/student/assignments');
-  await expect(page).toHaveURL(/\/student\/assignments$/);
+  await page.goto(`/courses/${data.courseId}/assignments`);
+  await expect(page).toHaveURL(
+    new RegExp(`/courses/${data.courseId}/assignments$`),
+  );
 }
 
 function sourceEditor(page: Page) {

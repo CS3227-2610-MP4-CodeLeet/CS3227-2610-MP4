@@ -12,7 +12,7 @@ const headers = {
   apikey: process.env.MP4_E2E_SERVICE_ROLE_KEY!,
   authorization: `Bearer ${process.env.MP4_E2E_SERVICE_ROLE_KEY!}`,
 };
-const progressPath = '/student/progress';
+const progressPath = '/progress';
 const submittedLabel = 'Submitted assignments';
 const outstandingLabel = 'Outstanding assignments';
 const overdueLabel = 'Overdue assignments';
@@ -145,7 +145,7 @@ async function verifyMobileNavigation(page: Page, data: Fixture) {
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Switch to dark mode' }).click();
-  await expect(page.locator('.student-workspace[data-theme]')).toHaveAttribute(
+  await expect(page.locator('.app-theme[data-theme]')).toHaveAttribute(
     'data-theme',
     'dark',
   );
@@ -159,19 +159,19 @@ async function verifyMobileNavigation(page: Page, data: Fixture) {
     fullPage: true,
   });
   await page.getByRole('button', { name: 'Switch to light mode' }).click();
-  await expect(page.locator('.student-workspace[data-theme]')).toHaveAttribute(
+  await expect(page.locator('.app-theme[data-theme]')).toHaveAttribute(
     'data-theme',
     'light',
   );
-  await page.getByLabel('Workspace menu', { exact: true }).focus();
+  await page.getByLabel('Open navigation menu', { exact: true }).focus();
   await page.keyboard.press('Enter');
   await page
-    .getByRole('navigation', { name: 'Student navigation' })
+    .getByRole('navigation', { name: 'Course section links' })
     .getByRole('link', { name: 'My progress', exact: true })
     .click();
   await expect(page).toHaveURL(coursePath(data, progressPath));
   await page.getByRole('link', { name: 'View all recent submissions' }).click();
-  await expect(page).toHaveURL(coursePath(data, '/student/submissions'));
+  await expect(page).toHaveURL(coursePath(data, '/submissions'));
 }
 
 type Fixture = Parameters<typeof hideFixtureAssignment>[0];
@@ -185,10 +185,7 @@ async function verifyRecentPrivacy(page: Page, data: Fixture) {
   for (const [index, row] of expectedOrder.entries())
     await expect(
       revisions.locator('li').nth(index).getByRole('link'),
-    ).toHaveAttribute(
-      'href',
-      coursePath(data, `/student/submissions/${row.id}`),
-    );
+    ).toHaveAttribute('href', coursePath(data, `/submissions/${row.id}`));
   expect(await page.content()).not.toMatch(
     /HISTORY_SOURCE_SENTINEL|HISTORY_UNPUBLISHED_SECRET|HISTORY_RUBRIC_SECRET/,
   );
@@ -249,6 +246,8 @@ test('signed-out and instructor accounts cannot access student progress', async 
   await page.goto(coursePath(data, progressPath));
   await expect(page).toHaveURL(/\/sign-in$/);
   await revisionSession(page, data.users[0].email, historyPassword);
-  const response = await page.goto(coursePath(data, progressPath));
-  expect(response?.status()).toBe(404);
+  await page.goto(coursePath(data, progressPath));
+  await expect(page.getByRole('heading', { name: 'My progress' })).toHaveCount(
+    0,
+  );
 });

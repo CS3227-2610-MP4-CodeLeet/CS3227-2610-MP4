@@ -1,6 +1,6 @@
 # Assignment compliance checklist
 
-Source: user-provided assignment text. Reconciled on 5 November 2026 against develop `29b6c1a` and the [evidence audit](evidence/2026-11-05-documentation-reconciliation.md). Checked means evidence exists for the stated scope, not that the entire assignment or production release is approved. Unchecked means incomplete, awaiting human/operator verification, or not fully evidenced.
+Source: user-provided assignment text. Reconciled on 10 November 2026 against merged develop `66c6d62`, the [5 November evidence audit](evidence/2026-11-05-documentation-reconciliation.md) and [PR #133](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/133). Checked means evidence exists for the stated scope, not that the entire assignment or production release is approved. Unchecked means incomplete, awaiting human/operator verification, or not fully evidenced.
 
 ## Product and process
 
@@ -18,13 +18,13 @@ Source: user-provided assignment text. Reconciled on 5 November 2026 against dev
 
 ## Submission artifacts
 
-- [ ] Public team-organization repository named `CS3227-2610-MP4`.
+- [x] Public team-organization repository named `CS3227-2610-MP4`. The [repository](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4) is public under the team organization; final master contents remain a separate gate.
 - [x] Source code under `src/`; source tests are colocated and browser/database verification has its natural test folders.
 - [x] Workflow artifacts consolidated under `workflow/` with natural OpenSpec/tool integration exceptions explained in the Developer Guide artifact catalog.
 - [ ] Accurate `docs/UserGuide.md` with access and testing instructions.
 - [ ] Accurate `docs/DeveloperGuide.md`, including architecture, process, artifact catalog, acknowledgements, and AI use declaration.
-- [x] Product website published through GitHub Pages. Successful baseline publication and HTTP 200 for overview/both guides verified on 5 November.
-- [x] `docs/Reflections.md` links two individual reflections with concrete experiments and analysis. Paul's evidence audit is complete for its stated scope; both members' final personal approval remains separate.
+- [x] Product website published through GitHub Pages. The [10 November deployment](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42763793439) succeeded at `dc01d92`; overview and both live guides returned HTTP 200, with updated guide content verified. This is documentation availability, not application production acceptance.
+- [x] `docs/Reflections.md` links two individual reflections with concrete experiments and analysis. The cited student examples and post-merge factual status were reconciled; both members' final personal approval remains separate.
 - [ ] Verified interaction summaries under `logs/` throughout development.
 - [ ] Latest tested release on `master` before 13 November 2026, 14:00 SGT.
 - [ ] Organization name submitted through Canvas quiz by 23 October 2026, 14:00 SGT.
@@ -45,4 +45,6 @@ The 25% multi-agent reflections and 20% engineering-practice components warrant 
 
 ## Remaining gates
 
-Named scopes and implementation links exist, but full individual workload/member approval has not been certified. Current guide source has been reconciled, while complete deployed journeys are still unverified. Fresh-build provenance, SRP/DRY assessment, environment separation/hosting automation, hosted recovery, final accepted-spec synchronization, every log's human review, Canvas registration and final master/freeze require their own evidence. Do not infer them from passing CI. See issue #31 for the remaining runner acceptance scope.
+Named scopes and implementation links exist, but full individual workload/member approval has not been certified. Current guide source has been reconciled with merged develop, while complete deployed journeys are still unverified. Fresh-build provenance, SRP/DRY assessment, environment separation/hosting automation, hosted recovery, final accepted-spec synchronization, every log's human review, Canvas registration and final master/freeze require their own evidence. Do not infer them from passing CI. See issue #31 for the remaining runner acceptance scope.
+
+On 10 November, remote `master` was at `cc4df33` (8 November) while `develop` was at `dc01d92`; the branches had diverged, with eight commits unique to develop and two unique to master. GitHub recorded a successful Production deployment for the older `master` commit and only Preview deployments for the newer develop commits. The team must reconcile and test the actual release commit, merge it to `master` through review, and verify that production runs that commit. A successful Preview build or Pages deployment does not satisfy this gate.

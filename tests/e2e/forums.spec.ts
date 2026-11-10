@@ -1,7 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { test, type ForumFixture } from './helpers/forum-fixtures';
 const signOutLabel = 'Sign out';
-const instructorName = 'Forum Instructor';
 
 test.use({
   baseURL: process.env.ACCOUNT_TEST_BASE_URL ?? 'http://127.0.0.1:3100',
@@ -19,22 +18,20 @@ async function signIn(page: Page, email: string, password: string) {
   await page.getByLabel('Email or username', { exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await page.waitForURL(/\/(student\/assignments|instructor|unauthorized)?$/);
+  await page.waitForURL(/\/courses$/);
 }
 
 test('both roles create and reply, safe text, retained errors, navigation and mobile theme', async ({
   page,
   forumFixture: data,
 }) => {
-  await page.goto('/forums');
+  const forums = forumsPath(data.courseId);
+  await page.goto(forums);
   await expect(page).toHaveURL(/\/sign-in$/);
   await signIn(page, data.users[0].email, data.password);
-  await page
-    .getByRole('navigation', { name: 'Student navigation' })
-    .getByRole('link', { name: 'Forums', exact: true })
-    .click();
+  await page.goto(forums);
   await expect(
-    page.getByRole('heading', { name: 'Forums', exact: true }),
+    page.getByRole('heading', { name: 'Discussions', exact: true }),
   ).toBeVisible();
   const path = await createDiscussion(page);
   await postReply(page, 'Student reply');
@@ -83,6 +80,10 @@ async function createDiscussion(page: Page) {
   return path;
 }
 
+function forumsPath(courseId: string) {
+  return `/courses/${courseId}/forums`;
+}
+
 async function verifyInstructorReply(
   page: Page,
   data: ForumFixture,
@@ -90,12 +91,11 @@ async function verifyInstructorReply(
 ) {
   await page.getByRole('button', { name: signOutLabel, exact: true }).click();
   await signIn(page, data.users[1].email, data.password);
-  await page.getByRole('link', { name: 'Forums', exact: true }).click();
   await page.goto(path);
   await postReply(page, 'Instructor reply <b>plain text</b>');
   await expect(
     page.getByRole('region', { name: 'Replies', exact: true }),
-  ).toContainText(instructorName);
+  ).toContainText(data.users[1].displayName);
   await page.getByRole('button', { name: signOutLabel, exact: true }).click();
   await signIn(page, data.users[0].email, data.password);
   await page.goto(path);
@@ -118,13 +118,13 @@ async function postReply(page: Page, text: string) {
 
 async function mobileCheck(page: Page) {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.getByLabel('Workspace menu').click();
+  await page.getByRole('button', { name: 'Open navigation menu' }).click();
   await expect(
     page
-      .getByRole('navigation', { name: 'Student navigation' })
-      .getByRole('link', { name: 'Forums', exact: true }),
+      .getByRole('navigation', { name: 'Course section links' })
+      .getByRole('link', { name: 'Discussions', exact: true }),
   ).toBeVisible();
-  await page.getByLabel('Workspace menu').click();
+  await page.getByRole('button', { name: 'Close navigation menu' }).click();
   await page
     .getByRole('button', { name: /Switch to (dark|light) mode/ })
     .click();
@@ -146,7 +146,7 @@ test('thread and reply paging, missing pages and unprovisioned denial', async ({
   const threads = Array.from({ length: 26 }, (_, index) => ({
     id: crypto.randomUUID(),
     author_id: data.users[1].id,
-    author_name: instructorName,
+    author_name: data.users[1].displayName,
     author_role: 'instructor',
     title: `Paging discussion ${index + 1}`,
     body: 'Synthetic paging fixture',
@@ -160,7 +160,7 @@ test('thread and reply paging, missing pages and unprovisioned denial', async ({
       id: crypto.randomUUID(),
       thread_id: threads[0].id,
       author_id: data.users[1].id,
-      author_name: instructorName,
+      author_name: data.users[1].displayName,
       author_role: 'instructor',
       body: `Paging reply ${index + 1}`,
       request_id: crypto.randomUUID(),
@@ -168,7 +168,8 @@ test('thread and reply paging, missing pages and unprovisioned denial', async ({
     })),
   );
   await signIn(page, data.users[0].email, data.password);
-  await page.goto('/forums');
+  const forums = forumsPath(data.courseId);
+  await page.goto(forums);
   await expect(
     page.getByRole('region', { name: 'Discussions' }).locator('article'),
   ).toHaveCount(25);
@@ -177,7 +178,7 @@ test('thread and reply paging, missing pages and unprovisioned denial', async ({
   await expect(
     page.getByRole('link', { name: 'Previous', exact: true }),
   ).toBeVisible();
-  await page.goto(`/forums/${threads[0].id}`);
+  await page.goto(`${forums}/${threads[0].id}`);
   await expect(
     page
       .getByRole('region', { name: 'Replies', exact: true })
@@ -189,20 +190,21 @@ test('thread and reply paging, missing pages and unprovisioned denial', async ({
       .getByRole('region', { name: 'Replies', exact: true })
       .locator('article'),
   ).toHaveCount(1);
-  await verifyMissingPages(page);
-  await page.goto('/forums');
+  await verifyMissingPages(page, data.courseId);
+  await page.goto(forums);
   await page.getByRole('button', { name: signOutLabel, exact: true }).click();
   await signIn(page, data.users[2].email, data.password);
-  await page.goto('/forums');
+  await page.goto(forums);
   await expect(page).toHaveURL(/\/unauthorized$/);
 });
 
-async function verifyMissingPages(page: Page) {
-  await page.goto('/forums/not-a-uuid');
+async function verifyMissingPages(page: Page, courseId: string) {
+  const forums = forumsPath(courseId);
+  await page.goto(`${forums}/not-a-uuid`);
   await expect(
     page.getByRole('heading', { name: 'Discussion unavailable' }),
   ).toBeVisible();
-  await page.goto('/forums?page=0');
+  await page.goto(`${forums}?page=0`);
   await expect(
     page.getByRole('heading', { name: 'Discussion unavailable' }),
   ).toBeVisible();
