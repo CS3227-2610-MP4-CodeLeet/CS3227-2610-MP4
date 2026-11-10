@@ -313,11 +313,11 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 37.1 Replace authenticated navigation and student-history links that target removed legacy pages; add safe compatibility redirects that preserve verified course membership and canonicalize legacy record URLs.
 - [x] 37.2 Migrate the affected authenticated Playwright journeys to course-scoped routes and synthetic course memberships without weakening assertions or skipping authenticated scenarios. Local Chromium rerun: 77 passed, one local-email prerequisite skip.
 - [x] 37.3 Add a local-Supabase authenticated browser CI job that confines fixture credentials to test setup, strips them from the Next server, and avoids uploading traces or artifacts containing fixture authorization. Environment-isolation unit tests pass; branch CI remains pending.
-- [ ] 37.4 Verify targeted routing regressions, authenticated browser journeys, full unit/build/type/lint/format/OpenSpec/scaffold checks and applicable database checks; record release gates and create a linked PR closing #129 only after required CI passes.
+- [x] 37.4 Verify targeted routing regressions, authenticated browser journeys, full unit/build/type/lint/format/OpenSpec/scaffold checks and applicable database checks; record release gates and create linked PR #133 closing #129 after successful branch application CI run 42752213234, scaffold run 42752218345, and CodeQL run 42752216918. Final PR-head checks and hosted gates remain separate.
 
 ## 38. Issue #130 role-aware AI usage and authorization audit
 
 - [x] 38.1 Make in-flight usage finalization server-authorized and replay-resistant; fail closed when completion or cached-use accounting fails.
 - [x] 38.2 Preserve student feedback history while requiring current instructor membership for instructor-only review reads.
 - [x] 38.3 Add failing-first service and database regressions for client-forged completion, replay/mismatch, failed accounting, forged reviews/cache hits and role removal; verify existing provider quotas and privacy behavior. Local pgTAP passes 482 assertions; final full suite pending.
-- [ ] 38.4 Run focused and full relevant checks, update verified security evidence, and create a linked PR closing #130 only after required CI passes.
+- [x] 38.4 Run focused and full relevant checks, update verified security evidence, and create linked PR #133 closing #130 after successful branch CI. Final PR-head checks and hosted/live-provider gates remain separate.

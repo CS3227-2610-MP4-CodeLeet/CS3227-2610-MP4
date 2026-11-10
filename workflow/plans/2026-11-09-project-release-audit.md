@@ -1,6 +1,6 @@
 # Project release audit and verified defect fixes
 
-**Status:** Implemented and locally verified; final branch CI, PR and hosted checks pending
+**Status:** Implemented and verified locally and in branch CI; PR #133 open, final PR-head and hosted checks pending
 
 **Branch:** `fix/129-routing-release-audit`, created from updated `develop`
 
