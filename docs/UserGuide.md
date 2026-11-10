@@ -54,7 +54,42 @@ Platform admins can open any course card to inspect a read-only overview of its 
 
 Instructors create a course with a title and optional description. In the course sidebar under **Administration**, instructors can choose **Manage Users** (`/courses/<courseId>/manage-users`). For active courses, the **Student join code** block appears at the top. Only instructors in that course can view or manage its code; after creating or rotating it, they can copy it to share. Anyone with the code and a verified account can join as a student. The **People** roster follows, where instructors can invite members by email or remove students. In archived courses, the Administration section remains accessible so instructors can view the read-only roster, while join code controls and member invitations/removals are withheld. An invite or code grants membership only after the person signs in with a verified matching email. Local email links appear in Mailpit; hosted email delivery depends on deployment configuration and has not been verified here.
 
-The course owner and instructors can add instructors and add or remove students. Only the owner can remove another instructor, transfer ownership to another course instructor, or archive the course. A student must first be made an instructor before becoming owner. Permanent deletion is available only for an empty course and asks for confirmation. Archived courses are read-only. Owners and instructors can enable or disable the shipped assessments, AI, discussions, XP and leaderboard features for each course. In active courses with AI enabled, instructors can also open **Context comparison** (`/courses/<courseId>/context-comparison`) under **Administration** to inspect side-by-side prompt views and token metrics.
+The course owner and instructors can add instructors and add or remove students. Only the owner can remove another instructor, transfer ownership to another course instructor, or archive the course. A student must first be made an instructor before becoming owner. Permanent deletion is available only for an empty course and asks for confirmation. Archived courses are read-only. In an active course, its owner and instructors can change the switches in **Course features** on the course overview. A successful change is saved for that course immediately. A failed save leaves the previous setting in effect and displays an error.
+
+### What each course feature switch controls
+
+Switches are independent and course-specific. When a feature is off in an active course, its navigation links disappear and its protected pages/actions are unavailable even if someone opens a saved link directly. Turning a feature off hides or blocks access; it does not delete the course's assignments, submissions, grades, discussion posts, AI usage records or XP awards. Turning it back on restores the corresponding access, subject to the normal publication and role rules.
+
+**Assessments — Assignments and grading**
+
+- **Student:** Turning this off hides and blocks published assignments, assignment details, browser runs and public practice tests, revision submission, submission history/comparison, published grades and the assessment parts of **My progress** (assignment totals, upcoming work, recent submissions and recent grades). Existing submissions and published grades are retained but cannot be opened in that active course while the switch is off.
+- **Instructor:** Turning this off hides and blocks assignment lists/details, creating or editing assignments, practice-test management, submission review, manual grade editing/publication and the assessment parts of student progress. Existing work and grades are retained. This switch does not itself turn off AI, XP or leaderboard; their own behavior is described below.
+
+**AI features — Learning feedback and instructor AI help**
+
+- **Student:** Turning this off removes/blocks new **Request review** actions for saved submissions. This also requires **Assessments** to be on so the saved submission can be opened. Assignment work and manual grading remain available when **Assessments** is on. Existing submission and grade records are not removed.
+- **Instructor:** Turning this off removes/blocks new AI rubric suggestions, the course's **AI usage** page and **Context comparison**. Manual rubric grading and grade publication remain available when **Assessments** is on. Previously recorded usage is retained.
+- AI usage and comparison are governed by this switch, separately from the assessment switch. If AI is on while Assessments is off, the context-comparison link can still appear, but assessment access rules prevent it from listing submissions to compare. This can look like an empty course even when saved submissions exist. AI requests already accepted before a switch changes may finish; later requests are denied.
+
+**Discussion forum — Threads and replies**
+
+- **Student and instructor:** Turning this off hides/blocks the course discussion list and existing thread pages, and prevents creating threads or replies. Posts are retained and become available again if the feature is re-enabled. It does not change assignment grades or XP.
+
+**XP — Student experience points**
+
+- **Student:** Turning this off hides/blocks **My XP**, the XP total in the course sidebar and the XP section of **My progress**. Existing awards are retained but not shown in that active course while XP is off.
+- **Instructor:** There is no separate instructor XP-awards page. Assignment creation/editing and manual grading still work when **Assessments** is on; the **Maximum XP** field remains available. While XP is off, grade or maximum-XP changes do not recompute awards. When XP is enabled again, the app recomputes awards from the current published grades and assignment XP settings.
+- XP and **Leaderboard** are separate switches. With XP off and Leaderboard on, the leaderboard can still show rankings from awards already recorded; XP being off pauses award recomputation and hides the individual XP view, but does not erase historical awards.
+
+**Leaderboard — Course rankings**
+
+- **Student and instructor:** Turning this off hides/blocks the course leaderboard and its rankings. It does not stop XP awards or hide **My XP** when XP is on. Turning it back on restores the ranking view based on the course's recorded awards.
+
+**Archived courses:** You cannot change feature switches after archiving. Archived workspaces are read-only and retain historical access: course links can remain available for reviewing saved history even if a feature was off when the course was archived. New submissions, grade changes, AI requests and discussion posts are not enabled by the archive history view.
+
+**My progress** has no separate switch. It appears while either Assessments or XP is enabled and shows only the sections controlled by the enabled feature(s). If both are off in an active course, the progress page is unavailable.
+
+In an active course with AI enabled, instructors can open **Context comparison** (`/courses/<courseId>/context-comparison`) under **Administration** to inspect side-by-side prompt views and token metrics. Each uncached model run uses one instructor quota slot. AI suggestions never publish a grade; the instructor must grade and publish separately.
 
 The **Legacy** course contains existing work that has no known class boundary. It is archived and has no owner until a platform admin assigns one. Do not infer or assign a class from the old data.
 
@@ -230,3 +265,4 @@ Use the separate [developer verification/release checks](DeveloperGuide.md#8-ver
 - Use synthetic accounts/code for testing. A verified hosted address, public tester accounts and complete supported-browser matrix are not recorded yet.
 - Automated UI tests may mock AI or skip missing prerequisites. They do not establish live-model quality, hosted email delivery or deployed runner security.
 - Reproduction commands, historical evidence and release checks are in the [security evidence report](../workflow/evidence/2026-11-02-security-testing.md).
+
