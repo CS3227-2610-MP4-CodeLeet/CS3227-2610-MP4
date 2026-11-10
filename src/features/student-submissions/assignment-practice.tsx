@@ -15,16 +15,67 @@ type Props = {
   source: string;
   examples: readonly PracticeCase[] | null;
   assignmentId?: string;
+  previewMode?: boolean;
 };
+function PracticeControls({
+  assignmentId,
+  published,
+  allowExamples,
+  hasExamples,
+  useExamples,
+  onToggleExamples,
+  busy,
+}: {
+  assignmentId?: string;
+  published: ReturnType<typeof usePublishedCases>;
+  allowExamples: boolean;
+  hasExamples: boolean;
+  useExamples: boolean;
+  onToggleExamples: (val: boolean) => void;
+  busy: boolean;
+}) {
+  return (
+    <>
+      {assignmentId && <PublishedCasesControls state={published} busy={busy} />}
+      {hasExamples && allowExamples && (
+        <ExampleCaseToggle checked={useExamples} onChange={onToggleExamples} />
+      )}
+    </>
+  );
+}
+
+function resolvePracticeCases(
+  showingExamples: boolean,
+  examples: readonly PracticeCase[] | null,
+  publishedCases: readonly PracticeCase[],
+) {
+  if (showingExamples) {
+    return examples ?? [];
+  }
+  return publishedCases;
+}
+
+function resolveRefreshHandler(
+  assignmentId: string | undefined,
+  showingExamples: boolean,
+  refresh: (signal: AbortSignal) => Promise<readonly PracticeCase[]>,
+): ((signal: AbortSignal) => Promise<readonly PracticeCase[]>) | undefined {
+  if (assignmentId && !showingExamples) {
+    return refresh;
+  }
+  return undefined;
+}
+
 export function AssignmentPractice({
   runnerOrigin,
   language,
   source,
   examples,
   assignmentId,
+  previewMode = false,
 }: Props) {
   const [useExamples, setUseExamples] = useState(false);
-  const published = usePublishedCases(assignmentId);
+  const published = usePublishedCases(assignmentId, previewMode);
   const ready = canShowCases(published, assignmentId);
   const allowExamples = ready && published.cases.length === 0;
   const showingExamples = useExamples && allowExamples;
@@ -34,30 +85,38 @@ export function AssignmentPractice({
         Code runner is unavailable.
       </p>
     );
+  const activeCases = resolvePracticeCases(
+    showingExamples,
+    examples,
+    published.cases,
+  );
+  const refreshHandler = resolveRefreshHandler(
+    assignmentId,
+    showingExamples,
+    published.refresh,
+  );
+  const caseKind = showingExamples ? 'examples' : 'published';
+
   return (
     <PracticeRunner
       runnerOrigin={runnerOrigin}
-      key={showingExamples ? 'examples' : 'custom'}
+      key={caseKind}
       language={language}
       source={source}
-      cases={showingExamples ? (examples ?? []) : published.cases}
+      cases={activeCases}
       casesReady={ready}
-      loadCases={
-        assignmentId && !showingExamples ? published.refresh : undefined
-      }
-      caseKind={showingExamples ? 'examples' : 'published'}
+      loadCases={refreshHandler}
+      caseKind={caseKind}
       beforeCases={(busy) => (
-        <>
-          {assignmentId && (
-            <PublishedCasesControls state={published} busy={busy} />
-          )}
-          {examples && allowExamples && (
-            <ExampleCaseToggle
-              checked={useExamples}
-              onChange={setUseExamples}
-            />
-          )}
-        </>
+        <PracticeControls
+          assignmentId={assignmentId}
+          published={published}
+          allowExamples={allowExamples}
+          hasExamples={Boolean(examples)}
+          useExamples={useExamples}
+          onToggleExamples={setUseExamples}
+          busy={busy}
+        />
       )}
     />
   );

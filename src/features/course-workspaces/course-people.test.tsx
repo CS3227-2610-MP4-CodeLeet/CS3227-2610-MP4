@@ -11,6 +11,8 @@ import type { CourseInvitation, CourseMember } from './contracts';
 
 const instructorRole = 'instructor';
 const invitedInstructorEmail = 'new-teacher@example.test';
+const emailAddressLabel = 'Email address';
+const inviteByEmailName = 'Invite by email';
 
 const mocks = vi.hoisted(() => ({ refresh: vi.fn() }));
 vi.mock('next/navigation', () => ({
@@ -84,16 +86,34 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('course people controls', () => {
+describe('course people active controls', () => {
+  it('illustrates an empty roster and empty pending invitations', () => {
+    const view = render(
+      <CoursePeople
+        course={course}
+        currentUserId="owner-1"
+        isOwner
+        members={[]}
+        invitations={[]}
+      />,
+    );
+
+    expect(view.container.querySelectorAll('[data-illustration]')).toHaveLength(
+      2,
+    );
+    expect(view.container.textContent).toContain('No course members yet');
+    expect(view.container.textContent).toContain('No pending invitations');
+  });
+
   it('lets the owner invite either role and refreshes the member list', async () => {
     renderPeople();
-    fireEvent.change(screen.getByLabelText('Email address'), {
+    fireEvent.change(screen.getByLabelText(emailAddressLabel), {
       target: { value: invitedInstructorEmail },
     });
     fireEvent.change(screen.getByLabelText('Invite role'), {
       target: { value: instructorRole },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Invite by email' }));
+    fireEvent.click(screen.getByRole('button', { name: inviteByEmailName }));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
     expect(fetch).toHaveBeenCalledWith(
       `/api/courses/${course.id}/members`,
@@ -113,10 +133,10 @@ describe('course people controls', () => {
       target: { value: instructorRole },
     });
     expect(screen.getAllByRole('button', { name: 'Remove' })).toHaveLength(1);
-    fireEvent.change(screen.getByLabelText('Email address'), {
+    fireEvent.change(screen.getByLabelText(emailAddressLabel), {
       target: { value: invitedInstructorEmail },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Invite by email' }));
+    fireEvent.click(screen.getByRole('button', { name: inviteByEmailName }));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
     expect(fetch).toHaveBeenCalledWith(
       `/api/courses/${course.id}/members`,
@@ -135,7 +155,9 @@ describe('course people controls', () => {
       ),
     );
   });
+});
 
+describe('course people confirmation and archived controls', () => {
   it('keeps owner and instructor controls unavailable when confirmation is declined', () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
     renderPeople();
@@ -156,5 +178,30 @@ describe('course people controls', () => {
       `/api/courses/${course.id}/invitations/invite-1`,
       expect.objectContaining({ method: 'DELETE' }),
     );
+  });
+
+  it('suppresses mutation controls and shows read-only notice when course is archived', () => {
+    render(
+      <CoursePeople
+        course={{ ...course, lifecycle: 'archived' }}
+        currentUserId="owner-1"
+        isOwner={true}
+        members={members}
+        invitations={invitations}
+      />,
+    );
+
+    expect(
+      screen.getByText('This course is archived. Member roster is read-only.'),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText(emailAddressLabel)).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: inviteByEmailName }),
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull();
+    expect(screen.queryByLabelText(/Role for/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Revoke' })).toBeNull();
+    expect(screen.getByText('Student')).toBeTruthy();
+    expect(screen.getByText(/pending@example\.test/)).toBeTruthy();
   });
 });

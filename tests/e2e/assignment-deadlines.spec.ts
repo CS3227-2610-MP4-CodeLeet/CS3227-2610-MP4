@@ -10,6 +10,7 @@ import {
   deadlineHeaders as headers,
 } from './helpers/deadline-fixtures';
 import { revisionSession } from './helpers/revision-session';
+import { coursePath } from './helpers/draft-fixtures';
 
 test.use({ baseURL: appUrl, actionTimeout: 10_000 });
 test.skip(
@@ -21,7 +22,7 @@ test.skip(
 const lateStatus = 'Submitted late';
 const noDeadline = 'No deadline';
 const overdue = 'Overdue';
-const listPath = '/student/assignments';
+const assignmentsPath = '/assignments';
 const futureInput = '2999-01-01T00:30';
 const pastInput = '2000-01-01T08:00';
 
@@ -34,18 +35,18 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
     const assignmentId = data.assignments[index];
     await setDeadline(page, data, assignmentId, pastInput);
     await revisionSession(page, data.users[1].email, data.password);
-    await checkAssignmentStatus(page, assignmentId, overdue);
-    const first = await saveRevision(page, assignmentId, index);
+    await checkAssignmentStatus(page, data.courseId, assignmentId, overdue);
+    const first = await saveRevision(page, data.courseId, assignmentId, index);
     expect(first.submission.is_late).toBe(true);
     expect(Date.parse(first.submission.due_at_submission)).toBe(
       Date.parse('2000-01-01T00:00:00Z'),
     );
     await expect(page.getByText(lateStatus, { exact: true })).toBeVisible();
-    await checkRevisionViews(page, first.submission.id);
+    await checkRevisionViews(page, data.courseId, first.submission.id);
     await setDeadline(page, data, assignmentId, futureInput);
     await revisionSession(page, data.users[1].email, data.password);
     await checkRetry(page, first);
-    const second = await saveRevision(page, assignmentId, index);
+    const second = await saveRevision(page, data.courseId, assignmentId, index);
     expect(second.submission.is_late).toBe(false);
     expect(second.submission.revision).toBe(2);
     await checkClearAndHistory(page, {
@@ -66,7 +67,7 @@ test('instructor creates an SGT deadline, edits without losing seconds and clear
   draftFixture: data,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
-  await page.goto('/instructor/assignments/new');
+  await page.goto(coursePath(data.courseId, '/assignments/new'));
   await page.getByLabel('Maximum XP', { exact: true }).fill('0');
   await page
     .getByLabel('Title', { exact: true })
@@ -96,6 +97,7 @@ test('instructor creates an SGT deadline, edits without losing seconds and clear
   );
   await checkUnchangedPrecision(
     page,
+    data.courseId,
     assignment.id,
     response.request().postDataJSON(),
   );
@@ -132,6 +134,7 @@ test('latest own status ignores peer saves and forged identity, with mobile and 
   });
   expect(seeded.ok()).toBeTruthy();
   await revisionSession(page, data.users[1].email, data.password);
+  const listPath = coursePath(data.courseId, assignmentsPath);
   await page.goto(`${listPath}?student_id=${fixture.peerId}`);
   const row = page
     .getByRole('row')
@@ -139,8 +142,13 @@ test('latest own status ignores peer saves and forged identity, with mobile and 
   await expect(
     row.getByRole('cell').nth(2).getByText(overdue, { exact: true }),
   ).toBeVisible();
-  await checkAssignmentStatus(page, data.assignments[1], 'Not submitted');
-  await page.goto(`${listPath}/${assignmentId}`);
+  await checkAssignmentStatus(
+    page,
+    data.courseId,
+    data.assignments[1],
+    'Not submitted',
+  );
+  await page.goto(coursePath(data.courseId, `/assignments/${assignmentId}`));
   await checkMobileTheme(page);
   const denied = await page.request.get(
     `/api/submissions/${fixture.peerRevision}`,
@@ -162,7 +170,13 @@ test('latest own status ignores peer saves and forged identity, with mobile and 
   ).toHaveCount(0);
 });
 
-async function checkAssignmentStatus(page: Page, id: string, status: string) {
+async function checkAssignmentStatus(
+  page: Page,
+  courseId: string,
+  id: string,
+  status: string,
+) {
+  const listPath = coursePath(courseId, assignmentsPath);
   await page.goto(listPath);
   const row = page
     .getByRole('row')
@@ -172,16 +186,16 @@ async function checkAssignmentStatus(page: Page, id: string, status: string) {
   ).toBeVisible();
 }
 
-async function checkRevisionViews(page: Page, id: string) {
-  await page.goto(`/student/submissions/${id}`);
+async function checkRevisionViews(page: Page, courseId: string, id: string) {
+  await page.goto(coursePath(courseId, `/submissions/${id}`));
   await expect(page.getByText('Late', { exact: true })).toBeVisible();
   await expect(
     page.getByText('Due when submitted:', { exact: false }),
   ).toBeVisible();
-  await page.goto('/student/submissions');
-  const row = page
-    .getByRole('row')
-    .filter({ has: page.locator(`a[href="/student/submissions/${id}"]`) });
+  await page.goto(coursePath(courseId, '/submissions'));
+  const row = page.getByRole('row').filter({
+    has: page.locator(`a[href="/courses/${courseId}/submissions/${id}"]`),
+  });
   await expect(row.getByText('Late', { exact: true })).toBeVisible();
 }
 
@@ -207,13 +221,19 @@ async function checkRetry(
 async function checkClearAndHistory(
   page: Page,
   context: {
-    data: { users: Array<{ email: string }>; password: string };
+    data: {
+      courseId: string;
+      users: Array<{ email: string }>;
+      password: string;
+    };
     assignmentId: string;
     firstId: string;
   },
 ) {
   await setDeadline(page, context.data, context.assignmentId, '');
-  await page.goto(`/instructor/submissions/${context.firstId}`);
+  await page.goto(
+    coursePath(context.data.courseId, `/submissions/${context.firstId}`),
+  );
   await expect(page.getByText('Late', { exact: true })).toBeVisible();
   await expect(
     page.getByText('Due when submitted:', { exact: false }),
@@ -223,13 +243,16 @@ async function checkClearAndHistory(
     context.data.users[1].email,
     context.data.password,
   );
-  await page.goto(`${listPath}/${context.assignmentId}`);
+  await page.goto(
+    coursePath(context.data.courseId, `/assignments/${context.assignmentId}`),
+  );
   await expect(page.getByText(noDeadline, { exact: true })).toBeVisible();
   await expect(page.getByText('Submitted', { exact: true })).toBeVisible();
 }
 
 async function checkUnchangedPrecision(
   page: Page,
+  courseId: string,
   id: string,
   payload: Record<string, unknown>,
 ) {
@@ -239,7 +262,7 @@ async function checkUnchangedPrecision(
     data: { ...payload, dueAt, expectedVersion: 1 },
   });
   expect(updated.status()).toBe(200);
-  await page.goto(`/instructor/assignments/${id}/edit`);
+  await page.goto(coursePath(courseId, `/assignments/${id}/edit`));
   await expect(page.getByLabel(dueLabel, { exact: true })).toHaveValue(
     futureInput,
   );
@@ -259,7 +282,7 @@ async function checkUnchangedPrecision(
   expect(Date.parse((await result.json()).assignment.due_at)).toBe(
     Date.parse(dueAt),
   );
-  await expect(page).toHaveURL('/instructor');
+  await expect(page).toHaveURL(coursePath(courseId, '/assignments'));
 }
 
 async function checkMobileTheme(page: Page) {
@@ -275,7 +298,7 @@ async function checkMobileTheme(page: Page) {
   await page
     .getByRole('button', { name: 'Switch to dark mode', exact: true })
     .click();
-  await expect(page.locator('.student-workspace')).toHaveAttribute(
+  await expect(page.locator('.app-theme')).toHaveAttribute(
     'data-theme',
     'dark',
   );

@@ -7,6 +7,7 @@ import { useBreadcrumbTitle } from './breadcrumb-context';
 export type CourseBreadcrumbsProps = {
   courseId: string;
   courseTitle: string;
+  isMobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
 };
 
@@ -20,6 +21,8 @@ const segmentLabelMap: Record<string, string> = {
   leaderboard: 'Leaderboard',
   'ai-usage': 'AI Usage',
   'ai-context': 'Context Comparison',
+  'context-comparison': 'Context Comparison',
+  'manage-users': 'Manage Users',
   instructor: 'Instructor',
   edit: 'Edit',
   new: 'New',
@@ -51,26 +54,16 @@ export function isDynamicIdentifier(segment: string): boolean {
   );
 }
 
-const INSTRUCTOR_DASHBOARD_SEGMENTS = new Set([
-  'instructor',
-  'assignments',
-  'submissions',
-]);
-
 function resolveAncestorHref(
   courseId: string,
   segment: string,
-  isInstructor: boolean,
 ): string | undefined {
-  if (isInstructor) {
-    if (INSTRUCTOR_DASHBOARD_SEGMENTS.has(segment)) {
-      return `/courses/${courseId}/instructor`;
-    }
-    return segment === 'ai-context'
-      ? `/courses/${courseId}/instructor/ai-context`
-      : undefined;
+  if (segment === 'instructor') {
+    return `/courses/${courseId}/assignments`;
   }
-
+  if (segment === 'ai-context') {
+    return `/courses/${courseId}/context-comparison`;
+  }
   return `/courses/${courseId}/${segment}`;
 }
 
@@ -99,8 +92,6 @@ function buildBreadcrumbs(
     return isLast || !isDynamicIdentifier(segment);
   });
 
-  const isInstructor = courseSubSegments[0] === 'instructor';
-
   displaySegments.forEach((segment, idx) => {
     const isLast = idx === displaySegments.length - 1;
     const label =
@@ -109,9 +100,7 @@ function buildBreadcrumbs(
         : isDynamicIdentifier(segment)
           ? 'Details'
           : formatSegmentLabel(segment);
-    const href = isLast
-      ? undefined
-      : resolveAncestorHref(courseId, segment, isInstructor);
+    const href = isLast ? undefined : resolveAncestorHref(courseId, segment);
     crumbs.push({
       label,
       href,
@@ -125,6 +114,7 @@ function buildBreadcrumbs(
 export function CourseBreadcrumbs({
   courseId,
   courseTitle,
+  isMobileSidebarOpen = false,
   onToggleMobileSidebar,
 }: CourseBreadcrumbsProps) {
   const pathname = usePathname();
@@ -138,7 +128,8 @@ export function CourseBreadcrumbs({
           type="button"
           onClick={onToggleMobileSidebar}
           aria-label="Open navigation menu"
-          aria-expanded={false}
+          aria-expanded={isMobileSidebarOpen}
+          aria-controls="course-mobile-navigation"
           className="rounded-md border p-1.5 text-muted-foreground hover:bg-accent md:hidden"
         >
           <svg
@@ -161,7 +152,10 @@ export function CourseBreadcrumbs({
       <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           {crumbs.map((crumb, idx) => (
-            <li key={idx} className="flex items-center gap-1.5">
+            <li
+              key={idx}
+              className="flex min-w-0 max-w-full items-center gap-1.5"
+            >
               {idx > 0 && <span aria-hidden="true">/</span>}
               {crumb.isCurrent ? (
                 <span

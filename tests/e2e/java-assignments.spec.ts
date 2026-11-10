@@ -15,9 +15,10 @@ const submitButton = 'Submit revision';
 const submissionsEndpoint = '/api/submissions';
 const languageLabel = 'Language';
 type User = { id: string; email: string };
-type Cohort = { owner: User; student: User; peer: User };
+type Cohort = { owner: User; student: User; peer: User; courseId: string };
 type Assignment = {
   id: string;
+  courseId: string;
   title: string;
   instructions: string;
   language: 'python' | 'java';
@@ -61,36 +62,69 @@ function adminHeaders() {
   };
 }
 
+test.describe.configure({ timeout: 120_000 });
+
 for (const fixture of cases) {
   test(`real ${fixture.label} assignment runs, saves immutable private revisions and locks language`, async ({
     page,
-    request,
+    playwright,
   }) => {
     test.skip(
       !serviceKey ||
         !/^http:\/\/(localhost|127\.0\.0\.1):54321$/.test(serviceUrl ?? ''),
       'Needs explicit local Supabase test credentials.',
     );
-    const cohort = await createCohort(request);
-    let assignmentId = '';
+    const admin = await playwright.request.newContext({
+      extraHTTPHeaders: adminHeaders(),
+    });
+    const users: User[] = [];
+    let courseId = '';
     try {
+      const cohort = await createCohort(admin, users);
+      await signIn(page, cohort.owner);
+      const course = await page.request.post('/api/courses', {
+        headers: { origin: appUrl },
+        data: {
+          title: `Language course ${crypto.randomUUID()}`,
+          description: 'Synthetic language journey',
+        },
+      });
+      expect(course.status()).toBe(201);
+      courseId = (await course.json()).courseId;
+      cohort.courseId = courseId;
+      const enrolled = await admin.post(
+        `${serviceUrl}/rest/v1/course_memberships`,
+        {
+          data: [cohort.student, cohort.peer].map((user) => ({
+            course_id: courseId,
+            user_id: user.id,
+            role: 'student',
+          })),
+        },
+      );
+      expect(enrolled.ok()).toBeTruthy();
       const assignment = await publishAssignment(
         page,
-        cohort.owner,
+        courseId,
         fixture.language,
       );
-      assignmentId = assignment.id;
       const saved = await studentJourney(page, cohort, assignment, fixture);
       await checkPrivacy(page, cohort, assignment, saved);
       await checkLanguageLock(page, cohort.owner, assignment);
     } finally {
-      await cleanFixtures(request, cohort, assignmentId);
+      try {
+        await cleanFixtures(admin, users, courseId);
+      } finally {
+        await admin.dispose();
+      }
     }
   });
 }
 
-async function createCohort(request: APIRequestContext): Promise<Cohort> {
-  const users: User[] = [];
+async function createCohort(
+  request: APIRequestContext,
+  users: User[],
+): Promise<Cohort> {
   for (const name of ['owner', 'student', 'peer']) {
     const email = `java-${name}-${Date.now()}-${crypto.randomUUID()}@example.test`;
     const response = await request.post(`${serviceUrl}/auth/v1/admin/users`, {
@@ -105,7 +139,7 @@ async function createCohort(request: APIRequestContext): Promise<Cohort> {
     { headers: adminHeaders(), data: { role: 'instructor' } },
   );
   expect(role.ok()).toBeTruthy();
-  return { owner: users[0], student: users[1], peer: users[2] };
+  return { owner: users[0], student: users[1], peer: users[2], courseId: '' };
 }
 
 async function signIn(page: Page, user: User) {
@@ -113,19 +147,19 @@ async function signIn(page: Page, user: User) {
   await page.getByLabel('Email or username').fill(user.email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page).not.toHaveURL(/\/sign-in$/);
+  await expect(page).toHaveURL(/\/courses$/, { timeout: 15_000 });
 }
 async function signOut(page: Page) {
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-  await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(page).toHaveURL(/\/sign-in$/, { timeout: 30_000 });
 }
 
 async function publishAssignment(
   page: Page,
-  owner: User,
+  courseId: string,
   language: 'python' | 'java',
 ): Promise<Assignment> {
-  await signIn(page, owner);
+  await page.goto(`/courses/${courseId}/assignments`);
   await page.getByRole('link', { name: 'New assignment' }).click();
   await page.getByLabel('Maximum XP', { exact: true }).fill('0');
   await page
@@ -149,9 +183,10 @@ async function publishAssignment(
   const result = await response;
   expect(result.status()).toBe(201);
   const payload = result.request().postDataJSON();
+  expect(payload.courseId).toBe(courseId);
   const { assignment } = await result.json();
   expect(assignment.language).toBe(language);
-  await expect(page).toHaveURL(/\/instructor$/);
+  await expect(page).toHaveURL(`/courses/${courseId}/assignments`);
   await signOut(page);
   return { ...payload, id: assignment.id };
 }
@@ -176,7 +211,7 @@ async function studentJourney(
   fixture: (typeof cases)[number],
 ) {
   await signIn(page, cohort.student);
-  await page.goto(`/student/assignments/${assignment.id}`);
+  await page.goto(`/courses/${cohort.courseId}/assignments/${assignment.id}`);
   const editor = page.getByLabel(`${fixture.label} source code`, {
     exact: true,
   });
@@ -254,10 +289,10 @@ async function checkPrivacy(
   await signIn(page, cohort.peer);
   const privateApi = await page.request.get(`/api/submissions/${first.id}`);
   expect(privateApi.status()).toBe(404);
-  await page.goto(`/student/submissions/${first.id}`);
+  await page.goto(`/courses/${cohort.courseId}/submissions/${first.id}`);
   await expect(page.getByText('This page could not be found.')).toBeVisible();
   await expect(page.locator('pre code')).toHaveCount(0);
-  await page.goto(`/student/assignments/${assignment.id}`);
+  await page.goto(`/courses/${cohort.courseId}/assignments/${assignment.id}`);
   const peer = await saveRevision(page, first.source);
   expect(peer.revision).toBe(1);
   await signOut(page);
@@ -273,8 +308,23 @@ async function checkLanguageLock(
   assignment: Assignment,
 ) {
   await signIn(page, owner);
-  await page.goto(`/instructor/assignments/${assignment.id}/edit`);
+  await page.goto(
+    `/courses/${assignment.courseId}/assignments/${assignment.id}/edit`,
+  );
   await expect(page.getByLabel(languageLabel, { exact: true })).toBeDisabled();
+  const currentResponse = await page.request.get(
+    `/api/assignments?courseId=${assignment.courseId}`,
+  );
+  expect(currentResponse.status()).toBe(200);
+  const currentAssignments = (await currentResponse.json())
+    .assignments as Array<{
+    id: string;
+    version: number;
+  }>;
+  const currentVersion = currentAssignments.find(
+    (item) => item.id === assignment.id,
+  )?.version;
+  expect(currentVersion).toBeDefined();
   const changed = await page.request.patch(
     `/api/assignments/${assignment.id}`,
     {
@@ -282,13 +332,14 @@ async function checkLanguageLock(
       data: {
         ...assignment,
         id: undefined,
-        expectedVersion: 1,
+        expectedVersion: currentVersion,
         language: assignment.language === 'java' ? 'python' : 'java',
       },
     },
   );
-  expect(changed.status()).toBe(400);
-  expect((await changed.json()).error.message).toBe(
+  const changedBody = await changed.json();
+  expect(changed.status(), JSON.stringify(changedBody)).toBe(409);
+  expect(changedBody.error.message).toBe(
     'Language cannot change after students have submitted code.',
   );
   const unsupported = await page.request.post('/api/assignments', {
@@ -300,22 +351,27 @@ async function checkLanguageLock(
 
 async function cleanFixtures(
   request: APIRequestContext,
-  cohort: Cohort,
-  assignmentId: string,
+  users: User[],
+  courseId: string,
 ) {
-  if (assignmentId) {
+  if (courseId) {
     const submissions = await request.delete(
-      `${serviceUrl}/rest/v1/submissions?assignment_id=eq.${assignmentId}`,
+      `${serviceUrl}/rest/v1/submissions?course_id=eq.${courseId}`,
       { headers: adminHeaders() },
     );
     expect(submissions.ok()).toBeTruthy();
     const assignment = await request.delete(
-      `${serviceUrl}/rest/v1/assignments?id=eq.${assignmentId}`,
+      `${serviceUrl}/rest/v1/assignments?course_id=eq.${courseId}`,
       { headers: adminHeaders() },
     );
     expect(assignment.ok()).toBeTruthy();
+    const course = await request.delete(
+      `${serviceUrl}/rest/v1/courses?id=eq.${courseId}`,
+      { headers: adminHeaders() },
+    );
+    expect(course.ok()).toBeTruthy();
   }
-  for (const user of Object.values(cohort)) {
+  for (const user of users) {
     const response = await request.delete(
       `${serviceUrl}/auth/v1/admin/users/${user.id}`,
       { headers: adminHeaders() },

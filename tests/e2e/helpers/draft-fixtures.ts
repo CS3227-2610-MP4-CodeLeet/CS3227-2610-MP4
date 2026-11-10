@@ -6,6 +6,7 @@ const headers = {
   authorization: `Bearer ${process.env.MP4_E2E_SERVICE_ROLE_KEY!}`,
 };
 type DraftFixture = {
+  courseId: string;
   users: Array<{ id: string; email: string }>;
   assignments: string[];
   password: string;
@@ -15,6 +16,7 @@ export const test = base.extend<{ draftFixture: DraftFixture }>({
   draftFixture: async ({ playwright }, provide) => {
     const admin = await playwright.request.newContext();
     const data: DraftFixture = {
+      courseId: crypto.randomUUID(),
       users: [],
       assignments: [],
       password: `Synthetic-${crypto.randomUUID()}!aA9`,
@@ -28,6 +30,11 @@ export const test = base.extend<{ draftFixture: DraftFixture }>({
     }
   },
 });
+
+export function coursePath(courseId: string, path: string) {
+  const url = new URL(path, 'http://course.test');
+  return `/courses/${courseId}${url.pathname}${url.search}${url.hash}`;
+}
 
 async function createFixture(admin: APIRequestContext, data: DraftFixture) {
   for (const role of ['owner', 'student']) {
@@ -44,6 +51,38 @@ async function createFixture(admin: APIRequestContext, data: DraftFixture) {
     { headers, data: { role: 'instructor' } },
   );
   expect(role.ok()).toBeTruthy();
+  for (const [table, rows] of [
+    [
+      'courses',
+      {
+        id: data.courseId,
+        owner_id: data.users[0].id,
+        created_by: data.users[0].id,
+        title: `Draft course ${data.courseId}`,
+        description: 'Synthetic draft fixture.',
+      },
+    ],
+    [
+      'course_memberships',
+      data.users.map((user, index) => ({
+        course_id: data.courseId,
+        user_id: user.id,
+        role: index ? 'student' : 'instructor',
+      })),
+    ],
+    [
+      'course_features',
+      ['assessments', 'ai', 'discussions', 'xp', 'leaderboard'].map(
+        (feature) => ({ course_id: data.courseId, feature, enabled: true }),
+      ),
+    ],
+  ] as const) {
+    const response = await admin.post(`${serviceUrl}/rest/v1/${table}`, {
+      headers,
+      data: rows,
+    });
+    expect(response.ok(), `Synthetic fixture ${table}`).toBeTruthy();
+  }
   for (const language of ['python', 'java']) {
     const id = crypto.randomUUID();
     data.assignments.push(id);
@@ -51,6 +90,7 @@ async function createFixture(admin: APIRequestContext, data: DraftFixture) {
       headers,
       data: {
         id,
+        course_id: data.courseId,
         instructor_id: data.users[0].id,
         title: `Draft safeguard ${language} ${id}`,
         instructions: 'Synthetic unsaved-code fixture.',
@@ -75,6 +115,11 @@ async function cleanFixture(admin: APIRequestContext, data: DraftFixture) {
       expect(response.ok()).toBeTruthy();
     }
   }
+  const course = await admin.delete(
+    `${serviceUrl}/rest/v1/courses?id=eq.${data.courseId}`,
+    { headers },
+  );
+  expect(course.ok()).toBeTruthy();
   for (const user of data.users) {
     const response = await admin.delete(
       `${serviceUrl}/auth/v1/admin/users/${user.id}`,

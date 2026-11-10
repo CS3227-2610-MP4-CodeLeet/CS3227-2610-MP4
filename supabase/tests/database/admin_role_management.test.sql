@@ -3,10 +3,10 @@ select plan(21);
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
-  ('93000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'admin-one@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Admin One"}', now(), now()),
-  ('93000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'admin-two@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Admin Two"}', now(), now()),
-  ('93000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated', 'instructor@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Instructor"}', now(), now()),
-  ('93000000-0000-4000-8000-000000000004', 'authenticated', 'authenticated', 'student@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Student","role":"admin"}', now(), now());
+  ('93000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'admin-one@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Admin One Fixture 0001"}', now(), now()),
+  ('93000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'admin-two@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Admin Two Fixture 0002"}', now(), now()),
+  ('93000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated', 'instructor@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Instructor Fixture 0003"}', now(), now()),
+  ('93000000-0000-4000-8000-000000000004', 'authenticated', 'authenticated', 'student@example.test', '', now(), '{"provider":"email","providers":["email"]}', '{"display_name":"Student Fixture 0004","role":"admin"}', now(), now());
 
 update public.user_roles set role = 'admin'
 where user_id in ('93000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000002');
@@ -31,23 +31,23 @@ select ok(not has_function_privilege('anon', 'public.admin_list_users(uuid,integ
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '93000000-0000-4000-8000-000000000001', true);
 select is((
-  select count(*)::integer from public.admin_list_users(null, 100)
+  select count(*)::integer from public.admin_list_users('93000000-0000-4000-8000-000000000000', 100)
   where user_id in (
     '93000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000002',
     '93000000-0000-4000-8000-000000000003', '93000000-0000-4000-8000-000000000004'
   )
 ), 4, 'admin directory returns the registered account page');
 select results_eq(
-  $$select user_id::text, email, display_name, role from public.admin_list_users(null, 100)
+  $$select user_id::text, email, display_name, role from public.admin_list_users('93000000-0000-4000-8000-000000000000', 100)
     where user_id in (
       '93000000-0000-4000-8000-000000000001', '93000000-0000-4000-8000-000000000002',
       '93000000-0000-4000-8000-000000000003', '93000000-0000-4000-8000-000000000004'
     ) order by user_id$$,
   $$values
-    ('93000000-0000-4000-8000-000000000001', 'admin-one@example.test', 'Admin One', 'admin'),
-    ('93000000-0000-4000-8000-000000000002', 'admin-two@example.test', 'Admin Two', 'admin'),
-    ('93000000-0000-4000-8000-000000000003', 'instructor@example.test', 'Instructor', 'instructor'),
-    ('93000000-0000-4000-8000-000000000004', 'student@example.test', 'Student', 'student')$$,
+    ('93000000-0000-4000-8000-000000000001', 'admin-one@example.test', 'Admin One Fixture 0001', 'admin'),
+    ('93000000-0000-4000-8000-000000000002', 'admin-two@example.test', 'Admin Two Fixture 0002', 'admin'),
+    ('93000000-0000-4000-8000-000000000003', 'instructor@example.test', 'Instructor Fixture 0003', 'instructor'),
+    ('93000000-0000-4000-8000-000000000004', 'student@example.test', 'Student Fixture 0004', 'student')$$,
   'admin directory returns only the approved account projection'
 );
 select is(public.owns_assignment('94000000-0000-4000-8000-000000000001'), true, 'admin inherits instructor assignment ownership');
@@ -55,7 +55,7 @@ select is((select count(*)::integer from public.assignments where id = '94000000
 select throws_ok($$select public.save_grade('97000000-0000-4000-8000-000000000002', '{"97000000-0000-4000-8000-000000000004":8}', 'Admin grading', 8, false, 0)$$,'42501','submission_not_owned','archived Legacy course is read-only even to its historical platform admin');
 select lives_ok($$select public.admin_set_user_role('93000000-0000-4000-8000-000000000004', 'instructor')$$, 'admin can assign an allowed role');
 select is((
-  select role from public.admin_list_users(null, 100)
+  select role from public.admin_list_users('93000000-0000-4000-8000-000000000000', 100)
   where user_id = '93000000-0000-4000-8000-000000000004'
 ), 'instructor', 'admin role change is stored');
 select throws_ok($$select public.admin_set_user_role('93000000-0000-4000-8000-000000000004', 'owner')$$, '22023', 'invalid_role', 'unsupported role is rejected');
@@ -83,7 +83,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '93000000-0000-4000-8000-000000000002', true);
 select throws_ok($$select public.admin_set_user_role('93000000-0000-4000-8000-000000000002', 'student')$$, 'P0001', 'final_admin_required', 'the final admin cannot be demoted');
 select is((
-  select count(*)::integer from public.admin_list_users(null, 100) where role = 'admin'
+  select count(*)::integer from public.admin_list_users('93000000-0000-4000-8000-000000000000', 100) where role = 'admin'
 ), 1, 'a failed final-admin demotion preserves one admin');
 
 select * from finish();

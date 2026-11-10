@@ -30,7 +30,14 @@ vi.mock('@/features/student-submissions/code-editor', () => ({
   ),
 }));
 vi.mock('@/features/student-submissions/assignment-practice', () => ({
-  AssignmentPractice: () => <p>Practice runner</p>,
+  AssignmentPractice: ({ previewMode }: { previewMode?: boolean }) => (
+    <p
+      data-testid="practice-runner"
+      data-preview={previewMode ? 'true' : 'false'}
+    >
+      Practice runner
+    </p>
+  ),
 }));
 afterEach(() => {
   cleanup();
@@ -38,7 +45,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe('student submission form', () => {
+describe('student submission form - saving revisions', () => {
   it('submits the changed draft with an idempotency key and acknowledges the saved revision', async () => {
     const fetch = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ submission: { revision: 4 } }), {
@@ -74,7 +81,9 @@ describe('student submission form', () => {
     expect(screen.getByText('No unsaved changes')).toBeTruthy();
     expect(router.refresh).toHaveBeenCalledOnce();
   });
+});
 
+describe('student submission form - validation and preview', () => {
   it('prevents blank submissions and reports a stable service error', async () => {
     const fetch = vi
       .fn()
@@ -101,5 +110,23 @@ describe('student submission form', () => {
       (await screen.findByText('Submission is not allowed.')).textContent,
     ).toBe('Submission is not allowed.');
     expect(fetch).toHaveBeenCalledOnce();
+  });
+
+  it('forwards preview mode to practice runner and disables submission', () => {
+    render(
+      <SubmissionForm
+        assignmentId="assignment-preview"
+        language="python"
+        previewMode={true}
+      />,
+    );
+    expect(
+      screen.getByTestId('practice-runner').getAttribute('data-preview'),
+    ).toBe('true');
+    expect(
+      screen.getByText('Submissions disabled in preview mode'),
+    ).toBeDefined();
+    const button = screen.getByRole('button', { name: 'Submit revision' });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
   });
 });

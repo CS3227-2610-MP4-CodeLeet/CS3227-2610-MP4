@@ -96,6 +96,7 @@ async function signOutBoth(page: Page, second: Page) {
 async function addStudent(
   request: APIRequestContext,
   data: {
+    courseId: string;
     users: Array<{ id: string; email: string }>;
     password: string;
   },
@@ -111,6 +112,14 @@ async function addStudent(
   );
   expect(response.ok()).toBeTruthy();
   const user = { id: (await response.json()).id as string, email };
+  const membership = await request.post(
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/course_memberships`,
+    {
+      headers: { apikey: key, authorization: `Bearer ${key}` },
+      data: { course_id: data.courseId, user_id: user.id, role: 'student' },
+    },
+  );
+  expect(membership.ok()).toBeTruthy();
   data.users.push(user);
   return user;
 }
@@ -128,7 +137,7 @@ for (const [index, language, source] of [
     draftFixture: data,
   }) => {
     await revisionSession(page, data.users[1].email, data.password);
-    const path = `/student/assignments/${data.assignments[index]}`;
+    const path = `/courses/${data.courseId}/assignments/${data.assignments[index]}`;
     await page.goto(path);
     await editor(page).fill(source);
     await saved(page);
@@ -152,7 +161,9 @@ for (const [index, language, source] of [
     draftFixture: data,
   }) => {
     await revisionSession(page, data.users[1].email, data.password);
-    await page.goto(`/student/assignments/${data.assignments[index]}`);
+    await page.goto(
+      `/courses/${data.courseId}/assignments/${data.assignments[index]}`,
+    );
     await editor(page).fill(source);
     await saved(page);
     const release = await holdSubmission(page);
@@ -183,7 +194,7 @@ test('conflicting tabs require a choice and sign-out invalidates both writers', 
   draftFixture: data,
 }) => {
   await revisionSession(page, data.users[1].email, data.password);
-  const path = `/student/assignments/${data.assignments[0]}`;
+  const path = `/courses/${data.courseId}/assignments/${data.assignments[0]}`;
   await page.goto(path);
   const second = await page.context().newPage();
   await second.goto(appUrl + path);
@@ -216,7 +227,9 @@ test('blocked storage leaves editing and submission usable in mobile dark mode',
     };
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`/student/assignments/${data.assignments[0]}`);
+  await page.goto(
+    `/courses/${data.courseId}/assignments/${data.assignments[0]}`,
+  );
   await page.getByRole('button', { name: /Switch to .* mode/ }).click();
   await editor(page).fill('print("still submit")');
   await expect(
@@ -238,7 +251,7 @@ test('switching accounts in the same browser never offers another student’s dr
   draftFixture: data,
 }) => {
   const peer = await addStudent(request, data);
-  const path = `/student/assignments/${data.assignments[0]}`;
+  const path = `/courses/${data.courseId}/assignments/${data.assignments[0]}`;
   await revisionSession(page, data.users[1].email, data.password);
   await page.goto(path);
   await editor(page).fill('print("private unfinished work")');

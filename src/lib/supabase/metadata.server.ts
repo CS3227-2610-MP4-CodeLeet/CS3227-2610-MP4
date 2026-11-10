@@ -7,6 +7,16 @@ const auth = {
   detectSessionInUrl: false,
 };
 
+export function createPrivilegedMetadataClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SECRET_KEY;
+  if (!url || !key) {
+    console.error('Server metadata configuration unavailable.');
+    throw new Error('Server metadata configuration unavailable');
+  }
+  return createClient(url, key, { auth });
+}
+
 function missingSignInFields(
   url?: string,
   key?: string,
@@ -34,7 +44,7 @@ export function createSignInClients() {
     throw new Error('Sign-in configuration unavailable');
   }
   return {
-    metadata: createClient(url!, key!, { auth }),
+    metadata: createPrivilegedMetadataClient(),
     secret: secret!,
     getDummyClient: () => createClient(url!, publishable!, { auth }),
   };

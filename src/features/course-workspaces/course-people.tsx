@@ -9,6 +9,7 @@ import type {
   CourseWorkspaceRecord,
 } from './contracts';
 import { courseRequest, messageFor } from './course-request';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type Props = {
   course: CourseWorkspaceRecord;
@@ -16,23 +17,32 @@ type Props = {
   isOwner: boolean;
   members: CourseMember[];
   invitations: CourseInvitation[];
+  readOnly?: boolean;
 };
 
 export function CoursePeople(props: Props) {
+  const isReadOnly = props.readOnly ?? props.course.lifecycle !== 'active';
   return (
     <section className="space-y-4 rounded-xl border p-5">
       <div>
         <h2 className="text-xl font-semibold">People</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Invite by email. The invited person must sign in and verify the
-          invited address.
-        </p>
+        {isReadOnly ? (
+          <p className="mt-1 text-sm text-muted-foreground">
+            This course is archived. Member roster is read-only.
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-muted-foreground">
+            Invite by email. The invited person must sign in and verify the
+            invited address.
+          </p>
+        )}
       </div>
-      <InvitationForm courseId={props.course.id} />
-      <MemberList {...props} />
+      {!isReadOnly && <InvitationForm courseId={props.course.id} />}
+      <MemberList {...props} readOnly={isReadOnly} />
       <PendingInvitations
         courseId={props.course.id}
         invitations={props.invitations}
+        readOnly={isReadOnly}
       />
     </section>
   );
@@ -122,19 +132,37 @@ function RoleSelect({
   );
 }
 
-function MemberList({ course, currentUserId, isOwner, members }: Props) {
+function MemberList({
+  course,
+  currentUserId,
+  isOwner,
+  members,
+  readOnly,
+}: Props & { readOnly: boolean }) {
   return (
     <ul className="divide-y">
-      {members.map((member) => (
-        <MemberRow
-          key={member.user_id}
-          courseId={course.id}
-          ownerId={course.owner_id}
-          currentUserId={currentUserId}
-          isOwner={isOwner}
-          member={member}
-        />
-      ))}
+      {members.length ? (
+        members.map((member) => (
+          <MemberRow
+            key={member.user_id}
+            courseId={course.id}
+            ownerId={course.owner_id}
+            currentUserId={currentUserId}
+            isOwner={isOwner}
+            member={member}
+            readOnly={readOnly}
+          />
+        ))
+      ) : (
+        <li className="py-3">
+          <IllustratedEmptyState
+            title="No course members yet"
+            description="Course members will appear here."
+            illustration="collection"
+            size="compact"
+          />
+        </li>
+      )}
     </ul>
   );
 }
@@ -145,18 +173,21 @@ function MemberRow({
   currentUserId,
   isOwner,
   member,
+  readOnly,
 }: {
   courseId: string;
   ownerId: string | null;
   currentUserId: string;
   isOwner: boolean;
   member: CourseMember;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isCourseOwner = member.user_id === ownerId;
   const canChange =
+    !readOnly &&
     !isCourseOwner &&
     member.user_id !== currentUserId &&
     (isOwner || member.role === 'student');
@@ -251,26 +282,38 @@ function MemberControls({
 function PendingInvitations({
   courseId,
   invitations,
+  readOnly,
 }: {
   courseId: string;
   invitations: CourseInvitation[];
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const active = invitations.filter(
     (item) => item.accepted_at === null && item.revoked_at === null,
   );
-  if (!active.length) return null;
   return (
     <div className="space-y-2 border-t pt-4">
       <h3 className="font-medium">Pending invitations</h3>
-      {active.map((invitation) => (
-        <InvitationRow
-          key={invitation.id}
-          courseId={courseId}
-          invitation={invitation}
-          onRevoked={() => router.refresh()}
+      {active.length ? (
+        active.map((invitation) => (
+          <InvitationRow
+            key={invitation.id}
+            courseId={courseId}
+            invitation={invitation}
+            readOnly={readOnly}
+            onRevoked={() => router.refresh()}
+          />
+        ))
+      ) : (
+        <IllustratedEmptyState
+          title="No pending invitations"
+          description="Invitations you send will appear here."
+          illustration="collection"
+          size="compact"
+          headingLevel={4}
         />
-      ))}
+      )}
     </div>
   );
 }
@@ -278,10 +321,12 @@ function PendingInvitations({
 function InvitationRow({
   courseId,
   invitation,
+  readOnly,
   onRevoked,
 }: {
   courseId: string;
   invitation: CourseInvitation;
+  readOnly?: boolean;
   onRevoked: () => void;
 }) {
   const [error, setError] = useState<string | null>(null);
@@ -307,14 +352,16 @@ function InvitationRow({
         {invitation.email} · {invitation.role} · expires{' '}
         {new Date(invitation.expires_at).toLocaleDateString()}
       </span>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => void revoke()}
-        className="rounded-md border px-2 py-1"
-      >
-        Revoke
-      </button>
+      {!readOnly && (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void revoke()}
+          className="rounded-md border px-2 py-1"
+        >
+          Revoke
+        </button>
+      )}
       {error && (
         <p role="alert" className="w-full text-xs text-destructive">
           {error}

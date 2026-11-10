@@ -54,8 +54,13 @@ export async function grade(
     },
   });
 }
-export async function configure(page: Page, id: string, maxXp: number) {
-  await page.goto(`/instructor/assignments/${id}/edit`);
+export async function configure(
+  page: Page,
+  courseId: string,
+  id: string,
+  maxXp: number,
+) {
+  await page.goto(`/courses/${courseId}/assignments/${id}/edit`);
   await page.getByLabel(maxXpLabel, { exact: true }).fill(String(maxXp));
   const pending = page.waitForResponse(
     (response) =>
@@ -67,7 +72,7 @@ export async function configure(page: Page, id: string, maxXp: number) {
     .click();
   const response = await pending;
   expect(response.status()).toBe(200);
-  await expect(page).toHaveURL('/instructor');
+  await expect(page).toHaveURL(`/courses/${courseId}/assignments`);
   return {
     payload: response.request().postDataJSON(),
     assignment: (await response.json()).assignment,

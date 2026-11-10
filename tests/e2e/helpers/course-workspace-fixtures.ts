@@ -26,7 +26,9 @@ async function createUser(
       email: `course-${label}-${crypto.randomUUID()}@example.test`,
       password,
       email_confirm: true,
-      user_metadata: { display_name: `Course ${label}` },
+      user_metadata: {
+        display_name: `Course ${label} ${crypto.randomUUID().slice(0, 8)}`,
+      },
     },
   });
   expect(response.ok()).toBeTruthy();

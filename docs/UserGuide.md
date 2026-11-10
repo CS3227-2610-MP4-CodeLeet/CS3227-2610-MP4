@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide was reconciled against merged develop `29b6c1a` on 5 November 2026, including course workspaces and subsequent fixes. Use the application address supplied by the team. Complete hosted account/email/AI acceptance is not established by this source audit; local setup is below.
+This guide was reconciled on 10 November 2026 against merged `develop` commit `66c6d62`, including the routing and access fixes in [PR #133](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/133). Use the application address supplied by the team. Hosted account/email/AI acceptance is not established by this source audit; local setup is below.
 
 ## Choose where to start
 
@@ -12,7 +12,7 @@ This guide was reconciled against merged develop `29b6c1a` on 5 November 2026, i
 | Find saved code or request learning feedback         | **My submissions** → saved revision                            |
 | Read released feedback and scores                    | **My grades**                                                  |
 | See assignment XP and rank                           | **My XP** or **Leaderboard**                                   |
-| Ask or answer a question                             | **Forums**                                                     |
+| Ask or answer a question                             | **Discussions**                                                |
 | Change your username                                 | Student **Menu → Profile settings**, or instructor **Profile** |
 | Create an assignment or manage practice tests/grades | Instructor workspace; instructor access must be provisioned    |
 
@@ -48,11 +48,48 @@ The moon/sun control changes light/dark mode across account pages and the worksp
 
 ## Course workspaces
 
-Open **Courses** after signing in. Each course is a separate workspace, and your role is set for each course, so you can teach one course and study in another. Course owners and instructors manage the course's members and features; students can enroll in more than one course.
+Open **Courses** after signing in. Each course is a separate workspace, and your role is set for each course, so you can teach one course and study in another. Course owners and instructors manage the course's members and features; students can enroll in more than one course. Navigation uses canonical role-aware addresses: `/courses/<courseId>/assignments` and `/courses/<courseId>/submissions` detect whether you are an instructor or student in the course and display the corresponding view without role-prefixed URLs.
 
-Instructors create a course with a title and optional description. To add people, invite them by email or share the student join code. An invite or code grants membership only after the person signs in with a verified matching email. Local email links appear in Mailpit; hosted email delivery depends on deployment configuration and has not been verified here.
+Platform admins can open any course card to inspect a read-only overview of its title, description, lifecycle and owner status. This overview does not open the course roster or activities; those remain available through course membership.
 
-The course owner and instructors can add instructors and add or remove students. Only the owner can remove another instructor, transfer ownership, or archive the course. Permanent deletion is available only for an empty course and asks for confirmation. Archived courses are read-only. Owners and instructors can enable or disable the shipped assessments, AI, discussions, XP and leaderboard features for each course.
+Instructors create a course with a title and optional description. In the course sidebar under **Administration**, instructors can choose **Manage Users** (`/courses/<courseId>/manage-users`). For active courses, the **Student join code** block appears at the top. Only instructors in that course can view or manage its code; after creating or rotating it, they can copy it to share. Anyone with the code and a verified account can join as a student. The **People** roster follows, where instructors can invite members by email or remove students. In archived courses, the Administration section remains accessible so instructors can view the read-only roster, while join code controls and member invitations/removals are withheld. An invite or code grants membership only after the person signs in with a verified matching email. Local email links appear in Mailpit; hosted email delivery depends on deployment configuration and has not been verified here.
+
+The course owner and instructors can add instructors and add or remove students. Only the owner can remove another instructor, transfer ownership to another course instructor, or archive the course. A student must first be made an instructor before becoming owner. Permanent deletion is available only for an empty course and asks for confirmation. Archived courses are read-only. In an active course, its owner and instructors can change the switches in **Course features** on the course overview. A successful change is saved for that course immediately. A failed save leaves the previous setting in effect and displays an error.
+
+### What each course feature switch controls
+
+Switches are independent and course-specific. When a feature is off in an active course, its navigation links disappear and its protected pages/actions are unavailable even if someone opens a saved link directly. Turning a feature off hides or blocks access; it does not delete the course's assignments, submissions, grades, discussion posts, AI usage records or XP awards. Turning it back on restores the corresponding access, subject to the normal publication and role rules.
+
+**Assessments — Assignments and grading**
+
+- **Student:** Turning this off hides and blocks published assignments, assignment details, browser runs and public practice tests, revision submission, submission history/comparison, published grades and the assessment parts of **My progress** (assignment totals, upcoming work, recent submissions and recent grades). Existing submissions and published grades are retained but cannot be opened in that active course while the switch is off.
+- **Instructor:** Turning this off hides and blocks assignment lists/details, creating or editing assignments, practice-test management, submission review, manual grade editing/publication and the assessment parts of student progress. Existing work and grades are retained. This switch does not itself turn off AI, XP or leaderboard; their own behavior is described below.
+
+**AI features — Learning feedback and instructor AI help**
+
+- **Student:** Turning this off removes/blocks new **Request review** actions for saved submissions. This also requires **Assessments** to be on so the saved submission can be opened. Assignment work and manual grading remain available when **Assessments** is on. Existing submission and grade records are not removed.
+- **Instructor:** Turning this off removes/blocks new AI rubric suggestions, the course's **AI usage** page and **Context comparison**. Manual rubric grading and grade publication remain available when **Assessments** is on. Previously recorded usage is retained.
+- AI usage and comparison are governed by this switch, separately from the assessment switch. If AI is on while Assessments is off, the context-comparison link can still appear, but assessment access rules prevent it from listing submissions to compare. This can look like an empty course even when saved submissions exist. AI requests already accepted before a switch changes may finish; later requests are denied.
+
+**Discussion forum — Threads and replies**
+
+- **Student and instructor:** Turning this off hides/blocks the course discussion list and existing thread pages, and prevents creating threads or replies. Posts are retained and become available again if the feature is re-enabled. It does not change assignment grades or XP.
+
+**XP — Student experience points**
+
+- **Student:** Turning this off hides/blocks **My XP**, the XP total in the course sidebar and the XP section of **My progress**. Existing awards are retained but not shown in that active course while XP is off.
+- **Instructor:** There is no separate instructor XP-awards page. Assignment creation/editing and manual grading still work when **Assessments** is on; the **Maximum XP** field remains available. While XP is off, grade or maximum-XP changes do not recompute awards. When XP is enabled again, the app recomputes awards from the current published grades and assignment XP settings.
+- XP and **Leaderboard** are separate switches. With XP off and Leaderboard on, the leaderboard can still show rankings from awards already recorded; XP being off pauses award recomputation and hides the individual XP view, but does not erase historical awards.
+
+**Leaderboard — Course rankings**
+
+- **Student and instructor:** Turning this off hides/blocks the course leaderboard and its rankings. It does not stop XP awards or hide **My XP** when XP is on. Turning it back on restores the ranking view based on the course's recorded awards.
+
+**Archived courses:** You cannot change feature switches after archiving. Archived workspaces are read-only and retain historical access: course links can remain available for reviewing saved history even if a feature was off when the course was archived. New submissions, grade changes, AI requests and discussion posts are not enabled by the archive history view.
+
+**My progress** has no separate switch. It appears while either Assessments or XP is enabled and shows only the sections controlled by the enabled feature(s). If both are off in an active course, the progress page is unavailable.
+
+In an active course with AI enabled, instructors can open **Context comparison** (`/courses/<courseId>/context-comparison`) under **Administration** to inspect side-by-side prompt views and token metrics. Each uncached model run uses one instructor quota slot. AI suggestions never publish a grade; the instructor must grade and publish separately.
 
 The **Legacy** course contains existing work that has no known class boundary. It is archived and has no owner until a platform admin assigns one. Do not infer or assign a class from the old data.
 
@@ -167,12 +204,12 @@ Refresh or reopen the page after grades or maximum XP change to see updated tota
 
 1. Open the course you teach, then choose **New assignment**. Assignments, submissions and grades are scoped to that course. Enter **Title**, **Instructions**, **Language**, **Maximum XP** and 1–20 private rubric criteria. Maximum XP must be a whole number from 0 to 100,000; enter 0 for no XP.
 2. Optionally set **Due date and time (SGT, optional)**. Blank means no deadline; clearing it removes one.
-3. Choose **Draft** or **Published** under **Status**, then **Save assignment**. Drafts stay hidden. Use **Edit** to update an owned assignment. Language cannot change after a submission.
+3. Choose **Draft** or **Published** under **Status**, then **Save assignment**. Drafts stay hidden from students. Use **Edit** to update an owned assignment. Language cannot change after a submission. On any assignment card in the instructor list, select **Preview** (or navigate to `/courses/<courseId>/assignments/<assignmentId>?preview=1`) to enter instructor preview mode. A banner confirms student-perspective preview. Instructors can preview both draft and published assignments and run code against public test cases with the browser runner; revision submissions are disabled in preview mode. Opening the assignment address without the preview flag redirects instructors to the assignment editor.
 4. Choose **Submissions** on an assignment, then a revision to review saved source/timing. Available **Run code** executes it in your browser.
 5. Under **AI rubric suggestions**, choose **Request review** for advisory criterion scores/comments. Review them yourself; this does not save/publish a grade.
 6. Enter criterion scores and feedback. **Save draft** keeps the grade private. Select **Publish this grade to the student**, then **Save and publish**, to release it. If another edit changed the record, reload before retrying.
 
-Instructors can review submissions/private rubrics only for assignments in courses where they are instructors. AI cannot publish grades. Open **AI usage** from the selected course for your recent usage there. In an active AI-enabled instructor course, **Context comparison** is also available from that course. Counts may be estimates when provider counts are absent; two uncached comparisons can consume two request slots. Configuration/experiment details are in the [Developer Guide](DeveloperGuide.md).
+Instructors can review submissions/private rubrics only for assignments in courses where they are instructors. AI cannot publish grades. Open **AI usage** from the selected course for your recent usage there. In an active AI-enabled instructor course, **Context comparison** is available under **Administration** from the sidebar (`/courses/<courseId>/context-comparison`) when an owned assignment has a submission and rubric. It shows the results of focused and broader authorized instructor contexts side by side with estimated input-token counts. Each uncached model run uses one instructor quota slot. The comparison does not expose raw prompts or a student profile. Configuration and experiment limits are in the [Developer Guide](DeveloperGuide.md).
 
 Publishing or correcting a grade updates the student's assignment XP automatically. Changing **Maximum XP** recalculates existing awards. Later rubric edits do not change the denominator captured with an earlier publication. Assignments created before XP was added start at zero; review and republish older grades before they can earn XP.
 
@@ -184,7 +221,7 @@ Choose **Practice tests** on an assignment in your instructor list or from its e
 
 Only the owning instructor can manage these cases. Failed saves retain your inputs; if another edit changed the set, reload before saving again. Publishing tests does not grade student code.
 
-## Forums
+## Discussions
 
 Choose **Discussions** from the selected course's activity links. Instructors and students in that course share its discussions. Select **New discussion**, enter title/message, then **Create discussion**. In a discussion, use **Your reply → Post reply**.
 

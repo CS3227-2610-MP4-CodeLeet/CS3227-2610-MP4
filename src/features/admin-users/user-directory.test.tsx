@@ -35,6 +35,54 @@ afterEach(() => {
 });
 
 describe('admin user directory', () => {
+  it('illustrates a genuinely empty account directory', () => {
+    const markup = renderToStaticMarkup(
+      <UserDirectory
+        currentUserId="admin"
+        initialUsers={[]}
+        initialNextAfter={null}
+      />,
+    );
+
+    expect(markup).toContain('No registered users');
+    expect(markup).toContain('data-illustration="collection"');
+  });
+
+  it('keeps pending searches distinct and illustrates a filtered empty result', async () => {
+    let finishSearch!: (response: Response) => void;
+    const pendingSearch = new Promise<Response>((resolve) => {
+      finishSearch = resolve;
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => pendingSearch),
+    );
+
+    render(
+      <UserDirectory
+        currentUserId="admin"
+        initialUsers={users}
+        initialNextAfter={null}
+      />,
+    );
+    fireEvent.change(screen.getByRole('searchbox', { name: /search users/i }), {
+      target: { value: 'missing@example.test' },
+    });
+
+    expect(await screen.findByText('Searching…')).toBeTruthy();
+    expect(document.querySelector('[data-illustration]')).toBeNull();
+
+    finishSearch(
+      new Response(JSON.stringify({ users: [], nextAfter: null }), {
+        status: 200,
+      }),
+    );
+    expect(await screen.findByText('No users match your search.')).toBeTruthy();
+    expect(
+      document.querySelector('svg[data-illustration="collection"]'),
+    ).toBeTruthy();
+  });
+
   it('renders the approved account fields and role options', () => {
     const markup = renderToStaticMarkup(
       <UserDirectory
@@ -82,7 +130,7 @@ describe('admin user directory', () => {
     });
     expect(save).toHaveBeenCalledOnce();
     expect(navigate).toHaveBeenCalledWith('/courses');
-    expect(destinationForRole('student')).toBe('/student/assignments');
+    expect(destinationForRole('student')).toBe('/courses');
   });
 
   it('ignores duplicate page loads while one request is pending and releases the guard', async () => {

@@ -72,6 +72,7 @@ describe('practice result presentation', () => {
       <CaseResults cases={[]} results={[]} />,
     );
     expect(casesHtml).toContain('No published test cases.');
+    expect(casesHtml).toContain('data-illustration="code"');
     expect(casesHtml).toContain('0 public cases');
 
     const runHtml = renderToStaticMarkup(

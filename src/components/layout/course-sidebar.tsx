@@ -16,6 +16,7 @@ import {
   StarIcon,
   TrendingUpIcon,
   TrophyIcon,
+  UserGearIcon,
 } from './course-sidebar-icons';
 import { isNavItemActive } from './course-sidebar-nav';
 
@@ -33,51 +34,20 @@ export type CourseSidebarProps = {
   onCloseMobile?: () => void;
 };
 
+import {
+  getServerSidebarSnapshot,
+  getSidebarSnapshot,
+  setSidebarCollapsed,
+  subscribeSidebar,
+} from './course-sidebar-storage';
+import { MobileSidebarDrawer } from './mobile-sidebar-drawer';
+
 type NavItem = {
   label: string;
   href: string;
   enabled: boolean;
   icon: (collapsed: boolean) => ReactNode;
 };
-
-const SIDEBAR_STORAGE_KEY = 'codeleet:course-sidebar-collapsed';
-const listeners = new Set<() => void>();
-
-function subscribeSidebar(callback: () => void) {
-  listeners.add(callback);
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === SIDEBAR_STORAGE_KEY) {
-      callback();
-    }
-  };
-  window.addEventListener('storage', onStorage);
-  return () => {
-    listeners.delete(callback);
-    window.removeEventListener('storage', onStorage);
-  };
-}
-
-function getSidebarSnapshot(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
-function getServerSidebarSnapshot(): boolean {
-  return false;
-}
-
-function setSidebarCollapsed(value: boolean) {
-  try {
-    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, value ? 'true' : 'false');
-  } catch {
-    // Ignore local storage errors
-  }
-  listeners.forEach((listener) => listener());
-}
 
 function isFeatureEnabled(
   features: CourseFeatureSetting[],
@@ -88,18 +58,23 @@ function isFeatureEnabled(
   return features.some((f) => f.feature === feature && f.enabled);
 }
 
-function getInstructorNavItems(
+function buildAdminNavItems(
   courseId: string,
   archived: boolean,
   features: CourseFeatureSetting[],
 ): NavItem[] {
-  if (archived) return [];
   const hasAi = features.some((f) => f.feature === 'ai' && f.enabled);
   return [
     {
+      label: 'Manage Users',
+      href: `/courses/${courseId}/manage-users`,
+      enabled: true,
+      icon: () => <UserGearIcon />,
+    },
+    {
       label: 'Context comparison',
-      href: `/courses/${courseId}/instructor/ai-context`,
-      enabled: hasAi,
+      href: `/courses/${courseId}/context-comparison`,
+      enabled: !archived && hasAi,
       icon: () => <ArrowsRightLeftIcon />,
     },
   ];
@@ -153,10 +128,7 @@ function buildNavItems(
   const leaderboard = isFeatureEnabled(features, 'leaderboard', archived);
   const ai = isFeatureEnabled(features, 'ai', archived);
 
-  const assignmentsHref =
-    role === 'student'
-      ? `/courses/${courseId}/assignments`
-      : `/courses/${courseId}/instructor`;
+  const assignmentsHref = `/courses/${courseId}/assignments`;
 
   return [
     {
@@ -175,7 +147,7 @@ function buildNavItems(
       ? [
           {
             label: 'Submissions',
-            href: `/courses/${courseId}/instructor/submissions`,
+            href: `/courses/${courseId}/submissions`,
             enabled: assessments,
             icon: () => <ClockIcon />,
           },
@@ -202,9 +174,6 @@ function buildNavItems(
       enabled: ai,
       icon: () => <SparklesIcon />,
     },
-    ...(role === 'instructor'
-      ? getInstructorNavItems(courseId, archived, features)
-      : []),
   ];
 }
 
@@ -212,14 +181,18 @@ function SidebarHeader({
   course,
   isCollapsed,
   toggleCollapse,
+  mobile = false,
 }: {
   course: CourseSidebarProps['course'];
   isCollapsed: boolean;
   toggleCollapse: () => void;
+  mobile?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between border-b p-4">
-      <div className="flex min-w-0 items-center gap-3">
+    <div
+      className={`flex items-center justify-between border-b p-4 ${mobile ? 'pr-12' : ''}`}
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary">
           {course.title.slice(0, 2).toUpperCase()}
         </div>
@@ -303,19 +276,55 @@ function SidebarUserProfile({
   );
 }
 
+function SidebarLinkItem({
+  item,
+  isActive,
+  isCollapsed,
+  onCloseMobile,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  isCollapsed: boolean;
+  onCloseMobile?: () => void;
+}) {
+  return (
+    <PendingLink
+      href={item.href}
+      onClick={onCloseMobile}
+      title={isCollapsed ? item.label : undefined}
+      aria-current={isActive ? 'page' : undefined}
+      icon={item.icon(isCollapsed)}
+      hideLabel={isCollapsed}
+      className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+        isActive
+          ? 'bg-accent font-semibold text-accent-foreground'
+          : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+      } ${isCollapsed ? 'justify-center px-2' : ''}`}
+    >
+      {item.label}
+    </PendingLink>
+  );
+}
+
 function SidebarNavLinks({
   courseId,
   navItems,
+  adminNavItems,
   pathname,
   isCollapsed,
   onCloseMobile,
 }: {
   courseId: string;
   navItems: NavItem[];
+  adminNavItems?: NavItem[];
   pathname: string;
   isCollapsed: boolean;
   onCloseMobile?: () => void;
 }) {
+  const visibleAdminItems = (adminNavItems ?? []).filter(
+    (item) => item.enabled,
+  );
+
   return (
     <nav
       aria-label="Course section links"
@@ -323,76 +332,39 @@ function SidebarNavLinks({
     >
       {navItems
         .filter((item) => item.enabled)
-        .map((item) => {
-          const isActive = isNavItemActive(item.href, pathname, courseId);
+        .map((item) => (
+          <SidebarLinkItem
+            key={item.href}
+            item={item}
+            isActive={isNavItemActive(item.href, pathname, courseId)}
+            isCollapsed={isCollapsed}
+            onCloseMobile={onCloseMobile}
+          />
+        ))}
 
-          return (
-            <PendingLink
-              key={item.href}
-              href={item.href}
-              onClick={onCloseMobile}
-              title={isCollapsed ? item.label : undefined}
-              aria-current={isActive ? 'page' : undefined}
-              icon={item.icon(isCollapsed)}
-              hideLabel={isCollapsed}
-              className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                isActive
-                  ? 'bg-accent font-semibold text-accent-foreground'
-                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-              } ${isCollapsed ? 'justify-center px-2' : ''}`}
-            >
-              {item.label}
-            </PendingLink>
-          );
-        })}
-    </nav>
-  );
-}
-
-function MobileSidebarDrawer({
-  isOpen,
-  onClose,
-  children,
-}: {
-  isOpen: boolean;
-  onClose?: () => void;
-  children: ReactNode;
-}) {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex md:hidden">
-      <div
-        className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <aside className="relative flex w-4/5 max-w-xs flex-col border-r bg-background shadow-xl">
-        <div className="absolute right-3 top-3">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close navigation menu"
-            className="rounded p-1 text-muted-foreground hover:bg-accent"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
+      {visibleAdminItems.length > 0 && (
+        <div className="pt-4">
+          {!isCollapsed ? (
+            <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Administration
+            </p>
+          ) : (
+            <hr className="my-2 border-border" />
+          )}
+          <div className="space-y-1">
+            {visibleAdminItems.map((item) => (
+              <SidebarLinkItem
+                key={item.href}
+                item={item}
+                isActive={isNavItemActive(item.href, pathname, courseId)}
+                isCollapsed={isCollapsed}
+                onCloseMobile={onCloseMobile}
               />
-            </svg>
-          </button>
+            ))}
+          </div>
         </div>
-        {children}
-      </aside>
-    </div>
+      )}
+    </nav>
   );
 }
 
@@ -403,6 +375,7 @@ function SidebarContent({
   totalXp,
   xpEnabled,
   navItems,
+  adminNavItems,
   pathname,
   isCollapsed,
   toggleCollapse,
@@ -414,6 +387,7 @@ function SidebarContent({
   totalXp?: string | null;
   xpEnabled: boolean;
   navItems: NavItem[];
+  adminNavItems?: NavItem[];
   pathname: string;
   isCollapsed: boolean;
   toggleCollapse?: () => void;
@@ -425,6 +399,7 @@ function SidebarContent({
         course={course}
         isCollapsed={isCollapsed}
         toggleCollapse={toggleCollapse ?? (() => {})}
+        mobile={Boolean(onCloseMobile)}
       />
       <SidebarUserProfile
         userName={userName}
@@ -436,6 +411,7 @@ function SidebarContent({
       <SidebarNavLinks
         courseId={course.id}
         navItems={navItems}
+        adminNavItems={adminNavItems}
         pathname={pathname}
         isCollapsed={isCollapsed}
         onCloseMobile={onCloseMobile}
@@ -466,6 +442,10 @@ export function CourseSidebar({
 
   const xpEnabled = features.some((f) => f.feature === 'xp' && f.enabled);
   const navItems = buildNavItems(course.id, role, course.lifecycle, features);
+  const adminNavItems =
+    role === 'instructor'
+      ? buildAdminNavItems(course.id, course.lifecycle === 'archived', features)
+      : [];
 
   return (
     <>
@@ -481,6 +461,7 @@ export function CourseSidebar({
           totalXp={totalXp}
           xpEnabled={xpEnabled}
           navItems={navItems}
+          adminNavItems={adminNavItems}
           pathname={pathname}
           isCollapsed={isCollapsed}
           toggleCollapse={toggleCollapse}
@@ -494,6 +475,7 @@ export function CourseSidebar({
           totalXp={totalXp}
           xpEnabled={xpEnabled}
           navItems={navItems}
+          adminNavItems={adminNavItems}
           pathname={pathname}
           isCollapsed={false}
           onCloseMobile={onCloseMobile}

@@ -307,3 +307,45 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 36.4 Add a shared `AuthPageShell` giving sign-in, sign-up, forgot-password and reset-password pages a **Back to welcome page** button, with a unit test.
 - [x] 36.5 Verify typecheck, lint, format, full unit suite and production build; update User/Developer Guides and the dated log. Authenticated browser verification was not run (local Supabase/Docker unavailable).
 - [x] 36.6 Push the branch and publish issue-linked PR #115 to develop after branch CI (application run 42437388796, scaffold run 42437391544 at b021910); human browser verification remains pending.
+
+## 37. Issue #129 routing and authenticated browser CI release audit
+- [x] 37.1 Replace authenticated navigation and student-history links that target removed legacy pages; add safe compatibility redirects that preserve verified course membership and canonicalize legacy record URLs.
+- [x] 37.2 Migrate the affected authenticated Playwright journeys to course-scoped routes and synthetic course memberships without weakening assertions or skipping authenticated scenarios. Local Chromium rerun: 77 passed, one local-email prerequisite skip.
+- [x] 37.3 Add a local-Supabase authenticated browser CI job that confines fixture credentials to test setup, strips them from the Next server, and avoids uploading traces or artifacts containing fixture authorization. Environment-isolation unit tests and final-head PR #133 authenticated E2E job passed; the Supabase Preview check was skipped because preview branching was not configured.
+- [x] 37.4 Verify targeted routing regressions, authenticated browser journeys, full unit/build/type/lint/format/OpenSpec/scaffold checks and applicable database checks; record release gates and create linked PR #133 closing #129 after successful branch application CI run 42752213234, scaffold run 42752218345, and CodeQL run 42752216918. Final PR-head application, authenticated E2E, database, scaffold, CodeQL and coverage-report checks passed before merge at `66c6d62`; hosted gates remain separate.
+
+## 38. Issue #130 role-aware AI usage and authorization audit
+
+- [x] 38.1 Make in-flight usage finalization server-authorized and replay-resistant; fail closed when completion or cached-use accounting fails.
+- [x] 38.2 Preserve student feedback history while requiring current instructor membership for instructor-only review reads.
+- [x] 38.3 Add failing-first service and database regressions for client-forged completion, replay/mismatch, failed accounting, forged reviews/cache hits and role removal; verify existing provider quotas and privacy behavior. Post-review local verification passed 858 unit tests and 482 pgTAP assertions; final-head PR #133 application/database checks passed.
+- [x] 38.4 Run focused and full relevant checks, update verified security evidence, and create linked PR #133 closing #130 after successful branch CI. Final-head PR #133 checks passed and the PR merged into develop as `66c6d62`; hosted/live-provider gates remain separate.
+
+## 39. Issue #135 post-merge guides and reflection reconciliation
+
+- [x] 39.1 Reconcile canonical guides and repository status against merged PR #133 and current UI/source; preserve hosted release limits. Current instructor context-comparison UI and final PR-head checks were inspected; hosted verification stays open.
+- [x] 39.2 Refresh reflection evidence references and correct unsupported factual claims without approving either member's personal conclusions. Removed an unmeasured cache-hit latency claim and qualified declarative agent sandboxing/RLS statements.
+- [x] 39.3 Verify guide links, site build, formatting, scaffold and strict OpenSpec; record a dated session summary and publish issue-linked PR #136 after branch application/database/authenticated-E2E, scaffold and CodeQL checks passed. Final PR-head checks and human/hosted review remain separate.
+
+## 40. Issue #138 reflection claim and submission-readiness audit
+
+- [x] 40.1 Compare individual reflection claims with the assignment rubric, implemented prompt constructors and experiment records; qualify unsupported numerical or causal claims without asserting personal author approval.
+- [x] 40.2 Record the current `master`/`develop` and Production/Preview release gap in the assignment checklist without changing release branches or claiming hosted acceptance.
+- [x] 40.3 Verify changed Markdown, links, strict OpenSpec and site build; record a dated log and publish PR #139 to `develop` for teammate review. The PR remains unmerged; final-head CI and human review are tracked separately.
+
+## 41. Issue #134 illustrated empty states
+
+- [x] 41.1 Add the shared accessible illustrated empty-state component with local SVG variants and compact/standard layouts.
+- [x] 41.2 Cover successful empty collections and filtered no-results across directories, assignments, submissions, forums, grades, progress, AI usage, XP/leaderboard, context comparison, practice cases and ownership transfer; preserve view-specific copy/actions and role/lifecycle checks.
+- [x] 41.3 Keep loading, error, unavailable, not-found, editor-input and runtime-output states distinct; verify with focused behavior tests.
+- [x] 41.4 Audit all application data views and run unit, lint, type, format, strict OpenSpec and diff checks; record the dated log and self-review limitations.
+- [x] 41.5 Commit the evidence, push the issue-linked PR #137 to develop, and verify final-head CI on code commit `fbf93345` and evidence commit `99f987d` (Application #42766394468 and #42767488625; Scaffold #42766396229 and #42767495868; CodeQL #42766397543 and #42767493159 all passed). The first database attempt on `fbf93345` hit a runner port conflict and passed on retry. Coverage-report was skipped under `workflow_dispatch`; teammate review remains pending.
+- [x] 41.6 Merge latest `develop` into PR #137, resolve the task-number collision without dropping either branch's work, rerun integration checks, and update the PR evidence before handoff. Merge commit `6e6c801` passed Application including database, unit/coverage, build, browser and authenticated E2E ([42792628355](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42792628355), coverage report [129751426506](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/129751426506)), Scaffold ([42792628414](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42792628414)), and CodeQL ([42792628661](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42792628661)). Final evidence head `b47718a` also passed application, authenticated E2E, database retry, coverage-report, Scaffold and CodeQL ([42793709647](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42793709647), [42793709945](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42793709945), [42793709730](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42793709730)); its first database startup hit a runner port collision on 54322 and the database job passed on retry. PR #137 reports mergeable; human teammate review remains pending.
+
+## 42. Issue #140 mobile course navigation
+
+- [x] 42.1 Reproduce the long-title overlap and missing keyboard behavior; add failing-first focused regressions.
+- [x] 42.2 Reserve close-control space and add focus entry, Tab containment, Escape dismissal and focus restoration; verify focused and full unit suites, lint, typecheck and production build.
+- [x] 42.3 Verify authenticated mobile browser geometry and keyboard navigation. Branch application workflow 42801276979 passed its authenticated E2E job with the 320px and 375px drawer checks. The local Supabase proxy could not publish its configured Windows host ports, so this browser evidence comes from CI.
+- [x] 42.4 Record the dated session summary, push the issue-linked branch and open PR #142 to `develop` for teammate review.
+- [x] 42.5 Verify PR-head checks after integration. At `8caae0b`, application, authenticated E2E, database and coverage report passed in [workflow 42803193562](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42803193562); Scaffold and CodeQL passed in their PR workflows, and Vercel Preview completed. Supabase Preview was skipped because preview branching was not configured. Human review and merge remain separate decisions; the final evidence-only commit will trigger its own checks.

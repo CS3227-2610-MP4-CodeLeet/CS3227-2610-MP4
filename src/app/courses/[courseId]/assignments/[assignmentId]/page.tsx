@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import { resolveBrowserRunnerOrigin } from '@/features/student-submissions/runner-environment';
 import { assignmentLanguageSchema } from '@/features/codementor/contracts';
 import { notFound } from 'next/navigation';
@@ -15,6 +16,7 @@ import {
   revisionEditorPath,
 } from '@/features/student-submissions/revision-selection';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type SubmissionSummary = {
   id: string;
@@ -37,7 +39,12 @@ function SubmissionHistory({
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Your revisions</h2>
       {!submissions.length ? (
-        <p className="text-sm text-muted-foreground">No submissions yet.</p>
+        <IllustratedEmptyState
+          title="No submissions yet."
+          description="Save your first revision to start your assignment history."
+          illustration="code"
+          size="compact"
+        />
       ) : (
         <ol className="space-y-2">
           {submissions.map((submission) => (
@@ -73,6 +80,114 @@ function SubmissionHistory({
   );
 }
 
+function InstructorPreviewBanner({ isPreview }: { isPreview: boolean }) {
+  if (!isPreview) return null;
+  return (
+    <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 text-sm text-blue-400">
+      <p className="font-semibold">Preview Mode (Instructor)</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        You are viewing this assignment from the student&apos;s perspective.
+        Code execution in the browser runner is active for testing. Submissions
+        are disabled in preview mode.
+      </p>
+    </div>
+  );
+}
+
+function resolveDraftContext(options: {
+  isPreview: boolean;
+  studentId: string;
+  assignmentId: string;
+  language: ReturnType<typeof assignmentLanguageSchema.parse>;
+  revisionId: string | null;
+}) {
+  if (options.isPreview) return undefined;
+  return {
+    studentId: options.studentId,
+    assignmentId: options.assignmentId,
+    language: options.language,
+    revisionId: options.revisionId,
+  };
+}
+
+function resolveFormKey(
+  studentId: string,
+  assignmentId: string,
+  language: string,
+  revisionId?: string | null,
+) {
+  return `${studentId}:${assignmentId}:${language}:${revisionId || 'blank'}`;
+}
+
+function AssignmentWorkspaceView({
+  assignmentId,
+  courseId,
+  detail,
+  draft,
+  submissions,
+  studentId,
+  archived,
+  isPreview,
+}: {
+  assignmentId: string;
+  courseId: string;
+  detail: ComponentProps<typeof AssignmentInstructions>['assignment'];
+  draft: Awaited<ReturnType<typeof loadOptionalRevisionDraft>>;
+  submissions: SubmissionSummary[];
+  studentId: string;
+  archived: boolean;
+  isPreview: boolean;
+}) {
+  const formKey = resolveFormKey(
+    studentId,
+    assignmentId,
+    detail.language,
+    draft?.id,
+  );
+  const draftContext = resolveDraftContext({
+    isPreview,
+    studentId,
+    assignmentId,
+    language: detail.language,
+    revisionId: draft?.id ?? null,
+  });
+
+  return (
+    <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+      <BreadcrumbSetter title={detail.title} />
+      <InstructorPreviewBanner isPreview={isPreview} />
+      <AssignmentInstructions assignment={detail} courseId={courseId} />
+      {archived ? (
+        <p className="rounded-md border p-4 text-sm">
+          This course is archived. Assignment history is read-only.
+        </p>
+      ) : (
+        <SubmissionForm
+          assignmentId={assignmentId}
+          language={detail.language}
+          key={formKey}
+          draftContext={draftContext}
+          previewMode={isPreview}
+          initialSource={draft?.source}
+          editingRevision={draft?.revision}
+          testExamples={getAssignmentTestExamples(
+            process.env.NODE_ENV,
+            process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
+          )}
+          browserRunnerOrigin={resolveBrowserRunnerOrigin(process.env)}
+        />
+      )}
+      {!isPreview && (
+        <SubmissionHistory
+          assignmentId={assignmentId}
+          courseId={courseId}
+          submissions={submissions}
+        />
+      )}
+    </main>
+  );
+}
+
 export default async function CourseAssignmentDetailPage({
   params,
   searchParams,
@@ -85,65 +200,15 @@ export default async function CourseAssignmentDetailPage({
   const selection = revisionSelection(query.fromRevision);
   if (!selection.success) notFound();
 
-  const { detail, draft, submissions, studentId, archived } =
-    await loadWorkspace(assignmentId, courseId, selection.data);
+  const workspace = await loadWorkspace(assignmentId, courseId, selection.data);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
-      <BreadcrumbSetter title={detail.title} />
-      <AssignmentInstructions assignment={detail} courseId={courseId} />
-      {archived ? (
-        <p className="rounded-md border p-4 text-sm">
-          This course is archived. Assignment history is read-only.
-        </p>
-      ) : (
-        <SubmissionForm
-          assignmentId={assignmentId}
-          language={detail.language}
-          key={`${studentId}:${assignmentId}:${detail.language}:${draft?.id ?? 'blank'}`}
-          draftContext={{
-            studentId,
-            assignmentId,
-            language: detail.language,
-            revisionId: draft?.id ?? null,
-          }}
-          initialSource={draft?.source}
-          editingRevision={draft?.revision}
-          testExamples={getAssignmentTestExamples(
-            process.env.NODE_ENV,
-            process.env.STUDENT_TEST_CASE_FIXTURES_ENABLED,
-          )}
-          browserRunnerOrigin={resolveBrowserRunnerOrigin(process.env)}
-        />
-      )}
-      <SubmissionHistory
-        assignmentId={assignmentId}
-        courseId={courseId}
-        submissions={submissions ?? []}
-      />
-    </main>
+    <AssignmentWorkspaceView
+      assignmentId={assignmentId}
+      courseId={courseId}
+      {...workspace}
+    />
   );
-}
-
-async function assertStudentAssessmentsAccess(
-  supabase: Parameters<typeof readCourseAccess>[0],
-  userId: string,
-  courseId: string,
-) {
-  const access = await readCourseAccess(
-    supabase,
-    userId,
-    courseId,
-    'assessments',
-  );
-  if (
-    !access ||
-    access.role !== 'student' ||
-    (access.lifecycle === 'active' && !access.featureEnabled)
-  ) {
-    notFound();
-  }
-  return access;
 }
 
 async function loadOptionalRevisionDraft(options: {
@@ -164,56 +229,98 @@ async function loadOptionalRevisionDraft(options: {
   return draft;
 }
 
+async function loadAssignmentRecord(
+  supabase: Parameters<typeof loadRevisionDraft>[0],
+  assignmentId: string,
+  courseId: string,
+  isPreview: boolean,
+) {
+  const query = supabase
+    .from('assignments')
+    .select(
+      'id,course_id,title,instructions,language,publication_status,due_at,max_xp',
+    )
+    .eq('id', assignmentId)
+    .eq('course_id', courseId);
+
+  if (!isPreview) {
+    query.eq('publication_status', 'published');
+  }
+
+  const { data: assignment, error } = await query.maybeSingle();
+  if (error || !assignment) notFound();
+  return assignment;
+}
+
+async function loadStudentSubmissions(
+  supabase: Parameters<typeof loadRevisionDraft>[0],
+  assignmentId: string,
+  studentId: string,
+  isPreview: boolean,
+): Promise<SubmissionSummary[]> {
+  if (isPreview) return [];
+  const { data, error } = await supabase
+    .from('submissions')
+    .select('id,revision,created_at,is_late,due_at_submission')
+    .eq('assignment_id', assignmentId)
+    .eq('student_id', studentId)
+    .order('revision', { ascending: false });
+
+  if (error) throw new Error('Submission history could not be loaded.');
+  return (data ?? []) as SubmissionSummary[];
+}
+
 async function loadWorkspace(
   assignmentId: string,
   courseId: string,
   revisionId?: string,
 ) {
   const { supabase, user } = await requireMember();
-  const { data: assignment, error } = await supabase
-    .from('assignments')
-    .select(
-      'id,course_id,title,instructions,language,publication_status,due_at,max_xp',
-    )
-    .eq('id', assignmentId)
-    .eq('course_id', courseId)
-    .eq('publication_status', 'published')
-    .maybeSingle();
-
-  if (error || !assignment) notFound();
-
-  const access = await assertStudentAssessmentsAccess(
+  const access = await readCourseAccess(
     supabase,
     user.id,
     courseId,
+    'assessments',
   );
 
-  const language = assignmentLanguageSchema.parse(assignment.language);
-  const draft = await loadOptionalRevisionDraft({
+  if (!access || (access.lifecycle === 'active' && !access.featureEnabled)) {
+    notFound();
+  }
+
+  const isPreview = access.role === 'instructor';
+  if (isPreview && revisionId) notFound();
+  const assignment = await loadAssignmentRecord(
     supabase,
-    studentId: user.id,
     assignmentId,
-    language,
-    revisionId,
-  });
+    courseId,
+    isPreview,
+  );
+  const language = assignmentLanguageSchema.parse(assignment.language);
+  const draft = isPreview
+    ? null
+    : await loadOptionalRevisionDraft({
+        supabase,
+        studentId: user.id,
+        assignmentId,
+        language,
+        revisionId,
+      });
 
-  const { data: submissions, error: historyError } = await supabase
-    .from('submissions')
-    .select('id,revision,created_at,is_late,due_at_submission')
-    .eq('assignment_id', assignmentId)
-    .eq('student_id', user.id)
-    .order('revision', { ascending: false });
-
-  if (historyError) throw new Error('Submission history could not be loaded.');
+  const submissions = await loadStudentSubmissions(
+    supabase,
+    assignmentId,
+    user.id,
+    isPreview,
+  );
 
   const detail = {
     ...assignment,
     language,
     submission_status: submissionStatus(
       assignment.due_at,
-      submissions?.[0] ?? null,
+      submissions[0] ?? null,
     ),
-    publication_status: 'published' as const,
+    publication_status: assignment.publication_status,
   };
 
   return {
@@ -222,5 +329,6 @@ async function loadWorkspace(
     submissions,
     studentId: user.id,
     archived: access.lifecycle === 'archived',
+    isPreview,
   };
 }

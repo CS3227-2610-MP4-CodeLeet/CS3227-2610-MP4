@@ -25,6 +25,7 @@ const course = {
 };
 const courseIdPath = `/api/courses/${course.id}`;
 const transferButtonName = 'Transfer ownership';
+const generatedCode = 'synthetic-code-123';
 const members: CourseMember[] = [
   {
     user_id: 'owner-1',
@@ -48,12 +49,15 @@ const members: CourseMember[] = [
     joined_at: '2026-01-03',
   },
 ];
-function renderCourseAccess(currentUserId = 'owner-1') {
+function renderCourseAccess(
+  currentUserId = 'owner-1',
+  courseMembers: CourseMember[] = members,
+) {
   render(
     <CourseAccess
       course={course}
       currentUserId={currentUserId}
-      members={members}
+      members={courseMembers}
     />,
   );
 }
@@ -63,7 +67,7 @@ beforeEach(() => {
     'fetch',
     vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ code: 'synthetic-code-123' }),
+      json: async () => ({ code: generatedCode }),
     }),
   );
   vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
@@ -80,12 +84,17 @@ describe('course access management', () => {
       screen.getByRole('button', { name: 'Create or rotate code' }),
     );
     expect((await screen.findByLabelText('New join code')).textContent).toBe(
-      'synthetic-code-123',
+      generatedCode,
     );
     expect(fetch).toHaveBeenLastCalledWith(
       `${courseIdPath}/join-code`,
       expect.objectContaining({ method: 'PUT' }),
     );
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    fireEvent.click(screen.getByRole('button', { name: 'Copy code' }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(generatedCode));
+    expect(screen.getByRole('status').textContent).toBe('Join code copied.');
     fireEvent.click(screen.getByRole('button', { name: 'Revoke code' }));
     await waitFor(() =>
       expect(screen.getByRole('status').textContent).toBe(
@@ -97,15 +106,20 @@ describe('course access management', () => {
       expect.objectContaining({ method: 'DELETE' }),
     );
   });
+});
 
-  it('requires owner confirmation and lets the owner select another member', async () => {
+describe('ownership transfer', () => {
+  it('limits ownership transfer to other course instructors', async () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
     renderCourseAccess();
     const transfer = screen.getByLabelText('New course owner');
     expect(
       Array.from(transfer.querySelectorAll('option')).map((x) => x.value),
-    ).toEqual(['', 'teacher-2', 'student-3']);
-    fireEvent.change(transfer, { target: { value: 'student-3' } });
+    ).toEqual(['', 'teacher-2']);
+    expect(
+      screen.queryByRole('option', { name: /Student · student@example\.test/ }),
+    ).toBeNull();
+    fireEvent.change(transfer, { target: { value: 'teacher-2' } });
     fireEvent.click(screen.getByRole('button', { name: transferButtonName }));
     expect(fetch).not.toHaveBeenCalled();
     expect(confirm).toHaveBeenCalledWith(
@@ -119,9 +133,21 @@ describe('course access management', () => {
       `${courseIdPath}/transfer`,
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ newOwnerId: 'student-3' }),
+        body: JSON.stringify({ newOwnerId: 'teacher-2' }),
       }),
     );
+  });
+
+  it('explains when no other instructor can receive ownership', () => {
+    renderCourseAccess('owner-1', [members[0]]);
+
+    expect(
+      screen.getByText('No other instructors are available yet.'),
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-illustration="collection"]'),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('New course owner')).toBeNull();
   });
 
   it('does not expose owner-only controls to another instructor', () => {

@@ -7,7 +7,7 @@ import {
 } from './helpers/history-fixtures';
 
 const listName = 'My submissions';
-const listPath = '/student/submissions';
+const listPath = '/submissions';
 const tableName = 'My submitted revisions';
 const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 test.use({
@@ -60,17 +60,15 @@ async function checkFirstPage(page: Page, data: Fixture) {
   await expect(
     page.getByRole('heading', { name: listName, exact: true }),
   ).toBeVisible();
-  const nav = page.getByRole('navigation', { name: 'Student navigation' });
-  await expect(nav.getByRole('link')).toHaveText([
-    'Assignments',
-    'Courses',
-    'My progress',
-    listName,
-    'My grades',
-  ]);
-  await expect(nav.getByRole('link', { name: listName })).toHaveAttribute(
-    'aria-current',
-    'page',
+  const nav = page.getByRole('navigation', { name: 'Course section links' });
+  const submissionsLink = nav.getByRole('link', {
+    name: listName,
+    exact: true,
+  });
+  await expect(submissionsLink).toHaveAttribute('aria-current', 'page');
+  await expect(submissionsLink).toHaveAttribute(
+    'href',
+    coursePath(data, listPath),
   );
   await expect(
     page.getByRole('table', { name: tableName }).locator('tbody tr'),
@@ -83,29 +81,7 @@ async function checkFirstPage(page: Page, data: Fixture) {
     path: 'test-results/my-submissions-desktop.png',
     fullPage: true,
   });
-  await page.setViewportSize({ width: 375, height: 812 });
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
-  await page.getByLabel('Workspace menu', { exact: true }).click();
-  await expect(
-    page
-      .getByRole('navigation', { name: 'Student navigation' })
-      .getByRole('link'),
-  ).toHaveText([
-    'Assignments',
-    'Courses',
-    'My progress',
-    listName,
-    'My grades',
-  ]);
-  await page.getByLabel('Workspace menu', { exact: true }).click();
-  await page.screenshot({
-    path: 'test-results/my-submissions-mobile.png',
-    fullPage: true,
-  });
+  await checkMobileNavigation(page, data);
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto(
     coursePath(data, `${listPath}?student_id=${data.users[2].id}`),
@@ -115,6 +91,45 @@ async function checkFirstPage(page: Page, data: Fixture) {
       `a[href="${coursePath(data, `${listPath}/${data.peerRow.id}`)}"]`,
     ),
   ).toHaveCount(0);
+}
+
+async function checkMobileNavigation(page: Page, data: Fixture) {
+  for (const width of [320, 375]) {
+    await page.setViewportSize({ width, height: 812 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    const opener = page.getByLabel('Open navigation menu', { exact: true });
+    await opener.click();
+    const mobileDrawer = page.getByRole('dialog', {
+      name: 'Course navigation',
+    });
+    const mobileTitle = await mobileDrawer.getByRole('heading').boundingBox();
+    const close = mobileDrawer.getByRole('button', {
+      name: 'Close navigation menu',
+    });
+    const closeButton = await close.boundingBox();
+    expect(
+      mobileTitle &&
+        closeButton &&
+        mobileTitle.x + mobileTitle.width < closeButton.x,
+    ).toBe(true);
+    await expect(close).toBeFocused();
+    await expect(
+      mobileDrawer
+        .getByRole('navigation', { name: 'Course section links' })
+        .getByRole('link', { name: listName, exact: true }),
+    ).toHaveAttribute('href', coursePath(data, listPath));
+    await page.keyboard.press('Escape');
+    await expect(mobileDrawer).not.toBeVisible();
+    await expect(opener).toBeFocused();
+  }
+  await page.screenshot({
+    path: 'test-results/my-submissions-mobile.png',
+    fullPage: true,
+  });
 }
 
 async function checkPagination(page: Page, ids: string[]) {
@@ -205,7 +220,10 @@ async function checkOtherAccounts(page: Page, data: Fixture) {
   await signOut(page);
   await signIn(page, data.users[0].email);
   await page.goto(coursePath(data, listPath));
-  await expect(page).toHaveURL(/\/unauthorized$/);
+  await expect(
+    page.getByRole('heading', { name: 'Submissions' }),
+  ).toBeVisible();
+  await expect(page.getByRole('table', { name: tableName })).toHaveCount(0);
 }
 
 async function signIn(page: Page, email: string) {

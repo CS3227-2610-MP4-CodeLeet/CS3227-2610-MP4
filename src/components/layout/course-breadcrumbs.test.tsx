@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { render, screen, cleanup } from '@testing-library/react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { BreadcrumbProvider, BreadcrumbSetter } from './breadcrumb-context';
 import { CourseBreadcrumbs } from './course-breadcrumbs';
 
@@ -10,8 +10,17 @@ vi.mock('next/navigation', () => ({
   usePathname: () => mockUsePathname(),
 }));
 
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', () => ({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+});
+
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   mockUsePathname.mockReturnValue('/courses/course-123/assignments/asg-456');
 });
 
@@ -61,7 +70,7 @@ describe('CourseBreadcrumbs', () => {
 
   it('omits non-routable dynamic intermediate segments from breadcrumbs', () => {
     mockUsePathname.mockReturnValue(
-      '/courses/course-123/instructor/assignments/asg-456/edit',
+      '/courses/course-123/assignments/asg-456/edit',
     );
     render(
       <BreadcrumbProvider>
@@ -70,11 +79,8 @@ describe('CourseBreadcrumbs', () => {
     );
 
     expect(
-      screen.getByRole('link', { name: 'Instructor' }).getAttribute('href'),
-    ).toBe('/courses/course-123/instructor');
-    expect(
       screen.getByRole('link', { name: 'Assignments' }).getAttribute('href'),
-    ).toBe('/courses/course-123/instructor');
+    ).toBe('/courses/course-123/assignments');
     expect(screen.queryByText('Asg 456')).toBeNull();
     expect(screen.getByText('Edit')).toBeDefined();
   });
@@ -96,4 +102,16 @@ describe('CourseBreadcrumbs', () => {
     expect(screen.queryByText('Sub 789')).toBeNull();
     expect(screen.getByText('Compare Revisions')).toBeDefined();
   });
+});
+
+it('leaves the theme toggle to the enclosing account header', () => {
+  render(
+    <BreadcrumbProvider>
+      <CourseBreadcrumbs courseId="course-123" courseTitle="CS101: Python" />
+    </BreadcrumbProvider>,
+  );
+
+  expect(
+    screen.queryByRole('button', { name: 'Switch to dark mode' }),
+  ).toBeNull();
 });

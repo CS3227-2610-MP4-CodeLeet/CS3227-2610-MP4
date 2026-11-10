@@ -84,6 +84,21 @@ describe('course directory display', () => {
     expect(screen.getByText('archived')).toBeTruthy();
     expect(screen.getByText(/owner: unassigned/i)).toBeTruthy();
   });
+
+  it('lets platform admins open a read-only overview for courses they do not belong to', () => {
+    render(
+      <CourseDirectory
+        initialCourses={courses}
+        canCreate={false}
+        currentUserId="admin-1"
+        platformAdmin={true}
+      />,
+    );
+
+    expect(
+      screen.getByRole('link', { name: /legacy/i }).getAttribute('href'),
+    ).toBe('/admin/courses/00000000-0000-4000-8000-000000000000');
+  });
 });
 
 describe('course directory create modal', () => {
@@ -139,6 +154,9 @@ describe('course directory join and cancel modals', () => {
       />,
     );
     expect(screen.getByText(/no courses yet/i)).toBeTruthy();
+    expect(
+      document.querySelector('svg[data-illustration="collection"]'),
+    ).toBeTruthy();
     expect(screen.queryByRole('dialog')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Join course' }));

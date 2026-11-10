@@ -14,6 +14,7 @@ import { SubmissionForm } from '@/features/codementor/submission-form';
 import { getAssignmentTestExamples } from '@/features/student-submissions/assignment-practice.server';
 import Link from 'next/link';
 import { submissionStatus } from '@/features/assignment-deadlines/deadlines';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 import { loadRevisionDraft } from '@/features/student-submissions/revision-draft.server';
 import {
@@ -38,12 +39,16 @@ function SubmissionHistory({
   assignmentId: string;
   courseId: string;
 }) {
-  const courseQuery = `?courseId=${encodeURIComponent(courseId)}`;
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Your revisions</h2>
       {!submissions.length ? (
-        <p className="text-sm text-muted-foreground">No submissions yet.</p>
+        <IllustratedEmptyState
+          title="No submissions yet."
+          description="Save your first revision to start your assignment history."
+          illustration="code"
+          size="compact"
+        />
       ) : (
         <ol className="space-y-2">
           {submissions.map((submission) => (
@@ -53,7 +58,7 @@ function SubmissionHistory({
             >
               <Link
                 className="underline"
-                href={`/student/submissions/${submission.id}${courseQuery}`}
+                href={`/courses/${encodeURIComponent(courseId)}/submissions/${encodeURIComponent(submission.id)}`}
               >
                 Revision {submission.revision}
               </Link>

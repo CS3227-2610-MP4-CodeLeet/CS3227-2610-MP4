@@ -16,10 +16,13 @@ function snapshot(): Theme {
   } catch {
     /* Blocked storage must not disable the preference control. */
   }
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return systemPrefersDark() ? 'dark' : 'light';
 }
 function subscribe(notify: () => void) {
-  const system = matchMedia('(prefers-color-scheme: dark)');
+  const system =
+    typeof matchMedia === 'function'
+      ? matchMedia('(prefers-color-scheme: dark)')
+      : null;
   const storage = (event: StorageEvent) => {
     if (event.key !== null && event.key !== key) return;
     sessionChoice = undefined;
@@ -27,12 +30,18 @@ function subscribe(notify: () => void) {
   };
   window.addEventListener(changed, notify);
   window.addEventListener('storage', storage);
-  system.addEventListener('change', notify);
+  system?.addEventListener('change', notify);
   return () => {
     window.removeEventListener(changed, notify);
     window.removeEventListener('storage', storage);
-    system.removeEventListener('change', notify);
+    system?.removeEventListener('change', notify);
   };
+}
+function systemPrefersDark() {
+  return (
+    typeof matchMedia === 'function' &&
+    matchMedia('(prefers-color-scheme: dark)').matches
+  );
 }
 export function useWorkspaceTheme() {
   return useSyncExternalStore(subscribe, snapshot, (): Theme => 'light');

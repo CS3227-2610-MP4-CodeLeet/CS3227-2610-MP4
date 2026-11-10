@@ -23,10 +23,13 @@ export async function loadStudentGrades(
 ): Promise<GradesPage | null> {
   try {
     const offset = (page - 1) * GRADES_PAGE_SIZE;
+    const assignmentJoin = filters.q
+      ? 'assignments!inner(title)'
+      : 'assignments(title)';
     let query = client
       .from('grades')
       .select(
-        'id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,assignments(title))',
+        `id,submission_id,total_score,feedback,published_at,submissions!inner(course_id,language,revision,${assignmentJoin})`,
       )
       .eq('submissions.student_id', studentId)
       .eq('submissions.course_id', courseId)

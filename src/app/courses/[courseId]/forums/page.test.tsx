@@ -47,6 +47,7 @@ describe('course forums empty and text states', () => {
     );
     expect(mocks.load).toHaveBeenCalledWith({}, courseId, 2, 'loops');
     expect(html).toContain('No more discussions on this page.');
+    expect(html).toContain('data-illustration="discussion"');
   });
 
   it('offers a new-discussion action when active', async () => {
@@ -58,5 +59,6 @@ describe('course forums empty and text states', () => {
     );
     expect(html).toContain(`/courses/${courseId}/forums/new`);
     expect(html).toContain('New discussion');
+    expect(html).toContain('data-illustration="discussion"');
   });
 });

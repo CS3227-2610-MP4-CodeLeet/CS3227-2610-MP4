@@ -43,21 +43,38 @@ async function courseForAssignment(
   );
 }
 
+async function authorizeRead(id: string, audience: 'student' | 'instructor') {
+  const { supabase, user } = await getVerifiedUserRole();
+  if (!user || !supabase) {
+    return { error: failure('unauthorized', 'Sign in required.', 401) };
+  }
+  if (!z.uuid().safeParse(id).success) {
+    return { error: unavailable() };
+  }
+  const isAllowed = await courseForAssignment(
+    supabase,
+    user.id,
+    id,
+    audience,
+    false,
+  );
+  if (!isAllowed) {
+    return { error: unavailable() };
+  }
+  return { supabase };
+}
+
 export async function readCases(
   id: string,
   audience: 'student' | 'instructor',
 ) {
-  const { supabase, user } = await getVerifiedUserRole();
-  if (!user || !supabase)
-    return failure('unauthorized', 'Sign in required.', 401);
-  if (!z.uuid().safeParse(id).success) return unavailable();
-  if (!(await courseForAssignment(supabase, user.id, id, audience, false)))
-    return unavailable();
+  const auth = await authorizeRead(id, audience);
+  if (auth.error) return auth.error;
   try {
     const data =
       audience === 'student'
-        ? await loadPublicCases(supabase, id)
-        : await loadOwnerCases(supabase, id);
+        ? await loadPublicCases(auth.supabase, id)
+        : await loadOwnerCases(auth.supabase, id);
     return data ? privateJson({ data }) : unavailable();
   } catch {
     return failure(

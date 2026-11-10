@@ -75,4 +75,28 @@ describe('course join-code API', () => {
     expect(response.status).toBe(403);
     expect(await response.text()).not.toContain('secret');
   });
+
+  it('denies students who directly request code creation or revocation', async () => {
+    mocks.auth.mockResolvedValue({
+      user: { id: 'student-id' },
+      role: 'student',
+      supabase: { rpc: mocks.rpc },
+    });
+    mocks.rpc.mockResolvedValue({
+      error: { code: '42501', message: 'course_staff_required' },
+    });
+
+    const created = await PUT(request('PUT'), context);
+    const revoked = await DELETE(request('DELETE'), context);
+
+    expect(created.status).toBe(403);
+    expect(revoked.status).toBe(403);
+    expect(mocks.rpc).toHaveBeenNthCalledWith(1, 'rotate_course_join_code', {
+      p_course: courseId,
+      p_code: expect.any(String),
+    });
+    expect(mocks.rpc).toHaveBeenNthCalledWith(2, 'revoke_course_join_code', {
+      p_course: courseId,
+    });
+  });
 });

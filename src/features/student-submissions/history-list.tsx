@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { FileCode2 } from 'lucide-react';
 import { languageLabels } from '@/features/student-assignments/types';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 import type { HistoryItem, HistoryPage } from './history';
 import {
   emptyListFilters,
@@ -67,27 +67,27 @@ export function SubmissionHistoryList({
 
 function HistoryEmpty({ page, courseId }: { page: number; courseId: string }) {
   return (
-    <div className="space-y-3 rounded-xl border bg-card p-8">
-      <FileCode2 aria-hidden="true" className="size-7 text-muted-foreground" />
-      <h2 className="text-lg font-semibold">
-        {page === 1 ? 'No submissions yet' : 'No submissions on this page'}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {page === 1
+    <IllustratedEmptyState
+      title={page === 1 ? 'No submissions yet' : 'No submissions on this page'}
+      description={
+        page === 1
           ? 'Submit code from an assignment to find your saved revisions here.'
-          : 'Return to your latest submissions to continue browsing.'}
-      </p>
-      <Link
-        href={
-          page === 1
-            ? `/courses/${courseId}/assignments`
-            : `/courses/${courseId}/submissions`
-        }
-        className={linkStyle}
-      >
-        {page === 1 ? 'Browse assignments' : 'Latest submissions'}
-      </Link>
-    </div>
+          : 'Return to your latest submissions to continue browsing.'
+      }
+      illustration="code"
+      action={
+        <Link
+          href={
+            page === 1
+              ? `/courses/${courseId}/assignments`
+              : `/courses/${courseId}/submissions`
+          }
+          className={linkStyle}
+        >
+          {page === 1 ? 'Browse assignments' : 'Latest submissions'}
+        </Link>
+      }
+    />
   );
 }
 

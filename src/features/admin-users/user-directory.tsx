@@ -1,6 +1,7 @@
 'use client';
 
 import { PendingButton } from '@/components/ui/pending-button';
+import { DirectoryEmptyState } from './directory-empty-state';
 
 import {
   useCallback,
@@ -48,7 +49,8 @@ export async function confirmRoleChange({
 }
 
 export function destinationForRole(role: AppRole) {
-  return role === 'student' ? '/student/assignments' : '/courses';
+  void role;
+  return '/courses';
 }
 
 export async function runSinglePageRequest(
@@ -386,13 +388,6 @@ function UserRows({
               </td>
             </tr>
           ))}
-          {!users.length && (
-            <tr>
-              <td className="p-4 text-muted-foreground" colSpan={4}>
-                No registered users.
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </div>
@@ -476,11 +471,19 @@ export function UserDirectory({
         onRoleFilterChange={directory.setRoleFilter}
         isSearching={directory.isSearching}
       />
-      <UserRows
-        users={directory.users}
-        busyUserIds={busyUserIds}
-        changeRole={changeRole}
-      />
+      {directory.users.length ? (
+        <UserRows
+          users={directory.users}
+          busyUserIds={busyUserIds}
+          changeRole={changeRole}
+        />
+      ) : (
+        <DirectoryEmptyState
+          isSearching={directory.isSearching}
+          isFiltered={Boolean(directory.search.trim() || directory.roleFilter)}
+          hasError={Boolean(error)}
+        />
+      )}
       {directory.nextAfter && (
         <PendingButton
           pending={directory.isLoadingMore}

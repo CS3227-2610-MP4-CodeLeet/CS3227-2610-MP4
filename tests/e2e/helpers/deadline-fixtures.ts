@@ -1,6 +1,7 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { test as base } from './draft-fixtures';
 import { revisionSession } from './revision-session';
+import { coursePath } from './draft-fixtures';
 
 export const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export const deadlineHeaders = {
@@ -62,12 +63,18 @@ export const test = base.extend<{ deadlineData: DeadlineData }>({
 
 export async function setDeadline(
   page: Page,
-  data: { users: Array<{ email: string }>; password: string },
+  data: {
+    courseId: string;
+    users: Array<{ email: string }>;
+    password: string;
+  },
   assignmentId: string,
   value: string,
 ) {
   await revisionSession(page, data.users[0].email, data.password);
-  await page.goto(`/instructor/assignments/${assignmentId}/edit`);
+  await page.goto(
+    coursePath(data.courseId, `/assignments/${assignmentId}/edit`),
+  );
   await page.getByLabel(dueLabel, { exact: true }).fill(value);
   const response = page.waitForResponse(
     (result) =>
@@ -78,15 +85,16 @@ export async function setDeadline(
     .getByRole('button', { name: 'Save assignment', exact: true })
     .click();
   expect((await response).status()).toBe(200);
-  await expect(page).toHaveURL('/instructor');
+  await expect(page).toHaveURL(coursePath(data.courseId, '/assignments'));
 }
 
 export async function saveRevision(
   page: Page,
+  courseId: string,
   assignmentId: string,
   index: number,
 ) {
-  await page.goto(`/student/assignments/${assignmentId}`);
+  await page.goto(coursePath(courseId, `/assignments/${assignmentId}`));
   await page
     .getByLabel(`${index ? 'Java' : 'Python'} source code`, { exact: true })
     .fill(sources[index]);

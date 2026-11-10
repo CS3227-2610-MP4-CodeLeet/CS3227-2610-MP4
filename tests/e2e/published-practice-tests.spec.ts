@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { test } from './helpers/draft-fixtures';
+import { coursePath, test } from './helpers/draft-fixtures';
 import { revisionSession } from './helpers/revision-session';
 
 const serviceUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -29,14 +29,14 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
   }) => {
     await revisionSession(page, data.users[0].email, data.password);
     const id = data.assignments[index];
-    await authorCase(page, id);
+    await authorCase(page, data.courseId, id);
     await saveCases(page, saveLabel);
     const student = await browser.newPage();
     try {
       await revisionSession(student, data.users[1].email, data.password);
       expect((await publicCases(student, id)).cases).toEqual([]);
       await saveCases(page, publishLabel);
-      await student.goto(`${appUrl}/student/assignments/${id}`);
+      await student.goto(coursePath(data.courseId, `/assignments/${id}`));
       await expect(student.getByText(caseName, { exact: true })).toBeVisible();
       await student
         .getByLabel(`${language} source code`)
@@ -85,7 +85,7 @@ test('simultaneous owner updates conflict; students cannot read drafts or write 
   const student = await browser.newPage();
   try {
     await revisionSession(student, data.users[1].email, data.password);
-    expect((await student.request.get(path)).status()).toBe(403);
+    expect((await student.request.get(path)).status()).toBe(404);
     expect(
       (
         await student.request.patch(path, {
@@ -93,7 +93,7 @@ test('simultaneous owner updates conflict; students cannot read drafts or write 
           data: { action: 'unpublish', expectedVersion: 1 },
         })
       ).status(),
-    ).toBe(403);
+    ).toBe(404);
     expect(
       (
         await student.request.get(
@@ -120,7 +120,7 @@ test('load errors show retry, retain source and recover with safe text on mobile
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
   const id = data.assignments[0];
-  await authorCase(page, id);
+  await authorCase(page, data.courseId, id);
   await saveCases(page, publishLabel);
   await revisionSession(page, data.users[1].email, data.password);
   await page.setViewportSize({ width: 375, height: 812 });
@@ -128,7 +128,7 @@ test('load errors show retry, retain source and recover with safe text on mobile
   await page.route('**/api/student/assignments/*/test-cases', (route) =>
     route.fulfill({ status: 503, json: { error: { message: 'Unavailable' } } }),
   );
-  await page.goto(`/student/assignments/${id}`);
+  await page.goto(coursePath(data.courseId, `/assignments/${id}`));
   await page.getByLabel('Python source code').fill(sourceTexts[0]);
   await expect(
     page
@@ -148,8 +148,8 @@ test('load errors show retry, retain source and recover with safe text on mobile
   });
 });
 
-async function authorCase(page: Page, id: string) {
-  await page.goto(`/instructor/assignments/${id}/practice-tests`);
+async function authorCase(page: Page, courseId: string, id: string) {
+  await page.goto(coursePath(courseId, `/assignments/${id}/practice-tests`));
   await page.getByRole('button', { name: 'Add test case' }).click();
   await page.getByLabel('Case 1 name').fill(caseName);
   await page.getByLabel('Case 1 input').fill('2 3\n');
