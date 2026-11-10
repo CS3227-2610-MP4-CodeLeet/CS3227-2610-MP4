@@ -16,6 +16,7 @@ import {
   revisionEditorPath,
 } from '@/features/student-submissions/revision-selection';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type SubmissionSummary = {
   id: string;
@@ -38,7 +39,12 @@ function SubmissionHistory({
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Your revisions</h2>
       {!submissions.length ? (
-        <p className="text-sm text-muted-foreground">No submissions yet.</p>
+        <IllustratedEmptyState
+          title="No submissions yet."
+          description="Save your first revision to start your assignment history."
+          illustration="code"
+          size="compact"
+        />
       ) : (
         <ol className="space-y-2">
           {submissions.map((submission) => (

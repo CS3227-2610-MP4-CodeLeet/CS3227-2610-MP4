@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   member: vi.fn(),
   access: vi.fn(),
   loadAssignments: vi.fn(),
+  instructorAssignments: [] as unknown[],
 }));
 
 vi.mock('@/lib/auth/verified-user', () => ({
@@ -37,23 +38,24 @@ const testTitle = 'Algorithm Problem 1';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.instructorAssignments = [
+    {
+      id: 'asg-1',
+      course_id: testCourseId,
+      title: testTitle,
+      language: 'python',
+      publication_status: 'published',
+      updated_at: '2026-11-01T00:00:00Z',
+      version: 1,
+      due_at: null,
+      max_xp: 100,
+    },
+  ];
   const builder = {
     select: vi.fn(() => builder),
     eq: vi.fn(() => builder),
     order: vi.fn(async () => ({
-      data: [
-        {
-          id: 'asg-1',
-          course_id: testCourseId,
-          title: testTitle,
-          language: 'python',
-          publication_status: 'published',
-          updated_at: '2026-11-01T00:00:00Z',
-          version: 1,
-          due_at: null,
-          max_xp: 100,
-        },
-      ],
+      data: mocks.instructorAssignments,
       error: null,
     })),
   };
@@ -143,5 +145,24 @@ describe('CourseAssignmentsPage - instructor role', () => {
     expect(html).toContain(testTitle);
     expect(html).not.toContain('New assignment');
     expect(html).not.toContain('/edit');
+  });
+
+  it('illustrates an empty assignment list and keeps the create action', async () => {
+    mocks.access.mockResolvedValue({
+      role: 'instructor',
+      lifecycle: 'active',
+      featureEnabled: true,
+    });
+    mocks.instructorAssignments = [];
+
+    const page = await CourseAssignmentsPage({
+      params: Promise.resolve({ courseId: testCourseId }),
+      searchParams: Promise.resolve({}),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain('No assignments in this course yet');
+    expect(html).toContain('data-illustration="collection"');
+    expect(html).toContain(`/courses/${testCourseId}/assignments/new`);
   });
 });

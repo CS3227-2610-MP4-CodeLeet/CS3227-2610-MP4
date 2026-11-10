@@ -34,6 +34,7 @@ describe('student assignment components', () => {
   it('distinguishes empty library from an empty filtered result', () => {
     const empty = renderToStaticMarkup(<AssignmentList assignments={[]} />);
     expect(empty).toContain('No assignments yet');
+    expect(empty).toContain('data-illustration="collection"');
     const filtered = renderToStaticMarkup(
       <AssignmentList
         assignments={[]}
@@ -42,6 +43,7 @@ describe('student assignment components', () => {
     );
     expect(filtered).toContain('No matching assignments');
     expect(filtered).not.toContain('No assignments yet');
+    expect(filtered).toContain('data-illustration="collection"');
   });
 
   it('renders published instructions as text and preserves line breaks', () => {

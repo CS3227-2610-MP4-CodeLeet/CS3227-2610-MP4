@@ -9,6 +9,7 @@ import type {
   CourseWorkspaceRecord,
 } from './contracts';
 import { courseRequest, messageFor } from './course-request';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type Props = {
   course: CourseWorkspaceRecord;
@@ -140,17 +141,28 @@ function MemberList({
 }: Props & { readOnly: boolean }) {
   return (
     <ul className="divide-y">
-      {members.map((member) => (
-        <MemberRow
-          key={member.user_id}
-          courseId={course.id}
-          ownerId={course.owner_id}
-          currentUserId={currentUserId}
-          isOwner={isOwner}
-          member={member}
-          readOnly={readOnly}
-        />
-      ))}
+      {members.length ? (
+        members.map((member) => (
+          <MemberRow
+            key={member.user_id}
+            courseId={course.id}
+            ownerId={course.owner_id}
+            currentUserId={currentUserId}
+            isOwner={isOwner}
+            member={member}
+            readOnly={readOnly}
+          />
+        ))
+      ) : (
+        <li className="py-3">
+          <IllustratedEmptyState
+            title="No course members yet"
+            description="Course members will appear here."
+            illustration="collection"
+            size="compact"
+          />
+        </li>
+      )}
     </ul>
   );
 }
@@ -280,19 +292,28 @@ function PendingInvitations({
   const active = invitations.filter(
     (item) => item.accepted_at === null && item.revoked_at === null,
   );
-  if (!active.length) return null;
   return (
     <div className="space-y-2 border-t pt-4">
       <h3 className="font-medium">Pending invitations</h3>
-      {active.map((invitation) => (
-        <InvitationRow
-          key={invitation.id}
-          courseId={courseId}
-          invitation={invitation}
-          readOnly={readOnly}
-          onRevoked={() => router.refresh()}
+      {active.length ? (
+        active.map((invitation) => (
+          <InvitationRow
+            key={invitation.id}
+            courseId={courseId}
+            invitation={invitation}
+            readOnly={readOnly}
+            onRevoked={() => router.refresh()}
+          />
+        ))
+      ) : (
+        <IllustratedEmptyState
+          title="No pending invitations"
+          description="Invitations you send will appear here."
+          illustration="collection"
+          size="compact"
+          headingLevel={4}
         />
-      ))}
+      )}
     </div>
   );
 }

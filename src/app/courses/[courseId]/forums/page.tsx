@@ -10,6 +10,7 @@ import { ForumPager, PostAuthor } from '@/features/forums/components';
 import { parseForumSearch } from '@/features/forums/search';
 import { ForumSearchControls } from '@/features/forums/search-controls';
 import { PendingLink } from '@/components/ui/pending-link';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 export default async function CourseForumsPage({
   params,
@@ -53,9 +54,19 @@ export default async function CourseForumsPage({
         className="divide-y overflow-hidden rounded-xl border bg-background"
       >
         {!threads.rows.length && (
-          <p className="px-5 py-10 text-sm text-muted-foreground">
-            {emptyMessage(query, page)}
-          </p>
+          <IllustratedEmptyState
+            title={emptyMessage(query, page)}
+            description={
+              page > 1
+                ? 'Return to the first page to see the latest discussions.'
+                : query
+                  ? 'Try a different search, or clear your search to browse all discussions.'
+                  : 'Start a discussion to ask a question or share an idea.'
+            }
+            illustration="discussion"
+            size="compact"
+            headingLevel={2}
+          />
         )}
         {threads.rows.map((thread) => (
           <article key={thread.id} className="space-y-2 px-5 py-4">

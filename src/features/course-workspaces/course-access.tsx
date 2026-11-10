@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 import type { CourseMember, CourseWorkspaceRecord } from './contracts';
 import { courseRequest, messageFor } from './course-request';
 
@@ -202,7 +203,6 @@ function OwnershipTransfer({
     (member) =>
       member.user_id !== currentUserId && member.role === 'instructor',
   );
-  if (!candidates.length) return null;
 
   async function transfer() {
     if (!ownerId || busy) return;
@@ -231,6 +231,16 @@ function OwnershipTransfer({
   return (
     <div className="space-y-3 border-t pt-5">
       <h3 className="font-semibold">Transfer ownership</h3>
+      {candidates.length === 0 ? (
+        <IllustratedEmptyState
+          title="No other instructors are available yet."
+          description="Invite another instructor to this course before transferring ownership."
+          illustration="collection"
+          size="compact"
+          headingLevel={4}
+        />
+      ) : (
+        <>
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}
@@ -259,6 +269,8 @@ function OwnershipTransfer({
       >
         Transfer ownership
       </button>
+        </>
+      )}
     </div>
   );
 }

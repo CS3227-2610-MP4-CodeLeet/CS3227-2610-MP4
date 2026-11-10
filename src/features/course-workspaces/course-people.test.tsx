@@ -87,6 +87,22 @@ afterEach(() => {
 });
 
 describe('course people active controls', () => {
+  it('illustrates an empty roster and empty pending invitations', () => {
+    const view = render(
+      <CoursePeople
+        course={course}
+        currentUserId="owner-1"
+        isOwner
+        members={[]}
+        invitations={[]}
+      />,
+    );
+
+    expect(view.container.querySelectorAll('[data-illustration]')).toHaveLength(2);
+    expect(view.container.textContent).toContain('No course members yet');
+    expect(view.container.textContent).toContain('No pending invitations');
+  });
+
   it('lets the owner invite either role and refreshes the member list', async () => {
     renderPeople();
     fireEvent.change(screen.getByLabelText(emailAddressLabel), {

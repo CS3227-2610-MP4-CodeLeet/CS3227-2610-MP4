@@ -11,6 +11,7 @@ import { ForumPager, PostAuthor } from '@/features/forums/components';
 import { ForumForm } from '@/features/forums/forum-form';
 import type { ForumThread } from '@/features/forums/contracts';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 export default async function CourseDiscussionPage({
   params,
@@ -82,11 +83,18 @@ function DiscussionContent({
       <section aria-label="Replies" className="space-y-4">
         <h2 className="text-lg font-semibold tracking-tight">Replies</h2>
         {!replies.rows.length && (
-          <p className="rounded-xl border bg-background px-5 py-8 text-sm text-muted-foreground">
-            {page > 1
-              ? 'No more replies on this page.'
-              : 'No replies yet. Be the first to join the conversation!'}
-          </p>
+          <IllustratedEmptyState
+            title={
+              page > 1 ? 'No more replies on this page.' : 'No replies yet.'
+            }
+            description={
+              page > 1
+                ? 'Return to the first page to read the latest replies.'
+                : 'Be the first to join the conversation!'
+            }
+            illustration="discussion"
+            size="compact"
+          />
         )}
         <div className="divide-y overflow-hidden rounded-xl border bg-background">
           {replies.rows.map((reply) => (

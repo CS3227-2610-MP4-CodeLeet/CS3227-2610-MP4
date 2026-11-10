@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CourseSummary } from './contracts';
 import { CourseCard } from './course-card';
 import { CourseCreateForm, CourseJoinForm } from './course-entry-forms';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type Props = {
   initialCourses: CourseSummary[];
@@ -176,13 +177,11 @@ function CourseActionModal({
 
 function EmptyCourses() {
   return (
-    <div className="rounded-xl border border-dashed p-6">
-      <h3 className="text-lg font-medium">No courses yet</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Create a course if you teach, or join one with the code from your
-        instructor.
-      </p>
-    </div>
+    <IllustratedEmptyState
+      title="No courses yet"
+      description="Create a course if you teach, or join one with the code from your instructor."
+      illustration="collection"
+    />
   );
 }
 

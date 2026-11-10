@@ -11,6 +11,7 @@ import {
 } from '@/features/student-lists/filters';
 import type { GradeItem, GradesPage } from './grades';
 import { ButtonLink } from '@/components/ui/pending-link';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 export function StudentGradesList({
   grades,
@@ -117,25 +118,26 @@ function GradeCard({ row, courseId }: { row: GradeItem; courseId: string }) {
 
 function GradesEmpty({ page, courseId }: { page: number; courseId: string }) {
   return (
-    <div className="space-y-3 rounded-xl border bg-card p-8">
-      <h2 className="text-lg font-semibold">
-        {page === 1 ? 'No published grades yet' : 'No grades on this page'}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {page === 1
+    <IllustratedEmptyState
+      title={page === 1 ? 'No published grades yet' : 'No grades on this page'}
+      description={
+        page === 1
           ? 'Your grades will appear here when your instructor publishes them.'
-          : 'Return to your latest grades to continue browsing.'}
-      </p>
-      <Link
-        href={
-          page === 1
-            ? `/courses/${courseId}/assignments`
-            : `/courses/${courseId}/grades`
-        }
-        className="inline-flex text-sm font-medium underline underline-offset-4"
-      >
-        {page === 1 ? 'Browse assignments' : 'Latest grades'}
-      </Link>
-    </div>
+          : 'Return to your latest grades to continue browsing.'
+      }
+      illustration="progress"
+      action={
+        <Link
+          href={
+            page === 1
+              ? `/courses/${courseId}/assignments`
+              : `/courses/${courseId}/grades`
+          }
+          className="inline-flex text-sm font-medium underline underline-offset-4"
+        >
+          {page === 1 ? 'Browse assignments' : 'Latest grades'}
+        </Link>
+      }
+    />
   );
 }

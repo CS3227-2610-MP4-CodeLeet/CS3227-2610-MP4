@@ -11,6 +11,7 @@ import {
   type ListSearchParams,
 } from '@/features/student-lists/filters';
 import { ButtonLink } from '@/components/ui/pending-link';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 
@@ -108,9 +109,11 @@ function InstructorAssignmentsView({
       </header>
       <section className="space-y-3">
         {!assignments?.length ? (
-          <p className="rounded-xl border p-6 text-muted-foreground">
-            No assignments in this course yet.
-          </p>
+          <IllustratedEmptyState
+            title="No assignments in this course yet."
+            description="Create an assignment to give students work in this course."
+            illustration="collection"
+          />
         ) : (
           assignments.map((assignment) => (
             <InstructorAssignmentCard

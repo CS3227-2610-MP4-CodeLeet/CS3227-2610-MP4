@@ -45,6 +45,7 @@ describe('submission history presentation', () => {
       />,
     );
     expect(first).toContain('No submissions yet');
+    expect(first).toContain('data-illustration="code"');
     expect(first).toContain('/courses/course-a/assignments');
 
     const later = renderToStaticMarkup(
@@ -55,6 +56,7 @@ describe('submission history presentation', () => {
       />,
     );
     expect(later).toContain('No submissions on this page');
+    expect(later).toContain('data-illustration="code"');
     expect(later).toContain('Latest submissions');
     expect(later).toContain('href="/courses/course-a/submissions"');
 
@@ -68,5 +70,6 @@ describe('submission history presentation', () => {
     );
     expect(filtered).toContain('No matching submissions');
     expect(filtered).not.toContain('No submissions yet');
+    expect(filtered).toContain('data-illustration="code"');
   });
 });

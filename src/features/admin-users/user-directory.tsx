@@ -1,6 +1,7 @@
 'use client';
 
 import { PendingButton } from '@/components/ui/pending-button';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 import {
   useCallback,
@@ -386,13 +387,6 @@ function UserRows({
               </td>
             </tr>
           ))}
-          {!users.length && (
-            <tr>
-              <td className="p-4 text-muted-foreground" colSpan={4}>
-                No registered users.
-              </td>
-            </tr>
-          )}
         </tbody>
       </table>
     </div>
@@ -476,11 +470,31 @@ export function UserDirectory({
         onRoleFilterChange={directory.setRoleFilter}
         isSearching={directory.isSearching}
       />
-      <UserRows
-        users={directory.users}
-        busyUserIds={busyUserIds}
-        changeRole={changeRole}
-      />
+      {directory.users.length ? (
+        <UserRows
+          users={directory.users}
+          busyUserIds={busyUserIds}
+          changeRole={changeRole}
+        />
+      ) : directory.isSearching ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          Searching users…
+        </p>
+      ) : error ? null : (
+        <IllustratedEmptyState
+          title={
+            directory.search.trim() || directory.roleFilter
+              ? 'No users match your search.'
+              : 'No registered users.'
+          }
+          description={
+            directory.search.trim() || directory.roleFilter
+              ? 'Try a different name, email address, or role.'
+              : 'Registered students, instructors, and admins will appear here.'
+          }
+          illustration="collection"
+        />
+      )}
       {directory.nextAfter && (
         <PendingButton
           pending={directory.isLoadingMore}
