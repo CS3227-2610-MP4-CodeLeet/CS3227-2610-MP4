@@ -48,6 +48,19 @@ beforeEach(() => {
 });
 
 describe('instructor Context Comparison page', () => {
+  it('illustrates when there are no submissions to compare', async () => {
+    mocks.submissions = [];
+
+    const html = renderToStaticMarkup(
+      await ContextComparisonPage({
+        params: Promise.resolve({ courseId: 'c1' }),
+      }),
+    );
+
+    expect(html).toContain('Context comparison becomes available');
+    expect(html).toContain('data-illustration="code"');
+  });
+
   it('renders assignment title when assignments relation is an object or an array', async () => {
     mocks.submissions = [
       {

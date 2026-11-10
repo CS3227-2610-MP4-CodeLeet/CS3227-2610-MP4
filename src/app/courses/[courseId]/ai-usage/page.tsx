@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 type UsageEvent = {
   review_type: string;
@@ -85,9 +86,12 @@ export default async function CourseAIUsagePage({
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Recent Reviews</h2>
         {summary.events.length === 0 ? (
-          <p className="rounded-lg border p-6 text-center text-sm text-muted-foreground">
-            No AI reviews recorded for this course yet.
-          </p>
+          <IllustratedEmptyState
+            title="No AI reviews recorded for this course yet."
+            description="Your review activity will appear here after your first AI review."
+            illustration="progress"
+            size="compact"
+          />
         ) : (
           <RecentReviewsTable events={summary.events} />
         )}

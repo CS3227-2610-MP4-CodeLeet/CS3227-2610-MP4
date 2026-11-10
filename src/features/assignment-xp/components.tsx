@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatXp, type XpSummary } from './contracts';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 export function MaximumXpField({ value }: { value?: number }) {
   return (
     <div className="space-y-2 text-sm">
@@ -46,7 +47,12 @@ export function XpOverview({
         </p>
       </div>
       {!data.awards.length ? (
-        <p className="rounded-lg border p-5">No XP awards yet.</p>
+        <IllustratedEmptyState
+          title="No XP awards yet."
+          description="Your earned XP will appear here when you receive an award."
+          illustration="progress"
+          size="compact"
+        />
       ) : (
         <ul className="space-y-3">
           {data.awards.map((award) => (

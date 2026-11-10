@@ -23,6 +23,19 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
+it('illustrates an empty authored case list and keeps the add action', () => {
+  render(<PracticeTestEditor initial={initial} />);
+
+  expect(screen.getByText('No test cases added yet')).toBeTruthy();
+  expect(
+    document.querySelector('svg[data-illustration="code"]'),
+  ).toBeTruthy();
+  expect(screen.getByRole('button', { name: addCaseLabel })).toBeTruthy();
+  expect(
+    (screen.getByRole('button', { name: 'Publish tests' }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+});
 it('authors a case, publishes literal output, and advances expected version', async () => {
   const fetch = vi
     .fn()

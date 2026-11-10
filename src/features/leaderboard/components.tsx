@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { formatXp } from '@/features/assignment-xp/contracts';
 import type { Leaderboard } from './contracts';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 export function LeaderboardView({
   data,
   courseId,
@@ -31,9 +32,15 @@ export function LeaderboardView({
         Students with equal XP share the same rank.
       </p>
       {!data.rows.length ? (
-        <p className="rounded-lg border p-5">
-          {data.page === 1 ? 'No rankings yet' : 'No students on this page.'}
-        </p>
+        <IllustratedEmptyState
+          title={data.page === 1 ? 'No rankings yet' : 'No students on this page.'}
+          description={
+            data.page === 1
+              ? 'Students with positive course XP will appear here.'
+              : 'Return to the first page to view the current rankings.'
+          }
+          illustration="progress"
+        />
       ) : (
         <LeaderboardTable rows={data.rows} />
       )}

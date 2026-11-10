@@ -49,6 +49,19 @@ beforeEach(() => {
 });
 
 describe('CourseAIUsagePage', () => {
+  it('illustrates zero recent reviews while keeping zero-valued metrics distinct', async () => {
+    mocks.usage = [];
+
+    const element = await CourseAIUsagePage({
+      params: Promise.resolve({ courseId }),
+    });
+    const html = renderToStaticMarkup(element);
+
+    expect(html).toContain('No AI reviews recorded for this course yet.');
+    expect(html).toContain('data-illustration="progress"');
+    expect(html).toContain('>0</p>');
+  });
+
   it('renders usage statistics and table for course member', async () => {
     mocks.usage = [
       {

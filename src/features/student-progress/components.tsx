@@ -10,6 +10,7 @@ import type {
   UpcomingAssignment,
 } from './contracts';
 import { ProgressRetryButton } from './retry-button';
+import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
 
 export type ProgressData = {
   assignments: AssignmentProgress | null;
@@ -195,9 +196,12 @@ function AssignmentCompletion({ value }: { value: AssignmentProgress }) {
           </p>
         </>
       ) : (
-        <p className={mutedText}>
-          No assignments yet. Published assignments will appear here.
-        </p>
+        <IllustratedEmptyState
+          title="No assignments yet."
+          description="Published assignments will appear here."
+          illustration="progress"
+          size="compact"
+        />
       )}
     </div>
   );
@@ -275,9 +279,12 @@ function UpcomingDeadlines({
           ))}
         </ul>
       ) : (
-        <p className={mutedText}>
-          No upcoming deadlines. Browse assignments for other work.
-        </p>
+        <IllustratedEmptyState
+          title="No upcoming deadlines."
+          description="Browse assignments for other work."
+          illustration="progress"
+          size="compact"
+        />
       )}
     </OverviewSection>
   );
@@ -319,9 +326,12 @@ function RecentSubmissions({
           ))}
         </ol>
       ) : (
-        <p className={mutedText}>
-          No submissions yet. Save your first revision from an assignment.
-        </p>
+        <IllustratedEmptyState
+          title="No submissions yet."
+          description="Save your first revision from an assignment."
+          illustration="progress"
+          size="compact"
+        />
       )}
     </OverviewSection>
   );
@@ -364,10 +374,12 @@ function RecentGrades({
           ))}
         </ol>
       ) : (
-        <p className={mutedText}>
-          No published grades yet. Your grades will appear when your instructor
-          publishes them.
-        </p>
+        <IllustratedEmptyState
+          title="No published grades yet."
+          description="Your grades will appear when your instructor publishes them."
+          illustration="progress"
+          size="compact"
+        />
       )}
     </OverviewSection>
   );
