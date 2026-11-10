@@ -42,6 +42,8 @@ Create ignored `.env.local` from [.env.example](../.env.example) only if it does
 
 The username migration and both server-only login settings are required for current sign-in. Older notes saying the application never uses a privileged server client predate this narrow metadata exception. Normal assignment/profile/submission/grade operations still use the user's publishable-key session; the metadata client does not create sessions, assign roles or replace RLS.
 
+Signup confirmation uses `/auth/callback` to exchange a one-time code, verify the returned user's confirmed-email timestamp, and redirect to `/email-verified`. That server-rendered page independently verifies the cookie-backed user and confirmed email before showing success. A missing platform role is reported separately from email verification. Invalid links show bounded sign-in copy; recovery and course-invitation links keep their dedicated callback destinations. The status page does not include an email or token in its URL or copy. Hosted confirmation email delivery still depends on the team's environment configuration.
+
 Start the app:
 
 ```powershell

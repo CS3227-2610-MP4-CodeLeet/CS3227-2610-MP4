@@ -1,5 +1,20 @@
 ## ADDED Requirements
 
+### Requirement: Clear email confirmation result
+After a signup confirmation link is accepted, the system SHALL show an email-verified result to the server-verified confirmed account, with a route to the appropriate next step. It SHALL NOT show success for a missing, expired or replayed code, a signed-out visitor, or an account whose email is not confirmed.
+
+#### Scenario: Confirmed signup link
+- **WHEN** a valid signup confirmation code establishes a server-verified user with a confirmed email
+- **THEN** the callback SHALL open the confirmation result and the page SHALL offer a way to continue to Courses; if the account has no platform role, the page SHALL explain that account access needs administrator help
+
+#### Scenario: Invalid confirmation or direct page access
+- **WHEN** confirmation exchange fails or a visitor opens the result page without a server-verified confirmed account
+- **THEN** no success state SHALL appear, and the visitor SHALL receive an actionable sign-in or account-creation path without provider details
+
+#### Scenario: Other email links
+- **WHEN** the callback handles password recovery or a course invitation
+- **THEN** those flows SHALL retain their dedicated destinations and SHALL NOT claim signup confirmation success
+
 ### Requirement: Email or unique username password sign-in
 The system SHALL authenticate by email or a case-insensitive unique username without exposing username-to-email lookup results.
 
