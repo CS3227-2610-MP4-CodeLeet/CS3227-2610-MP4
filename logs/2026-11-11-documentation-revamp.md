@@ -41,22 +41,30 @@
    - Practice test validation (`06-practice-test-validation.png`) verified with all 3 test cases passing with green badges ("3 of 3 passed · 3 run").
    - Draft recovery view (`07-autosave-draft-recovery.png`) refined with centered viewport showing problem statement, recovery banner, and action buttons.
    - Instructor review grading view (`17-instructor-submission-review-ai-grade.png`) and Admin user roles (`18-admin-user-roles.png`) captured with populated rubrics, score forms, and directory tables.
+6. **Table Formatting & Role Architecture Refinement**:
+   - Addressed user feedback regarding narrow cell widths causing mid-word letter wrapping (e.g. `Instructo\nr`, `Scop\ne`).
+   - Replaced `overflow-wrap: anywhere;` with `overflow-wrap: break-word;` in `website/src/css/custom.css`.
+   - Added responsive table styling with `width: max-content; max-width: 100%; min-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-collapse: collapse; box-sizing: border-box;` and minimum column widths (`min-width: 140px;` for labels/titles, `min-width: 85px;` for center-aligned matrix cells), preventing table bleeds under the right TOC sidebar while guaranteeing clean, natural word wrapping.
+   - Restructured User Guide Section 1 into distinct **Platform Account Roles** and **Course Membership Roles** tables.
+   - Added prominent security callout in User Guide Section 1 informing users of default Platform Student provisioning and instructing staff to contact Platform Administrator `johnwong@u.nus.edu` for promotion.
+   - Removed the "AI Coding Assistants" citation from Developer Guide Section 11 (Acknowledgements & References).
+   - Verified table rendering visually via Playwright test captures across both User Guide and Developer Guide.
 
 ## Work and verification
 
 - Files and requirement links:
-  - `website/package.json`, `website/docusaurus.config.js`, `website/src/css/custom.css`: Configured Mermaid, Prism, and styling.
+  - `website/package.json`, `website/docusaurus.config.js`, `website/src/css/custom.css`: Configured Mermaid, Prism, responsive table layout, and slate styling.
   - `workflow/scripts/capture-user-guide-screenshots.mjs`: Automated Playwright screenshot script with Next.js badge eradication and robust selectors.
   - `docs/images/user-guide/*.png` & `website/static/img/user-guide/*.png`: 18 audited and verified UI screenshot assets.
-  - `docs/UserGuide.md`: Canonical user-facing guide with updated `/admin` role governance path.
-  - `docs/DeveloperGuide.md`: Canonical software engineering guide.
+  - `docs/UserGuide.md`: Canonical user-facing guide with decoupled platform vs. course roles and administrator promotion contact.
+  - `docs/DeveloperGuide.md`: Canonical software engineering guide with updated acknowledgements.
   - `workflow/scripts/prepare-site-docs.mjs`: Updated Docusaurus doc and image link generator with `pathname://` static routing.
   - `.prettierignore`: Added `.superpowers/` and `.worktrees/`.
 - Commands/checks actually run and outcomes:
   - `node workflow/scripts/capture-user-guide-screenshots.mjs`: Exited 0; captured 18 screenshots cleanly with zero dev badges and verified views.
   - `node workflow/scripts/prepare-site-docs.mjs`: Exited 0; prepared Docusaurus Markdown files.
   - `node workflow/scripts/check-scaffold.mjs`: Exited 0; verified all local Markdown link targets and images resolve on disk.
-  - `node website/node_modules/@docusaurus/core/bin/docusaurus.mjs build website`: Exited 0; generated static bundle in `website/build` with 0 errors.
+  - `pnpm site:build`: Exited 0; generated static bundle in `website/build` with 0 errors.
   - `pnpm format:check`: Exited 0; all matched files use Prettier style.
   - `pnpm lint`: Exited 0; 0 errors, 0 warnings.
   - `pnpm typecheck`: Exited 0; TypeScript and Next.js route typegen clean.
@@ -67,10 +75,11 @@
   - ESLint cyclomatic complexity and statement limits resolved by decomposing capture and doc prep helpers into focused sub-functions.
   - Next.js dev badge removed across all screenshots using init script style injection and DOM element purging.
   - Monaco auto-bracket indentation issue fixed using Playwright `locator.fill()` on `#source-code`.
+  - Table text-wrapping mid-letter resolved by replacing `overflow-wrap: anywhere` with `break-word` and configuring responsive table container CSS.
 - Resource measurements and unavailable fields:
   - Input token reduction across focused context benchmarks: 18.1% (empirically measured via `pnpm ai:context-eval`).
-  - Docusaurus client/server bundle build time: ~18 seconds.
+  - Docusaurus client/server bundle build time: ~20 seconds.
 - Next steps:
-  - Commit polished screenshots and script enhancements.
+  - Commit polished documentation and table formatting fixes.
   - Push branch `docs/160-documentation-revamp` to remote.
   - Update Pull Request #161 on GitHub.

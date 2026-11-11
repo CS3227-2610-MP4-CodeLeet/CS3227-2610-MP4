@@ -6,22 +6,40 @@ This guide provides an end-to-end walkthrough of all user-facing capabilities in
 
 ---
 
-## 1. Quick Navigation & Role Matrix
+## 1. Quick Navigation & Role Architecture
 
-CodeLeet uses a role-based access model where permissions are partitioned between platform-wide responsibilities and course-level memberships.
+CodeLeet uses a two-tier role architecture that clearly separates **Platform Account Roles** (system-wide privileges) from **Course Membership Roles** (permissions within a specific course workspace). This decoupling ensures you can have different responsibilities across different courses (for example, serving as a course instructor in one course while being enrolled as a student in another).
 
-### Platform and Course Roles
+### 1.1 Platform Account Roles (Global Scope)
 
-| Role | Scope | Primary Responsibilities |
+Platform roles govern system-wide account authority, course creation privileges, and institutional administration:
+
+| Platform Role | Default Upon Registration | Primary System Authority & Responsibilities |
+| :--- | :---: | :--- |
+| **Platform Student** | Yes (Default) | Standard account tier. Can view enrolled courses, join active courses via student join codes, solve published assignments, participate in course discussion forums, and track earned XP. |
+| **Platform Instructor** | No (Requires Promotion) | Elevated staff tier. Authorized to create and configure new course workspaces, author assignments and private rubrics, grade student submissions, invite course staff, and serve as Course Owner. |
+| **Platform Administrator** | No (Protected Safeguard) | Highest platform governance tier. Authorized to manage user platform roles (`/admin`), reassign unowned legacy course archives, and inspect institutional metadata. Protected against demoting the final administrator. |
+
+> [!NOTE] Default Account Role & Instructor Promotion
+> For security, access governance, and academic integrity reasons, all self-registered user accounts are automatically provisioned with the **Platform Student** role by default.
+>
+> If you are a course lecturer, professor, teaching assistant, or academic staff member requiring **Platform Instructor** privileges (to create new courses, author assignments, or grade student submissions), please contact the Platform Administrator at **`johnwong@u.nus.edu`** with your course details and institutional email to have your platform account role promoted.
+
+### 1.2 Course Membership Roles (Course-Scoped)
+
+Within any individual course workspace, members hold granular course-level roles that determine their pedagogical permissions for that specific course:
+
+| Course Role | Enrollment / Assignment Method | Course Workspace Capabilities |
 | :--- | :--- | :--- |
-| **Student** | Course-level | Browse published assignments, write and test code in-browser, submit immutable revisions, compare versions, recover local drafts, request pedagogical AI feedback, view grades and earned XP, track deadlines on the progress dashboard, and participate in course forums. |
-| **Instructor** | Course-level | Author assignments and multi-criteria rubrics, preview assignments from the student perspective, author and publish public practice tests, review student submissions, generate AI rubric suggestions, grade and publish evaluations, manage student join codes and course rosters, and toggle course feature switches. |
-| **Course Owner** | Course-level | Possesses all Instructor capabilities plus exclusive rights to transfer course ownership, manage fellow instructors, archive active courses, or permanently delete empty courses. |
-| **Platform Administrator** | Platform-wide | Manage user platform roles (Student, Instructor, Administrator) with last-admin safeguards, inspect read-only course metadata across the institution, and assign owners to unowned legacy course archives. |
+| **Course Student** | Enrolled via 8-character student join code or direct course invitation | Browse published assignments, write and test code in-browser, submit immutable revisions, recover local drafts, request pedagogical AI feedback, view personal grades and XP, and post in course forums. |
+| **Course Instructor** | Invited and assigned by Course Owner or Platform Administrator | Author assignments and multi-criteria rubrics, preview problems from the student perspective, author and publish public practice tests, review student submissions, generate AI rubric suggestions, grade evaluations, and manage course join codes. |
+| **Course Owner** | Course creator or assigned via ownership transfer | Possesses all Course Instructor capabilities plus exclusive rights to manage instructor rosters, archive active courses, transfer course ownership, or permanently delete empty courses. |
 
-### Feature Access Matrix
+### 1.3 Feature Access Matrix
 
-| Feature / Page | Student | Instructor | Course Owner | Platform Administrator |
+The following matrix cross-references every system capability against user roles:
+
+| Feature / Workspace Capability | Course Student | Course Instructor | Course Owner | Platform Administrator |
 | :--- | :---: | :---: | :---: | :---: |
 | Sign In / Sign Up / Profile Settings | Yes | Yes | Yes | Yes |
 | Course Selection & Overview | Yes | Yes | Yes | Yes |

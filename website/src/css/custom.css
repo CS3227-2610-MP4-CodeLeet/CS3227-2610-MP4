@@ -29,7 +29,9 @@
 }
 
 .theme-doc-markdown {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* Image styling in documentation */
@@ -56,13 +58,49 @@
   border: 1px solid var(--ifm-color-emphasis-200);
 }
 
-/* Tables styling */
+/* Tables styling: readable cell widths, smooth horizontal scroll on overflow */
 .theme-doc-markdown table {
-  width: 100%;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  min-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin: 1.5rem 0;
-  display: table;
+  border-collapse: collapse;
+  box-sizing: border-box;
+}
+
+.theme-doc-markdown table th,
+.theme-doc-markdown table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  vertical-align: top;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
 }
 
 .theme-doc-markdown table th {
   background-color: var(--ifm-color-emphasis-100);
+  font-weight: 600;
+  color: var(--ifm-font-color-base);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Ensure label/title columns don't crunch into single words */
+.theme-doc-markdown table td:first-child {
+  font-weight: 500;
+  min-width: 140px;
+}
+
+/* Center-aligned columns (matrix Yes/No, Default, Mandatory) */
+.theme-doc-markdown table td[style*='text-align:center'],
+.theme-doc-markdown table th[style*='text-align:center'],
+.theme-doc-markdown table td[align='center'],
+.theme-doc-markdown table th[align='center'] {
+  white-space: nowrap;
+  min-width: 85px;
 }

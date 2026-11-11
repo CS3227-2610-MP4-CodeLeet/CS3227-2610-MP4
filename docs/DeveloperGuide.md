@@ -603,4 +603,3 @@ The CodeLeet architecture and documentation build upon several foundational tool
 - **Vitest & Playwright**: Modern testing frameworks for unit, integration, and cross-browser end-to-end automation.
 - **Promptfoo**: [Promptfoo](https://promptfoo.dev/) provided the security evaluation framework for testing prompt injection defense and rubric privacy.
 - **OpenSpec**: [OpenSpec](https://github.com/Fission-AI/OpenSpec) provided the Spec-Driven Development (SDD) schema and workflow tools.
-- **AI Coding Assistants**: Google Antigravity and Codex assisted with design planning, test generation, and documentation drafting under strict human review.
