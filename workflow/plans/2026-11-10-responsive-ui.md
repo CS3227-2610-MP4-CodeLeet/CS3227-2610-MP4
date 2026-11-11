@@ -207,7 +207,7 @@
 
 - [x] **Step 5: Commit the verified evidence milestone**
 
-  Test followups were committed as `efab3e0`; evidence and log are committed. Merges of #147/#149/#151 exposed and resolved task-number collisions by moving issue #146 from group 43 through 45 to group 46. PR #152 is open; the old head's Vercel Preview failed, but its logs could not be retrieved because no Vercel credentials or browser session were available. The next updated-head branch and PR checks remain pending. Teammate review remains pending.
+  Test followups were committed as `efab3e0`; the merge commits include latest develop PRs #147/#149/#151 and preserve their task groups 43-45 while issue #146 is group 46. PR #152 at `60a34bf` is mergeable; Application, authenticated E2E, database, coverage-report, Scaffold, CodeQL, and refreshed Vercel Preview checks passed. Supabase Preview was skipped without configured preview branching. An earlier Vercel Preview failed and its logs were unavailable without Vercel credentials, but the final Preview passed. The final evidence commit triggers another PR-head check cycle; teammate review remains pending.
 
 ## Execution Decision
 
