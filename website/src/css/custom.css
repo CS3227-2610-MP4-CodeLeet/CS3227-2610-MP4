@@ -1,23 +1,68 @@
+/**
+ * CodeLeet Docusaurus Theme
+ * Aligned with CodeLeet's clean neutral/slate palette
+ */
+
 :root {
-  --ifm-color-primary: #0e7490;
-  --ifm-color-primary-dark: #0d6882;
-  --ifm-color-primary-darker: #0c637a;
-  --ifm-color-primary-darkest: #0a5165;
-  --ifm-color-primary-light: #0f809e;
-  --ifm-color-primary-lighter: #1085a6;
-  --ifm-color-primary-lightest: #1297bb;
+  --ifm-color-primary: #1e293b;
+  --ifm-color-primary-dark: #17202e;
+  --ifm-color-primary-darker: #121924;
+  --ifm-color-primary-darkest: #0a0e14;
+  --ifm-color-primary-light: #2c3c56;
+  --ifm-color-primary-lighter: #344766;
+  --ifm-color-primary-lightest: #465f8a;
+  --ifm-code-font-size: 92%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme='dark'] {
-  --ifm-color-primary: #67e8f9;
-  --ifm-color-primary-dark: #45e3f8;
-  --ifm-color-primary-darker: #34e1f7;
-  --ifm-color-primary-darkest: #0acee8;
-  --ifm-color-primary-light: #89edfa;
-  --ifm-color-primary-lighter: #9af0fb;
-  --ifm-color-primary-lightest: #cdf8fd;
+  --ifm-color-primary: #94a3b8;
+  --ifm-color-primary-dark: #8192a8;
+  --ifm-color-primary-darker: #7889a0;
+  --ifm-color-primary-darkest: #5c6c82;
+  --ifm-color-primary-light: #a7b4c8;
+  --ifm-color-primary-lighter: #b0bcd0;
+  --ifm-color-primary-lightest: #ccd5e3;
+  --ifm-background-color: #0b0f17;
+  --ifm-background-surface-color: #111827;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.08);
 }
 
 .theme-doc-markdown {
   overflow-wrap: anywhere;
+}
+
+/* Image styling in documentation */
+.theme-doc-markdown img {
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mermaid diagram responsiveness */
+.theme-doc-markdown .docusaurus-mermaid-container {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  background: var(--ifm-background-surface-color);
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Tables styling */
+.theme-doc-markdown table {
+  width: 100%;
+  margin: 1.5rem 0;
+  display: table;
+}
+
+.theme-doc-markdown table th {
+  background-color: var(--ifm-color-emphasis-100);
 }

@@ -1,4 +1,4 @@
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { cp, readFile, mkdir, writeFile } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +15,15 @@ function rewriteTarget(target, image, sourcePath, root) {
   if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local))
     throw new Error('Documentation link is outside the repository.');
   const fragment = fragments.length ? `#${fragments.join('#')}` : '';
+
+  if (image && absolute.startsWith(resolve(root, 'docs', 'images'))) {
+    const imgRel = relative(resolve(root, 'docs', 'images'), absolute)
+      .split(sep)
+      .map(encodeURIComponent)
+      .join('/');
+    return `/CS3227-2610-MP4/img/${imgRel}${fragment}`;
+  }
+
   for (const name of Object.keys(guides)) {
     if (!image && absolute === resolve(root, 'docs', `${name}.md`))
       return `./${name}.md${fragment}`;
@@ -42,6 +51,14 @@ export function rewriteGuideLinks(markdown, sourcePath, root = repositoryRoot) {
 export async function prepareSiteDocs(root = repositoryRoot) {
   const destination = join(root, 'website', 'docs');
   await mkdir(destination, { recursive: true });
+
+  const sourceImages = join(root, 'docs', 'images');
+  if (existsSync(sourceImages)) {
+    const staticImages = join(root, 'website', 'static', 'img');
+    await mkdir(staticImages, { recursive: true });
+    await cp(sourceImages, staticImages, { recursive: true });
+  }
+
   for (const [name, title] of Object.entries(guides)) {
     const sourcePath = join(root, 'docs', `${name}.md`);
     const content = rewriteGuideLinks(
