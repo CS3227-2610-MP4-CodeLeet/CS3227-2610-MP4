@@ -21,7 +21,7 @@ function rewriteTarget(target, image, sourcePath, root) {
       .split(sep)
       .map(encodeURIComponent)
       .join('/');
-    return `/CS3227-2610-MP4/img/${imgRel}${fragment}`;
+    return `pathname:///CS3227-2610-MP4/img/${imgRel}${fragment}`;
   }
 
   for (const name of Object.keys(guides)) {
