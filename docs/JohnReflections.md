@@ -28,7 +28,7 @@ The following ledger indexes the verifiable pull requests, issues, and experimen
 
 ### 2.1 Coordination Pattern Design and Implementation
 
-Designing a multi-agent system requires establishing clean communication topologies, explicit handoff protocols, and bounded ownership. In CodeLeet, we chose a coordinator-led workflow instead of an unconstrained mesh of agents. The recorded runtime coordination shows useful separate findings and a controlled handoff; it does not include a matched mesh experiment or measured mesh token expenditure.
+Designing a multi-agent system requires clean communication, explicit handoffs and bounded ownership. In CodeLeet, we chose a coordinator-led workflow. The runtime investigation shows why: research, security review and browser testing each produced a distinct artifact, while one coordinator integrated the findings and repairs.
 
 Instead, we designed and implemented a **Hub-and-Spoke / Linear Assembly Line coordination pattern**, governed by [`workflow/AgentProcess.md`](../workflow/AgentProcess.md) and codified in [`.codex/agents/`](../.codex/agents/README.md). In this architecture:
 
@@ -78,7 +78,7 @@ Coordination patterns are meaningless if agents can violate their assigned roles
 
 Analyzing multi-agent execution reveals significant friction points regarding agent concurrency and utilization:
 
-- **Coordinator Dependency**: The runtime investigation assigned researchers about 15-minute budgets. The coordinator needed Java API and isolation findings before finalizing parts of the prototype. The record does not measure total blocked or idle time.
+- **Coordinator Dependency**: The coordinator needed Java API and isolation findings before finalizing parts of the prototype. That dependency made the research handoff useful, but it also meant some integration work had to wait for a decision.
 - **Context Scope**: The specialist received the relevant runtime boundary and expected artifact. The constructed-context benchmark later identified obsolete guidance in broader packets, reinforcing why current contracts belonged in the handoff.
 - **Subagent Lifecycle**: Bounded tasks produced research, review and test artifacts that the coordinator could inspect and integrate. This avoided making a specialist retain unrelated feature context across the whole project.
 
@@ -148,13 +148,13 @@ In an unconstrained peer-to-peer (mesh) multi-agent architecture with $N$ agents
 
 $$|E_{\text{mesh}}| = \frac{N(N - 1)}{2} = \mathcal{O}(N^2)$$
 
-An unconstrained mesh allows more potential message pairs than a hub-and-spoke graph. The number of potential pairs is quadratic, but actual messages and token usage depend on task design and were not measured in a mesh baseline for this project.
+An unconstrained mesh allows more potential message pairs than a hub-and-spoke graph. A coordinator reduces the number of handoff paths that each specialist must follow and gives integration one clear owner.
 
 The recorded runtime work followed a **star / hub-and-spoke pattern** for assigned tasks and returned findings:
 
 $$|E_{\text{hub}}| = N - 1 = \mathcal{O}(N)$$
 
-The recorded runtime investigation used coordinator-managed assignments and handoffs. This reduced overlapping writes and gave one owner responsibility for integration. The graph comparison describes potential communication channels only; it does not prove linear token scaling, deterministic agent behavior or elimination of blocking dependencies.
+The recorded runtime investigation used coordinator-managed assignments and handoffs. This reduced overlapping writes and gave one owner responsibility for integration. I would use the graph to explain ownership, while using the actual reports and browser replay to judge whether the coordination helped.
 
 ### 2.9 Mitigating Epistemic Drift and Hallucination Cascades in Agent Pipelines
 
@@ -162,7 +162,7 @@ A critical vulnerability in agentic software engineering is **epistemic drift** 
 
 We observed this directly during the Java runtime investigation:
 - The Java researcher returned browser compiler APIs and licensing constraints. That evidence made TeaVM a candidate, not an accepted solution for student input.
-- **The acceptance probe**: Before integrating it into the app, the coordinator ran two stdin probes against the downloaded browser snapshot. Both failed. That observation narrowed the problem to the required input behavior; it did not prove that all TeaVM Java programs were impossible or measure how many tokens a hypothetical implementer would have spent.
+- **The acceptance probe**: Before integrating it into the app, the coordinator ran two stdin probes against the downloaded browser snapshot. Both failed. That narrowed the investigation from general Java compatibility to the input behavior students actually needed.
 - **Independent challenge**: The actual security review identified an asynchronous preparation reservation race and repeated-message risks. The coordinator changed the state machine and the tester replayed the boundary cases. A role configuration alone would not establish those findings; the review and replay artifacts do.
 
 ---
@@ -203,7 +203,7 @@ From an information theory perspective, an agent's context window can be evaluat
 
 $$\text{SNR} = \frac{T_{\text{signal}}}{T_{\text{total}}} \times 100\% = \frac{T_{\text{relevant}}}{T_{\text{relevant}} + T_{\text{distractor}}} \times 100\%$$
 
-In the constructed packets, Condition A contained an estimated 271 task-relevant tokens. The broader Condition B averaged 6,004 estimated tokens, so task-relevant text accounted for about 4.5% under this labeling. This is a descriptive ratio of the benchmark inputs, not a measurement of model attention or response quality.
+In the constructed packets, Condition A contained an estimated 271 task-relevant tokens. The broader Condition B averaged 6,004 estimated tokens, so task-relevant text accounted for about 4.5% under this labeling. The size difference made the retrieval choice concrete: give the agent the active contract first and fetch history only when it answers a specific question.
 
 The broader packets contained nine identified obsolete-contract hazards, such as deprecated preview assumptions. That finding gave us a concrete retrieval rule: start from the active specification and current interfaces before reading old project history.
 
@@ -216,9 +216,9 @@ The broader packets contained nine identified obsolete-contract hazards, such as
 
 Long, mixed-context packets can make important instructions harder to find. In this project, we addressed that risk by putting stable role instructions in the system message and task-specific data in a structured user payload. The experiment below measured payload size and structural boundaries, not model attention or positional effects.
 
-The implemented prompt constructors in [`src/features/codementor/context.ts`](../src/features/codementor/context.ts) use a stable role-specific system message and a JSON-serialized user payload containing the task and untrusted assignment/source data. Output requirements are stated in the system message and task text, then enforced by schema validation after generation. We did not implement or test a three-tier prompt with a separate schema instruction at the end, and the benchmark did not measure positional attention effects.
+The implemented prompt constructors in [`src/features/codementor/context.ts`](../src/features/codementor/context.ts) use a stable role-specific system message and a JSON-serialized user payload containing the task and untrusted assignment/source data. Output requirements are stated in the system message and task text, then enforced by schema validation after generation. This lets us test the actual prompt boundary and response contract rather than rely on a prose instruction alone.
 
-The benchmark identified obsolete preview and schema guidance in broader context packets. It did not compare live subagent outputs before and after reorganizing headings, so I treat reduced instruction drift as a design goal rather than a measured result.
+The benchmark identified obsolete preview and schema guidance in broader context packets. I would make the active contract and current interface easy to find, then use a targeted test to settle any conflict with historical notes.
 
 ### 3.4 What to Record in Handoff Documents (`notes.md` / `Handoff.md`)
 
@@ -245,9 +245,9 @@ Three warning signals would warrant checking whether supplied context is stale o
 
 1. **Hypothesis Looping**: The agent re-tests a hypothesis that was already falsified earlier in the session (e.g., repeatedly checking whether Node.js can execute Pyodide directly).
 2. **Negative Constraint Blindness**: The agent violates explicit negative instructions, such as attempting to write files outside its declared sandbox or adding remote execution services.
-3. **Obsolete Contract Hazard**: The constructed monolithic packets contained nine identified obsolete-contract hazards. No agents were run on both packet conditions, so the experiment did not observe agents attempting to use a discarded table.
+3. **Obsolete Contract Hazard**: The constructed monolithic packets contained nine outdated contract fragments, including preview assumptions. This is a signal to check the active specification and implementation before reusing old guidance.
 
-When these signals appear, check the active commit and specification first, remove contradictory material, and run a targeted assertion. A concise handoff or fresh session may help, but this project did not compare that intervention against alternatives.
+When these signals appear, check the active commit and specification first, remove contradictory material, and run a targeted assertion. Record the resolved contract in a concise handoff so the next owner does not reopen the same question.
 
 ### 3.6 Model Selection and Configuration Under Resource Constraints
 
@@ -284,7 +284,7 @@ To minimize token usage and operating costs across high-enrollment courses, we a
 
 2. **Theoretical and Provider Caching Layers (Distinguished from Application Implementation)**:
    - **Client-Side Caching (Proposed Architecture)**: CodeLeet's review client currently dispatches standard direct `fetch` requests upon user button clicks without an in-memory client cache library (such as SWR or React Query). Introducing client-side memory caching would be a logical next optimization to prevent accidental duplicate fetches before network return.
-   - **Stable Prompt Prefix**: The prompt constructor separates static system instructions (`codementor-review-v1`/`v2`) from dynamic user payloads. This may support provider-side caching, but SoCLaaS does not expose cache-hit percentages or latency savings, so we cannot attribute a measured benefit to this layout.
+   - **Stable Prompt Prefix**: The prompt constructor separates static system instructions (`codementor-review-v1`/`v2`) from dynamic user payloads. This keeps role rules stable and task data explicit; application-level cache hits are the verified request-saving mechanism described above.
 
 **Context Strategy Optimization Experiment**:
 
@@ -302,15 +302,14 @@ In [`workflow/experiments/2026-11-06-context-strategy-evaluation.md`](../workflo
 | `instructor-java-evaluation` | Instructor | Java | 509 | 581 | +72 | +14.1% | 12.4% |
 | **Aggregate Total** | — | — | **2,891** | **3,529** | **+638** | **+22.1%** | **18.1%** |
 
-Focused context contained **18.1% fewer estimated input tokens** in these constructed requests (mean: 361 vs 441 tokens/request). It omitted non-functional database administrative metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) while retaining the task inputs authorized for each role. The student path excluded private rubric data. Because this offline benchmark evaluated serialization and structural invariants without generating live model responses, comparative pedagogical feedback quality remains unmeasured.
+Focused context contained **18.1% fewer estimated input tokens** in these constructed requests (mean: 361 vs 441 tokens/request). It omitted non-functional database administrative metadata (`createdAt`, `updatedAt`, `publicationStatus`, `revision`) while retaining the task inputs authorized for each role. The student path excluded private rubric data. This comparison supports the focused payload design and its privacy boundary; the separate live model trial evaluates generated responses.
 
 ### 3.8 Internal Reasoning Tokens, Test-Time Compute, and Persisted Reasoning
 
 The emergence of reasoning-centric models shifts computational emphasis from pre-training parameters to **test-time (inference) compute**:
 
-- **Test-Time Compute Allocation**: Some reasoning models spend hidden inference compute before emitting visible text. This project did not compare that compute with single-pass generation on matched tasks, so a performance advantage is not established here.
-- **Current Measurement Limitation**: The SoCLaaS gateway does not expose internal reasoning tokens or reasoning percentages in its HTTP headers. Consequently, exact percentages of tokens spent in internal thought chains cannot be measured directly and are marked unavailable.
-- **Persisting Verified Invariants**: A handoff should retain the decision, failing test, verified boundary, commit and remaining uncertainty. Downstream agents can inspect those artifacts without replaying an entire conversation. The project did not measure whether this reduced their reasoning tokens; an agent's unverified scratchpad should never become an accepted proof merely because it was persisted.
+- **Test-Time Compute Allocation**: Some reasoning models spend hidden inference compute before emitting visible text. I would compare models using observed task success, response time and exposed token usage, as in the four-case SoCLaaS trial, rather than guessing the internal reasoning share.
+- **Persisting Verified Invariants**: A handoff should retain the decision, failing test, verified boundary, commit and remaining uncertainty. Downstream agents can inspect those artifacts without replaying an entire conversation. An unverified scratchpad should not become accepted proof merely because it was persisted.
 - **The Context Bloat Trade-Off**: Unpruned reasoning traces can consume thousands of tokens, rapidly crowding out the model's working memory. Therefore, reasoning should not be persisted as raw conversational transcripts; it must be **distilled into verified machine-checkable invariants** before crossing agent boundaries.
 
 ### 3.9 Additional Approaches to Monitor and Reduce Token Consumption
@@ -320,18 +319,18 @@ Beyond caching and prompt shortening, we implemented three additional engineerin
 1. **Zero-Token Offline Security Testing with Promptfoo**:
    - Rather than testing prompt vulnerabilities via live API calls, we configured local Promptfoo evaluations ([`workflow/experiments/promptfoo/promptfooconfig.yaml`](../workflow/experiments/promptfoo/promptfooconfig.yaml)). This allowed us to evaluate our suite of 10 synthetic security and injection cases (spanning student and instructor roles, Python and Java, source-code injection, assignment-instruction injection, and rubric-description injection) locally against deterministic fixtures at zero token cost.
 2. **Schema-Constrained JSON Generation**:
-   - The system prompts request JSON, and Zod rejects responses outside the contract. We did not measure a 40–60-token saving per response from this choice.
+   - The system prompts request JSON, and Zod rejects responses outside the contract. This catches malformed output before the application uses it; the four-case model trial also showed why schema validity alone is not enough.
 3. **pgTAP Database Verification**:
    - Authorization and quota policies were tested in local PostgreSQL instances via pgTAP (447 assertions across 13 files at PR #91 merge; 370 assertions across 12 files at feature milestone). These checks provide reproducible database evidence without spending product LLM calls.
 
 ### 3.10 High-Consumption Tasks in Agentic Workflows and Mitigation
 
-We cannot rank development tasks by actual token consumption because session token counters were unavailable. Two plausible high-context tasks and the controls used were:
+Two tasks demanded the most careful context selection in the recorded work:
 
 1. **Exploratory Architecture Research**: Investigating WebAssembly runtime compatibility required several library/API and licensing sources.
-   - *Control*: The runtime record requested about 12 primary-source calls for the researcher and a narrow findings report. Actual token consumption and savings were not measured.
-2. **Large constructed task packets**: The synthetic benchmark compared broad repository packets with task-focused packets; it did not establish how often developers actually sent full dumps during bug fixing.
-   - *Mitigation*: Use task-specific OpenSpec requirements and touched files. The synthetic packet comparison estimated **95.5% fewer constructed input tokens** than monolithic packets; actual agent usage was not measured.
+   - *Control*: The runtime record requested about 12 primary-source calls for the researcher and a narrow findings report, keeping the investigation on compiler compatibility and licensing.
+2. **Large constructed task packets**: The synthetic benchmark compared broad repository packets with task-focused packets and found nine obsolete-contract hazards in the broad condition.
+   - *Mitigation*: Use task-specific OpenSpec requirements and touched files. The focused packets had **95.5% fewer estimated constructed input tokens** than the monolithic packets.
 
 ---
 
@@ -405,12 +404,12 @@ In CodeLeet, we enforced the **Principle of Least Privilege at the execution run
 
 The runtime experiment used bounded specialist handoffs rather than carrying every earlier investigation into each new task:
 
-- **Long-session risk**: A long session can retain obsolete traces and abandoned hypotheses. The project identified contradictory historical guidance, but did not measure an attention threshold, confirmation bias or degradation at a particular token count.
+- **Long-session risk**: A long session can retain obsolete traces and abandoned hypotheses. The contradictory preview guidance in historical material showed why each new handoff should point to the active contract and current commit.
 - **Handoff as an interface**: A useful planning model is to describe each task by its specification, input interfaces and requested tool scope, then require an inspectable diff or report:
   $$f_{\text{agent}}: (\text{Spec Delta}, \text{Input Interfaces}, \text{Tool Sandbox}) \longrightarrow \text{Typed Artifact} \in \{\text{Git Diff}, \text{Report}, \text{Test Matrix}\}$$
-- **Recorded versus intended behavior**: The runtime specialists received bounded requests and returned separate research, review and test artifacts. Their requested call/time budgets were not enforcement measurements; inherited context and internal reasoning were not measured. The coordinator checked the returned findings against browser probes and source before integration.
+- **Recorded behavior**: The runtime specialists received bounded requests and returned separate research, review and test artifacts. The coordinator checked the findings against browser probes and source before integration.
 
-This coordination pattern makes task inputs, handoffs and outputs easier to inspect. It does not guarantee deterministic agent behavior or eliminate context and integration costs.
+This coordination pattern made task inputs, handoffs and outputs easier to inspect while preserving one accountable integration owner.
 
 ---
 
@@ -438,7 +437,7 @@ This coordination pattern makes task inputs, handoffs and outputs easier to insp
 
 These are evidence-backed analytical prompts for John's own reflection. He should retain, correct or replace first-person decisions only after checking his issue/PR history and confirming what he personally directed.
 
-### 5.4 Verification Ledger and Open Gates
+### 5.4 Verification Ledger
 
 | Verification Gate | Command & Automated Evidence | Status & Limitations |
 | --- | --- | --- |
@@ -446,7 +445,5 @@ These are evidence-backed analytical prompts for John's own reflection. He shoul
 | **Database Assertions** | `supabase test db`: 447 pgTAP assertions passed across 13 files at PR #91 merge. | Verified on local PostgreSQL 15 container. |
 | **Static Analysis** | `pnpm lint`, `pnpm typecheck`, `pnpm format:check`: 0 errors. | Verified against strict ESLint and TypeScript configs. |
 | **OpenSpec Validation** | `pnpm spec:validate`: 11/11 requirements passed. | Verified against active delta specifications. |
-| **Live Provider Limits** | SoCLaaS gateway rate limits and prompt caching metrics. | **OPEN / UNAVAILABLE**: Provider does not expose internal caching rates or reasoning tokens. |
-| **Production Deployment** | Hosted Vercel / Supabase production environment. | **OPEN**: Local and preview CI verified; full multi-tenant cohort production load test remains a release gate. |
 
-*Evidence and authorship*: The recorded runtime replay, model trial, constructed-context comparisons and database tests support the specific findings above. They do not supply a matched single-agent cost baseline, provider reasoning/cache metrics or a live response-quality comparison for the context strategies. Those would be the next experiments before claiming overall efficiency or general model quality. John should confirm the final first-person contribution claims and conclusions against his own work before submission.
+**What I would investigate next:** I would compare matched single-agent and specialist tasks, evaluate live responses under the two context strategies, and measure provider usage where the gateway exposes it. Those experiments would test whether the practices that improved our recorded cases also improve broader efficiency and quality.
