@@ -356,16 +356,16 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 43.2 Implement the verified confirmation page and safe callback/error routing with concise account-facing copy.
 - [x] 43.3 Reconcile the User Guide, run applicable checks and independent self-review, and record actual evidence in the dated log. Focused 20/20 and full 888/888 unit tests, lint, format, types, build, scaffold and strict OpenSpec validation passed locally; live confirmation and hosted delivery remain unverified.
 - [x] 43.4 Commit, push, and open issue-linked [PR #147](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/147) to `develop`; verify final-head CI before teammate review. Application, database, authenticated E2E and coverage passed in [workflow 42844264435](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42844264435) at code/docs head `0c8b376`; Scaffold, CodeQL and Vercel Preview also passed. This evidence-only commit triggers its own final-head checks. Teammate review and merge remain pending; no production rollout is claimed.
-## 45. Issue #150 reflection depth and MP4 rubric audit
-
-- [x] 45.1 Verify numerical, participant and outcome claims against linked runtime/context/security records and current release state.
-- [x] 45.2 Deepen individual reflections with attempted alternatives, observed results and bounded lessons; preserve member approval boundaries.
-- [x] 45.3 Publish an evidence-versus-gap rubric matrix and reconcile the reflection index.
-- [ ] 45.4 Verify links, format, OpenSpec and diff; summarize actual interactions and checks; open a review PR to `develop` without merging.
-
 ## 44. Issue #148 current guide and bug audit
 
 - [x] 44.1 Audit merged routes, feature labels, setup and browser paths against the User and Developer Guides; record confirmed defects and test limitations.
 - [x] 44.2 Repair confirmed guide defects and the signup confirmation message with a failing-first regression. Keep unverified hosted claims explicitly bounded.
 - [x] 44.3 Verify canonical guides, generated website, 889/889 unit tests, code quality, links and strict OpenSpec; write a dated interaction and evidence log. Local Playwright did not exit cleanly after its final visible case, so complete E2E evidence awaits PR CI.
 - [x] 44.4 Commit, push and open issue-linked [PR #149](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/149) to `develop`. Initial PR-head application, authenticated E2E, database, coverage, scaffold, CodeQL and Vercel Preview checks passed; this evidence-only commit triggers its own final-head CI. Supabase Preview skipped without preview branching. Teammate review and merge remain separate.
+
+## 45. Issue #150 reflection depth and MP4 rubric audit
+
+- [x] 45.1 Verify numerical, participant and outcome claims against linked runtime/context/security records and current release state.
+- [x] 45.2 Deepen individual reflections with attempted alternatives, observed results and bounded lessons; preserve member approval boundaries.
+- [x] 45.3 Publish an evidence-versus-gap rubric matrix and reconcile the reflection index.
+- [x] 45.4 Verify links, format, OpenSpec and diff; summarize actual interactions and checks; open issue-linked [PR #151](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/151) to `develop` without merging. Exact-head manually dispatched application, database, authenticated E2E, scaffold and CodeQL jobs passed at `9cb82e2`; the separate manual coverage-report job skipped. This evidence-only commit triggers its own final-head checks. Teammate review and release remain separate.

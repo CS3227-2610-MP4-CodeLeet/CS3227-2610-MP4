@@ -5,7 +5,7 @@
 - Issue: [#150](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/150)
 - OpenSpec: `openspec/changes/build-programming-platform`, task group 45
 - Branch: `docs/150-reflections-rubric-audit` from `origin/develop` `6a46849`
-- PR: pending
+- PR: [#151](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/151) to `develop`; teammate review and merge remain separate.
 - Human verification: Paul's final wording and John's first-person claims require their own review; teammate verification of this generated summary remains pending.
 
 ## Chronological interaction summary
@@ -17,6 +17,8 @@
 5. Codex expanded Paul's runtime, dashboard, Java-input, context and resource examples into explicit alternative/result/lesson analyses. In John's draft it corrected claims that synthetic packet comparison had observed agent hallucinations, that requested budgets proved enforcement, that agent replay was deterministic, and that unseen token use or idle time had been measured. John’s personal attribution remains his to verify.
 6. Codex added `workflow/evidence/2026-11-11-mp4-rubric-audit.md`, updated the index and checklist, and linked issue #150 in the active OpenSpec design/tasks. GitHub's deployment API reported successful Vercel Production status for `master` `218e35a` on 10 November; that is a deployment record, not hosted acceptance of the later develop/PR changes.
 7. Codex committed the reflection and rubric revisions in two focused commits, pushed the branch, and manually dispatched the repository application workflow before PR creation. Its database, application and authenticated E2E jobs succeeded. The coverage-report job was skipped in this manually dispatched run; application includes its own unit/coverage step, but this summary does not infer a separate coverage artifact.
+8. Codex opened PR #151 for teammate review. GitHub attached Vercel Preview checks but did not attach the repository Actions workflows as PR checks during this audit. Codex manually dispatched application, scaffold and CodeQL workflows on exact PR head `9cb82e2`; all their executable jobs passed. The manual application workflow's separate coverage-report job skipped. This evidence-only update will create a new head requiring another check; no automatic PR-check success is claimed from the manual runs.
+9. A local scaffold rerun found that the ignored PR-body draft contained a relative link resolving inside `.runtime-cache`; Codex changed that draft to a code-formatted repository path, then reran the scaffold check successfully. No tracked product or guide link was affected.
 
 ## Work, checks and limits
 
@@ -24,4 +26,4 @@
 - Checks observed so far: scaffold/local Markdown links passed; strict OpenSpec validation passed 11/11; Prettier passed for the changed Markdown files; `git diff --check` passed after removing a trailing blank line from the design note. [Branch workflow 42938110206](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42938110206) passed database, application and authenticated E2E jobs at the two-content-commit head `3ee0a56`; the separate coverage-report job was skipped on manual dispatch. No product code changed, and this does not establish hosted email/AI/runtime acceptance.
 - No live product AI calls, hosted account actions, production deployment or personal approval were performed in this prose audit.
 - Do not treat this source review as an exhaustive security audit or a promise of full marks.
-- Final PR/head checks and teammate review: pending.
+- Exact-head manual CI: [application/database/authenticated E2E run 42939249754](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42939249754), [scaffold run 42939286007](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42939286007), and [CodeQL run 42939295871](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42939295871) succeeded at `9cb82e2`. Final verification of this evidence-only head and teammate review remain pending.
