@@ -383,4 +383,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 47.1 Compare MP3 feedback with current MP4 form, AI, documentation, release and workflow evidence; distinguish verified strengths from open hosted checks.
 - [x] 47.2 Assert instructor assignment and grading inputs remain intact after save conflicts, including private rubric notes and feedback.
 - [x] 47.3 Reconcile the development-context experiment, guide and task claim with its actual constructed-packet estimator; preserve a supersession link for the historical observation.
-- [ ] 47.4 Verify applicable tests, formatting, scaffold and OpenSpec; write dated summary and open a linked PR to `develop` for teammate review.
+- [x] 47.4 Verify applicable tests, formatting, scaffold and OpenSpec; write dated summary and open linked [PR #159](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/159) to `develop` for teammate review. Local full unit suite, focused lint/format, strict OpenSpec and scaffold checks passed. PR-head CI and human review remain separate.
