@@ -356,3 +356,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 43.2 Implement the verified confirmation page and safe callback/error routing with concise account-facing copy.
 - [x] 43.3 Reconcile the User Guide, run applicable checks and independent self-review, and record actual evidence in the dated log. Focused 20/20 and full 888/888 unit tests, lint, format, types, build, scaffold and strict OpenSpec validation passed locally; live confirmation and hosted delivery remain unverified.
 - [x] 43.4 Commit, push, and open issue-linked [PR #147](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/147) to `develop`; verify final-head CI before teammate review. Application, database, authenticated E2E and coverage passed in [workflow 42844264435](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42844264435) at code/docs head `0c8b376`; Scaffold, CodeQL and Vercel Preview also passed. This evidence-only commit triggers its own final-head checks. Teammate review and merge remain pending; no production rollout is claimed.
+
+## 44. Issue #148 current guide and bug audit
+
+- [x] 44.1 Audit merged routes, feature labels, setup and browser paths against the User and Developer Guides; record confirmed defects and test limitations.
+- [x] 44.2 Repair confirmed guide defects and the signup confirmation message with a failing-first regression. Keep unverified hosted claims explicitly bounded.
+- [x] 44.3 Verify canonical guides, generated website, 889/889 unit tests, code quality, links and strict OpenSpec; write a dated interaction and evidence log. Local Playwright did not exit cleanly after its final visible case, so complete E2E evidence awaits PR CI.
+- [ ] 44.4 Commit, push and open issue-linked PR to `develop`; verify final-head CI. Teammate review and merge remain separate.
