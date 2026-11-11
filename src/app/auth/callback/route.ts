@@ -15,22 +15,6 @@ function failure(request: NextRequest, recovery: boolean) {
   return redirect(request, target);
 }
 
-async function roleDestination(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  userId: string,
-) {
-  const { data } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .maybeSingle();
-  return data?.role === 'instructor' ||
-    data?.role === 'admin' ||
-    data?.role === 'student'
-    ? '/courses'
-    : '/sign-in';
-}
-
 async function acceptCourseInvitation(
   request: NextRequest,
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
@@ -54,8 +38,7 @@ export async function GET(request: NextRequest) {
   const recovery =
     request.nextUrl.searchParams.get('next') === '/reset-password';
   const code = request.nextUrl.searchParams.get('code');
-  if (!code)
-    return recovery ? failure(request, true) : redirect(request, '/sign-in');
+  if (!code) return failure(request, recovery);
   try {
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -69,7 +52,8 @@ export async function GET(request: NextRequest) {
     const inviteToken = request.nextUrl.searchParams.get('course_invite');
     if (inviteToken)
       return acceptCourseInvitation(request, supabase, inviteToken);
-    return redirect(request, await roleDestination(supabase, user.id));
+    if (!user.email_confirmed_at) return failure(request, false);
+    return redirect(request, '/email-verified');
   } catch {
     return failure(request, recovery);
   }

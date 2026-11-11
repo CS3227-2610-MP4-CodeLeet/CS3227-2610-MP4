@@ -24,6 +24,7 @@ export default defineConfig({
       name: 'chromium',
       testIgnore: [
         '**/assignment-preview.spec.ts',
+        '**/responsive-assignment-preview.spec.ts',
         '**/browser-runtime.spec.ts',
         '**/local-runtime-startup.spec.ts',
         '**/workspace-layout.spec.ts',
@@ -34,6 +35,7 @@ export default defineConfig({
       name: 'student-preview',
       testMatch: [
         '**/assignment-preview.spec.ts',
+        '**/responsive-assignment-preview.spec.ts',
         '**/browser-runtime.spec.ts',
         '**/local-runtime-startup.spec.ts',
         '**/workspace-layout.spec.ts',

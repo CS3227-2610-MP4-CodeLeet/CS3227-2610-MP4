@@ -353,7 +353,12 @@ function UserRows({
   changeRole: (user: AdminUser, role: AppRole) => Promise<void>;
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border">
+    <div
+      role="region"
+      aria-label="User directory table"
+      tabIndex={0}
+      className="overflow-x-auto rounded-xl border focus-visible:outline-2 focus-visible:outline-ring"
+    >
       <table className="w-full text-left text-sm">
         <thead className="border-b bg-muted/50">
           <tr>

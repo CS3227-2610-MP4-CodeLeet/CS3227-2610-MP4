@@ -102,8 +102,16 @@ export default async function CourseAIUsagePage({
 
 function RecentReviewsTable({ events }: { events: UsageEvent[] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full text-left text-sm">
+    <div
+      role="region"
+      aria-label="Recent AI reviews table"
+      tabIndex={0}
+      className="overflow-x-auto rounded-lg border focus-visible:outline-2 focus-visible:outline-ring"
+    >
+      <table
+        aria-label="Recent AI reviews"
+        className="w-full text-left text-sm"
+      >
         <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
           <tr>
             <th className="px-4 py-3">Time</th>
