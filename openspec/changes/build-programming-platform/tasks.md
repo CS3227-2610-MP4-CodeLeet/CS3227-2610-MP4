@@ -362,3 +362,10 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 45.2 Deepen individual reflections with attempted alternatives, observed results and bounded lessons; preserve member approval boundaries.
 - [x] 45.3 Publish an evidence-versus-gap rubric matrix and reconcile the reflection index.
 - [ ] 45.4 Verify links, format, OpenSpec and diff; summarize actual interactions and checks; open a review PR to `develop` without merging.
+
+## 44. Issue #148 current guide and bug audit
+
+- [x] 44.1 Audit merged routes, feature labels, setup and browser paths against the User and Developer Guides; record confirmed defects and test limitations.
+- [x] 44.2 Repair confirmed guide defects and the signup confirmation message with a failing-first regression. Keep unverified hosted claims explicitly bounded.
+- [x] 44.3 Verify canonical guides, generated website, 889/889 unit tests, code quality, links and strict OpenSpec; write a dated interaction and evidence log. Local Playwright did not exit cleanly after its final visible case, so complete E2E evidence awaits PR CI.
+- [x] 44.4 Commit, push and open issue-linked [PR #149](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/149) to `develop`. Initial PR-head application, authenticated E2E, database, coverage, scaffold, CodeQL and Vercel Preview checks passed; this evidence-only commit triggers its own final-head CI. Supabase Preview skipped without preview branching. Teammate review and merge remain separate.

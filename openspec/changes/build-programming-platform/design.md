@@ -379,3 +379,7 @@ The ordinary `/auth/callback` signup path exchanges its one-time code, confirms 
 ## Issue #150: reflection depth and MP4 rubric audit
 
 Audit the two individual reflections against actual coordination, test, context and resource records. Strengthen Paul’s decision/alternative/result/lesson analysis; correct unsupported causal language in John’s AI-assisted draft while keeping his first-person approval pending. Add a dated rubric evidence and gap matrix, not a grade prediction. No product behavior, schema or dependency changes. See `workflow/plans/2026-11-11-reflection-rubric-audit.md` and the dated summary in `logs/`.
+
+## Issue #148: current guide and signup-copy audit
+
+Source-backed documentation lives in `docs/UserGuide.md` and `docs/DeveloperGuide.md`; the Pages build generates its copies from these files. Organize the user journey before internal design and keep historical evidence linked rather than presenting an older commit as the current baseline. Signup with a pending confirmation session must explain the existing same-browser callback journey, while an immediately created session continues to navigate normally. A focused rendered-form regression covers the message and absence of premature navigation. Do not infer a product bug from skipped authenticated local tests; CI and hosted checks retain their own scope.
