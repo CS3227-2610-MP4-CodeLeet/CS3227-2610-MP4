@@ -1,58 +1,3 @@
-## 31. Issue #87 current user and developer guides
-
-- [x] 31.5 Add canonical guide generation and a documentation-style CodeLeet Pages overview/navigation, without prior-project references in public copy; preserve the existing develop-only Pages environment restriction and align publication triggers.
-- [x] 31.6 Verify generation, built desktop/mobile/theme/deep-link behavior, unit/build/spec/link checks and independent review; update PR #88 and confirm final-head CI. Source head 49f3741 passed all executed checks; metadata-head evidence is recorded on PR #88. Live publication follows the separate human merge to develop.
-
-- [x] 31.1 Audit merged source/configuration and identify outdated or contradictory guide instructions; link issue, branch and dated plan/log.
-- [x] 31.2 Refresh user journeys and current contributor setup/architecture/security/testing/deployment documentation without changing product behavior or inventing hosted evidence.
-- [x] 31.3 Verify paths/commands/links, formatting, strict specs and site build; record actual independent review and remaining gates.
-- [x] 31.4 Publish PR #88 to develop after branch CI 41607783180. Required application/database/coverage/scaffold/CodeQL/Vercel checks passed at b484e16 (integration run 41608358532); Supabase Preview skipped. Documentation closeout triggers checks again; final-head evidence is recorded on the PR. Human verification remains separate.
-
-## 28. Issue #80 trusted XP leaderboard
-
-- [x] 28.1 Review/approve ranking, visibility and narrow privacy design; write implementation plan after approval and ensure XP dependency is available.
-- [x] 28.2 Implement one-snapshot trusted XP rankings and own position without widening profile/award access; verify ties, paging, roles, corrections and forged data denial.
-- [x] 28.3 Add signed-in student/instructor leaderboard navigation, safe responsive/theme/error states and scoped synthetic seed/browser evidence.
-- [x] 28.4 Complete review and applicable checks, update guides/logs, push verified milestones and create a linked PR to develop after branch CI; verify final-head checks.
-
-## 27. Issue #77 instructor-configured assignment XP
-
-- [x] 27.1 Resolve later maximum-XP edit policy and review design, including proposed bounds and legacy published-grade basis; write implementation plan.
-- [x] 27.2 Implement owner-configured assignment XP and atomic server-owned best-published-grade awards/audit adjustments, with denial, retry, correction and concurrent-publication tests.
-- [x] 27.3 Show own student total/assignment awards without private rubric/draft/peer data; verify published score basis, zero/fractional limits and rollout compatibility.
-- [x] 27.4 Complete applicable regression/security/browser checks and scoped review, update guides/logs, pass branch CI and create a linked PR with final-head checks. Leaderboard and hosted release remain separate.
-
-## 26. Issue #74 instructor-authored public practice tests
-
-- [x] 26.1 Requester approved the concrete design on 2 November 2026; implementation plan written. Teammate review remains separate.
-- [x] 26.2 Add bounded case contracts, private draft/public snapshots, owner-only atomic version-checked save/publish/unpublish and RLS/API denial tests. All 180 database assertions/eight files pass, including 33 authored-case assertions and publication/Unicode checks.
-- [x] 26.3 Implement instructor authoring and student published-case loading with browser-only Python/Java execution, fresh/safe snapshots and no grading/fixture fallback. Both actual-language journeys, concurrent API/denial and mobile recovery pass; independent review findings resolved.
-- [x] 26.4 Verify role/draft/assignment visibility, conflicts, byte/whitespace/Unicode limits, both real-language journeys and mobile recovery; update guides/handoff/logs/rollout notes. Final local checks: 526 unit tests, 180 DB assertions, build/lint/format/types/spec/scaffold pass. Combined browser run 70 passes/seven skips plus one corrected harness startup replay pass; scoped independent findings resolved. See dated summary for exact limits.
-- [x] 26.5 Push verified milestones and pass branch CI 41381615295 (one infrastructure-only database startup retry); create linked PR #76 to develop. Final-head checks are monitored/reported there before handoff; prerequisite skips and exact local runs documented. Scoped independent review findings resolved; human/hosted acceptance remains separate.
-
-## 25. Issue #70 User Guide and security/reflection evidence
-
-- [x] 25.5 Issue #72 follows the requester's two-member reflection structure: index plus MP4-specific Paul/John drafts and preserved shared evidence. Updated develop verification: 147 links/13 documents, theme/member-review structure, formatting/scaffold/strict OpenSpec passed. Branch CI 41377040526 passed before linked PR #73; final-head checks are monitored/reported there. Member contribution/wording verification remains pending.
-
-- [x] 25.1 Audit current routes, test assertions, prior experiments and merged CI; link a focused documentation issue/branch without changing product behavior.
-- [x] 25.2 Update user journeys and add a traceable security evidence report/reflection analysis with dated observations, skips and remaining release gates.
-- [x] 25.3 Verify links/format/spec/scaffold and applicable existing tests; record failures, actual outcomes and unavailable measurements in the dated summary. Local pinned-Node coverage: 496 tests/80 files passed; links/format/spec/scaffold passed. Local database unavailable; baseline CI passed 147 assertions. Hosted/independent review not claimed.
-- [x] 25.4 Commit/push and create linked PR #71 to develop after successful branch CI 41375618030. Final-head checks are monitored/reported on the PR before handoff. Human reflection review and hosted acceptance remain pending.
-
-## 21. Issue #52 My grades
-
-- [x] 21.1 Implement projected published-grade DTO/query with explicit ownership, bounded filters/pagination, safe failures and unit/privacy tests.
-- [x] 21.2 Add student My grades routes/navigation, score/feedback/revision links, states and shared filter/pagination presentation.
-- [x] 21.3 Verify both languages, draft/peer/hidden/role boundaries, deterministic pagination/filter URLs, feedback safety and mobile/theme; run applicable regressions.
-- [x] 21.4 Update verified guides/spec/log evidence, commit/push and publish linked labelled PR #53 to develop. Verified 312 unit tests, 124 database assertions, 57 full-suite browser passes/seven skips, direct Next build/types/lint/format/spec/scaffold checks; independent review and hosted verification remain pending.
-
-## 22. Issue #54 forum search
-
-- [x] 22.1 Add bounded search parsing, literal regex/PostgREST escaping and stable URL/pager helpers with failing-first regressions.
-- [x] 22.2 Integrate title/opening-body search before existing forum paging, Search/Clear controls and no-match copy without changing access/posting/replies.
-- [x] 22.3 Verify both member roles, literal/injection-shaped input, filtering before paging/ties, navigation, safe text and mobile/theme; run applicable regressions/checks.
-- [x] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR #55 to develop. Combined verification: 324 unit tests, 124 database assertions, 59 browser passes/seven skips, build/types/lint/format/spec/scaffold checks passed. Independent review and hosted verification remain pending.
-
 ## 1. Contracts and feasibility
 
 - [x] 1.1 Record personal names and coordination budget; responsibility notes identify primary accountability only, and either member may implement any task. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
@@ -205,20 +150,6 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 15.3 Update verified docs/spec/log evidence, complete applicable checks and publish a labelled PR to develop.
 - [x] 15.4 Resolve PR #39 mobile-menu CI race by awaiting committed assignment navigation; reproduce the failure and verify repeated mobile checks plus the browser suite before updating the PR.
 
-## 30. Issue #84 email or unique username sign-in and student acceptance
-
-- [x] 30.1 Implement database-owned username claims/legacy reservation transitions and private rate/lookup RPCs; 321 assertions/eleven files passed, actual parallel case-variant claim produced one winner, advisors found no issues. Applied local additive migration without reset; existing unrelated practice-case lint warning remains.
-- [x] 30.2 Integrate bounded same-origin email/username password authentication, server-only metadata keys/HMAC limits, safe cookie/error behavior and signup/profile uniqueness UI with failing-first tests. Verified 613 units, app build and targeted real login/rename/legacy/quota/cross-tab journeys; full acceptance remains task 30.3.
-- [x] 30.3 Verify fresh synthetic student/runtime/privacy/loading journeys, bounded source/security reviews and accurate guides/evidence. Final 619 units and 321 database assertions passed; browser 95 passes/one connection reset/seven skips plus unchanged failed-case rerun passed. Hosted/live-provider gates remain separate; exact results are in the dated acceptance record.
-- [x] 30.4 Publish linked PR #86 to develop after branch CI. Required application/database/coverage/scaffold/CodeQL/Vercel checks passed at f681aef; database run 41604412398 attempt 2 resolved a registry/occupied-port startup failure. Supabase Preview skipped. Checklist closeout triggers checks again; final-head status is recorded on the PR. Preserved the unrelated next-env edit; human/hosted release gates remain separate.
-
-## 29. Issue #82 browser draft autosave and recovery
-
-- [x] 29.1 Implement bounded account/assignment/language/revision-scoped browser storage, validation, retention, conflict tokens and invalidation with failing-first tests.
-- [x] 29.2 Integrate restore/discard, debounced persistence, conflict choices, exact submission acknowledgement and sign-out/auth cleanup without changing official submissions.
-- [x] 29.3 Verify authenticated Python/Java recovery, cross-account/tab boundaries, failure and submission races; update verified guides and independent review evidence. Local verification: 581 units, 84 browser passes/seven prerequisite skips, build/site/types/lint/format/spec/scaffold pass; bounded independent source review fixes verified.
-- [x] 29.4 Commit/push, pass branch CI before PR creation and confirm PR checks; PR #83 links issue #82/design/summary. Branch run 41446869897 and implementation-head PR run 41447276707 passed application/database; coverage/scaffold/CodeQL/Vercel passed, Supabase Preview skipped. Documentation-only closeout checks are tracked on the PR before final handoff. Human review and hosted verification remain separate.
-
 ## 16. Issue #40 unsaved assignment code safeguard
 
 - [x] 16.1 Track the exact submitted source snapshot and show unsaved state; keep failed saves and newer in-flight edits dirty with source-bound idempotent retries.
@@ -242,12 +173,26 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 19.2 Verify the real browser example, Runnable/direct-run success, syntax and diagnostic-like output, both result views and existing regressions; document confirmed limits.
 - [x] 19.3 Finalize verified guides/spec/log evidence, commit/push and publish PR #47 to develop, linked to issue #46. Verification: 153 unit tests, six real browser runtime tests, build/types/lint/format/spec/scaffold checks pass; independent review remains pending.
 
-## 24. Issue #59 optional assignment deadlines
+## 20. Issue #50 continue editing saved revisions
 
-- [x] 24.1 Implement forward deadline/timing schema, compatible authorized RPC, seed examples and failing-first time/database tests; verify without resetting local data.
-- [x] 24.2 Integrate validated SGT deadline authoring, source-free scoped latest-own status and revision/instructor timing views with API/query/render tests.
-- [x] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
-- [x] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+- [x] 20.1 Add strict revision selection and projected owned assignment/language-scoped loading with denial/validation tests.
+- [x] 20.2 Integrate revision actions and revision-keyed initial source/baseline into the existing workspace; preserve unsaved warnings and immutable submissions.
+- [x] 20.3 Verify both languages, runs/new saves/original preservation, retries/refresh/newer edits, canceled replacement and private/unpublished/invalid targets using synthetic fixtures.
+- [x] 20.4 Update verified guides/log/specs, run checks, author-review, push and create linked PR #51 to develop; leave AI PR #49 unmerged. Verification: 267 unit tests, 124 database assertions, 54 full-suite browser passes/seven skips, six focused feature checks including Python/Java runs, build/types/lint/format/spec/scaffold checks passed. Independent teammate review remains pending.
+
+## 21. Issue #52 My grades
+
+- [x] 21.1 Implement projected published-grade DTO/query with explicit ownership, bounded filters/pagination, safe failures and unit/privacy tests.
+- [x] 21.2 Add student My grades routes/navigation, score/feedback/revision links, states and shared filter/pagination presentation.
+- [x] 21.3 Verify both languages, draft/peer/hidden/role boundaries, deterministic pagination/filter URLs, feedback safety and mobile/theme; run applicable regressions.
+- [x] 21.4 Update verified guides/spec/log evidence, commit/push and publish linked labelled PR #53 to develop. Verified 312 unit tests, 124 database assertions, 57 full-suite browser passes/seven skips, direct Next build/types/lint/format/spec/scaffold checks; independent review and hosted verification remain pending.
+
+## 22. Issue #54 forum search
+
+- [x] 22.1 Add bounded search parsing, literal regex/PostgREST escaping and stable URL/pager helpers with failing-first regressions.
+- [x] 22.2 Integrate title/opening-body search before existing forum paging, Search/Clear controls and no-match copy without changing access/posting/replies.
+- [x] 22.3 Verify both member roles, literal/injection-shaped input, filtering before paging/ties, navigation, safe text and mobile/theme; run applicable regressions/checks.
+- [x] 22.4 Update verified guides/spec/log evidence, commit/push and create linked labelled PR #55 to develop. Combined verification: 324 unit tests, 124 database assertions, 59 browser passes/seven skips, build/types/lint/format/spec/scaffold checks passed. Independent review and hosted verification remain pending.
 
 ## 23. Issue #56 compare own saved revisions
 
@@ -256,12 +201,74 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 23.3 Verify real Python/Java synthetic journeys, navigation/themes/mobile and immutable originals; update guides/log/spec evidence.
 - [x] 23.4 Author-review, commit/push and create linked PR #58 to develop. Verified 361 units, 124 database assertions, 63 local browser passes/seven skips and GitHub application/database/build/site/scaffold/CodeQL/Vercel checks at dc63f7c (application run 41314311055 attempt 2). One upstream wrong-size runtime response required a failed-job retry without changing pins. Final documentation closeout triggers checks again; independent review remains pending.
 
-## 20. Issue #50 continue editing saved revisions
+## 24. Issue #59 optional assignment deadlines
 
-- [x] 20.1 Add strict revision selection and projected owned assignment/language-scoped loading with denial/validation tests.
-- [x] 20.2 Integrate revision actions and revision-keyed initial source/baseline into the existing workspace; preserve unsaved warnings and immutable submissions.
-- [x] 20.3 Verify both languages, runs/new saves/original preservation, retries/refresh/newer edits, canceled replacement and private/unpublished/invalid targets using synthetic fixtures.
-- [x] 20.4 Update verified guides/log/specs, run checks, author-review, push and create linked PR #51 to develop; leave AI PR #49 unmerged. Verification: 267 unit tests, 124 database assertions, 54 full-suite browser passes/seven skips, six focused feature checks including Python/Java runs, build/types/lint/format/spec/scaffold checks passed. Independent teammate review remains pending.
+- [x] 24.1 Implement forward deadline/timing schema, compatible authorized RPC, seed examples and failing-first time/database tests; verify without resetting local data.
+- [x] 24.2 Integrate validated SGT deadline authoring, source-free scoped latest-own status and revision/instructor timing views with API/query/render tests.
+- [x] 24.3 Verify both languages, boundary/retry/edit/privacy/status/theme/mobile journeys and regressions; update verified guides/logs/spec evidence.
+- [x] 24.4 Author-review, commit/push, create linked PR to develop after branch CI and wait for final-head PR checks; independent/human review pending. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
+
+## 25. Issue #70 User Guide and security/reflection evidence
+
+- [x] 25.1 Audit current routes, test assertions, prior experiments and merged CI; link a focused documentation issue/branch without changing product behavior.
+- [x] 25.2 Update user journeys and add a traceable security evidence report/reflection analysis with dated observations, skips and remaining release gates.
+- [x] 25.3 Verify links/format/spec/scaffold and applicable existing tests; record failures, actual outcomes and unavailable measurements in the dated summary. Local pinned-Node coverage: 496 tests/80 files passed; links/format/spec/scaffold passed. Local database unavailable; baseline CI passed 147 assertions. Hosted/independent review not claimed.
+- [x] 25.4 Commit/push and create linked PR #71 to develop after successful branch CI 41375618030. Final-head checks are monitored/reported on the PR before handoff. Human reflection review and hosted acceptance remain pending.
+
+- [x] 25.5 Issue #72 follows the requester's two-member reflection structure: index plus MP4-specific Paul/John drafts and preserved shared evidence. Updated develop verification: 147 links/13 documents, theme/member-review structure, formatting/scaffold/strict OpenSpec passed. Branch CI 41377040526 passed before linked PR #73; final-head checks are monitored/reported there. Member contribution/wording verification remains pending.
+
+## 26. Issue #74 instructor-authored public practice tests
+
+- [x] 26.1 Requester approved the concrete design on 2 November 2026; implementation plan written. Teammate review remains separate.
+- [x] 26.2 Add bounded case contracts, private draft/public snapshots, owner-only atomic version-checked save/publish/unpublish and RLS/API denial tests. All 180 database assertions/eight files pass, including 33 authored-case assertions and publication/Unicode checks.
+- [x] 26.3 Implement instructor authoring and student published-case loading with browser-only Python/Java execution, fresh/safe snapshots and no grading/fixture fallback. Both actual-language journeys, concurrent API/denial and mobile recovery pass; independent review findings resolved.
+- [x] 26.4 Verify role/draft/assignment visibility, conflicts, byte/whitespace/Unicode limits, both real-language journeys and mobile recovery; update guides/handoff/logs/rollout notes. Final local checks: 526 unit tests, 180 DB assertions, build/lint/format/types/spec/scaffold pass. Combined browser run 70 passes/seven skips plus one corrected harness startup replay pass; scoped independent findings resolved. See dated summary for exact limits.
+- [x] 26.5 Push verified milestones and pass branch CI 41381615295 (one infrastructure-only database startup retry); create linked PR #76 to develop. Final-head checks are monitored/reported there before handoff; prerequisite skips and exact local runs documented. Scoped independent review findings resolved; human/hosted acceptance remains separate.
+
+## 27. Issue #77 instructor-configured assignment XP
+
+- [x] 27.1 Resolve later maximum-XP edit policy and review design, including proposed bounds and legacy published-grade basis; write implementation plan.
+- [x] 27.2 Implement owner-configured assignment XP and atomic server-owned best-published-grade awards/audit adjustments, with denial, retry, correction and concurrent-publication tests.
+- [x] 27.3 Show own student total/assignment awards without private rubric/draft/peer data; verify published score basis, zero/fractional limits and rollout compatibility.
+- [x] 27.4 Complete applicable regression/security/browser checks and scoped review, update guides/logs, pass branch CI and create a linked PR with final-head checks. Leaderboard and hosted release remain separate.
+
+## 28. Issue #80 trusted XP leaderboard
+
+- [x] 28.1 Review/approve ranking, visibility and narrow privacy design; write implementation plan after approval and ensure XP dependency is available.
+- [x] 28.2 Implement one-snapshot trusted XP rankings and own position without widening profile/award access; verify ties, paging, roles, corrections and forged data denial.
+- [x] 28.3 Add signed-in student/instructor leaderboard navigation, safe responsive/theme/error states and scoped synthetic seed/browser evidence.
+- [x] 28.4 Complete review and applicable checks, update guides/logs, push verified milestones and create a linked PR to develop after branch CI; verify final-head checks.
+
+## 29. Issue #82 browser draft autosave and recovery
+
+- [x] 29.1 Implement bounded account/assignment/language/revision-scoped browser storage, validation, retention, conflict tokens and invalidation with failing-first tests.
+- [x] 29.2 Integrate restore/discard, debounced persistence, conflict choices, exact submission acknowledgement and sign-out/auth cleanup without changing official submissions.
+- [x] 29.3 Verify authenticated Python/Java recovery, cross-account/tab boundaries, failure and submission races; update verified guides and independent review evidence. Local verification: 581 units, 84 browser passes/seven prerequisite skips, build/site/types/lint/format/spec/scaffold pass; bounded independent source review fixes verified.
+- [x] 29.4 Commit/push, pass branch CI before PR creation and confirm PR checks; PR #83 links issue #82/design/summary. Branch run 41446869897 and implementation-head PR run 41447276707 passed application/database; coverage/scaffold/CodeQL/Vercel passed, Supabase Preview skipped. Documentation-only closeout checks are tracked on the PR before final handoff. Human review and hosted verification remain separate.
+
+## 30. Issue #84 email or unique username sign-in and student acceptance
+
+- [x] 30.1 Implement database-owned username claims/legacy reservation transitions and private rate/lookup RPCs; 321 assertions/eleven files passed, actual parallel case-variant claim produced one winner, advisors found no issues. Applied local additive migration without reset; existing unrelated practice-case lint warning remains.
+- [x] 30.2 Integrate bounded same-origin email/username password authentication, server-only metadata keys/HMAC limits, safe cookie/error behavior and signup/profile uniqueness UI with failing-first tests. Verified 613 units, app build and targeted real login/rename/legacy/quota/cross-tab journeys; full acceptance remains task 30.3.
+- [x] 30.3 Verify fresh synthetic student/runtime/privacy/loading journeys, bounded source/security reviews and accurate guides/evidence. Final 619 units and 321 database assertions passed; browser 95 passes/one connection reset/seven skips plus unchanged failed-case rerun passed. Hosted/live-provider gates remain separate; exact results are in the dated acceptance record.
+- [x] 30.4 Publish linked PR #86 to develop after branch CI. Required application/database/coverage/scaffold/CodeQL/Vercel checks passed at f681aef; database run 41604412398 attempt 2 resolved a registry/occupied-port startup failure. Supabase Preview skipped. Checklist closeout triggers checks again; final-head status is recorded on the PR. Preserved the unrelated next-env edit; human/hosted release gates remain separate.
+
+## 31. Issue #87 current user and developer guides
+
+- [x] 31.1 Audit merged source/configuration and identify outdated or contradictory guide instructions; link issue, branch and dated plan/log.
+- [x] 31.2 Refresh user journeys and current contributor setup/architecture/security/testing/deployment documentation without changing product behavior or inventing hosted evidence.
+- [x] 31.3 Verify paths/commands/links, formatting, strict specs and site build; record actual independent review and remaining gates.
+- [x] 31.4 Publish PR #88 to develop after branch CI 41607783180. Required application/database/coverage/scaffold/CodeQL/Vercel checks passed at b484e16 (integration run 41608358532); Supabase Preview skipped. Documentation closeout triggers checks again; final-head evidence is recorded on the PR. Human verification remains separate.
+
+- [x] 31.5 Add canonical guide generation and a documentation-style CodeLeet Pages overview/navigation, without prior-project references in public copy; preserve the existing develop-only Pages environment restriction and align publication triggers.
+- [x] 31.6 Verify generation, built desktop/mobile/theme/deep-link behavior, unit/build/spec/link checks and independent review; update PR #88 and confirm final-head CI. Source head 49f3741 passed all executed checks; metadata-head evidence is recorded on PR #88. Live publication follows the separate human merge to develop.
+
+## 32. Issue #89 student personal progress
+
+- [x] 32.1 Implement exact own assignment counts, bounded upcoming/recent metadata queries and private-data/error tests against existing RLS. Query tests and real synthetic count/withdrawal acceptance passed beyond 1,000 assignments.
+- [x] 32.2 Add student-only My progress page/navigation with independent empty/error/loading states, pending retry and mobile/theme/accessibility verification.
+- [x] 32.3 Verify synthetic real database/browser scenarios, update guides/log/spec evidence and complete independent review. 674 units, 321 database assertions, three actual synthetic dashboard journeys and 35 standard browser regressions passed; 71 standard prerequisite skips. The review's boundary-retry finding has a failing-first regression and is fixed.
+- [x] 32.4 Commit/push and publish issue-linked PR #90 to develop after successful source-head application/database run 41646811365 and scaffold run 41646817571 at 44e196b. Final metadata-head checks are recorded externally on PR #90 before handoff; no merge or deployment is claimed.
 
 ## 33. Issue #85 course-scoped workspaces
 
@@ -271,14 +278,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 33.4 Scope assignments, submissions, grades, rubrics, practice cases, deadlines and SoCLaaS operations/cache to course membership and feature state. Verified Python/Java runner paths remain browser-only and cross-course access is denied through unit and pgTAP coverage (352 assertions / 11 files); 645 unit tests pass.
 - [x] 33.5 Scope forums, XP totals and leaderboard rank to course; preserve Legacy history and prevent duplicate awards. Verify database, service and direct API access. Verification: 647 unit tests across 113 files; 370 pgTAP assertions across 12 files; typecheck, lint, format, strict OpenSpec validation and `git diff --check` pass. Local DB lint exits 0 with one existing unrelated warning in `public.valid_practice_cases`.
 - [x] 33.6 Add supported feature switches with server/data enforcement, read-only archive UI and explicit empty-course delete confirmation; verify direct access and lifecycle races. Verification: 7 focused workspace UI tests; local pgTAP 373 assertions across 12 files; typecheck, lint, format, strict OpenSpec validation and `git diff --check` pass. Existing lifecycle and feature RPCs serialize updates with course-row locks; database tests cover post-archive write denial, owner-only actions, explicit confirmation, non-empty deletion denial and feature-record preservation. No live concurrent race harness was run.
-- [x] 33.8 Address twenty-nine PR #91 review findings, including course-based grading, student history after unpublishing, AI usage scoping, draft test snapshot visibility, feature-navigation refresh, and archived grade history. Local regressions and verification are recorded in the dated log. All twenty-nine threads were resolved after fixes were pushed; source head `5c688d32652c01568fb7326bc42c0029e3b90049` passed Application, database, coverage-report, Scaffold, and Vercel checks. Human verification remains pending.
-
-## 32. Issue #89 student personal progress
-
-- [x] 32.1 Implement exact own assignment counts, bounded upcoming/recent metadata queries and private-data/error tests against existing RLS. Query tests and real synthetic count/withdrawal acceptance passed beyond 1,000 assignments.
-- [x] 32.2 Add student-only My progress page/navigation with independent empty/error/loading states, pending retry and mobile/theme/accessibility verification.
-- [x] 32.3 Verify synthetic real database/browser scenarios, update guides/log/spec evidence and complete independent review. 674 units, 321 database assertions, three actual synthetic dashboard journeys and 35 standard browser regressions passed; 71 standard prerequisite skips. The review's boundary-retry finding has a failing-first regression and is fixed.
-- [x] 32.4 Commit/push and publish issue-linked PR #90 to develop after successful source-head application/database run 41646811365 and scaffold run 41646817571 at 44e196b. Final metadata-head checks are recorded externally on PR #90 before handoff; no merge or deployment is claimed.
+- [x] 33.7 Address twenty-nine PR #91 review findings, including course-based grading, student history after unpublishing, AI usage scoping, draft test snapshot visibility, feature-navigation refresh, and archived grade history. Local regressions and verification are recorded in the dated log. All twenty-nine threads were resolved after fixes were pushed; source head `5c688d32652c01568fb7326bc42c0029e3b90049` passed Application, database, coverage-report, Scaffold, and Vercel checks. Human verification remains pending.
 
 ## 34. Issue #92 course workspace post-merge remediation
 
@@ -290,8 +290,6 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 34.6 Add back-to-course navigation link in AI usage page.
 - [x] 34.7 Ensure invitation revocation validates course ownership/id.
 - [x] 34.8 Verify with unit tests (768/768 passed across 145 files), typecheck, lint, and formatting; document Vercel sign-in env resolution.
-
-
 
 ## 35. Issue #98 reflection and documentation evidence audit
 
@@ -309,6 +307,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 36.6 Push the branch and publish issue-linked PR #115 to develop after branch CI (application run 42437388796, scaffold run 42437391544 at b021910); human browser verification remains pending.
 
 ## 37. Issue #129 routing and authenticated browser CI release audit
+
 - [x] 37.1 Replace authenticated navigation and student-history links that target removed legacy pages; add safe compatibility redirects that preserve verified course membership and canonicalize legacy record URLs.
 - [x] 37.2 Migrate the affected authenticated Playwright journeys to course-scoped routes and synthetic course memberships without weakening assertions or skipping authenticated scenarios. Local Chromium rerun: 77 passed, one local-email prerequisite skip.
 - [x] 37.3 Add a local-Supabase authenticated browser CI job that confines fixture credentials to test setup, strips them from the Next server, and avoids uploading traces or artifacts containing fixture authorization. Environment-isolation unit tests and final-head PR #133 authenticated E2E job passed; the Supabase Preview check was skipped because preview branching was not configured.
@@ -356,6 +355,7 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 43.2 Implement the verified confirmation page and safe callback/error routing with concise account-facing copy.
 - [x] 43.3 Reconcile the User Guide, run applicable checks and independent self-review, and record actual evidence in the dated log. Focused 20/20 and full 888/888 unit tests, lint, format, types, build, scaffold and strict OpenSpec validation passed locally; live confirmation and hosted delivery remain unverified.
 - [x] 43.4 Commit, push, and open issue-linked [PR #147](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/147) to `develop`; verify final-head CI before teammate review. Application, database, authenticated E2E and coverage passed in [workflow 42844264435](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42844264435) at code/docs head `0c8b376`; Scaffold, CodeQL and Vercel Preview also passed. This evidence-only commit triggers its own final-head checks. Teammate review and merge remain pending; no production rollout is claimed.
+
 ## 44. Issue #148 current guide and bug audit
 
 - [x] 44.1 Audit merged routes, feature labels, setup and browser paths against the User and Developer Guides; record confirmed defects and test limitations.
