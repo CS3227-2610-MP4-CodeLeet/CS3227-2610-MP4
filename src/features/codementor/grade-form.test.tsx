@@ -1,3 +1,5 @@
+/* eslint-disable max-lines-per-function -- the suite keeps the grade save and recovery cases together. */
+/* eslint-disable sonarjs/no-duplicate-string -- repeated form labels make the assertions clear. */
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -80,10 +82,22 @@ describe('instructor grade form', () => {
         grade={null}
       />,
     );
+    fireEvent.change(screen.getByLabelText('Logic (/10)'), {
+      target: { value: '7.5' },
+    });
+    fireEvent.change(screen.getByLabelText('Feedback'), {
+      target: { value: 'Retain this feedback after the conflict.' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
     expect((await screen.findByRole('status')).textContent).toBe(
       'Grade changed elsewhere.',
     );
     expect(screen.getByRole('button', { name: 'Save draft' })).toBeTruthy();
+    expect(
+      (screen.getByLabelText('Logic (/10)') as HTMLInputElement).value,
+    ).toBe('7.5');
+    expect(
+      (screen.getByLabelText('Feedback') as HTMLTextAreaElement).value,
+    ).toBe('Retain this feedback after the conflict.');
   });
 });

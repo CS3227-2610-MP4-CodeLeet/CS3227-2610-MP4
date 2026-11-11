@@ -107,6 +107,12 @@ describe('instructor assignment form', () => {
     expect(
       screen.getByText('Language is fixed once students submit.'),
     ).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'My revised Java assignment' },
+    });
+    fireEvent.change(screen.getByLabelText('Criterion 1 description'), {
+      target: { value: 'Keep this private scoring note' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save assignment' }));
     expect((await screen.findByRole('status')).textContent).toBe(
       'Assignment changed elsewhere.',
@@ -120,6 +126,13 @@ describe('instructor assignment form', () => {
       publicationStatus: 'published',
     });
     expect(router.push).not.toHaveBeenCalled();
+    expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe(
+      'My revised Java assignment',
+    );
+    expect(
+      (screen.getByLabelText('Criterion 1 description') as HTMLInputElement)
+        .value,
+    ).toBe('Keep this private scoring note');
   });
 
   it('adds, edits, and removes rubric criteria while retaining one required row', () => {

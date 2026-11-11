@@ -33,26 +33,23 @@ Status: Completed.
 
 ### Overall Aggregate
 
-- **Total Focused Tokens**: 1,357 tokens (mean: 271 tokens/task)
-- **Total Monolithic Tokens**: 30,022 tokens (mean: 6,004 tokens/task)
-- **Token Multiplier**: **22.1x** (Condition B consumes over 22 times more context tokens)
-- **Development Token Savings**: **95.5%** reduction in input tokens via Context Engineering
-- **Signal-to-Noise Ratio (SNR)**:
-  - Focused Spec-Driven Context: 100% task-relevant context bundle
-  - Monolithic Repository Dump: **4.5%** average task-relevant signal (95.5% distractor noise)
-- **Obsolete Contract Hazards Mitigated**: 9 concrete contradiction hazards eliminated (including legacy mock contracts, unmerged course draft schemas, and discarded compiler packages).
+- **Total Focused Estimate**: 1,357 tokens (mean: 271 tokens/task)
+- **Total Monolithic Estimate**: 30,022 tokens (mean: 6,004 tokens/task)
+- **Constructed-input multiplier**: **22.1x** for these five synthetic packets
+- **Constructed-input difference**: **95.5%** fewer estimated tokens in the focused packets
+- **Focused share of constructed broad packet**: **4.5%** by the estimator. This size ratio is not a measured semantic relevance score.
+- **Obsolete contract references**: 9 references deliberately placed in broader packets and omitted from focused packets. No agent-error rate was measured.
 
 ## Analysis
 
 - **Findings**:
-  1. **Token Cost & Latency Reduction**: Monolithic context dumps consume 22.1x more tokens per request (derived dynamically by serializing the prompt bundles through `estimateTokens`). In multi-turn coding sessions, this disparity compounds exponentially across every interaction, dramatically increasing API costs and LLM response latency.
-  2. **Elimination of Obsolete Guidance Hazards**: A major failure mode in LLM coding agents is context pollution — ingesting historical documentation, pre-course drafts, or deprecated prototype code and adopting superseded patterns. By delivering only the active OpenSpec delta and targeted files, the agent is protected against 9 distinct contradiction hazards identified in this benchmark.
+  1. **Input-size difference**: The monolithic packets contain 22.1x the estimated input tokens of the focused packets. This is an offline size estimate, not measured provider usage, cost, latency, cache behavior, task quality or savings across real coding sessions.
+  2. **Obsolete guidance exposure**: The constructed broad packets contain nine explicitly listed obsolete references. The focused packets omit them, reducing exposure in this fixture. Whether a working agent would follow those references was not tested.
   3. **Disciplined Single-Agent vs. Subagent Delegation**:
-     - For tightly coupled or narrow tasks (`dev-task-01`, `dev-task-04`), direct single-agent implementation incurs 0 coordination overhead and finishes within 3 calls.
-     - For complex boundary tasks (`dev-task-02`, `dev-task-03`), delegating to bounded subagents with strictly scoped tools (read-only research vs implementer vs tester) prevents write collisions and locks down security boundaries.
+     - The task packets specify 3–6 call budgets, but the harness did not execute agents or measure completion time, coordination overhead or budget adherence. Separate runtime coordination records document actual specialist work.
 - **Limitations/Confounders**:
-  - Distractor token counts simulate a typical mid-sized Next.js/Supabase codebase (using the repository file manifest, migration schemas, and module interfaces). In enterprise codebases with millions of lines, the multiplier for unconstrained context dumps would be significantly higher (>100x).
-  - Token counts do not reflect provider-level prompt caching, which may discount repeated prompt prefixes but does not prevent attention distraction or obsolete contract hallucination.
+  - The broad condition is assembled from selected repository material and deliberately supplied distractors. It is not a random or representative sample of actual handoffs, so its multiplier should not be generalized to other repositories.
+  - The byte-based estimator is not a model tokenizer. Provider prompt caching, actual agent turns, response quality and error rates were not measured.
 - **Decision and Follow-Up**:
   - Enforce the Spec-Driven Development (OpenSpec) handoff protocol across all agent workflows.
   - Require all subagent dispatches to declare explicit tool boundaries, relevant file pointers, and call/time budgets before execution.

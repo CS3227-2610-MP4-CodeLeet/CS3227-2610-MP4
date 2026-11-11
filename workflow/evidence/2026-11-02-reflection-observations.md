@@ -2,6 +2,8 @@
 
 Status: working reflection document. The runtime feasibility section records an actual coordinated experiment; generated summaries/analysis still need team verification. Other sections remain prompts until supported by evidence.
 
+The development-context numbers below are superseded by the [6 November constructed-packet experiment](../experiments/2026-11-06-development-context-experiment.md) and its 11 November scope correction. They are historical draft estimates, not measurements of actual agent token use, cost, completion, or error prevention.
+
 ## Multi-agent software engineering
 
 For each example, identify the task, actual agents and human owners, coordination pattern, trigger, context, shared files, handoffs, review outcome, and supporting evidence paths.
