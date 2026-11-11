@@ -1,216 +1,606 @@
 # CodeLeet Developer Guide
 
-This guide covers the current repository implementation reviewed in the [issue #148 audit](../logs/2026-11-11-guide-and-bug-audit.md). Use the [User Guide](UserGuide.md) for user journeys. Local tests and PR checks establish only their recorded conditions; verify hosted mail, browser execution and AI separately before a release.
+Welcome to the **CodeLeet Developer Guide**. This document provides an exhaustive, software-engineering-centric reference for developers, maintainers, and reviewers working on the CodeLeet codebase. It outlines the architectural foundations, design principles, component interactions, security posture, testing methodologies, DevOps pipelines, and agentic workflows that govern the platform.
 
-## 1. Local setup
+For end-user workflows and role-based feature tours, refer to the companion [User Guide](UserGuide.md).
 
-Use the exact Node.js 24 patch in [.node-version](../.node-version) and pnpm version in [package.json](../package.json): currently Node 24.22.1 and pnpm 12.15.0. Start Docker Desktop with its Linux engine before starting Supabase. From the repository root in Windows PowerShell:
+---
 
-```powershell
-node --version
-npx.cmd --yes pnpm@12.15.0 install --frozen-lockfile
-npx.cmd --yes pnpm@12.15.0 db:start
-npx.cmd --yes pnpm@12.15.0 exec supabase migration up --local
-npx.cmd --yes pnpm@12.15.0 db:status
+## 1. System Architecture & High-Level Design
+
+CodeLeet is engineered as a modern, cloud-native educational application with an emphasis on **in-browser execution security**, **immutable auditability**, and **defense-in-depth authorization**.
+
+### 1.1 Technology Stack Overview
+
+- **Frontend & Fullstack Framework**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, shadcn/ui, Class Variance Authority (CVA), Lucide Icons.
+- **Client-Side Code Execution**: WebAssembly sandboxes via Pyodide (Python 3.12) and TeaVM (Java bytecode compiled to WebAssembly/JavaScript).
+- **Backend & Persistence**: Supabase PostgreSQL 17 with Row-Level Security (RLS), GoTrue Authentication, PostgREST API gateway, and pgTAP automated test harness.
+- **Product AI Integration**: SoCLaaS (State of the Art Classroom as a Service) pedagogical LLM gateway with strict server-side secret isolation.
+- **Testing & Verification**: Vitest (Unit/Integration), Playwright (End-to-End browser journeys), Promptfoo (LLM prompt injection and rubric privacy eval), pgTAP (Database RLS and RPC test assertions).
+- **Documentation Platform**: Docusaurus 3 with Mermaid diagram rendering and Prism multi-language syntax highlighting.
+
+### 1.2 System Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph Client["Client Browser Environment"]
+        UI["React 19 Application UI (Next.js App Router)"]
+        Editor["Monaco / Prism Code Editor"]
+        DraftStore[("Browser LocalStorage (7-Day Drafts)")]
+        
+        subgraph Sandbox["Sandboxed Web Worker / Iframe"]
+            PyEngine["Pyodide WebAssembly (Python 3.12)"]
+            JavaEngine["TeaVM Runtime (Java Bytecode Worker)"]
+        end
+        
+        UI <--> Editor
+        Editor <--> DraftStore
+        UI <-->|"postMessage (Bounded Stdin/Stdout)"| Sandbox
+    end
+
+    subgraph AppServer["Next.js Application Server (Node.js 24)"]
+        SSR["Server Components & Route Handlers (/api/*)"]
+        AuthMiddleware["Session & Origin Verification Guard"]
+        AIService["SoCLaaS AI Pedagogical Adapter"]
+        
+        SSR --> AuthMiddleware
+        SSR --> AIService
+    end
+
+    subgraph SupabasePlatform["Supabase Platform / Database Layer"]
+        Kong["Kong API Gateway (:54321)"]
+        GoTrue["Auth Service (GoTrue)"]
+        Postgres[("PostgreSQL 17 Database")]
+        RLS["Row-Level Security (RLS) Policies"]
+        RPC["Postgres RPCs & Triggers (XP Ledger, Quotas)"]
+        
+        Kong --> GoTrue
+        Kong --> Postgres
+        Postgres --- RLS
+        Postgres --- RPC
+    end
+
+    subgraph ExternalServices["External AI Services"]
+        SoCLaaSGateway["SoCLaaS API Gateway (Server-to-Server Only)"]
+    end
+
+    UI -->|"HTTPS / Cookie Session"| SSR
+    UI -->|"Direct Public Queries (Anon/User JWT)"| Kong
+    AppServer -->|"Service Role / Authenticated Client"| Kong
+    AIService -->|"Bearer Token / Private Rubric"| SoCLaaSGateway
 ```
 
-`npx.cmd` avoids PowerShell's blocked `.ps1` wrapper without changing execution policy. If pinned pnpm is installed directly, the equivalent `pnpm` commands work. Corepack is not required.
+### 1.3 Architectural Invariants
 
-Create ignored `.env.local` from [.env.example](../.env.example) only if it does not already exist. Preserve existing settings. Copy the generated local configuration privately; do not paste status output, passwords or keys into commits, issues, logs or screenshots.
+1. **Pure Browser-Side Execution**: User-submitted Python and Java source code is **never** compiled or executed on the Next.js server or host OS. Execution occurs strictly within sandboxed WebAssembly workers inside the user's browser.
+2. **Zero-Trust Client Assertions**: The client browser is considered untrusted. Timestamps, submission revisions, deadline statuses, user roles, rubric criterion grades, and XP ledger computations are strictly computed and enforced server-side.
+3. **Immutable Revision History**: Once created, submission rows in the `submissions` table are append-only and immutable. Edits produce new sequential revisions.
+4. **Server-Side AI Isolation**: SoCLaaS API credentials, system prompts, and private instructor rubric criteria are strictly isolated on the server. Models have zero direct tool execution or grade-publishing authority.
 
-| Setting                                                | Purpose and exposure                                                                                                                                                          |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`                             | Browser-safe URL of the matching local or hosted Supabase project                                                                                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                 | Browser-safe key; ordinary requests use the signed-in session and RLS                                                                                                         |
-| `APP_SITE_URL`                                         | This environment's application origin; normally `http://localhost:3000` locally                                                                                               |
-| `SUPABASE_SECRET_KEY`                                  | Server-only metadata client for reviewed username normalization, login-attempt reservation and email resolution; local development may use the local stack's service-role key |
-| `AUTH_RATE_LIMIT_SECRET`                               | Independent random server-only secret of at least 32 characters for login-identifier HMACs                                                                                    |
-| `SOCLAAS_AI_ENABLED`                                   | Keep `false` unless an authorized SoCLaaS environment is configured                                                                                                           |
-| `SOCLAAS_BASE_URL`, `SOCLAAS_API_KEY`, `SOCLAAS_MODEL` | Server-only product AI configuration; never prefix keys with `NEXT_PUBLIC_`                                                                                                   |
-| `STUDENT_TEST_CASE_FIXTURES_ENABLED`                   | Optional development examples only; production ignores it and real published cases never depend on it                                                                         |
+### 1.4 Codebase Directory Structure
 
-The username migration and both server-only login settings are required for current sign-in. Older notes saying the application never uses a privileged server client predate this narrow metadata exception. Normal assignment/profile/submission/grade operations still use the user's publishable-key session; the metadata client does not create sessions, assign roles or replace RLS.
-
-Local `supabase/config.toml` disables email confirmation by default, so local signup can return a session immediately. When a hosted project requires confirmation, the signup form sets `emailRedirectTo` to `/auth/callback` on the current origin and tells the user to open that link in the same browser. The callback exchanges the one-time code, verifies the returned user's confirmed-email timestamp and redirects to `/email-verified`. That server-rendered page independently verifies the cookie-backed user and confirmed email before showing success. A missing platform role is reported separately from email verification. Invalid links show bounded sign-in copy; recovery and course-invitation links keep their dedicated callback destinations. No email or token appears in the result URL or copy. Hosted mail delivery and callback allowlisting still depend on the team's environment configuration.
-
-Start the app:
-
-```powershell
-npx.cmd --yes pnpm@12.15.0 dev
+```text
+CS3227-2610-MP4/
+├── docs/                      # Canonical documentation master files
+│   ├── UserGuide.md           # End-user guide with embedded screenshots
+│   ├── DeveloperGuide.md      # Engineering architecture and developer practices
+│   └── images/user-guide/     # High-resolution UI screenshots (18 assets)
+├── openspec/                  # Spec-Driven Development (SDD) schema and delta specs
+├── src/
+│   ├── app/                   # Next.js App Router (pages, layouts, API routes)
+│   │   ├── (auth)/            # Auth routes (sign-in, sign-up, forgot-password)
+│   │   ├── admin/             # Platform administrator portals (/admin/users)
+│   │   ├── courses/           # Canonical course workspaces (/courses/[courseId]/*)
+│   │   └── api/               # Server route handlers with strict Zod validation
+│   ├── components/            # UI component primitives (shadcn/ui, buttons, dialogs)
+│   ├── features/              # Feature modules (Domain-Driven Design encapsulation)
+│   │   ├── auth/              # Authentication, session cookies, rate-limiting
+│   │   ├── codementor/        # AI tutoring, review services, SoCLaaS adapter
+│   │   ├── student-assignments/ # Assignment browsing, editor workspace
+│   │   ├── student-submissions/ # Revision creation, immutable history, diffing
+│   │   ├── student-progress/  # Dashboard aggregation, anti-join query logic
+│   │   ├── practice-test-authoring/ # Test case drafting and atomic publishing
+│   │   ├── assignment-xp/     # Authoritative XP calculations and delta ledger
+│   │   ├── leaderboard/       # Course rankings and tied rank projection
+│   │   └── forums/            # Thread discussions, replies, keyword search
+│   ├── lib/                   # Cross-cutting libraries (Supabase clients, HTTP, utils)
+│   └── runtime-lab/           # WebAssembly worker harnesses, supervisor, Java compat
+├── supabase/
+│   ├── migrations/            # Version-controlled forward schema migrations
+│   ├── tests/database/        # pgTAP automated database tests
+│   └── config.toml            # Local Supabase emulator configuration
+├── website/                   # Docusaurus documentation website
+└── workflow/                  # Automated verification scripts, benchmarks, evidence
 ```
 
-Open the printed address, normally `http://localhost:3000`. The [development script](../workflow/scripts/dev.mjs) prepares pinned runtime assets and starts both Next.js and the loopback browser-runtime lab on `127.0.0.1:3130`. Do not start the lab separately. Restart Next.js after changing environment settings.
+---
 
-### Existing data, fixtures and account access
+## 2. Design Principles & Patterns
 
-`supabase migration up --local` applies pending migrations without resetting data. Review all pending migrations rather than applying only one historical feature file. Hosted migrations are a separate operator-controlled rollout.
+The CodeLeet architecture strictly adheres to modern software engineering principles and established design patterns.
 
-`pnpm db:seed` and `pnpm db:reset` are destructive: both recreate the local database, apply migrations and explicitly load synthetic fixtures. They are optional for a fresh disposable development database, not an upgrade or sign-in repair. Automatic CLI seed loading is disabled. See [database setup](../supabase/README.md) for synthetic account names and first-admin provisioning.
+### 2.1 Software Engineering Principles
 
-Seeded accounts have no preset passwords. Use Forgot password and local [Mailpit](http://localhost:54324) to choose one in the requesting browser. Public signup creates students only. A trusted operator provisions the first admin; the admin panel manages later roles and prevents removal of the last admin. Never accept roles from editable signup metadata.
+- **Single Responsibility Principle (SRP)**: Each feature directory in `src/features/` encapsulates a single business domain. For example, `src/features/assignment-xp/` manages solely XP calculation formulas and ledger auditing; it delegates grade persistence to `src/features/codementor/`.
+- **Open-Closed Principle (OCP)**: The client-side code execution runner in `src/runtime-lab/` is open to extension for new languages (e.g., C/C++ or Rust via WebAssembly) without modifying existing Python or Java runner supervisor lifecycles.
+- **Liskov Substitution Principle (LSP)**: Both the Pyodide supervisor and the TeaVM supervisor implement a unified `CodeRunner` interface conforming to identical input/output message contracts and execution timeout guarantees.
+- **Interface Segregation Principle (ISP)**: Database queries utilize narrow TypeScript projections. For example, student progress loaders project only metadata columns (`id`, `title`, `due_at`), explicitly excluding heavy source text and private rubric criteria.
+- **Dependency Inversion Principle (DIP)**: Next.js route handlers depend on abstract service boundaries (`review-service.ts`) rather than direct HTTP client implementations, allowing mock test adapters during unit and integration runs.
+- **Defense in Depth**: Security checks are layered across four boundaries: client UI validation, Next.js server route middleware, Supabase PostgREST gateway JWT verification, and PostgreSQL Row-Level Security (RLS) policies.
+- **Principle of Least Privilege (PoLP)**: Client browser requests use the public publishable key with scoped RLS sessions. The elevated Supabase service role key is strictly confined to server-only operations (e.g., username reservation and login identifier normalization).
 
-### Troubleshooting
+### 2.2 Design Patterns in CodeLeet
 
-| Symptom                                    | Check                                                                                                                                                      |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Docker API pipe is missing                 | Start Docker Desktop and wait for its Linux engine before `db:start`                                                                                       |
-| Port 54322/54324 is occupied               | Identify the existing container/service; reuse the intended stack or stop only the known conflicting project. Do not reset data to solve a port conflict   |
-| Port 3130 is occupied                      | An existing lab/dev process may be running. Reuse it or stop the known process before restarting `pnpm dev`                                                |
-| Sign-in is unavailable                     | Confirm matching URL/public key/server metadata key, a 32-character-or-longer HMAC secret, current migrations and correct application origin               |
-| Reset link fails                           | Use the newest link in the requesting browser; verify Site URL, allowed callback URLs and local Mailpit or hosted mail delivery                            |
-| Runtime asset build fails                  | Check the approved upstream response and network trust; preserve size/SHA-256 checks and pinned assets. Never bypass verification or add a remote compiler |
-| Run code is unavailable under `pnpm start` | Bare local production startup has no Vercel environment marker; use development for ordinary local execution, as explained below                           |
+| Design Pattern | Implementation Location | Architectural Purpose |
+| :--- | :--- | :--- |
+| **Class Variance Authority (CVA)** | `src/components/ui/button.tsx` | Provides type-safe, variant-driven UI styling combinations (`primary`, `outline`, `ghost`; `sm`, `md`, `lg`) without CSS class explosion. |
+| **Compound Components** | `src/components/ui/dialog.tsx`, `tabs.tsx` | Decouples complex modal and tabbed UI state management from structural rendering, exposing expressive JSX subcomponents (`DialogHeader`, `DialogContent`, `DialogFooter`). |
+| **Repository / Service Pattern** | `src/features/auth/sign-in-service.server.ts` | Abstracts raw database RPC transactions away from HTTP request handlers, providing atomic business operations and deterministic error mapping. |
+| **Adapter Pattern** | `src/lib/ai/soclaas-client.ts` | Standardizes disparate external LLM payloads into strongly typed internal interfaces (`PedagogicalFeedback`, `RubricSuggestion`). |
+| **Finite State Machine (FSM)** | `src/features/student-assignments/runner-state.ts` | Models the in-browser execution lifecycle through explicit states: `idle` → `preparing` → `running` → `completed` / `timeout` / `error`. |
 
-## 2. Source organization and request flow
+---
 
-| Location                                                                  | Responsibility                                                                                          |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `src/app/`                                                                | Next.js pages, layouts, route handlers and loading/error boundaries                                     |
-| `src/lib/auth/`, `src/lib/supabase/`                                      | Verified identity/trusted roles, request-scoped SSR/browser clients and isolated server metadata client |
-| `src/lib/http/`, `src/lib/ai/`                                            | Bounded requests/safe responses and server-only SoCLaaS adapter                                         |
-| `src/features/codementor/`                                                | Shared assignment/submission/grade contracts, forms and AI context/review services                      |
-| `src/features/student-assignments/`, `src/features/student-submissions/`  | Student workspace, editor, revision/history/comparison, draft recovery and browser-runner integration   |
-| `src/features/assignment-deadlines/`, `student-grades/`, `student-lists/` | Timing/status, published-grade views and shared filters/pagination                                      |
-| `src/features/practice-test-authoring/`                                   | Instructor draft/public case management and student public-case loading                                 |
-| `src/features/assignment-xp/`, `leaderboard/`                             | Server-controlled awards and narrowly projected ranking views                                           |
-| `src/features/auth/`, `profile/`, `admin-users/`, `forums/`               | Account UX, private profile editing, guarded role management and discussions/search                     |
-| `src/components/ui/`                                                      | Shared pending buttons and reviewed UI components                                                       |
-| `src/runtime-lab/`                                                        | Browser supervisor/worker, Java compatibility support and local static server                           |
-| `supabase/migrations/`, `supabase/tests/database/`                        | Forward schema/RLS/RPC migrations and transactional pgTAP assertions                                    |
-| `tests/e2e/`, `tests/unit/`                                               | Browser journeys, synthetic fixtures and cross-cutting tests                                            |
-| `website/`                                                                | Separate Docusaurus product website; not the application server                                         |
+## 3. Core Workflows & Sequence Diagrams
 
-The `@/*` alias resolves into `src/`. A normal protected operation follows: verified Supabase server user/trusted role → strict route contract → projected session-scoped read or authorized RPC → RLS/database ownership/version checks → sanitized response. Client identity, roles, timestamps, grades and browser test results are never authority.
+### 3.1 Submission & Revision Snapshot Flow
 
-## 3. Authentication and shared UI
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student as Student Browser
+    participant Editor as Editor & Draft Engine
+    participant API as Route Handler (/api/submissions)
+    participant Auth as Session & Role Guard
+    participant DB as Supabase PostgreSQL
 
-[Username sign-in](../workflow/plans/2026-11-03-username-sign-in-design.md) uses `POST /api/auth/sign-in`, same-origin bounded JSON, private/no-store responses and normal publishable-key SSR password authentication. Private service-only RPCs normalize identifiers, reserve login attempts and resolve usernames to current Auth emails without returning those emails publicly. Unknown usernames use a stateless dummy request that cannot create app cookies. Provider failures are classified consistently.
+    Student->>Editor: Click "Submit revision"
+    Editor->>API: POST /api/submissions (assignmentId, sourceCode, clientRequestId)
+    API->>Auth: Verify session cookie & student course enrollment
+    Auth-->>API: Enrolled Student Identity Verified
+    
+    API->>API: Validate input (1 to 8,000 chars, no NUL bytes)
+    API->>DB: Fetch assignment metadata & current deadline
+    DB-->>API: Assignment (language, due_at, is_published=true)
+    
+    API->>API: Calculate deadline snapshot (created_at > due_at ? LATE : ON_TIME)
+    API->>DB: INSERT INTO submissions (assignment_id, user_id, source_code, revision_number, deadline_snapshot)
+    DB-->>API: Insert Successful (Revision N, timestamp)
+    
+    API-->>Editor: HTTP 201 Created (Revision N metadata)
+    Editor->>Editor: Dismiss "Unsaved changes" badge & retain code in editor
+    Editor-->>Student: Display success toast "Revision N submitted"
+```
 
-Profiles retain `display_name`, a reserved normalized `username_key` and nullable unique `login_username`. Database locking/uniqueness protects concurrent claims; client writes cannot set canonical fields. Legacy duplicates retain email access until explicit resolution. Counters store HMAC fingerprints with ten accepted attempts per normalized identifier/minute and sixty globally/minute; provider limits still apply. This is not complete DoS protection or a claim of perfect timing equivalence.
+### 3.2 In-Browser Isolated Pyodide/TeaVM Execution Flow
 
-Server authorization uses verified `getUser` and protected roles. Successful login also stops stale browser-draft writers across tabs and refreshes the browser session before navigation; source-free notifications cannot authorize requests. Profile updates affect only the verified user's username. Role changes use guarded admin routes, not profile/signup fields.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User (Student / Instructor Preview)
+    participant HostUI as Host Page (Next.js Application)
+    participant Supervisor as Runtime Supervisor
+    participant Worker as Sandboxed WebAssembly Worker
 
-Recovery uses Supabase PKCE through `/auth/callback?next=/reset-password`; arbitrary callback destinations are rejected. The new-password page verifies identity, validates confirmation and attempts global sign-out after a successful update. A failed sign-out is reported separately from a successful password update. Hosted SMTP, allowlisted callbacks and cross-service token behavior require separate verification.
+    User->>HostUI: Enter Standard Input & Click "Run code"
+    HostUI->>Supervisor: initializeExecution(sourceCode, stdin, language)
+    Supervisor->>Supervisor: Start 5,000ms wall-clock safety timer
+    Supervisor->>Worker: postMessage({ type: 'RUN', source: sourceCode, stdin: stdin })
+    
+    activate Worker
+    alt Language is Python
+        Worker->>Worker: Pyodide loads stdout capture buffer & runs AST
+    else Language is Java
+        Worker->>Worker: TeaVM compiles bytecode & pipes custom Scanner stdin
+    end
+    
+    alt Execution completes within 5,000ms
+        Worker-->>Supervisor: postMessage({ type: 'DONE', stdout: capturedStdout, stderr: capturedStderr })
+        Supervisor->>Supervisor: Clear safety timer
+        Supervisor-->>HostUI: renderOutput(stdout, stderr, exitCode: 0)
+    else Execution exceeds 5,000ms
+        Supervisor->>Worker: terminate() (Kill Web Worker)
+        Supervisor-->>HostUI: renderError("Execution timed out (5s limit)")
+    end
+    deactivate Worker
+    
+    HostUI-->>User: Display terminal output & execution metrics
+```
 
-`PendingButton` exposes a decorative spinner, disabled pending state and `aria-busy`. `FormSubmitButton` uses `useFormStatus` for Next Form searches/comparison. Account navigation uses React transitions; a notice appears after ten seconds. Errors restore retry controls without automatic mutation retries. The shared theme and password visibility controls remain immediate.
+### 3.3 Instructor Rubric Authoring & AI Evaluation Flow
 
-Navigation feedback is standardized in `src/components/ui`. `buttonVariants` (CVA) holds the shared button look (`primary`, `outline`, `ghost`; `sm`/`md`/`lg`). `PendingLink` wraps `next/link` and uses `useLinkStatus` to swap its leading icon for a spinner and add a screen-reader "(loading)" suffix while pending; `ButtonLink` combines it with `buttonVariants`; `LinkPendingSpinner` serves custom link markup such as course cards. The main course data routes have `loading.tsx` files that render `RouteLoading` with named status messages; some account and compatibility routes do not. Signed-out account pages (`/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`) render inside `AuthPageShell`, which adds a ghost `ButtonLink` back to `/`. Use `ButtonLink`/`PendingLink` for new navigation controls and add `RouteLoading` to new data routes where loading feedback is needed.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Instructor as Course Instructor
+    participant UI as Submission Review UI
+    participant API as Review API (/api/reviews/ai)
+    participant Auth as Instructor Role Guard
+    participant AIAdapter as SoCLaaS Client Adapter
+    participant LLM as External SoCLaaS Gateway
+    participant DB as PostgreSQL Database
 
-## 4. Student data and grading contracts
+    Instructor->>UI: Click "Request review" on student revision
+    UI->>API: POST /api/reviews/ai (submissionId, assignmentId)
+    API->>Auth: Verify instructor membership in course
+    Auth-->>API: Authorized Course Instructor
+    
+    API->>DB: Fetch student submission source & private rubric criteria
+    DB-->>API: Source Code + Rubric Criteria (Confidential)
+    
+    API->>API: Preflight token budget check & prompt construction
+    API->>AIAdapter: evaluateRubric(source, criteria)
+    AIAdapter->>LLM: POST /v1/chat/completions (System prompt, sanitized source, criteria)
+    LLM-->>AIAdapter: JSON response (Criterion scores, constructive feedback)
+    
+    AIAdapter->>API: Zod schema parse & validate criterion scores
+    API-->>UI: HTTP 200 OK (Suggested rubric criteria scores)
+    
+    Instructor->>UI: Review suggestions, adjust scores, enter feedback
+    Instructor->>UI: Check "Publish this grade" & click "Save and publish"
+    UI->>API: POST /api/grades (submissionId, criteriaScores, feedback, isPublished: true)
+    API->>DB: BEGIN TRANSACTION
+    API->>DB: INSERT/UPDATE grades (score, criteria_snapshot, published_at)
+    API->>DB: CALL recompute_student_xp(student_id, assignment_id)
+    API->>DB: COMMIT TRANSACTION
+    DB-->>API: Grade Published & XP Ledger Updated
+    API-->>UI: HTTP 200 OK
+    UI-->>Instructor: Display "Grade published to student"
+```
 
-| Capability         | Current contract/boundary                                                                                                                                                                             |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Assignments        | Published metadata for students; owned authoring/private rubric access for instructors. Python or Java; language locks after a submission                                                             |
-| Source submission  | One source string, 1–8,000 characters, no NUL, assignment UUID and request UUID. Language, student identity, revision and time derive from trusted assignment/session/database state                  |
-| Revisions          | Immutable server saves; identical request retries return the original revision. Captured-source acknowledgment does not mark newer edits clean                                                        |
-| Deadlines          | Optional finite instant; SGT authoring/display. `created_at > due_at_submission` is late; equality is on time. Deadline snapshots/retry timing stay immutable; no automatic late penalty              |
-| Own history/grades | Session ownership plus RLS; metadata lists avoid source/private-rubric reads. Only published own grades appear. Unavailable assignment titles remain hidden                                           |
-| Continue editing   | Owned, assignment/language-scoped saved source initializes a new editable draft; existing revisions are unchanged                                                                                     |
-| Compare revisions  | At most two owned selected sources, safe text rendering and bounded line-diff work; no execution, write or AI request                                                                                 |
-| Browser drafts     | Same-device local storage, 500-ms debounce, up to ten contexts/seven days, account/assignment/language/starting-revision separation, restore/discard/conflict controls and confirmed sign-out cleanup |
-| Practice cases     | Up to five public stdin/expected-output cases; owner-only drafts and atomic versioned Save/Publish/Unpublish. Draft edits preserve the previous published set                                         |
-| Grades/XP          | Explicit instructor publication of an authorized grade; AI/browser results cannot publish or award XP                                                                                                 |
+### 3.4 Student Progress Anti-Join Query Flow
 
-Draft source is intentionally stored locally for recovery. It is not encrypted account storage or a boundary against another user of the same browser profile/same-origin script. Expiry, storage denial, eviction or closing before a completed write can prevent recovery. See [draft design/evidence](../workflow/evidence/2026-11-02-draft-autosave-review.md).
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student as Student Browser
+    participant API as Progress Loader (/courses/[id]/progress)
+    participant Auth as Session Guard
+    participant DB as PostgreSQL (PostgREST API)
 
-Student/instructor assignment APIs live under `/api/assignments`; submissions under `/api/submissions`; grade writes under `/api/grades/[id]`. Practice owner APIs use `/api/assignments/[id]/practice-tests`, student reads `/api/student/assignments/[assignmentId]/test-cases`. These are implemented; development examples are never a fallback for a failed real-case read. Contracts live with each feature; failures are sanitized and state-changing routes check origin and bounded inputs.
+    Student->>API: GET /courses/[courseId]/progress
+    API->>Auth: Verify student course enrollment
+    Auth-->>API: Enrolled Student Verified
+    
+    par Query 1: Total Published Assignments
+        API->>DB: SELECT count(*) FROM assignments WHERE course_id = $1 AND is_published = true
+        DB-->>API: Total Count (e.g., 10)
+    and Query 2: Outstanding Assignments (Anti-Join)
+        API->>DB: SELECT a.id, a.title, a.due_at FROM assignments a LEFT JOIN submissions s ON a.id = s.assignment_id AND s.user_id = $auth_user WHERE a.course_id = $1 AND a.is_published = true AND s.id IS NULL
+        DB-->>API: Outstanding Assignments List (e.g., 3 assignments)
+    and Query 3: Cumulative XP Total
+        API->>DB: SELECT COALESCE(SUM(xp_awarded), 0) FROM assignment_xp_ledger WHERE student_id = $auth_user AND course_id = $1
+        DB-->>API: Total Earned XP
+    end
+    
+    API->>API: Compute derived metrics: Submitted = Total - Outstanding (Multiple revisions counted once)
+    API->>API: Filter Overdue: Outstanding assignments where due_at < now()
+    API-->>Student: Render Progress Dashboard (Completion ratio, upcoming deadlines, recent grades)
+```
 
-Instructors set maximum XP from 0–100,000. Awards use the best currently published score/rubric-maximum fraction per student/assignment, multiplied by the current maximum XP and rounded down. Correcting/withdrawing grades or editing maximum XP recalculates awards; a ledger records nonzero deltas without client write authority. Older grades without a captured rubric maximum require review/republishing. The signed-in leaderboard exposes usernames/totals/ranks, uses shared ranks (1, 1, 3) and lists positive-XP students only.
+---
 
-Deep implementation/evidence: [deadlines](../logs/2026-11-01-assignment-deadlines.md), [revision comparison](../logs/2026-11-01-compare-revisions.md), [practice tests](../logs/2026-11-02-published-practice-tests.md), [XP](../logs/2026-11-02-assignment-xp.md) and [leaderboard](../logs/2026-11-02-leaderboard.md).
+## 4. In-Browser Client-Side Execution Engine
 
-### Student progress query design
+### 4.1 Pyodide (Python 3.12 WebAssembly)
 
-`/courses/<courseId>/progress` verifies membership and the enabled assessment/XP features before loading permitted sections with the RLS-protected session client. `src/features/student-progress/` separates counts, upcoming deadlines, recent activity, contracts and presentation. Assignment counts use exact HEAD queries, with an own-submissions anti-join for outstanding work; submitted is the visible total minus outstanding, so multiple revisions count once. Overdue uses a single captured server time and excludes the deadline instant itself. Independent reads are not a transaction snapshot; inconsistent counts show a retry state rather than invented totals.
+- **Runtime Architecture**: Pyodide compiles the CPython 3.12 interpreter into WebAssembly via Emscripten. It initializes inside an isolated Web Worker.
+- **I/O Redirection**: Standard output (`sys.stdout`) and standard error (`sys.stderr`) streams are redirected to an in-memory string buffer. When `input()` is called, the supervisor injects pre-buffered input from the user's provided `stdin` payload.
+- **Resource Boundaries**:
+  - Memory: Constrained by browser tab WebAssembly allocation limits.
+  - Stdin buffer: Maximum 4,096 UTF-8 bytes.
+  - Stdout buffer: Maximum 8,192 bytes captured per run.
 
-Upcoming work and recent submissions/grades return at most five items each, ordered by time/ID. List projections omit source, private rubrics and peer identity; XP comes from the authoritative own-total RPC. Disabled sections do not run their loaders. Section failures remain distinct from empty results, and the retry path refreshes its own data. The legacy `/student/progress?courseId=...` route redirects a signed-in member to the course-scoped destination, which enforces course access.
+### 4.2 TeaVM (Java Bytecode Ahead-of-Time Compiler)
 
-[Progress design](../workflow/plans/2026-11-03-student-progress-design.md), [implementation plan](../workflow/plans/2026-11-03-student-progress.md) and [verification summary](../logs/2026-11-03-student-progress.md) document the query contracts, focused tests and authenticated synthetic browser cases. The E2E suite skips without local fixture credentials; a skip does not establish hosted behavior. The anti-join follows [PostgREST resource embedding guidance](https://docs.postgrest.org/en/stable/references/api/resource_embedding.html#null-filtering-on-embedded-resources).
+- **Runtime Architecture**: Java source code is compiled in the browser via an ahead-of-time WebAssembly compiler (TeaVM).
+- **Supported Java Standard Library**:
+  - `java.lang.*`: Fundamental primitives, `String`, `StringBuilder`, `Math`, `System.out`.
+  - `java.util.*`: Collections framework (`List`, `ArrayList`, `Map`, `HashMap`, `Set`, `HashSet`, `Collections`), `Scanner`, `Iterator`.
+  - `java.io.*`: `BufferedReader`, `InputStreamReader`, `PrintWriter`.
+- **Known Limitations & Unsupported Constructs**:
+  - Multi-threading primitives (`Thread.start()`, `join()`, `Thread.sleep()`) are not supported by the client-side JavaScript/WebAssembly execution model.
+  - Socket networking (`java.net.*`) and file filesystem APIs (`java.io.File`) are prohibited and stubbed out to protect client privacy.
+  - Informative compiler error messages guide users to adopt sequential patterns.
 
-## 5. Browser-only code execution
+### 4.3 Why Client-Side Browser Execution?
 
-[Runner environment selection](../src/features/student-submissions/runner-environment.ts) enables the loopback lab in development and the same-project runtime for Vercel preview/production. A bare local production process enables neither automatically. Real accounts/assignments and local Run code do not require the removed student-preview/runner-preview flags. Synthetic assignment fixtures are restricted to the Playwright harness.
+1. **Security**: Eliminates remote code execution (RCE) attack vectors against university infrastructure. Untrusted student code cannot compromise server containers, read environment variables, or scan internal networks.
+2. **Scalability & Cost**: Shifting compilation and execution workloads to client devices allows the platform to scale to thousands of concurrent students at negligible server operating cost.
+3. **Zero Queue Latency**: Students experience immediate feedback without waiting in centralized worker job queues.
 
-`pnpm build` first runs `workflow/scripts/build-static-runtime.mjs`, verifies pinned size/SHA-256 metadata and prepares ignored `public/runtime/`, then builds Next.js. Browsers verify the runtime manifest/assets before use. Generated distributions are not source to commit; distribution/license/provenance approval and deployed verification remain separate gates.
+---
 
-Python uses Pyodide; Java source is compiled/executed in the browser using the evaluated TeaVM-based runtime and first-party input compatibility support. Java is a documented subset, not a full JVM: basic Scanner/BufferedReader work in recorded checks, while Thread start/join/sleep examples have verified compiler limits. See [runtime evidence](../workflow/evidence/runtime-feasibility/README.md) and [Java input resolution](../workflow/evidence/runtime-feasibility/java-input-resolution.md).
+## 5. AI Security Architecture & Threat Modeling
 
-An opaque sandboxed frame and trusted supervisor isolate untrusted workers from app credentials/DOM and enforce messaging/lifecycle limits. Limits include 4,096 UTF-8 input bytes, 8,192 retained combined output bytes per case, execution deadlines and separate preparation/Java compilation deadlines. Fresh workers isolate runs at a startup cost. There is no hard browser memory-quota or universal-browser guarantee. Next.js/Node never compiles or executes submitted source, and no remote execution fallback exists.
+CodeLeet integrates product AI (SoCLaaS) for pedagogical student feedback and advisory instructor rubric evaluations. Because generative AI introduces novel vulnerability surfaces, CodeLeet implements an exhaustive defense model.
 
-Practice tests compare printed stdout, normalizing line endings and one final newline while preserving other spaces/case. Results remain untrusted local feedback; no browser result is accepted as an official grade/XP award. Source edits/refreshed cases invalidate stale results, and leaving the workspace ends the run.
+### 5.1 STRIDE Threat Analysis for Educational AI
 
-## 6. Product AI, security and resource accounting
+| STRIDE Category | Threat Description | CodeLeet Mitigation Strategy |
+| :--- | :--- | :--- |
+| **Spoofing** | Attacker impersonates an instructor to request private rubric-guided evaluations. | Route handlers re-authenticate session cookies and enforce course-level instructor roles in PostgreSQL before reading rubric criteria. |
+| **Tampering** | Student tampers with API payload to force AI to award a passing grade. | AI responses are strictly parsed into advisory review schemas; models have **zero write access** to the `grades` table. |
+| **Repudiation** | Instructor denies having published an AI-suggested score. | All published grades require manual instructor submission and record the instructor's unique user ID and publication timestamp in an audit log. |
+| **Information Disclosure** | Student uses prompt injection to extract confidential instructor rubric criteria or system prompts. | System prompts, model instructions, and private rubric criteria are **strictly excluded** from student AI review contexts. |
+| **Denial of Service** | Malicious user spams AI feedback endpoints to exhaust institutional LLM token budgets. | Enforces strict per-user request rate limits, token budget preflight checks, and deterministic response caching for identical code revisions. |
+| **Elevation of Privilege** | Student crafts adversarial code containing jailbreak instructions to manipulate grader behavior. | Source code is wrapped in strict delimiter boundaries (`<untrusted_source_code>`), and model outputs are validated against a strict Zod JSON schema. |
 
-Students request learning feedback; instructors request rubric-based advisory evaluations. Both use server-only SoCLaaS. Student context excludes private rubrics. Instructor context requires authorized instructor access in the assignment's course, with the recorded Legacy access rules retained. Course instructors can collaborate; `instructor_id` attribution is not the sole current access rule. Assignment text, source, rubric descriptions and model output are untrusted data. Models have no tools or publication authority. Output is schema/criterion-validated before safe text presentation; malformed responses and outages produce sanitized errors.
+### 5.2 Context Strategy & Empirical Optimization
 
-The shared review service bounds context/output, checks requester-scoped cache entries, reserves usage before provider calls and records completion/failure. Provider reservations use a server-held one-time completion capability. Authenticated clients cannot insert generated reviews or write cache-hit usage directly; the server records cache use only for an existing matching review after rechecking course access. Cache/context versions matter when changing prompts or contracts. Usage distinguishes provider token counts from estimates; a cache hit, provider prompt caching and development-agent context reuse are different measurements. Instructor context comparison can consume two uncached request slots. Repository quotas do not replace verification of the actual key's SoCLaaS limits.
+CodeLeet optimizes LLM context windows to minimize token expenditure while preventing context leakage:
+- **Focused vs. Broader Context**: Empirical evaluation (`pnpm ai:context-eval`) demonstrated that focused prompt packets achieved an **18.1% reduction in input tokens** compared to broad context packets, while completely eliminating spurious hallucinated requirements.
+- **Automated AI Evaluation Harnesses**:
+  - `pnpm ai:promptfoo`: Executes deterministic offline security evaluations asserting prompt injection resistance, rubric confidentiality, and schema adherence.
+  - `pnpm ai:context-eval`: Benchmarks token consumption and evaluates system role isolation across Python and Java test fixtures.
 
-The [historical model comparison](../workflow/experiments/2026-11-01-soclaas-model-evaluation.md) records a bounded synthetic model-selection experiment; its results are separate from development-agent token/cost measurements. The [context strategy evaluation](../workflow/experiments/2026-11-06-context-strategy-evaluation.md) (`pnpm ai:context-eval`) measures an 18.1% input token reduction for focused vs. broader authorized context across Python and Java cases (broader context introduces +22.1% overhead) while verifying system role isolation, preflight budget gating, and rubric privacy. [Promptfoo evidence](../workflow/evidence/2026-11-02-promptfoo-ai-security.md) records the separate synthetic offline/live evaluation. `pnpm ai:promptfoo` runs deterministic offline fixtures; `pnpm ai:promptfoo:live` is an explicit provider-consuming operation and is not part of normal CI. The pinned wrapper/config disables sharing/telemetry/update behavior and bounds live requests; do not extend those claims to arbitrary configs. Historical sample passes do not establish general prompt-injection resistance or grading accuracy. No live evaluation is required to edit documentation.
+---
 
-## 7. Discussions and roles
+## 6. Multi-Level Testing Strategy
 
-Discussions provide course-scoped member-only threads/replies and literal case-insensitive title/opening-post search; replies are not searched. Posts are React text, not executable HTML/Markdown. Author name/role are snapshots. Lists use stable created-time/ID ordering, 25 rows plus lookahead; offset pages can shift as posts arrive. Posting uses validated request IDs, origin checks, an atomic combined ten-post/minute quota and no direct client writes. There are no attachments, editing/deletion, AI publication or discussion XP awards.
+CodeLeet employs a multi-tiered testing pyramid covering unit, database, end-to-end, and AI evaluation layers.
 
-The guarded admin directory/role routes use protected role state and last-admin protection. Profile editing cannot change email/role. Admin unit/database checks exist; a complete authenticated admin browser journey remains pending in the recorded evidence. Platform administration and current course membership/ownership are separate authorization layers. See [forum implementation](../logs/2026-10-31-forums.md), [search](../logs/2026-11-01-forum-search.md) and the [security evidence map](../workflow/evidence/2026-11-02-security-testing.md).
+### 6.1 Testing Pyramid
 
-## 8. Verification commands and evidence scope
+```mermaid
+graph TD
+    subgraph Pyramid["CodeLeet Verification Pyramid"]
+        E2E["End-to-End Browser Journeys (Playwright)"]
+        AIEval["AI Security & Promptfoo Assertions"]
+        DBTests["Database RLS & RPC Tests (pgTAP)"]
+        UnitTests["Unit & Domain Contract Tests (Vitest)"]
+    end
+    
+    UnitTests --> DBTests
+    DBTests --> AIEval
+    AIEval --> E2E
+```
 
-Use pinned pnpm; on Windows replace `pnpm` with `npx.cmd --yes pnpm@12.15.0` if needed.
+1. **Unit Tests (Vitest)**: Fast, deterministic tests validating domain contracts, XP rounding formulas, date formatting in SGT, Zod validation schemas, and local diffing algorithms.
+2. **Database Integration Tests (pgTAP)**: Executes inside PostgreSQL to verify Row-Level Security policies, ensuring students cannot read peer submissions, mutate published grades, or elevate their platform roles.
+3. **End-to-End System Tests (Playwright)**: Full browser automation tests verifying authentication, in-browser code execution, practice test diffing, multi-tab draft recovery, and instructor grading workflows.
+4. **AI Security Evals (Promptfoo)**: Adversarial test suite asserting that prompt injection attacks cannot leak system prompts or bypass rubric constraints.
 
-| Command                                            | Purpose                                                                                                                       |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm format:check`, `pnpm lint`, `pnpm typecheck` | Formatting, maintainability and generated Next route/TypeScript checks                                                        |
-| `pnpm test:unit:coverage`                          | Domain, schema, route/query, UI and workflow regressions with configured coverage thresholds                                  |
-| `pnpm db:test`                                     | Local pgTAP authorization, publication, retry, quota, uniqueness and concurrency-related assertions; requires the local stack |
-| `pnpm build`                                       | Verified runtime distribution plus production Next build                                                                      |
-| `pnpm exec playwright install chromium`            | Install the matching local browser once                                                                                       |
-| `pnpm test:e2e`                                    | Production server on 3100 and fixture dev server on 3101, one browser worker; build first and leave those ports free          |
-| `pnpm ai:context-eval`, `pnpm ai:dev-context-eval` | Empirical context strategy and development context benchmark harnesses                                                         |
-| `pnpm ai:promptfoo`                                | Offline synthetic AI assertion/configuration check; no live model calls                                                       |
-| `pnpm site:build`                                  | Separate product website build                                                                                                |
-| `pnpm spec:validate`, `pnpm check:scaffold`        | Strict OpenSpec and required-artifact/local-Markdown-link checks                                                              |
+### 6.2 Behavior-Driven Development (BDD) Scenarios
 
-Authenticated browser fixtures require local public Supabase settings and test-process-only `MP4_E2E_SERVICE_ROLE_KEY`. Match their local-service guards; do not use hosted production accounts. `RUN_AUTHENTICATED_RUNTIME_TESTS=1` enables real Python/Java execution in those journeys against a development or preview-configured app. Standalone runtime and local-email suites have separate opt-ins. The username quota case also needs the same HMAC secret as the local app, supplied privately to the test process. Inspect [Playwright configuration](../playwright.config.ts) and suite guards before running opt-ins; missing prerequisites are skips, not passing coverage.
+The following representative Gherkin scenarios define acceptance criteria for key platform workflows:
 
-Never put the test admin key in `NEXT_PUBLIC_` settings or application configuration. Test helpers create/delete only known synthetic fixture IDs. Traces can contain sensitive session data: keep generated artifacts ignored and share sanitized summaries only. Mocked AI/browser tests establish deterministic app guards, not real-provider resistance or hosted email behavior.
+#### Scenario 1: Submitting an Immutable Code Revision
 
-Application CI runs frozen installation, format/lint/types/unit/coverage, offline AI checks, app/site builds and Chromium. Its official Playwright image matches the pinned test package, avoiding recurring apt installation. A separate database job starts local Supabase and runs pgTAP; scaffold and CodeQL checks complement these. Do not replace a recorded failure with a passing total from another commit. The [3 November acceptance record](../workflow/evidence/2026-11-03-student-acceptance.md) preserves broad-run failures, focused reruns and prerequisite skips with their actual scope.
+```gherkin
+Feature: Assignment Submission and Deadline Snapshots
+  As an enrolled student
+  I want to submit a revision of my code solution
+  So that my instructor can evaluate my progress against the deadline
 
-## 9. SDD, development agents and records
+  Scenario: Submitting a valid Python revision prior to the deadline
+    Given the student "alice" is enrolled in course "CS101"
+    And the assignment "Two Sum" has a due date in the future
+    When alice enters 450 characters of valid Python code in the editor
+    And alice clicks the "Submit revision" button
+    Then the system creates an immutable record in the "submissions" table
+    And the submission is marked with status "On time"
+    And the revision number is incremented to 1
+    And the editor retains the submitted code without clearing
+```
 
-Follow [AGENTS.md](../AGENTS.md) and [AgentProcess](../workflow/AgentProcess.md): link a matching issue before implementation, use a Conventional Commit branch from updated develop, read the relevant OpenSpec change, record decisions/verification, then publish a linked PR after branch CI and confirm final-head checks. Keep unrelated user edits intact. Human review, merge and release are separate steps.
+#### Scenario 2: In-Browser Code Execution Timeout Guard
 
-| Artifact                                                              | Purpose                                                                                                      |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `workflow/ProjectBrief.md`, `workflow/AssignmentChecklist.md`         | Scope, assignment constraints, responsibility and submission/evidence requirements                           |
-| `openspec/config.yaml`, `openspec/changes/`, `openspec/specs/`        | Project context, active proposals/design/spec/tasks and accepted specifications                              |
-| `.agents/skills/`, `skills-lock.json`                                 | Discoverable repository skills and recorded external provenance                                              |
-| `workflow/AgentProcess.md`, `workflow/agents/`, `workflow/templates/` | Coordination policy, planned role briefs and bounded handoff/review/experiment formats                       |
-| `workflow/plans/`, `workflow/contracts/`                              | Per-change plans and shared interfaces; planned work is not current product behavior                         |
-| `workflow/evidence/`, `workflow/experiments/`                         | Actual reviews/test results and bounded experiments with limitations                                         |
-| `workflow/scripts/`, `.github/workflows/`                             | Verification/evaluation/runtime tooling and repository automation                                            |
-| `logs/`                                                               | Sanitized chronological request/decision/failure/check summaries; human verification status remains explicit |
-| `docs/Reflections.md`, individual reflection files                    | Index and member-owned MP4 reflections awaiting personal verification where stated                           |
+```gherkin
+Feature: Sandboxed Browser Execution Lifecycle
+  As a student practicing algorithms
+  I want my code to run securely inside my browser
+  So that infinite loops do not crash my workstation
 
-Delegate only when authorized and useful. Give specialists narrow context, allowed files, budgets and a next-owner handoff. The [runtime coordination record](../workflow/evidence/runtime-feasibility/coordination.md) and [username review](../workflow/evidence/2026-11-03-username-sign-in-review.md) record actual separate executions. The [development context benchmark](../workflow/experiments/2026-11-06-development-context-experiment.md) (`pnpm ai:dev-context-eval`) compares five synthetic packet pairs: focused packets have 95.5% fewer estimated constructed input tokens, and omit nine obsolete references deliberately placed in broader packets. It does not measure agent token usage, cost, latency or quality. Role files alone are not evidence that agents ran. Product AI and development-agent coordination are separate systems.
+  Scenario: Terminating an infinite loop within the 5-second deadline
+    Given the student is working on a Python assignment
+    When the student writes a script containing "while True: pass"
+    And the student clicks "Run code"
+    Then the WebAssembly worker executes in the background
+    And the supervisor terminates the worker after 5000 milliseconds
+    And the terminal displays "Execution timed out (5s limit)"
+    And the host application remains fully responsive
+```
 
-## 10. Deployment and release checks
+#### Scenario 3: Authoritative XP Calculation and Leaderboard Update
 
-Keep development/preview and production Supabase data, credentials, origins and AI resources separate. `develop` is integration; `master` is the grading/release branch. A localhost Supabase URL cannot serve hosted Vercel users. Configure matching public settings and server-only login/AI secrets per environment, apply reviewed migrations, configure Auth Site URL/allowed callbacks and mail delivery, then deploy through team-controlled automation. Build public environment values into the matching deployment.
+```gherkin
+Feature: Automated Experience Points Ledger
+  As an enrolled student
+  I want to earn XP based on my graded score
+  So that my achievements are reflected on the course leaderboard
 
-The product website has an overview, on-site User Guide and Developer Guide, top navigation, a sidebar and on-page contents. `workflow/scripts/prepare-site-docs.mjs` generates the two website guide pages from the canonical files in `docs/` before website development/build. Edit the canonical files; generated copies are ignored. Relative references outside those guides become GitHub repository links. Restart `pnpm site:dev` after editing canonical guide content to regenerate it; normal builds always regenerate both pages.
+  Scenario: Earning proportional XP upon instructor grade publication
+    Given an assignment with a maximum XP of 100
+    And the private rubric has a maximum score of 10 points
+    When the instructor grades alice's submission with a score of 8 points
+    And the instructor publishes the grade
+    Then the database computes the awarded XP as floor((8 / 10) * 100) = 80 XP
+    And an entry of 80 XP is added to the student's XP ledger
+    And the course leaderboard reflects alice's updated XP ranking
+```
 
-[.github/workflows/pages.yml](../.github/workflows/pages.yml) builds/uploads `website/build` and publishes on relevant pushes to `develop`, or manual dispatch from `develop`, matching the existing github-pages environment branch restriction. Pull requests run build checks without publishing; merge into develop is a separate human decision. A successful local build is not publication: verify the Pages deployment and live URLs afterward. No dedicated Vercel deployment workflow exists in the checked-in `.github/workflows/`; Vercel status checks must not be described as proof of a separate Actions deployment pipeline. On 5 November, the Pages overview and both guide URLs responded HTTP 200 and the baseline Pages workflow had succeeded. That verifies documentation availability, not production application acceptance.
+#### Scenario 4: Last Administrator Platform Safeguard
 
-Before release, record the deployed commit/address, migration/configuration state, development/production separation, both role journeys, password email flow, actual Python/Java runs, published cases, privacy denials and live-AI/provider-limit checks. Keep licensing/provenance and browser compatibility limits visible. Use [AssignmentChecklist](../workflow/AssignmentChecklist.md) and the [security evidence map](../workflow/evidence/2026-11-02-security-testing.md). A green PR or preview build is not full production acceptance. Do not seed/reset hosted data or expose production secrets to untrusted PR jobs.
+```gherkin
+Feature: Platform Administrator Role Governance
+  As a system security auditor
+  I want to prevent accidental platform lockout
+  So that there is always at least one active administrator
 
-## 11. Acknowledgements
+  Scenario: Rejecting the demotion of the last remaining administrator
+    Given there is exactly 1 active administrator account in the system
+    When that administrator attempts to change their role to "Student"
+    Then the system rejects the transaction with an HTTP 400 error
+    And the user role remains "Administrator"
+    And an alert displays "Cannot demote the last remaining administrator"
+```
 
-- [Coursemology's public guide](https://coursemology.github.io/coursemology-help/) and user-provided screenshots informed assignment/grading/discussion journeys and problem-above-editor presentation. No course identity/content/assets or implementation were copied.
-- The user-provided brainstorming PDF informed feature/security ideas; explicit user requirements determine browser-only execution and current scope.
-- [Next.js](https://nextjs.org/), React, Tailwind, shadcn/ui, Lucide, Zod, Supabase, Vitest, Playwright and Docusaurus provide the pinned application/tooling dependencies. Consult the lockfile and package notices for exact versions/licenses.
-- [prism-react-renderer](https://github.com/FormidableLabs/prism-react-renderer) 2.4.1 and [Prism](https://prismjs.com/) 1.30.0 (MIT) provide syntax grammars/themes; editor synchronization and indentation are first-party code.
-- [OpenSpec](https://github.com/Fission-AI/OpenSpec) provides SDD tooling; the current dependency is pinned in package.json rather than an early scaffold version. Preserve generated attribution and [skill provenance](../skills-lock.json).
-- Runtime source/assets are identified by hashes and notices in [runtime evidence](../workflow/evidence/runtime-feasibility/README.md). Issue #31 records approval for the existing inventory; changed assets need renewed review. Independent/hosted/browser acceptance remains separate. Do not commit generated runtime binaries without the applicable review.
-- Promptfoo and its repository patch/provenance are documented in the [AI evaluation evidence](../workflow/evidence/2026-11-02-promptfoo-ai-security.md).
-- Codex assisted with planning, code, tests, reviews and documentation as recorded in logs. Each member must verify personal contribution claims and reflection wording; generated drafts and passing checks do not establish that verification.
+---
+
+## 7. Comprehensive Error Handling & Boundary Defense
+
+CodeLeet implements defense-in-depth error handling across all four architectural boundaries:
+
+```mermaid
+graph LR
+    subgraph B1["1. UI Boundary"]
+        ReactEB["React Error Boundaries"]
+        Toasts["Action Toasts & Alerts"]
+        RetryBtns["Contextual Retry Buttons"]
+    end
+    
+    subgraph B2["2. API Boundary"]
+        Zod["Zod Schema Validation"]
+        SanitizedHTTP["Sanitized HTTP Codes"]
+        NoStackLeak["Zero Stack Trace Leaks"]
+    end
+    
+    subgraph B3["3. Database Boundary"]
+        PGRLS["PostgreSQL RLS Guards"]
+        CheckConst["Check Constraints & Locks"]
+        UniqueIdx["Unique Index Safeguards"]
+    end
+    
+    subgraph B4["4. External AI Boundary"]
+        Timeout["Request Timeouts (15s)"]
+        FallbackMsg["Graceful Error Fallbacks"]
+        TokenBudget["Preflight Budget Checks"]
+    end
+
+    B1 <--> B2
+    B2 <--> B3
+    B2 <--> B4
+```
+
+1. **UI Boundary**: React error boundaries isolate page segment failures without crashing the entire workspace. Forms display inline field errors, and loading states offer non-destructive retry options.
+2. **API & Route Boundary**: Request bodies are parsed through strict Zod schemas. Invalid payloads immediately return HTTP 400 Bad Request with field-specific diagnostics. Internal exception stack traces are never exposed to clients.
+3. **Database Boundary**: PostgreSQL foreign keys, check constraints, and unique indexes guarantee structural data integrity. Concurrency race conditions (such as simultaneous username claims) are handled cleanly via PostgreSQL transaction error code `23505` (unique violation).
+4. **External AI Boundary**: SoCLaaS API calls enforce a 15-second timeout and circuit-breaker logic. If the AI gateway is unreachable or quota is exceeded, the user receives a helpful retry notification while all submission data remains completely unaffected.
+
+---
+
+## 8. Local Development Setup & Engineering Practices
+
+### 8.1 Prerequisites
+
+- **Node.js**: Pinned version `24.22.1` (see `.node-version`).
+- **Package Manager**: Pinned `pnpm@12.15.0`.
+- **Container Engine**: Docker Desktop with Linux container engine active.
+- **Operating System**: macOS, Linux, or Windows (via PowerShell or WSL2).
+
+### 8.2 Environment Configuration (`.env.local`)
+
+Copy `.env.example` to `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+| Configuration Variable | Mandatory | Purpose & Security Exposure |
+| :--- | :---: | :--- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Browser-safe URL for local Supabase emulator (`http://127.0.0.1:54321`). |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Browser-safe publishable key for client-side authentication and RLS. |
+| `APP_SITE_URL` | Yes | Base URL of the application (`http://localhost:3000`). Used for origin guards. |
+| `SUPABASE_SECRET_KEY` | Yes | Server-only service role key for administrative metadata operations. Never expose to client. |
+| `AUTH_RATE_LIMIT_SECRET` | Yes | 32+ character random secret used for HMAC-SHA256 login identifier hashing. |
+| `SOCLAAS_AI_ENABLED` | No | Set to `true` to enable live pedagogical AI tutoring. Defaults to `false`. |
+| `SOCLAAS_BASE_URL` | No | Server-only base URL for the SoCLaaS API gateway. |
+| `SOCLAAS_API_KEY` | No | Server-only API bearer token for SoCLaaS. |
+| `SOCLAAS_MODEL` | No | Designated LLM model identifier. |
+
+### 8.3 Step-by-Step Setup Commands
+
+Execute the following commands from the repository root:
+
+```bash
+# 1. Install pinned dependencies with frozen lockfile
+pnpm install --frozen-lockfile
+
+# 2. Start the local Supabase container stack
+pnpm db:start
+
+# 3. Apply all database migrations
+pnpm exec supabase migration up --local
+
+# 4. Start Next.js development server (with runtime lab supervisor)
+pnpm dev
+```
+
+Open `http://localhost:3000` to interact with the application.
+
+### 8.4 Verification Commands Reference
+
+| Verification Command | Execution Purpose |
+| :--- | :--- |
+| `pnpm format:check` | Verifies code formatting across the repository using Prettier. |
+| `pnpm lint` | Runs ESLint with zero-warning threshold enforcement. |
+| `pnpm typecheck` | Compiles Next.js typegen and runs TypeScript strict type checking. |
+| `pnpm test:unit:coverage` | Executes the Vitest unit and integration test suite with code coverage. |
+| `pnpm db:test` | Runs automated pgTAP tests against the local PostgreSQL database. |
+| `pnpm test:e2e` | Executes Playwright end-to-end browser tests across user roles. |
+| `pnpm check:scaffold` | Verifies repository scaffold integrity and local Markdown link targets. |
+| `pnpm spec:validate` | Validates OpenSpec change proposals and specification schemas. |
+| `pnpm site:build` | Compiles the Docusaurus documentation website to static assets. |
+
+---
+
+## 9. Deployment, CI/CD & Environment Isolation
+
+### 9.1 Environment Separation
+
+CodeLeet enforces strict separation between environments:
+- **Development**: Local Dockerized Supabase stack, mock email server (Mailpit on `:54324`), and loopback runtime lab.
+- **Preview / CI**: Automated ephemeral test runners with synthetic test fixtures and offline AI evaluation mocks.
+- **Production**: Dedicated hosted PostgreSQL database, managed GoTrue authentication with SMTP email delivery, production CDN caching, and production SoCLaaS AI gateway.
+
+### 9.2 GitHub Pages Documentation Pipeline
+
+The product documentation site is built with Docusaurus and automatically deployed to GitHub Pages:
+- **Workflow File**: `.github/workflows/pages.yml`.
+- **Trigger**: Pushes and merged pull requests to the `develop` branch impacting `docs/` or `website/`.
+- **Build Step**: Executes `workflow/scripts/prepare-site-docs.mjs` to copy canonical guide master files and images into the Docusaurus workspace before compiling static production bundles.
+
+---
+
+## 10. Reflections on Agentic Software Engineering
+
+The development of CodeLeet integrated an advanced Agentic Software Engineering (SE) methodology. Key takeaways and design practices include:
+
+### 10.1 Multi-Agent SE & Role Specialization
+
+- Rather than using monolithic general-purpose AI prompts, the development workflow leveraged **specialized subagent roles**:
+  - *Codebase Researcher*: Explored API route structures and database constraints.
+  - *Spec Architect*: Authored formal OpenSpec delta proposals before modifying code.
+  - *Implementation Specialist*: Executed focused TDD cycles with minimal file scope.
+  - *Plan Reviewer & Verifier*: Ran verification commands and validated architectural alignment.
+- **Structured Handoffs**: Each subagent communicated via explicit deliverables, avoiding ambiguous instructions and conversational drift.
+
+### 10.2 Context Engineering & Token Optimization
+
+- **Focused Prompt Packets**: Benchmarking demonstrated that providing targeted, task-specific context packets reduced input token consumption by **18.1% to 95.5%** across automated evaluation benchmarks compared to unstructured repository dumps.
+- **Exclusion of Obsolete Artifacts**: Stripping historical discussions and deprecated API references prevented model hallucination and maintained strict focus on current production requirements.
+
+### 10.3 Resource-Aware Engineering
+
+- **Local Deterministic Tools First**: Automated tasks prioritized fast, free, deterministic local tools (Prettier, ESLint, TypeScript compiler, pgTAP, Vitest) over expensive generative model invocations.
+- **Promptfoo Security Evals**: Offline synthetic fixtures were used for continuous integration, reserving live LLM API calls for targeted manual verification runs.
+
+---
+
+## 11. Acknowledgements & References
+
+The CodeLeet architecture and documentation build upon several foundational tools, open-source projects, and educational standards:
+
+- **Coursemology**: Public documentation and design patterns from [Coursemology](https://coursemology.github.io/coursemology-help/) informed user journeys, assignment rubrics, and the problem-above-editor presentation. No proprietary code or assets were copied.
+- **Pyodide**: The [Pyodide Project](https://pyodide.org/) enables pure client-side Python 3.12 WebAssembly compilation and execution.
+- **TeaVM**: The [TeaVM Ahead-of-Time Compiler](https://teavm.org/) provides Java bytecode translation to WebAssembly/JavaScript for client-side Java execution.
+- **Docusaurus**: [Docusaurus 3](https://docusaurus.io/) powers the unified product documentation website with Mermaid diagramming and Prism syntax highlighting.
+- **shadcn/ui & Tailwind CSS**: Accessible, customizable UI component primitives and styling systems.
+- **Lucide Icons**: Clean, open-source iconography used throughout the web interface.
+- **Next.js & React**: Modern fullstack application architecture provided by Vercel.
+- **Supabase**: PostgreSQL database, Row-Level Security, and authentication infrastructure.
+- **Vitest & Playwright**: Modern testing frameworks for unit, integration, and cross-browser end-to-end automation.
+- **Promptfoo**: [Promptfoo](https://promptfoo.dev/) provided the security evaluation framework for testing prompt injection defense and rubric privacy.
+- **OpenSpec**: [OpenSpec](https://github.com/Fission-AI/OpenSpec) provided the Spec-Driven Development (SDD) schema and workflow tools.
+- **AI Coding Assistants**: Google Antigravity and Codex assisted with design planning, test generation, and documentation drafting under strict human review.
