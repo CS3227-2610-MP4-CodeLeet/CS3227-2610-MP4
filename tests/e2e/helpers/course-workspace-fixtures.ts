@@ -3,6 +3,7 @@ import { expect, test as base, type APIRequestContext } from '@playwright/test';
 type User = { id: string; email: string };
 export type CourseWorkspaceFixture = {
   student: User;
+  instructor: User;
   password: string;
   studentCourseId: string;
   instructorCourseId: string;
@@ -136,6 +137,7 @@ async function createWorkspaceFixture(
     return {
       fixture: {
         student,
+        instructor: owner,
         password,
         studentCourseId: courseIds[0],
         instructorCourseId: courseIds[1],
