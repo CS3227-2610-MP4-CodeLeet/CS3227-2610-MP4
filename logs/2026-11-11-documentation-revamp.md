@@ -33,19 +33,27 @@
    - Task 3: Rewrote `docs/UserGuide.md` completely following the MP3 unified layout, embedding all 18 screenshots, role matrix, interactive code editor guide, autosave and 7-day draft recovery, immutable revision submissions, diff comparison, SoCLaaS pedagogical feedback, student progress tracking, discussions, XP leaderboard, instructor assignment/rubric/test authoring, preview mode, submission grading, admin user role management, comprehensive Action Effects & Behavior Matrix, and FAQ.
    - Task 4: Rewrote `docs/DeveloperGuide.md` covering system architecture (C4-style Mermaid `graph TD`), SOLID and GoF design patterns (CVA, Compound Components, Repository, Adapter, State Machine), 4 Mermaid `sequenceDiagram` flows, Pyodide/TeaVM browser execution engine, AI security STRIDE threat modeling and prompt injection mitigations, multi-level testing pyramid with Gherkin BDD syntax highlighting, error handling across 4 architectural boundaries, local development setup, CI/CD pipeline, and reflections on Agentic SE. Added a comprehensive Acknowledgements section.
    - Task 5: Verified full scaffold integrity (`check-scaffold.mjs`), Docusaurus production site compilation (`docusaurus build`), formatting (`prettier --check .`), linting (`eslint . --max-warnings=0`), and TypeScript compilation (`next typegen && tsc --noEmit`).
+5. **Screenshot Audit & Visual Quality Polish**:
+   - Following user feedback, performed a meticulous visual audit of all 18 screenshots in `docs/images/user-guide/` and `website/static/img/user-guide/`.
+   - Injected global stylesheet and DOM removal rules into the Playwright browser context to completely eradicate the Next.js dev tools button/badge (`nextjs-portal`, `[data-next-badge]`, `#nextjs-dev-overlay`) from all views.
+   - Fixed Monaco/CodeEditor auto-bracket insertion by populating `#source-code` directly via `fill()`, ensuring 100% valid Python code execution.
+   - Browser Python execution output (`05-browser-execution-output.png`) verified clean with zero runtime errors and fast in-browser execution output (`0 1`).
+   - Practice test validation (`06-practice-test-validation.png`) verified with all 3 test cases passing with green badges ("3 of 3 passed · 3 run").
+   - Draft recovery view (`07-autosave-draft-recovery.png`) refined with centered viewport showing problem statement, recovery banner, and action buttons.
+   - Instructor review grading view (`17-instructor-submission-review-ai-grade.png`) and Admin user roles (`18-admin-user-roles.png`) captured with populated rubrics, score forms, and directory tables.
 
 ## Work and verification
 
 - Files and requirement links:
   - `website/package.json`, `website/docusaurus.config.js`, `website/src/css/custom.css`: Configured Mermaid, Prism, and styling.
-  - `workflow/scripts/capture-user-guide-screenshots.mjs`: Automated Playwright screenshot script.
-  - `docs/images/user-guide/*.png` & `website/static/img/user-guide/*.png`: 18 generated UI screenshot assets.
-  - `docs/UserGuide.md`: Canonical user-facing guide.
+  - `workflow/scripts/capture-user-guide-screenshots.mjs`: Automated Playwright screenshot script with Next.js badge eradication and robust selectors.
+  - `docs/images/user-guide/*.png` & `website/static/img/user-guide/*.png`: 18 audited and verified UI screenshot assets.
+  - `docs/UserGuide.md`: Canonical user-facing guide with updated `/admin` role governance path.
   - `docs/DeveloperGuide.md`: Canonical software engineering guide.
   - `workflow/scripts/prepare-site-docs.mjs`: Updated Docusaurus doc and image link generator with `pathname://` static routing.
   - `.prettierignore`: Added `.superpowers/` and `.worktrees/`.
 - Commands/checks actually run and outcomes:
-  - `node workflow/scripts/capture-user-guide-screenshots.mjs`: Exited 0; captured 18 screenshots.
+  - `node workflow/scripts/capture-user-guide-screenshots.mjs`: Exited 0; captured 18 screenshots cleanly with zero dev badges and verified views.
   - `node workflow/scripts/prepare-site-docs.mjs`: Exited 0; prepared Docusaurus Markdown files.
   - `node workflow/scripts/check-scaffold.mjs`: Exited 0; verified all local Markdown link targets and images resolve on disk.
   - `node website/node_modules/@docusaurus/core/bin/docusaurus.mjs build website`: Exited 0; generated static bundle in `website/build` with 0 errors.
@@ -57,10 +65,12 @@
   - Docusaurus MDX parser error on raw LaTeX curly braces resolved by using clean math notations.
   - Docusaurus static image link resolution resolved by using `pathname:///CS3227-2610-MP4/img/...`.
   - ESLint cyclomatic complexity and statement limits resolved by decomposing capture and doc prep helpers into focused sub-functions.
+  - Next.js dev badge removed across all screenshots using init script style injection and DOM element purging.
+  - Monaco auto-bracket indentation issue fixed using Playwright `locator.fill()` on `#source-code`.
 - Resource measurements and unavailable fields:
   - Input token reduction across focused context benchmarks: 18.1% (empirically measured via `pnpm ai:context-eval`).
-  - Docusaurus client/server bundle build time: ~23 seconds.
+  - Docusaurus client/server bundle build time: ~18 seconds.
 - Next steps:
-  - Commit session audit log and design artifacts.
+  - Commit polished screenshots and script enhancements.
   - Push branch `docs/160-documentation-revamp` to remote.
-  - Create Pull Request to `develop` linked to Issue #160.
+  - Update Pull Request #161 on GitHub.

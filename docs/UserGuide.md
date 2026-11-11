@@ -356,7 +356,7 @@ Instructors can open **Context comparison** (`/courses/<courseId>/context-compar
 
 ![Platform Administrator User Roles](images/user-guide/18-admin-user-roles.png)
 
-### 6.1 User Roles Governance (`/admin/users`)
+### 6.1 User Roles Governance (`/admin`)
 
 1. Platform Administrators have access to the dedicated **User roles** portal in the top navigation bar.
 2. **Directory View**:
