@@ -42,13 +42,13 @@
 
 **Interfaces:**
 - Consumes: Issue #146, the approved design, existing course/assignment responsive requirements, and the actual App Router page inventory.
-- Produces: A responsive-ui delta requirement, task group 43, and a route-family inventory that records viewport/state evidence and disposition.
+- Produces: A responsive-ui delta requirement, task group 45, and a route-family inventory that records viewport/state evidence and disposition.
 
 - [x] **Step 1: Map every current UI route family and fixture-accessible state**
 
   Inventory every `src/app/**/page.tsx`, layout, loading/error/not-found route, and shared page component. Group dynamic routes by course/member role and record which local synthetic fixture reaches each route. Include auth/public pages, app header/course directory/profile/admin, course workspace, instructor forms, student lists/editor/runner, discussions, grades/progress/XP, comparison, and loading/empty/error states. The later browser matrix must visit every route that the existing synthetic fixture contracts can reach; mark each unreachable route with its concrete authentication/data prerequisite.
 
-- [x] **Step 2: Add the OpenSpec delta requirement and task group 43**
+- [x] **Step 2: Add the OpenSpec delta requirement and task group 45**
 
   Define supported responsive behavior at 320, 375, 768, 1024, and 1440 CSS px; require no unintended document-level horizontal overflow, usable bounded code/data scrolling, readable wrapping, visible/reachable controls, and preserved keyboard/theme behavior. Add verification, logging, and PR tasks without duplicating completed issue #140 requirements.
 
@@ -207,7 +207,7 @@
 
 - [x] **Step 5: Commit the verified evidence milestone**
 
-  Test followups were committed as `efab3e0`; this evidence/log commit completes the local milestone. Then push, wait for branch CI, and create the issue-linked PR to `develop`; keep teammate review pending.
+  Test followups were committed as `efab3e0`; evidence and log are committed. The merge with latest `develop` exposed and resolved a task-number collision by renumbering issue #146 from task group 43 to 45. PR #152 is open; the old head's Vercel Preview failed, but its logs could not be retrieved because no Vercel credentials or browser session were available. Updated-head branch and PR checks remain pending. Teammate review remains pending.
 
 ## Execution Decision
 
