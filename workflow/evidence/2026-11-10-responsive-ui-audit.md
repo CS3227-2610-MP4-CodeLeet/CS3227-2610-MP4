@@ -2,7 +2,7 @@
 
 - Audit started: 10 November 2026; final legacy-route matrix rerun: 11 November 2026 (Asia/Singapore)
 - Branch: `fix/146-responsive-layouts`
-- OpenSpec: `build-programming-platform`, task group 45
+- OpenSpec: `build-programming-platform`, task group 46
 - Route source: `rg --files src/app -g page.tsx` on branch base `ca734ed`
 - Scope: all rendered `page.tsx` routes, shared layouts, and responsive states; widths 320, 375, 768, 1024, and 1440 CSS px.
 - Evidence status: static route/source inventory complete; five-width Chromium matrices passed for the public/account routes, fixture-backed student/instructor course routes, history/comparison, forums, preview editor, headers, and the admin user directory. Unvisited states and routes are listed below.
