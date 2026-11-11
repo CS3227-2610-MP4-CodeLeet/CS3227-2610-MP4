@@ -20,15 +20,23 @@ test.skip(
   'Requires explicit local synthetic history fixtures.',
 );
 
+async function signIn(page: Page, email: string, password: string) {
+  await page.goto('/sign-in');
+  await page.getByLabel('Email or username', { exact: true }).fill(email);
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await page.waitForURL(/\/courses$/);
+}
+
 test('history, grade, progress, and comparison pages fit every target width', async ({
   page,
   historyFixture: data,
 }) => {
   test.setTimeout(180_000);
   await patchLongComparisonSource(data);
-  await revisionSession(page, data.users[1].email, historyPassword);
-  await expectRouteMatrix(page, data, studentRoutes(data));
+  await signIn(page, data.users[1].email, historyPassword);
   await expectLegacyRouteMatrix(page, data);
+  await expectRouteMatrix(page, data, studentRoutes(data));
   await verifyDarkTheme(page, data);
   await revisionSession(page, data.users[0].email, historyPassword);
   await expectRouteMatrix(page, data, instructorRoutes(data));
@@ -56,21 +64,60 @@ function instructorRoutes(data: Fixture) {
 
 async function expectLegacyRouteMatrix(page: Page, data: Fixture) {
   const routes = [
-    `/student/grades?courseId=${data.courseId}`,
-    `/student/progress?courseId=${data.courseId}`,
-    `/student/submissions?courseId=${data.courseId}`,
-    `/student/submissions/${data.rows[0].id}`,
-    `/student/submissions/${data.rows[1].id}/compare?before=1&after=2`,
+    {
+      source: `/student/grades?courseId=${data.courseId}`,
+      destination: `/courses/${data.courseId}/grades`,
+      heading: 'My grades',
+    },
+    {
+      source: `/student/progress?courseId=${data.courseId}`,
+      destination: `/courses/${data.courseId}/progress`,
+      heading: 'My progress',
+    },
+    {
+      source: `/student/submissions?courseId=${data.courseId}`,
+      destination: `/courses/${data.courseId}/submissions`,
+      heading: 'My submissions',
+    },
+    {
+      source: `/student/submissions/${data.rows[0].id}`,
+      destination: `/courses/${data.courseId}/submissions/${data.rows[0].id}`,
+      heading: 'Revision 1',
+    },
+    {
+      source: `/student/submissions/${data.rows[1].id}/compare?before=1&after=2`,
+      destination: `/courses/${data.courseId}/submissions/${data.rows[1].id}/compare?before=1&after=2`,
+      heading: 'Compare revisions',
+    },
   ];
-  for (const width of viewports) {
-    for (const route of routes) {
+  for (const { source, destination, heading } of routes) {
+    await page.goto(source);
+    await expect
+      .poll(() => {
+        const resolvedUrl = new URL(page.url());
+        return resolvedUrl.pathname + resolvedUrl.search;
+      })
+      .toBe(destination);
+    await expect(
+      page.getByRole('heading', { name: heading, exact: true }),
+    ).toBeVisible();
+    for (const width of viewports) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(route);
       await expect(page.locator('main')).toHaveCount(1, { timeout: 10_000 });
       await expect(page.locator('main')).toBeVisible();
       await expectNoDocumentOverflow(page);
     }
   }
+}
+
+function historyRouteHeading(route: string) {
+  if (route === '/grades') return 'My grades';
+  if (route === '/progress') return 'My progress';
+  if (route === '/xp') return 'My XP';
+  if (route === '/submissions') return 'My submissions';
+  if (route.endsWith('/compare')) return 'Compare revisions';
+  if (route.startsWith('/submissions/')) return 'Revision 1';
+  return null;
 }
 
 async function patchLongComparisonSource(data: Fixture) {
@@ -89,12 +136,21 @@ async function patchLongComparisonSource(data: Fixture) {
 }
 
 async function expectRouteMatrix(page: Page, data: Fixture, routes: string[]) {
-  for (const width of viewports) {
-    for (const route of routes) {
+  for (const route of routes) {
+    const expectedPath = coursePath(data, route);
+    await page.goto(expectedPath);
+    const resolvedUrl = new URL(page.url());
+    expect(resolvedUrl.pathname + resolvedUrl.search).toBe(expectedPath);
+    await expect(page.locator('main')).toHaveCount(1, { timeout: 10_000 });
+    await expect(page.locator('main')).toBeVisible();
+    const heading = historyRouteHeading(route);
+    if (heading) {
+      await expect(
+        page.getByRole('heading', { name: heading, exact: true }),
+      ).toBeVisible();
+    }
+    for (const width of viewports) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(coursePath(data, route));
-      await expect(page.locator('main')).toHaveCount(1, { timeout: 10_000 });
-      await expect(page.locator('main')).toBeVisible();
       await expectNoDocumentOverflow(page);
       if (route.endsWith('/compare')) await expectComparisonRegion(page);
     }
@@ -112,8 +168,9 @@ async function expectComparisonRegion(page: Page) {
   }));
   expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
   await region.evaluate((element) => {
-    element.scrollLeft = 400;
+    element.scrollLeft = 0;
   });
+  await region.press('ArrowRight');
   await expect
     .poll(() => region.evaluate((element) => element.scrollLeft))
     .toBeGreaterThan(0);

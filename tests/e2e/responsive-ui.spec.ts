@@ -4,6 +4,7 @@ import type { CourseWorkspaceFixture } from './helpers/course-workspace-fixtures
 import { expectNoDocumentOverflow } from './helpers/responsive-layout';
 
 const viewports = [320, 375, 768, 1024, 1440];
+type RouteCheck = { path: string; heading: string | RegExp };
 const publicRoutes = [
   '/',
   '/sign-in',
@@ -71,6 +72,8 @@ async function expectHeaderUsable(page: Page, admin: boolean) {
 async function expectRouteContained(page: Page, path: string, width: number) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto(path);
+  const resolvedUrl = new URL(page.url());
+  expect(resolvedUrl.pathname + resolvedUrl.search).toBe(path);
   const mainLandmark = page.locator('main');
   await expect(
     mainLandmark,
@@ -80,19 +83,37 @@ async function expectRouteContained(page: Page, path: string, width: number) {
   await expectNoDocumentOverflow(page);
 }
 
-async function expectRoutesAtWidths(page: Page, routes: string[]) {
-  for (const width of viewports) {
-    for (const path of routes) {
-      await expectRouteContained(page, path, width);
+async function expectRoutesAtWidths(page: Page, routes: RouteCheck[]) {
+  for (const route of routes) {
+    await page.goto(route.path);
+    const resolvedUrl = new URL(page.url());
+    expect(resolvedUrl.pathname + resolvedUrl.search).toBe(route.path);
+    const mainLandmark = page.locator('main');
+    await expect(mainLandmark).toHaveCount(1, { timeout: 10_000 });
+    await expect(mainLandmark).toBeVisible();
+    await expect(
+      mainLandmark.getByRole('heading', {
+        name: route.heading,
+        exact: true,
+        level: 1,
+      }),
+    ).toBeVisible();
+    for (const width of viewports) {
+      await page.setViewportSize({ width, height: 900 });
+      await expectNoDocumentOverflow(page);
       await expect(page).not.toHaveURL(/\/sign-in(?:\?|$)/);
-      if (path.endsWith('/ai-usage')) {
+      if (route.path.endsWith('/ai-usage')) {
         await expectScrollableTable(page, 'Recent AI reviews table');
       }
     }
   }
 }
 
-async function expectScrollableTable(page: Page, name: string) {
+async function expectScrollableTable(
+  page: Page,
+  name: string,
+  requirePhoneOverflow = false,
+) {
   const table = page.getByRole('table');
   await expect(table).toBeVisible();
   const scroller = table.locator('xpath=..');
@@ -100,31 +121,84 @@ async function expectScrollableTable(page: Page, name: string) {
   await expect(scroller).toHaveAttribute('aria-label', name);
   await scroller.focus();
   await expect(scroller).toBeFocused();
+  const geometry = await scroller.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }));
+  const viewportWidth = page.viewportSize()?.width ?? Infinity;
+  if (requirePhoneOverflow && viewportWidth <= 375) {
+    expect(geometry.scrollWidth).toBeGreaterThan(geometry.clientWidth);
+  }
+  if (geometry.scrollWidth > geometry.clientWidth) {
+    await scroller.evaluate((element) => {
+      element.scrollLeft = 0;
+    });
+    await scroller.press('ArrowRight');
+    await expect
+      .poll(() => scroller.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(0);
+  }
 }
 
-function studentCourseRoutes(courseId: string) {
+function studentCourseRoutes(fixture: CourseWorkspaceFixture): RouteCheck[] {
   return [
-    '/courses',
-    '/profile',
-    `/courses/${courseId}`,
-    `/courses/${courseId}/assignments`,
-    `/courses/${courseId}/forums`,
-    `/courses/${courseId}/leaderboard`,
+    { path: '/courses', heading: 'Courses' },
+    { path: '/profile', heading: 'Profile settings' },
+    {
+      path: `/courses/${fixture.studentCourseId}`,
+      heading: /^Student course /,
+    },
+    {
+      path: `/courses/${fixture.studentCourseId}/assignments`,
+      heading: 'Your assignments',
+    },
+    {
+      path: `/courses/${fixture.studentCourseId}/forums`,
+      heading: 'Discussions',
+    },
+    {
+      path: `/courses/${fixture.studentCourseId}/leaderboard`,
+      heading: 'Leaderboard',
+    },
   ];
 }
 
-function instructorCourseRoutes(courseId: string) {
+function instructorCourseRoutes(fixture: CourseWorkspaceFixture): RouteCheck[] {
   return [
-    '/courses',
-    '/profile',
-    `/courses/${courseId}`,
-    `/courses/${courseId}/ai-usage`,
-    `/courses/${courseId}/assignments`,
-    `/courses/${courseId}/assignments/new`,
-    `/courses/${courseId}/context-comparison`,
-    `/courses/${courseId}/forums`,
-    `/courses/${courseId}/leaderboard`,
-    `/courses/${courseId}/manage-users`,
+    { path: '/courses', heading: 'Courses' },
+    { path: '/profile', heading: 'Profile settings' },
+    {
+      path: `/courses/${fixture.instructorCourseId}`,
+      heading: /^Instructor course /,
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/ai-usage`,
+      heading: 'AI Usage',
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/assignments`,
+      heading: 'Assignments',
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/assignments/new`,
+      heading: 'Create assignment',
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/context-comparison`,
+      heading: 'AI Context Strategy Comparison',
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/forums`,
+      heading: 'Discussions',
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/leaderboard`,
+      heading: 'Leaderboard',
+    },
+    {
+      path: `/courses/${fixture.instructorCourseId}/manage-users`,
+      heading: 'Manage Users',
+    },
   ];
 }
 
@@ -195,10 +269,7 @@ test('student course pages fit across the supported widths', async ({
 }) => {
   test.setTimeout(300_000);
   await signIn(page, fixture.student.email, fixture.password);
-  await expectRoutesAtWidths(
-    page,
-    studentCourseRoutes(fixture.studentCourseId),
-  );
+  await expectRoutesAtWidths(page, studentCourseRoutes(fixture));
 });
 
 test('instructor pages and AI usage table fit across the supported widths', async ({
@@ -209,10 +280,7 @@ test('instructor pages and AI usage table fit across the supported widths', asyn
   const cleanup = await addSyntheticAIUsage(page, fixture);
   try {
     await signIn(page, fixture.instructor.email, fixture.password);
-    await expectRoutesAtWidths(
-      page,
-      instructorCourseRoutes(fixture.instructorCourseId),
-    );
+    await expectRoutesAtWidths(page, instructorCourseRoutes(fixture));
   } finally {
     await cleanup();
   }
@@ -227,13 +295,15 @@ test('admin user directory scroll region stays within the page and can receive f
     responsiveAdminFixture.email,
     responsiveAdminFixture.password,
   );
+  await page.goto('/admin');
+  const resolvedUrl = new URL(page.url());
+  expect(resolvedUrl.pathname + resolvedUrl.search).toBe('/admin');
   for (const width of viewports) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/admin');
     await expect(
       page.getByRole('heading', { name: 'User roles' }),
     ).toBeVisible();
-    await expectScrollableTable(page, 'User directory table');
+    await expectScrollableTable(page, 'User directory table', true);
     await expectNoDocumentOverflow(page);
   }
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();

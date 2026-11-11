@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { test, type ForumFixture } from './helpers/forum-fixtures';
 import { expectNoDocumentOverflow } from './helpers/responsive-layout';
 
@@ -29,16 +29,19 @@ async function signIn(
   await page.waitForURL(/\/courses$/);
 }
 
-async function expectForumPage(
-  page: import('@playwright/test').Page,
-  path: string,
-  width: number,
-) {
-  await page.setViewportSize({ width, height: 900 });
+async function expectForumPage(page: Page, path: string, heading: string) {
   await page.goto(path);
+  const resolvedUrl = new URL(page.url());
+  expect(resolvedUrl.pathname + resolvedUrl.search).toBe(path);
   await expect(page.locator('main')).toHaveCount(1, { timeout: 10_000 });
   await expect(page.locator('main')).toBeVisible();
-  await expectNoDocumentOverflow(page);
+  await expect(
+    page.getByRole('heading', { name: heading, exact: true }),
+  ).toBeVisible();
+  for (const width of viewports) {
+    await page.setViewportSize({ width, height: 900 });
+    await expectNoDocumentOverflow(page);
+  }
 }
 
 test('discussion list, creation form, and long thread remain responsive', async ({
@@ -49,7 +52,7 @@ test('discussion list, creation form, and long thread remain responsive', async 
   await signIn(page, data);
   const forumsPath = `/courses/${data.courseId}/forums`;
 
-  await expectForumPage(page, `${forumsPath}/new`, 320);
+  await expectForumPage(page, `${forumsPath}/new`, 'New discussion');
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Message').fill(body);
   await page.getByRole('button', { name: 'Create discussion' }).click();
@@ -58,10 +61,7 @@ test('discussion list, creation form, and long thread remain responsive', async 
   expect(threadId).toBeTruthy();
   const threadPath = `${forumsPath}/${threadId}`;
 
-  for (const width of viewports) {
-    await expectForumPage(page, forumsPath, width);
-    await expectForumPage(page, `${forumsPath}/new`, width);
-    await expectForumPage(page, threadPath, width);
-    await expect(page.getByRole('heading', { name: title })).toBeVisible();
-  }
+  await expectForumPage(page, forumsPath, 'Discussions');
+  await expectForumPage(page, `${forumsPath}/new`, 'New discussion');
+  await expectForumPage(page, threadPath, title);
 });
