@@ -7,28 +7,46 @@ const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url));
 const repository = 'CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4';
 const guides = { UserGuide: 'User Guide', DeveloperGuide: 'Developer Guide' };
 
+function localImageTarget(absolute, fragment, root) {
+  const imgRel = relative(resolve(root, 'docs', 'images'), absolute)
+    .split(sep)
+    .map(encodeURIComponent)
+    .join('/');
+  return `pathname:///CS3227-2610-MP4/img/${imgRel}${fragment}`;
+}
+
+function assertLocalPath(local) {
+  if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local)) {
+    throw new Error('Documentation link is outside the repository.');
+  }
+}
+
+function findGuideTarget(absolute, image, fragment, root) {
+  if (image) return null;
+  for (const name of Object.keys(guides)) {
+    if (absolute === resolve(root, 'docs', `${name}.md`)) {
+      return `./${name}.md${fragment}`;
+    }
+  }
+  return null;
+}
+
 function rewriteTarget(target, image, sourcePath, root) {
   if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(target)) return target;
   const [path, ...fragments] = target.split('#');
   const absolute = resolve(dirname(sourcePath), decodeURIComponent(path));
   const local = relative(root, absolute);
-  if (local === '..' || local.startsWith(`..${sep}`) || isAbsolute(local))
-    throw new Error('Documentation link is outside the repository.');
+  assertLocalPath(local);
   const fragment = fragments.length ? `#${fragments.join('#')}` : '';
 
   if (image && absolute.startsWith(resolve(root, 'docs', 'images'))) {
-    const imgRel = relative(resolve(root, 'docs', 'images'), absolute)
-      .split(sep)
-      .map(encodeURIComponent)
-      .join('/');
-    return `pathname:///CS3227-2610-MP4/img/${imgRel}${fragment}`;
+    return localImageTarget(absolute, fragment, root);
   }
 
-  for (const name of Object.keys(guides)) {
-    if (!image && absolute === resolve(root, 'docs', `${name}.md`))
-      return `./${name}.md${fragment}`;
-  }
-  return repositoryTarget(absolute, local, image, fragment);
+  return (
+    findGuideTarget(absolute, image, fragment, root) ??
+    repositoryTarget(absolute, local, image, fragment)
+  );
 }
 
 function repositoryTarget(absolute, local, image, fragment) {
