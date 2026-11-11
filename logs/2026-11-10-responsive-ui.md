@@ -1,0 +1,43 @@
+# Session: Responsive UI audit and remediation — issue #146
+
+- Timezone: Asia/Singapore
+- Participants/actual agent IDs: User; Codex coordinator/inline implementer; `/root/design_builder_check` (design/build check); `/root/responsive_final_review` (independent read-only review with two followups; final review found no Critical or Important issues)
+- AI tools/models, where known: Codex; exact model identifier unavailable
+- GitHub issue: [#146](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/146)
+- OpenSpec change: `build-programming-platform`, task group 43
+- Branch and commits: `fix/146-responsive-layouts`; `eca53db`, `2b379d7`, `9f79938`, `efab3e0` (`test(ui): strengthen responsive route and scroll checks`), plus the current responsive audit evidence/log commit
+- Pull request: Pending branch push and CI
+- Human verification: pending
+- Verifier/date: Codex local verification; 11 November 2026
+
+## Prompt and interaction summaries
+
+1. On 10 November, the user requested a comprehensive responsive UI review and necessary fixes for a graded university project. They authorized proceeding with the proposed scope and approved using `.worktrees` for issue #146. The user confirmed the reviewed direction before implementation continued.
+2. Repository guidance required reading `workflow/ProjectBrief.md`, `workflow/AgentProcess.md`, the active OpenSpec change, and applicable local skills. The active change was `build-programming-platform`; task group 43 records this work. Work proceeded in an isolated worktree from `develop` on `fix/146-responsive-layouts`.
+3. The route inventory found 38 `page.tsx` routes and 45 shared layout/loading/error/not-found files. Initial browser/source review reproduced a 341px document width for the admin header at 320px; student and instructor headers fit. OpenSpec task 43.1 and the initial evidence were committed as `eca53db`.
+4. The shared header was adjusted to wrap within phone widths. A role/viewport browser test and shared geometry helper were added; the new admin navigation regression passed. The verified header milestone was committed as `2b379d7`.
+5. Course, history, forum, table, error-state and editor route matrices exposed accessibility and layout gaps. The admin user directory and AI usage table scrollers were given named keyboard focus regions. Grade unavailable/error and XP error views were given constrained `main` wrappers; XP retry content now uses an alert. Browser coverage was added for public/account pages, student/instructor course routes, admin user roles, history and revision comparison, forum list/new/detail, legacy student routes, and Python/Java preview editors.
+6. Initial final-test attempts required correction: a Playwright run skipped all tests without explicit local fixture settings; the rerun used local Supabase status in process memory and an ephemeral rate-limit secret, without printing or persisting secrets, resetting, or seeding the database. An initial legacy compare test used submission IDs instead of revision numbers; that test URL was corrected and the history matrix then passed. The first full lint also identified complexity/length limits in a test file; test helpers and cases were split/refactored and lint passed.
+7. The 10 November work resumed on 11 November to complete legacy route coverage, update dated evidence, rerun responsive history, and complete final checks. Independent review initially called for exact URL/heading assertions, keyboard-driven scroll checks, explicit admin-route navigation, and less preview-page reload work. Those findings were addressed in the responsive UI/history/forum/preview specs. The final read-only followup reported no Critical or Important findings; touch-specific interaction, loading/empty/error/unavailable/not-found visuals, token-authentication states, and admin course detail remain unverified.
+
+## Work and verification
+
+- Files and requirement links: responsive header from the prior milestone; `src/app/courses/[courseId]/ai-usage/page.tsx`; course grade error/not-found and XP error wrappers; `src/features/admin-users/user-directory.tsx`; responsive Playwright specs/helpers and project routing; OpenSpec task group 43; `workflow/plans/2026-11-10-responsive-ui.md`; `workflow/evidence/2026-11-10-responsive-ui-audit.md`.
+- Checks actually run:
+  - `pnpm test:unit`: passed, 170 files / 883 tests.
+  - `pnpm lint`: passed with zero warnings.
+  - `pnpm typecheck`: passed (`next typegen && tsc --noEmit`).
+  - `pnpm format:check`: passed; all matched files use Prettier style.
+  - `pnpm exec openspec validate --all --strict`: passed, 11 items / 0 failures.
+  - `pnpm check:scaffold`: passed; scaffold and local Markdown links verified.
+  - `pnpm build`: passed on Next.js 16.4.3; all application routes compiled.
+  - `git diff --check`: passed before the implementation commit.
+  - `pnpm exec vitest run src/components/layout/app-header.test.tsx`: 3 passed.
+  - `pnpm exec playwright test tests/e2e/responsive-assignment-preview.spec.ts tests/e2e/assignment-preview.spec.ts --project=student-preview`: 22 passed; responsive Python/Java preview source and line-number scrolling stayed within editor regions.
+  - `pnpm exec playwright test tests/e2e/responsive-forums.spec.ts --project=chromium`: final focused run passed 1 test in 12.7 seconds across five widths, including long title/body content.
+  - Final refactored authenticated Chromium checks: responsive UI 5 passed in 1.1 minutes; history and legacy routes 1 passed in 37.5 seconds; forums 1 passed in 12.7 seconds. The final responsive preview test passed in 9.8 seconds, and the preview/assignment-preview pair passed 22 tests in the combined run.
+  - A prior focused authenticated batch covering account controls, course workspace, comparison and responsive routes passed 13 tests; this was before the final test refactor. No hosted browser or production behavior is claimed.
+- Failures, retries, unresolved issues: first test launch without fixture credentials skipped; first legacy comparison attempt used an invalid query and was corrected; first lint caught test complexity and was fixed; initial formatter check included ignored scratch docs, which were formatted before it passed. Browser coverage still does not systematically exercise loading, error, unavailable, validation, empty, or not-found states; `/admin/courses/[courseId]` has no route-specific synthetic fixture; reset/invite token states are not exercised. These gaps are explicit in the audit.
+- Resource measurements and unavailable fields: browser batch elapsed times are recorded above. No provider token or hidden model resource measurements were available. Local fixtures used synthetic data and were cleaned by their Playwright helpers. Local Supabase was not reset or seeded.
+- Latest final checks after test refactoring: lint and typecheck passed; format check passed after final evidence edits; strict OpenSpec validation passed 11/11; scaffold and local Markdown-link check passed; `git diff --check` passed. The full unit suite (170 files / 883 tests) and correctly configured production build passed before the final test/documentation-only followups; no application source changed afterward. Review-followup test commit `efab3e0` contains only the four responsive Playwright specs.
+- Next steps: commit the reviewed test followups and evidence/log, push the branch, wait for branch CI before creating the issue-linked PR to `develop`, and keep teammate/human review pending. Do not merge or deploy.

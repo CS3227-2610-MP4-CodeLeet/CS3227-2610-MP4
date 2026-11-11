@@ -134,7 +134,7 @@
 
 - [x] **Step 5: Commit the verified workspace/data-view milestone**
 
-  Stage only changed task-owned files for a Conventional Commit milestone; commit is pending final repository checks and reviewer disposition.
+  Source milestone committed as `9f79938`. Final independent review found no Critical or Important issues after its route assertion and keyboard-scroll findings were addressed in follow-up test changes.
 
 ### Task 4: Review editor, runner, comparison, and wide-content regions
 
@@ -171,7 +171,7 @@
 
 - [x] **Step 5: Commit the verified editor/data-region milestone**
 
-  Stage only task-owned files and commit with a Conventional Commit message such as `fix(ui): contain wide editor and comparison content`.
+  Source milestone committed as `9f79938`. Final independent review found no Critical or Important issues after its route assertion and keyboard-scroll findings were addressed in follow-up test changes.
 
 ### Task 5: Complete cross-route verification and evidence
 
@@ -185,29 +185,29 @@
 - Consumes: Completed route inventory and focused browser/unit results from Tasks 1–4.
 - Produces: Verified audit disposition, OpenSpec progress, and a sanitized chronological session summary with human verification still pending.
 
-- [ ] **Step 1: Run changed behavior tests and the complete required checks**
+- [x] **Step 1: Run changed behavior tests and the complete required checks**
 
   Run: `pnpm test:unit`, `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm exec openspec validate --all --strict`, `pnpm check:scaffold`, `pnpm build`, applicable Playwright routes at all target widths, and `git diff --check`.
 
   Expected: Record exact pass/fail/skip counts and exit codes; investigate every failure before marking the OpenSpec tasks complete.
 
-- [ ] **Step 2: Re-check every inventory row against actual evidence**
+- [x] **Step 2: Re-check every inventory row against actual evidence**
 
   Mark each route/state row pass, fixed, or not verified. Keep any no-browser, no-fixture, auth, or runtime prerequisite limitation explicit; do not infer that an unvisited route passed from a shared component check.
 
-- [ ] **Step 3: Complete the dated session summary and OpenSpec task records**
+- [x] **Step 3: Complete the dated session summary and OpenSpec task records**
 
   Use `logs/SessionTemplate.md`; record issue #146, OpenSpec change, branch and commits, actual participants/handoffs, checks, retries, limitations, and next owner. Keep human review pending.
 
-- [ ] **Step 4: Review the final change scope and whitespace**
+- [x] **Step 4: Review the final change scope and whitespace**
 
   Run: `git status --short --branch`, `git diff --stat`, and `git diff --check`.
 
-  Expected: Only issue #146-owned source, tests, specs, evidence, and log files are included; the two experiment JSON files changed by the baseline test were restored and remain untouched.
+  Expected: Only issue #146-owned source, tests, specs, evidence, and log files are included; the two experiment JSON files changed by the baseline test were restored and remain untouched. Final review followups modify only the four responsive Playwright specs.
 
-- [ ] **Step 5: Commit the verified evidence milestone**
+- [x] **Step 5: Commit the verified evidence milestone**
 
-  Stage only issue #146-owned files and commit with a Conventional Commit message such as `docs(workflow): record responsive UI audit evidence`.
+  Test followups were committed as `efab3e0`; this evidence/log commit completes the local milestone. Then push, wait for branch CI, and create the issue-linked PR to `develop`; keep teammate review pending.
 
 ## Execution Decision
 
