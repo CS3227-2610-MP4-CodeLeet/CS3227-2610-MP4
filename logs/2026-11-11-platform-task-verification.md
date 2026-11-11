@@ -42,4 +42,10 @@
 3. During an earlier iteration, the full runtime suite reported three failures in published-case progression/navigation and the isolated Python published-case journey also failed. The current change was reduced to the direct Java busy-state assertion and its focused test passed; the full runtime suite has not been rerun after this final reduction. Treat full-suite status as pending final-head CI.
 4. The `next-env.d.ts` change pointed to generated `.next-preview` paths and was restored; it is excluded from this PR. At the time of this review entry, the review-fix commit and push were pending.
 
-5. Committed the test and evidence update as d497f51 (	est(runtime): require observed busy state) and pushed it to the existing PR #157 branch. Targeted final-head CI is pending.
+5. Committed the test and evidence update as `d497f51` (`test(runtime): require observed busy state`) and pushed it to the existing PR #157 branch. Targeted final-head CI was pending at that point.
+
+## Final PR review and checks
+
+- Replied to the sole inline review finding and resolved its thread.
+- On the final code head, the first Application workflow attempt timed out deleting an existing draft-autosave fixture from local Supabase. Retried the isolated authenticated E2E job; it passed. Application (format/lint/type/unit), database, authenticated E2E and coverage passed in workflow [42982897322](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42982897322); Scaffold [42982897149](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42982897149), CodeQL [42982897164](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/42982897164), and Vercel Preview passed.
+- PR #157 remains open and unmerged. Teammate review and acceptance remain pending.
