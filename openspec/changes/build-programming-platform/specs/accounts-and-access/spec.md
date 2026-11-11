@@ -7,6 +7,10 @@ After a signup confirmation link is accepted, the system SHALL show an email-ver
 - **WHEN** a valid signup confirmation code establishes a server-verified user with a confirmed email
 - **THEN** the callback SHALL open the confirmation result and the page SHALL offer a way to continue to Courses; if the account has no platform role, the page SHALL explain that account access needs administrator help
 
+#### Scenario: Signup awaits email confirmation
+- **WHEN** account creation succeeds but the provider has not issued a session because email confirmation is required
+- **THEN** the signup page SHALL tell the user to open the confirmation link in the same browser and SHALL NOT instruct them to sign in again before following it
+
 #### Scenario: Invalid confirmation or direct page access
 - **WHEN** confirmation exchange fails or a visitor opens the result page without a server-verified confirmed account
 - **THEN** no success state SHALL appear, and the visitor SHALL receive an actionable sign-in or account-creation path without provider details

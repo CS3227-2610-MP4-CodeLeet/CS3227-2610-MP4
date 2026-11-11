@@ -2,7 +2,7 @@
 
 CodeLeet lets students practise Python and Java, save submissions, request learning feedback and discuss problems. Instructors create assignments, review submissions and publish grades.
 
-This guide was reconciled on 10 November 2026 against merged `develop` commit `66c6d62`, including the routing and access fixes in [PR #133](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/133). Use the application address supplied by the team. Hosted account/email/AI acceptance is not established by this source audit; local setup is below.
+This guide describes the current repository features reviewed in the [11 November guide audit](../logs/2026-11-11-guide-and-bug-audit.md). Use the application address supplied by the team, or follow the local setup below. Your course role and its feature switches determine which pages you can use. Hosted email, AI and browser execution still need acceptance checks in the deployed environment.
 
 ## Choose where to start
 
@@ -11,6 +11,7 @@ This guide was reconciled on 10 November 2026 against merged `develop` commit `6
 | Start an assignment                                  | **Assignments** → assignment title                             |
 | Find saved code or request learning feedback         | **My submissions** → saved revision                            |
 | Read released feedback and scores                    | **My grades**                                                  |
+| Check your deadlines and recent work                 | **My progress**                                                |
 | See assignment XP and rank                           | **My XP** or **Leaderboard**                                   |
 | Ask or answer a question                             | **Discussions**                                                |
 | Change your username                                 | Student **Menu → Profile settings**, or instructor **Profile** |
@@ -36,7 +37,11 @@ The top bar shows **Courses**, **Profile** and, for admins, **User roles** as bu
 
 The sign-in, account creation and password recovery pages have a **Back to welcome page** button above the form that returns to the welcome page.
 
-Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Usernames must be unique regardless of capitalization, contain 1–80 characters and exclude @ or line breaks. Passwords must match; each has a Show/Hide eye button. Public registration creates a student. Your admin provisions instructor access. In **Email or username**, enter either identifier with your password. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup. When confirmation is required, open the email link in the same browser. A valid link shows **Email verified** with **Continue to Courses**; if the account lacks access, the page asks you to contact an administrator. An invalid or expired link returns to Sign in with an explanation. Use **Sign out** when finished; a failure lets you retry.
+Choose **Create student account** and enter **Username**, email, **Password** and **Confirm password**. Usernames must be unique regardless of capitalization, contain 1–80 characters and exclude @ or line breaks. Passwords must match; each has a Show/Hide eye button. Public registration creates a student; an administrator provisions instructor access.
+
+If the site asks you to confirm your email, open the confirmation link in the same browser. It returns you to **Email verified**, where **Continue to Courses** opens your account. If your email is confirmed but your account has no platform role, the page asks you to contact an administrator. An invalid or expired link returns to Sign in with an explanation. Local email confirmation is disabled by default; hosted confirmation depends on the team's setup.
+
+To return later, use **Email or username** and your password to sign in. Choose **Sign out** when finished; if sign-out fails, you can retry.
 
 For a forgotten password, choose **Forgot password?**, enter your email and select **Send reset link**. The acknowledgement does not reveal whether an account exists. Open the newest email link in the same browser, enter matching passwords of at least eight characters and choose **Update password**. Then sign in again. Invalid/expired/reused links offer **Request a new link**. Resend delays or provider limits may require a wait. Local emails appear in [Mailpit](http://localhost:54324); hosted delivery is unverified.
 
@@ -240,6 +245,7 @@ Admins also have instructor access and an **Admin panel** link to manage roles. 
 | No assignments                                | Check with your instructor that an assignment has been published                                                                    |
 | Signing in or another action is still loading | Keep the page open for its result. If an error appears, retry; avoid submitting the same action in several tabs                     |
 | Username cannot be used                       | Sign in with your email, then choose and save an available username in Profile settings                                             |
+| Confirmation link is invalid or expired       | Try signing in. If you have not registered, create an account; contact the team if it recurs                                       |
 | Reset email is missing                        | Check your email/spam folder and use the newest link in the same browser. Local testers use Mailpit                                 |
 | No printed output                             | Check that your code prints an answer and that any requested Standard input is supplied                                             |
 | Wrong output on a test                        | Compare expected and actual output, including spaces and capitalization; a matching result does not save or grade the code          |

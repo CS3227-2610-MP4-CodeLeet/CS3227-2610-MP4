@@ -22,6 +22,7 @@ vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'http://127.0.0.1:54321');
 vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'synthetic-publishable');
 const { AuthForm } = await import('./auth-form');
 const identifierLabel = 'Email or username';
+const signupButtonLabel = 'Create student account';
 const password = 'Password!123';
 afterEach(() => {
   cleanup();
@@ -155,9 +156,7 @@ it('recovers registration controls when the account service throws', async () =>
     });
   }
   fireEvent.submit(
-    screen
-      .getByRole('button', { name: 'Create student account' })
-      .closest('form')!,
+    screen.getByRole('button', { name: signupButtonLabel }).closest('form')!,
   );
   expect(
     screen
@@ -173,9 +172,35 @@ it('recovers registration controls when the account service throws', async () =>
   expect(
     (
       screen.getByRole('button', {
-        name: 'Create student account',
+        name: signupButtonLabel,
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(false);
   expect(screen.queryByText('private diagnostic')).toBeNull();
+});
+
+it('explains that a confirmation link returns the new student to CodeLeet', async () => {
+  mocks.signUp.mockResolvedValue({
+    data: { session: null },
+    error: null,
+  });
+  render(<AuthForm mode="sign-up" />);
+  fireEvent.change(screen.getByLabelText('Username'), {
+    target: { value: 'New Student' },
+  });
+  fireEvent.change(screen.getByLabelText('Email'), {
+    target: { value: 'new@example.test' },
+  });
+  for (const label of ['Password', 'Confirm password']) {
+    fireEvent.change(screen.getByLabelText(label), {
+      target: { value: password },
+    });
+  }
+  fireEvent.submit(
+    screen.getByRole('button', { name: signupButtonLabel }).closest('form')!,
+  );
+  const message = (await screen.findByRole('status')).textContent ?? '';
+  expect(message).toContain('confirmation link in this browser');
+  expect(message).not.toContain('then sign in');
+  expect(mocks.replace).not.toHaveBeenCalled();
 });
