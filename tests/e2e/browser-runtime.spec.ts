@@ -191,26 +191,9 @@ test('Java uses real source and Scanner for custom input and all published tests
   await page.getByLabel(javaEditorLabel, { exact: true }).fill(java);
   await page.getByLabel('Standard input', { exact: true }).fill('Audio');
   await page.getByRole('button', { name: runCodeName, exact: true }).click();
-  await expect
-    .poll(async () => {
-      const busyButtons = page.getByRole('button', {
-        name: 'Running…',
-        exact: true,
-      });
-      const stillRunning = (await busyButtons.count()) > 0;
-      const completed = await page
-        .getByTestId(customResultId)
-        .getByText('Completed', { exact: true })
-        .count();
-      return stillRunning || completed > 0;
-    })
-    .toBe(true);
-  const busyButtons = page.getByRole('button', {
-    name: 'Running…',
-    exact: true,
-  });
-  if (await busyButtons.count())
-    await expect(busyButtons.first()).toBeDisabled();
+  await expect(
+    page.getByRole('button', { name: 'Running…', exact: true }).first(),
+  ).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'Stop', exact: true }),
   ).toHaveCount(0);
