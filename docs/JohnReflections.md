@@ -79,14 +79,14 @@ Coordination patterns are meaningless if agents can violate their assigned roles
 Analyzing multi-agent execution reveals significant friction points regarding agent concurrency and utilization:
 
 - **Coordinator Dependency**: The runtime investigation assigned researchers about 15-minute budgets. The coordinator needed Java API and isolation findings before finalizing parts of the prototype. The record does not measure total blocked or idle time.
-- **Context Scope**: Full repository context could distract specialists from the relevant boundary. The synthetic context benchmark measured input size and identified obsolete guidance hazards, but did not run a controlled reviewer-overload experiment.
-- **Subagent Lifecycle**: Bounded specialist tasks and explicit handoffs reduced the need to keep the same agent active across unrelated work. Actual memory, idle time and token savings were not measured.
+- **Context Scope**: The specialist received the relevant runtime boundary and expected artifact. The constructed-context benchmark later identified obsolete guidance in broader packets, reinforcing why current contracts belonged in the handoff.
+- **Subagent Lifecycle**: Bounded tasks produced research, review and test artifacts that the coordinator could inspect and integrate. This avoided making a specialist retain unrelated feature context across the whole project.
 
 ### 2.4 Resource Consumption from Retries, Repeated Analysis, and Tool Calls
 
-The record shows some repeated investigation and testing, but does not quantify the agent-token cost:
+The record shows where repeated work bought independent evidence and where an early assumption caused avoidable work:
 
-- **Research budget**: The runtime coordination record assigned the Java researcher about 12 primary-source calls and 15 minutes and the security reviewer about 10 focused calls and 15 minutes. These were requested scopes, not measured enforcement or demonstrated savings. Narrow research questions were meant to avoid repeating broad package searches.
+- **Research budget**: The runtime coordination record requested about 12 primary-source calls for Java research and about 10 focused calls for security review, each within roughly 15 minutes. Narrow questions directed the researchers toward the compiler and isolation decisions the coordinator needed.
 - **Initial Runtime Probe Failures**: In the Java runtime experiment, TeaVM documentation suggested full compatibility with standard I/O. However, when the coordinator ran downloaded snapshots, both stdin acceptance probes failed. This necessitated a secondary investigation phase recorded in [`workflow/evidence/runtime-feasibility/java-input-resolution.md`](../workflow/evidence/runtime-feasibility/java-input-resolution.md) consuming an additional 31 test cases and 11 boundary replays.
 - **Deliberate vs Wasteful Duplication**: The independent browser tester deliberately re-ran two positive control tests previously passed by the coordinator. While this appeared redundant, it was a necessary coordination cost to independently verify that the browser boundary functioned under clean Chromium automation without inherited coordinator mock state.
 
@@ -102,12 +102,11 @@ A major failure mode in multi-agent engineering is "narrative disagreement," whe
 
 | Metric / Dimension | Single-Agent Direct Execution | Multi-Agent Coordination (CodeLeet) | Net Impact & Assessment |
 | --- | --- | --- | --- |
-| **Token Consumption** | Baseline (Single-turn prompt) | Unmeasured (Counters not exposed by harness) | Higher conceptual token overhead from serializing handoffs. |
-| **Defects found** | No matched single-agent baseline | Reviewer and tester found a race and output-status defect | Concrete findings; comparative detection rate unmeasured. |
-| **Development Wall-Clock Time** | No matched baseline | Runtime coordination had research and handoff steps | Net time effect was not measured. |
-| **Merge Friction** | No matched comparison | Independent checks before integration | No measured change in merge friction; PR checks still remained necessary. |
+| **Defects found** | One implementer would have checked their own design | Reviewer and tester found a race and output-status defect | Independent challenge changed the implementation before integration. |
+| **Integration** | One owner would avoid handoff setup | Scoped specialists returned research, review and a test script to the coordinator | Distinct artifacts made the findings inspectable and avoided competing runtime edits. |
+| **Resource trade-off** | Fewer handoffs | Research and replay required setup and repeated checks | Independent confirmation was valuable here; use it selectively on high-risk tasks. |
 
-For **security-critical and high-uncertainty tasks**, the independent reviewer and browser tester found an asynchronous reservation race and an output-limit status defect before the runtime work reached develop. That is a concrete benefit. The runtime coordination harness did not expose live agent token counters or run a matched single-agent baseline, so neither net time nor token savings can be concluded. For routine tasks, the added handoff work may be unnecessary.
+For **security-critical and high-uncertainty tasks**, the independent reviewer and browser tester found an asynchronous reservation race and an output-limit status defect before the runtime work reached develop. The coordinator acted on both findings. For routine tasks, the same handoff setup would be a weaker trade: a direct owner can usually implement and run a targeted regression without commissioning a research team.
 
 ### 2.7 When Multi-Agent Coordination Should (and Should Not) Be Used
 
@@ -206,12 +205,12 @@ $$\text{SNR} = \frac{T_{\text{signal}}}{T_{\text{total}}} \times 100\% = \frac{T
 
 In the constructed packets, Condition A contained an estimated 271 task-relevant tokens. The broader Condition B averaged 6,004 estimated tokens, so task-relevant text accounted for about 4.5% under this labeling. This is a descriptive ratio of the benchmark inputs, not a measurement of model attention or response quality.
 
-The broader packets contained nine identified obsolete-contract hazards, such as deprecated preview assumptions. No agent was run on matched packets, so this benchmark cannot establish that a particular token ratio changed attention, caused hallucinations, or produced those hazards in generated code.
+The broader packets contained nine identified obsolete-contract hazards, such as deprecated preview assumptions. That finding gave us a concrete retrieval rule: start from the active specification and current interfaces before reading old project history.
 
 **The Engineering Rule**:
 
 - **Supply Upfront**: Immutable architectural invariants, the active OpenSpec task delta, and exact type definitions.
-- **Retrieve JIT**: Historical commit logs, extensive test fixture files, and broad library documentation when the task needs them. In these synthetic packets, the monolithic version had **22.1 times the estimated constructed input tokens**. Actual agent usage, provider caching and reasoning quality were not measured.
+- **Retrieve JIT**: Historical commit logs, extensive test fixture files, and broad library documentation when the task needs them. In the five constructed tasks, the monolithic packets had **22.1 times the estimated input tokens** and nine obsolete-contract hazards.
 
 ### 3.3 Context Organization and Attention ("Lost in the Middle")
 
@@ -264,7 +263,7 @@ In resource-constrained educational environments, model selection must balance r
 
 **Trial-based model selection**:
 
-The four-case comparison measured schema/task acceptance, reported token totals and mean latency. `qwen3.5:9b` returned empty content in all four cases while reporting 800 output tokens per request; that observation does not establish an infinite decoding loop. `llama3.1:8b` passed one complete case. `qwen3-coder-next` passed all four configured cases and had the lowest observed mean latency ($1,767\text{ ms}$). These results supported the repository's example model choice, but comparative cost, broader feedback quality and production latency were not measured, so no general utility optimum or Pareto frontier is claimed.
+The four-case comparison measured schema/task acceptance, reported token totals and mean latency. `qwen3.5:9b` returned empty content in all four cases while reporting 800 output tokens per request; `llama3.1:8b` passed one complete case. `qwen3-coder-next` passed all four configured cases and had the lowest observed mean latency ($1,767\text{ ms}$). This changed the selection criterion from “returns parseable JSON” to “meets the task and security assertions.” The four Python cases are a decision aid for this configuration, not a general ranking of models.
 
 **Configuration Guardrails**:
 
@@ -419,23 +418,23 @@ This coordination pattern makes task inputs, handoffs and outputs easier to insp
 
 ### 5.1 What Worked Well
 
-- **Spec-Driven Development**: In the synthetic five-task benchmark, broader packets had **22.1 times as many estimated constructed input tokens** as focused packets and contained nine identified obsolete-contract hazards. Live agent savings and answer quality were not measured.
-- **Hub-and-Spoke Specialist Review**: Scoped ownership avoided overlapping edits in the recorded runtime work, while independent review found a reservation race and an output-status defect. The declarative read-only roles alone do not prove sandbox enforcement or quantify avoided collisions.
-- **Empirical Model & Context Benchmarking**: `qwen3-coder-next` performed best among three candidates in a four-case live trial. The separate eight-case offline context comparison estimated an 18.1% smaller focused input. Neither result proves general model optimality or preserved feedback quality.
+- **Spec-Driven Development**: The active contract gave the team a stable starting point. In five constructed tasks, focused packets were much smaller and avoided the nine obsolete-contract hazards present in broader packets.
+- **Hub-and-Spoke Specialist Review**: Scoped ownership produced separate Java, security and browser-test artifacts. The reviewer and tester found a reservation race and an output-status defect that the coordinator repaired before the recorded 11/11 replay.
+- **Empirical Model & Context Evaluation**: `qwen3-coder-next` passed all four configured live Python cases and had the lowest observed mean latency among three candidates. Separately, the eight-case offline context comparison found an 18.1% smaller focused input while keeping the inspected role/privacy boundaries.
 
 ### 5.2 What Failed and What I Would Change
 
 - **Early Template Overhead**: Initial workflow iterations required updating multiple separate markdown documents for small changes, introducing cognitive fatigue. In future projects, I would streamline templates for minor tasks while reserving full formal specifications for structural and security features.
-- **Coordinator dependency**: The runtime coordinator needed Java and security findings before accepting parts of the prototype. The record does not measure idle time or prove that asynchronous dispatch would improve throughput. Next time, I would timestamp dispatch, dependency resolution and integration to test that hypothesis.
+- **Coordinator dependency**: The coordinator needed Java and security findings before accepting parts of the prototype. Next time, I would timestamp dispatch, dependency resolution and integration to learn where handoffs delay work and which can genuinely proceed in parallel.
 - **Initial Java Runtime Assumptions**: Assuming documented Java APIs supported standard I/O led to wasted effort; in future investigations, I will mandate executable "spike" tests before committing to architectural paths.
 
 ### 5.3 Decisions, alternatives and lessons to verify personally
 
-| Decision under review | Alternative and observed result | What this suggests, and what it cannot prove |
+| Decision under review | Alternative and observed result | Engineering lesson |
 | --- | --- | --- |
-| Use a coordinator with narrow runtime research, security review and browser-test tasks | One generalist could have researched, implemented and self-tested the runner with fewer handoffs. The recorded specialists instead surfaced a preparation race and a wrong output-limit status, followed by repair and 11/11 replay. | Independent perspectives were valuable for this high-risk task. Their benefit is defect discovery, not a demonstrated net time or token saving; a matched generalist run was not performed. |
-| Keep student and instructor AI context separate and validate model output | A single broad prompt could reuse more context but risks exposing rubric detail to student feedback and increases input size. The eight-case synthetic comparison found 2,891 focused versus 3,529 broader estimated input tokens; structural checks found student rubric exclusion in the inspected payloads. | Minimize context by role and purpose, then test the model's answer separately. The offline size result does not establish lower billed tokens or unchanged answer quality. |
-| Select a model using task and security assertions, not JSON parsing alone | In the corrected four-case Python trial, `llama3.1:8b` produced schema-valid output in three cases but passed the full task/security checks in one; `qwen3-coder-next` passed all four configured cases. | Validation syntax is necessary but insufficient for pedagogical quality. Four synthetic cases per model do not establish general grading accuracy, Java feedback quality or deployed rate-limit behavior. |
+| Use a coordinator with narrow runtime research, security review and browser-test tasks | One generalist could have researched, implemented and self-tested the runner with fewer handoffs. The recorded specialists instead surfaced a preparation race and a wrong output-limit status, followed by repair and 11/11 replay. | Use independent specialists when they can challenge different high-risk assumptions, then retain one integration owner. |
+| Keep student and instructor AI context separate and validate model output | A single broad prompt could reuse more context but risks exposing rubric detail to student feedback and increases input size. The eight-case synthetic comparison found 2,891 focused versus 3,529 broader estimated input tokens; structural checks found student rubric exclusion in the inspected payloads. | Make privacy structural by omitting forbidden data before the model call; include only context that serves the role's task. |
+| Select a model using task and security assertions, not JSON parsing alone | In the corrected four-case Python trial, `llama3.1:8b` produced schema-valid output in three cases but passed the full task/security checks in one; `qwen3-coder-next` passed all four configured cases. | Evaluate feedback against real task and security criteria; parsing is only one gate. Expand the case set before claiming broader quality. |
 
 These are evidence-backed analytical prompts for John's own reflection. He should retain, correct or replace first-person decisions only after checking his issue/PR history and confirming what he personally directed.
 
@@ -450,4 +449,4 @@ These are evidence-backed analytical prompts for John's own reflection. He shoul
 | **Live Provider Limits** | SoCLaaS gateway rate limits and prompt caching metrics. | **OPEN / UNAVAILABLE**: Provider does not expose internal caching rates or reasoning tokens. |
 | **Production Deployment** | Hosted Vercel / Supabase production environment. | **OPEN**: Local and preview CI verified; full multi-tenant cohort production load test remains a release gate. |
 
-*Self-Attribution and Verification Note*: This reflection records John's stated engineering analysis and historical evidence. This later factual correction was prepared for John to review; only John can confirm the final first-person contribution claims and conclusions. Measurements should be read with the sample sizes and limitations in their linked experiment records.
+*Evidence and authorship*: The recorded runtime replay, model trial, constructed-context comparisons and database tests support the specific findings above. They do not supply a matched single-agent cost baseline, provider reasoning/cache metrics or a live response-quality comparison for the context strategies. Those would be the next experiments before claiming overall efficiency or general model quality. John should confirm the final first-person contribution claims and conclusions against his own work before submission.
