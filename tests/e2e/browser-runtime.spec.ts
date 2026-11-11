@@ -192,7 +192,7 @@ test('Java uses real source and Scanner for custom input and all published tests
   await page.getByLabel('Standard input', { exact: true }).fill('Audio');
   await page.getByRole('button', { name: runCodeName, exact: true }).click();
   await expect(
-    page.getByRole('button', { name: runCodeName, exact: true }),
+    page.getByRole('button', { name: 'Running…', exact: true }).first(),
   ).toBeDisabled();
   await expect(
     page.getByRole('button', { name: 'Stop', exact: true }),

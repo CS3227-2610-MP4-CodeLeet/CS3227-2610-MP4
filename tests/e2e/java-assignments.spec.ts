@@ -235,6 +235,7 @@ async function studentJourney(
   ).toBeVisible();
   await expect(page.locator('pre code')).toHaveText(fixture.source);
   await checkRetryAndForgery(page, assignment, first);
+  await checkConcurrentRevisions(page, assignment, fixture);
   return first;
 }
 
@@ -264,6 +265,16 @@ async function checkRetryAndForgery(
   });
   expect(retry.status()).toBe(201);
   expect((await retry.json()).submission.id).toBe(first.id);
+  const crossOrigin = await page.request.post(submissionsEndpoint, {
+    headers: { origin: 'https://attacker.example.test' },
+    data: payload,
+  });
+  expect(crossOrigin.status()).toBe(403);
+  const extraField = await page.request.post(submissionsEndpoint, {
+    headers: { origin: appUrl },
+    data: { ...payload, serverManaged: true },
+  });
+  expect(extraField.status()).toBe(400);
   const forged = await page.request.post(submissionsEndpoint, {
     headers: { origin: appUrl },
     data: {
@@ -277,6 +288,31 @@ async function checkRetryAndForgery(
   expect(submission.source).toBe(first.source);
   expect(submission.language).toBe(first.language);
   expect(submission.grades).toBeNull();
+}
+
+async function checkConcurrentRevisions(
+  page: Page,
+  assignment: Assignment,
+  fixture: (typeof cases)[number],
+) {
+  const responses = await Promise.all(
+    [1, 2].map((index) =>
+      page.request.post(submissionsEndpoint, {
+        headers: { origin: appUrl },
+        data: {
+          assignmentId: assignment.id,
+          source: `${fixture.source}\n${fixture.comment} concurrent ${index}`,
+          requestId: crypto.randomUUID(),
+        },
+      }),
+    ),
+  );
+  expect(responses.map((response) => response.status())).toEqual([201, 201]);
+  const revisions = await Promise.all(
+    responses.map(async (response) => (await response.json()).submission),
+  );
+  expect(revisions.map((revision) => revision.revision).sort()).toEqual([3, 4]);
+  expect(new Set(revisions.map((revision) => revision.id)).size).toBe(2);
 }
 
 async function checkPrivacy(
