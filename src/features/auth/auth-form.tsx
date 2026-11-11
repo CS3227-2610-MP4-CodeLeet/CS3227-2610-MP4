@@ -132,7 +132,7 @@ function SignUpForm() {
       if (error) throw error;
       if (!data.session) {
         setMessage(
-          'Check your email to confirm your account, then sign in. New accounts are students.',
+          'Check your email. Open the confirmation link in this browser to return to CodeLeet.',
         );
         return;
       }
