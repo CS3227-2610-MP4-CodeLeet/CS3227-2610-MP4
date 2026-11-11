@@ -66,6 +66,30 @@ export function rewriteGuideLinks(markdown, sourcePath, root = repositoryRoot) {
   );
 }
 
+export function convertGithubAlerts(markdown) {
+  return markdown.replace(
+    /> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]([^\n]*)\n((?:>[^\n]*\n?)+)/g,
+    (_match, type, title, body) => {
+      const alertType =
+        {
+          NOTE: 'note',
+          TIP: 'tip',
+          IMPORTANT: 'info',
+          WARNING: 'warning',
+          CAUTION: 'danger',
+        }[type] || 'note';
+      const cleanTitle = title.trim();
+      const cleanBody = body
+        .split('\n')
+        .map((line) => line.replace(/^> ?/, ''))
+        .join('\n')
+        .trim();
+      const titleAttr = cleanTitle ? ` ${cleanTitle}` : '';
+      return `:::${alertType}${titleAttr}\n\n${cleanBody}\n\n:::\n\n`;
+    },
+  );
+}
+
 export async function prepareSiteDocs(root = repositoryRoot) {
   const destination = join(root, 'website', 'docs');
   await mkdir(destination, { recursive: true });
@@ -79,11 +103,9 @@ export async function prepareSiteDocs(root = repositoryRoot) {
 
   for (const [name, title] of Object.entries(guides)) {
     const sourcePath = join(root, 'docs', `${name}.md`);
-    const content = rewriteGuideLinks(
-      await readFile(sourcePath, 'utf8'),
-      sourcePath,
-      root,
-    );
+    const rawContent = await readFile(sourcePath, 'utf8');
+    const linkedContent = rewriteGuideLinks(rawContent, sourcePath, root);
+    const content = convertGithubAlerts(linkedContent);
     const metadata = `---\nid: ${name}\ntitle: ${title}\nsidebar_label: ${title}\nslug: /docs/${name}\n---\n\n`;
     await writeFile(join(destination, `${name}.md`), metadata + content);
   }

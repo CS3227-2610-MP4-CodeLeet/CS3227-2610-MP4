@@ -463,7 +463,7 @@ graph LR
     end
     
     subgraph B4["4. External AI Boundary"]
-        Timeout["Request Timeouts (15s)"]
+        Timeout["Request Timeouts (30s)"]
         FallbackMsg["Graceful Error Fallbacks"]
         TokenBudget["Preflight Budget Checks"]
     end
@@ -476,7 +476,7 @@ graph LR
 1. **UI Boundary**: React error boundaries isolate page segment failures without crashing the entire workspace. Forms display inline field errors, and loading states offer non-destructive retry options.
 2. **API & Route Boundary**: Request bodies are parsed through strict Zod schemas. Invalid payloads immediately return HTTP 400 Bad Request with field-specific diagnostics. Internal exception stack traces are never exposed to clients.
 3. **Database Boundary**: PostgreSQL foreign keys, check constraints, and unique indexes guarantee structural data integrity. Concurrency race conditions (such as simultaneous username claims) are handled cleanly via PostgreSQL transaction error code `23505` (unique violation).
-4. **External AI Boundary**: SoCLaaS API calls enforce a 15-second timeout and circuit-breaker logic. If the AI gateway is unreachable or quota is exceeded, the user receives a helpful retry notification while all submission data remains completely unaffected.
+4. **External AI Boundary**: SoCLaaS API calls enforce a 30-second request timeout via `AbortSignal.timeout(30_000)`. If the AI gateway is unreachable, times out, or quota is exceeded, the user receives a helpful retry notification while all submission data remains completely unaffected.
 
 ---
 

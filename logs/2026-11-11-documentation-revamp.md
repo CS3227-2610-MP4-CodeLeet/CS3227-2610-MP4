@@ -11,7 +11,9 @@
   - `a59e73f` docs(user-guide): rewrite comprehensive user guide with screenshots and role workflows
   - `6ac8f84` docs(dev-guide): rewrite comprehensive developer guide with mermaid diagrams and SE practices
   - `9714189` refactor(scripts): modularize capture and doc preparation helpers to pass lint and format gates
-- Pull request: Pending creation to `develop`
+  - `955d4bf` docs(screenshots): eradicate nextjs dev badge and verify all 18 views
+  - `9f22446` fix(docs): enhance table wrapping, clarify account vs course roles, and update acknowledgements
+- Pull request: #161 (`docs: comprehensive user guide and developer guide revamp (#160)`)
 - Human verification: pending
 - Verifier/date: Pending teammate review
 
@@ -49,37 +51,46 @@
    - Added prominent security callout in User Guide Section 1 informing users of default Platform Student provisioning and instructing staff to contact Platform Administrator `johnwong@u.nus.edu` for promotion.
    - Removed the "AI Coding Assistants" citation from Developer Guide Section 11 (Acknowledgements & References).
    - Verified table rendering visually via Playwright test captures across both User Guide and Developer Guide.
+7. **Resolution of PR #161 Review Comments & GFM Alert Conversion**:
+   - Addressed user inquiry regarding `[!NOTE]` not rendering as an icon/alert box: implemented `convertGithubAlerts()` in `workflow/scripts/prepare-site-docs.mjs` to translate GitHub blockquote alerts (`> [!NOTE]`) into Docusaurus native admonitions (`:::note ... :::`), rendering rich colored alert boxes with icons while keeping canonical `docs/UserGuide.md` compliant with GitHub markdown.
+   - Addressed PR #161 review comment 4539396017: verified `/admin` route is linked in User Guide and captured in `18-admin-user-roles.png`.
+   - Addressed PR #161 review comment 4539396033: raised documented practice test capacity to 25 cases and documented Public vs. Private visibility toggles.
+   - Addressed PR #161 review comment 4539396047: specified exact `normalizeOutput()` contract in `docs/UserGuide.md` (converts line endings, strips one terminal newline, preserves trailing spaces on lines).
+   - Addressed PR #161 review comment 4539396061: added explicit Playwright assertions verifying expected URLs and key visible selectors across all capture steps before reporting success.
+   - Addressed PR #161 review comment 4539396072: updated `docs/DeveloperGuide.md` to document the actual 30-second SoCLaaS timeout (`AbortSignal.timeout(30_000)`) and removed the circuit-breaker claim.
+   - Resolved all 5 review threads on PR #161 via GitHub GraphQL API.
 
 ## Work and verification
 
 - Files and requirement links:
   - `website/package.json`, `website/docusaurus.config.js`, `website/src/css/custom.css`: Configured Mermaid, Prism, responsive table layout, and slate styling.
-  - `workflow/scripts/capture-user-guide-screenshots.mjs`: Automated Playwright screenshot script with Next.js badge eradication and robust selectors.
+  - `workflow/scripts/capture-user-guide-screenshots.mjs`: Automated Playwright screenshot script with Next.js badge eradication, explicit UI assertions, and robust selectors.
   - `docs/images/user-guide/*.png` & `website/static/img/user-guide/*.png`: 18 audited and verified UI screenshot assets.
-  - `docs/UserGuide.md`: Canonical user-facing guide with decoupled platform vs. course roles and administrator promotion contact.
-  - `docs/DeveloperGuide.md`: Canonical software engineering guide with updated acknowledgements.
-  - `workflow/scripts/prepare-site-docs.mjs`: Updated Docusaurus doc and image link generator with `pathname://` static routing.
+  - `docs/UserGuide.md`: Canonical user-facing guide with decoupled platform vs. course roles, administrator promotion contact, 25-case limit, and whitespace normalization details.
+  - `docs/DeveloperGuide.md`: Canonical software engineering guide with updated acknowledgements, 30s timeout documentation, and removed circuit-breaker.
+  - `workflow/scripts/prepare-site-docs.mjs`: Updated Docusaurus doc generator with GFM alert-to-admonition converter and `pathname://` static routing.
   - `.prettierignore`: Added `.superpowers/` and `.worktrees/`.
 - Commands/checks actually run and outcomes:
   - `node workflow/scripts/capture-user-guide-screenshots.mjs`: Exited 0; captured 18 screenshots cleanly with zero dev badges and verified views.
-  - `node workflow/scripts/prepare-site-docs.mjs`: Exited 0; prepared Docusaurus Markdown files.
+  - `node workflow/scripts/prepare-site-docs.mjs`: Exited 0; prepared Docusaurus Markdown files with native admonitions.
   - `node workflow/scripts/check-scaffold.mjs`: Exited 0; verified all local Markdown link targets and images resolve on disk.
   - `pnpm site:build`: Exited 0; generated static bundle in `website/build` with 0 errors.
   - `pnpm format:check`: Exited 0; all matched files use Prettier style.
   - `pnpm lint`: Exited 0; 0 errors, 0 warnings.
   - `pnpm typecheck`: Exited 0; TypeScript and Next.js route typegen clean.
+  - `pnpm test:unit`: Exited 0; 172 test files passed, 889 unit tests passed.
 - Failures, retries, unresolved issues:
   - Playwright networkidle timeout in dev mode resolved by awaiting DOM content loaded and explicit elements.
   - Docusaurus MDX parser error on raw LaTeX curly braces resolved by using clean math notations.
   - Docusaurus static image link resolution resolved by using `pathname:///CS3227-2610-MP4/img/...`.
-  - ESLint cyclomatic complexity and statement limits resolved by decomposing capture and doc prep helpers into focused sub-functions.
+  - ESLint cyclomatic complexity and duplicate string literals in screenshot script resolved with helper functions and constants.
   - Next.js dev badge removed across all screenshots using init script style injection and DOM element purging.
   - Monaco auto-bracket indentation issue fixed using Playwright `locator.fill()` on `#source-code`.
   - Table text-wrapping mid-letter resolved by replacing `overflow-wrap: anywhere` with `break-word` and configuring responsive table container CSS.
+  - GitHub alert boxes unstyled in Docusaurus resolved by regex-converting `> [!NOTE]` to `:::note` in site preparation pipeline.
 - Resource measurements and unavailable fields:
   - Input token reduction across focused context benchmarks: 18.1% (empirically measured via `pnpm ai:context-eval`).
-  - Docusaurus client/server bundle build time: ~20 seconds.
+  - Docusaurus client/server bundle build time: ~30 seconds.
 - Next steps:
-  - Commit polished documentation and table formatting fixes.
   - Push branch `docs/160-documentation-revamp` to remote.
-  - Update Pull Request #161 on GitHub.
+  - Resolve review threads on PR #161.

@@ -187,13 +187,13 @@ CodeLeet runs all code **entirely within your browser sandbox** using WebAssembl
 
 ![Practice Test Validation](images/user-guide/06-practice-test-validation.png)
 
-Instructors can publish up to 5 public test cases for an assignment:
-1. In the right-hand panel, select the **Test cases** tab.
+Instructors can author and publish test cases (up to 25 total cases per assignment, marked as public or private):
+1. In the right-hand panel, select the **Test cases** tab to inspect all published test cases.
 2. Expand any test case to view its **Input** and **Expected Output**.
 3. Click **Run published tests**:
-   - The browser executes your active editor code against each test case sequentially.
+   - The browser executes your active editor code against each public test case sequentially.
    - Each test case displays an immediate verdict: **Passed** (green check), **Wrong output** (red cross), **Runtime error**, or **Timed out**.
-   - For wrong outputs, a side-by-side diff compares your actual stdout with the expected output. Line endings and trailing whitespace differences are normalized.
+   - For wrong outputs, a side-by-side diff compares your actual stdout with the expected output. Note that comparison converts line endings (`\r\n` to `\n`) and strips at most one terminal newline, but preserves trailing spaces on lines. Ensure your output matches the exact format and does not include extraneous trailing spaces.
 4. Click **Refresh tests** to reload any newly updated test cases from your instructor.
 
 ### 4.5 Autosave & 7-Day Local Draft Recovery
@@ -333,10 +333,11 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 ![Instructor Practice Test Authoring](images/user-guide/16-instructor-practice-test-authoring.png)
 
 1. From the assignment editor or assignment card, open **Practice tests** (`/courses/<courseId>/assignments/<assignmentId>/practice-tests`).
-2. Click **Add test case** (up to 5 cases per assignment):
-   - **Name**: e.g., *Example 1: Basic positive integers*.
+2. Click **Add test case** (instructors can configure up to **25 cases** per assignment):
+   - **Name**: 1–120 characters (e.g., *Example 1: Basic positive integers*).
    - **Input**: Enter exact standard input string (up to 4,096 bytes).
    - **Expected Output**: Enter expected stdout string (up to 8,192 bytes).
+   - **Visibility**: Toggle between **Public** (immediately available to enrolled students for in-browser practice testing) and **Private** (reserved for instructor-only evaluation during submission review).
 3. **Atomic Publication Workflow**:
    - **Save draft**: Saves test cases in your private instructor workspace without exposing them to students.
    - **Publish tests**: Atomically releases the edited test case set to students.

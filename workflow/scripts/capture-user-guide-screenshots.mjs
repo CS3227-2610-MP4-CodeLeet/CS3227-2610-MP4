@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import assert from 'node:assert/strict';
 import { copyFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,6 +8,9 @@ const root = fileURLToPath(new URL('../..', import.meta.url));
 const docsImgDir = join(root, 'docs', 'images', 'user-guide');
 const siteImgDir = join(root, 'website', 'static', 'img', 'user-guide');
 const TWO_SUM_TEXT = 'text=Two Sum';
+const IDENTIFIER_INPUT = 'input[name="identifier"]';
+const LEARNING_FEEDBACK_TEXT = 'text=Learning feedback';
+const TEST_PASSWORD = 'password';
 
 await mkdir(docsImgDir, { recursive: true });
 await mkdir(siteImgDir, { recursive: true });
@@ -39,7 +43,7 @@ async function saveCleanScreenshot(page, filename) {
 
 async function loginAs(page, baseUrl, identifier, password) {
   await page.goto(`${baseUrl}/sign-in`, { waitUntil: 'domcontentloaded' });
-  await page.locator('input[name="identifier"]').fill(identifier);
+  await page.locator(IDENTIFIER_INPUT).fill(identifier);
   await page.locator('input[name="password"]').fill(password);
   const pending = page.waitForResponse(r => r.url().includes('/api/auth/sign-in'));
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
@@ -52,16 +56,20 @@ async function loginAs(page, baseUrl, identifier, password) {
 async function captureWelcome(page, baseUrl) {
   console.log('--- 1. Welcome & Authentication ---');
   await page.goto(`${baseUrl}/sign-in`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('input[name="identifier"]', { timeout: 10000 });
+  await page.waitForSelector(IDENTIFIER_INPUT, { timeout: 10000 });
+  assert.match(page.url(), /\/sign-in/, 'Expected URL to match sign-in');
+  assert.ok(await page.locator(IDENTIFIER_INPUT).isVisible(), 'Identifier input must be visible');
   await saveCleanScreenshot(page, '01-welcome-and-auth.png');
 }
 
 async function captureStudentCourses(page, baseUrl) {
   console.log('--- 2. Student Sign In & Courses ---');
-  await loginAs(page, baseUrl, 'student01@codeleet.test', 'password');
+  await loginAs(page, baseUrl, 'student01@codeleet.test', TEST_PASSWORD);
   await page.goto(`${baseUrl}/courses`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=CS101: Introduction to Python Programming', { timeout: 15000 });
   await page.waitForTimeout(500);
+  assert.match(page.url(), /\/courses$/, 'Expected URL to match /courses');
+  assert.ok(await page.locator('text=CS101: Introduction to Python Programming').isVisible(), 'Course title must be visible');
   await saveCleanScreenshot(page, '02-student-courses.png');
 }
 
@@ -70,6 +78,9 @@ async function captureStudentAssignments(page, baseUrl, courseId) {
   await page.goto(`${baseUrl}/courses/${courseId}/assignments`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=Your assignments', { timeout: 15000 });
   await page.waitForSelector(TWO_SUM_TEXT, { timeout: 15000 });
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/assignments$`), 'Expected URL to match course assignments');
+  assert.ok(await page.locator('text=Your assignments').isVisible(), 'Assignments heading must be visible');
+  assert.ok(await page.locator(TWO_SUM_TEXT).isVisible(), 'Two sum assignment must be visible');
   await saveCleanScreenshot(page, '03-course-assignments.png');
 }
 
@@ -101,6 +112,8 @@ if __name__ == '__main__':
   await codeArea.fill(pythonCode);
   await page.waitForTimeout(500);
   await codeArea.scrollIntoViewIfNeeded();
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/assignments/${assignmentId}$`), 'Expected URL to match assignment editor');
+  assert.ok(await codeArea.isVisible(), 'Editor code area must be visible');
   await saveCleanScreenshot(page, '04-student-editor.png');
 }
 
@@ -118,6 +131,8 @@ async function captureExecutionOutput(page) {
     await page.waitForTimeout(1000);
   }
   await page.locator('text=Run & test').scrollIntoViewIfNeeded();
+  assert.ok(await page.locator('text=Run & test').isVisible(), 'Run & test section must be visible');
+  assert.ok(await page.locator('text=Execution: approximately').isVisible(), 'Execution summary must be visible');
   await saveCleanScreenshot(page, '05-browser-execution-output.png');
 }
 
@@ -131,6 +146,8 @@ async function capturePracticeTests(page) {
     await page.waitForTimeout(1000);
   }
   await page.locator('text=Published test cases').scrollIntoViewIfNeeded();
+  assert.ok(await page.locator('text=Published test cases').isVisible(), 'Published test cases section must be visible');
+  assert.ok(await page.locator('text=Passed').isVisible(), 'Passed status must be visible');
   await saveCleanScreenshot(page, '06-practice-test-validation.png');
 }
 
@@ -152,6 +169,7 @@ async function captureDraftAutosave(page) {
     }
   });
   await page.waitForTimeout(500);
+  assert.ok(await page.locator('section[aria-label="Recover unfinished code"]').isVisible(), 'Draft recovery banner must be visible');
   await saveCleanScreenshot(page, '07-autosave-draft-recovery.png');
   if (await restoreBtn.isVisible()) await restoreBtn.click();
 }
@@ -160,6 +178,8 @@ async function captureSubmissionsHistory(page, baseUrl, courseId) {
   console.log('--- 8. Submissions History ---');
   await page.goto(`${baseUrl}/courses/${courseId}/submissions`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector(TWO_SUM_TEXT, { timeout: 15000 });
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/submissions$`), 'Expected URL to match submissions history');
+  assert.ok(await page.locator(TWO_SUM_TEXT).isVisible(), 'Submission history must list Two Sum');
   await saveCleanScreenshot(page, '08-submissions-history.png');
 }
 
@@ -168,14 +188,18 @@ async function captureRevisionDiff(page, baseUrl, courseId, submissionId) {
   await page.goto(`${baseUrl}/courses/${courseId}/submissions/${submissionId}/compare`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=Compare revisions', { timeout: 15000 });
   await page.waitForTimeout(800);
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/submissions/${submissionId}/compare$`), 'Expected URL to match compare revisions');
+  assert.ok(await page.locator('text=Compare revisions').isVisible(), 'Compare revisions header must be visible');
   await saveCleanScreenshot(page, '09-revision-diff-comparison.png');
 }
 
 async function captureAIFeedback(page, baseUrl, courseId, submissionId) {
   console.log('--- 10. AI Learning Feedback ---');
   await page.goto(`${baseUrl}/courses/${courseId}/submissions/${submissionId}`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('text=Learning feedback', { timeout: 15000 });
-  await page.locator('text=Learning feedback').scrollIntoViewIfNeeded();
+  await page.waitForSelector(LEARNING_FEEDBACK_TEXT, { timeout: 15000 });
+  await page.locator(LEARNING_FEEDBACK_TEXT).scrollIntoViewIfNeeded();
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/submissions/${submissionId}$`), 'Expected URL to match submission feedback');
+  assert.ok(await page.locator(LEARNING_FEEDBACK_TEXT).isVisible(), 'Learning feedback section must be visible');
   await saveCleanScreenshot(page, '10-ai-learning-feedback.png');
 }
 
@@ -183,22 +207,28 @@ async function captureCommunityViews(page, baseUrl, courseId) {
   console.log('--- 11. Student Progress Dashboard ---');
   await page.goto(`${baseUrl}/courses/${courseId}/progress`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=Submitted assignments', { timeout: 15000 });
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/progress$`), 'Expected URL to match student progress');
+  assert.ok(await page.locator('text=Submitted assignments').isVisible(), 'Progress dashboard metrics must be visible');
   await saveCleanScreenshot(page, '11-student-progress.png');
 
   console.log('--- 12. Course Discussion Forums ---');
   await page.goto(`${baseUrl}/courses/${courseId}/forums`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector(TWO_SUM_TEXT, { timeout: 15000 });
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/forums$`), 'Expected URL to match course forums');
+  assert.ok(await page.locator(TWO_SUM_TEXT).isVisible(), 'Forums thread must be visible');
   await saveCleanScreenshot(page, '12-course-discussions.png');
 
   console.log('--- 13. Course Leaderboard ---');
   await page.goto(`${baseUrl}/courses/${courseId}/leaderboard`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=Leaderboard', { timeout: 15000 });
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/leaderboard$`), 'Expected URL to match course leaderboard');
+  assert.ok(await page.locator('text=Leaderboard').isVisible(), 'Leaderboard header must be visible');
   await saveCleanScreenshot(page, '13-course-leaderboard.png');
 }
 
 async function captureInstructorAdmin(page, baseUrl, courseId) {
   console.log('--- 14. Instructor Workflows ---');
-  await loginAs(page, baseUrl, 'instructor1@codeleet.test', 'password');
+  await loginAs(page, baseUrl, 'instructor1@codeleet.test', TEST_PASSWORD);
 
   await page.goto(`${baseUrl}/courses/${courseId}/manage-users`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=Student join code', { timeout: 15000 });
@@ -208,6 +238,8 @@ async function captureInstructorAdmin(page, baseUrl, courseId) {
     await page.waitForSelector('button:has-text("Revoke code")', { timeout: 10000 }).catch(() => {});
     await page.waitForTimeout(1000);
   }
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/manage-users$`), 'Expected URL to match manage users');
+  assert.ok(await page.locator('text=Student join code').isVisible(), 'Student join code section must be visible');
   await saveCleanScreenshot(page, '14-instructor-course-admin.png');
 }
 
@@ -218,6 +250,8 @@ async function captureInstructorAuthoring(page, baseUrl, courseId) {
   await page.locator('input[name="title"]').fill('Dynamic Array Implementation');
   await page.locator('textarea[name="instructions"]').fill('Implement a resizable dynamic array with append, pop, and resize operations.');
   await page.locator('#assignment-max-xp, input[name="maxXp"]').fill('100');
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/assignments/new$`), 'Expected URL to match create assignment');
+  assert.ok(await page.locator('text=Create assignment').isVisible(), 'Create assignment title must be visible');
   await saveCleanScreenshot(page, '15-instructor-assignment-authoring.png');
 }
 
@@ -226,6 +260,8 @@ async function captureInstructorPracticeTests(page, baseUrl, courseId, assignmen
   await page.goto(`${baseUrl}/courses/${courseId}/assignments/${assignmentId}/practice-tests`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('text=Practice tests', { timeout: 15000 });
   await page.waitForTimeout(600);
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/assignments/${assignmentId}/practice-tests$`), 'Expected URL to match practice tests authoring');
+  assert.ok(await page.locator('text=Practice tests').isVisible(), 'Practice tests heading must be visible');
   await saveCleanScreenshot(page, '16-instructor-practice-test-authoring.png');
 }
 
@@ -238,16 +274,21 @@ async function captureInstructorGrading(page, baseUrl, courseId, submissionId) {
     await formElement.scrollIntoViewIfNeeded();
   }
   await page.waitForTimeout(600);
+  assert.match(page.url(), new RegExp(`/courses/${courseId}/submissions/${submissionId}$`), 'Expected URL to match submission review');
+  assert.ok(await page.locator('text=Review submission').isVisible(), 'Review submission heading must be visible');
   await saveCleanScreenshot(page, '17-instructor-submission-review-ai-grade.png');
 }
 
 async function captureAdminRoles(page, baseUrl) {
   console.log('--- 18. Platform Admin User Roles ---');
-  await loginAs(page, baseUrl, 'admin@codeleet.test', 'password');
+  await loginAs(page, baseUrl, 'admin@codeleet.test', TEST_PASSWORD);
 
   await page.goto(`${baseUrl}/admin`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('h1:has-text("User roles")', { timeout: 15000 });
   await page.waitForSelector('table tbody tr', { timeout: 15000 });
+  assert.match(page.url(), /\/admin$/, 'Expected URL to match /admin');
+  assert.ok(await page.locator('h1:has-text("User roles")').isVisible(), 'User roles header must be visible');
+  assert.ok(await page.locator('table tbody tr').first().isVisible(), 'User roles table must have rows');
   await saveCleanScreenshot(page, '18-admin-user-roles.png');
 }
 
