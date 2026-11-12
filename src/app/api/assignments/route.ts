@@ -1,6 +1,9 @@
 import { type NextRequest } from 'next/server';
 import { z } from 'zod';
-import { assignmentInputSchema } from '@/features/codementor/contracts';
+import {
+  assignmentInputSchema,
+  assignmentRequestMaxBytes,
+} from '@/features/codementor/contracts';
 import { getVerifiedUserRole } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
 import { readJsonBody, sameOriginRequest } from '@/lib/http/request';
@@ -116,7 +119,7 @@ export async function POST(request: NextRequest) {
       { error: { code: 'unauthorized', message: 'Sign in required.' } },
       401,
     );
-  const body = await readJsonBody(request, 250_000);
+  const body = await readJsonBody(request, assignmentRequestMaxBytes);
   if (!body.ok)
     return privateJson(
       {

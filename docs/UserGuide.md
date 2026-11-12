@@ -187,7 +187,8 @@ Code runs in a browser sandbox using WebAssembly (Pyodide for Python and TeaVM f
 
 ![Practice Test Validation](images/user-guide/06-practice-test-validation.png)
 
-Instructors author assignment test cases in the assignment editor and can manage publication from the dedicated **Practice tests** page described in [Section 5.4](#54-practice-test-authoring-and-publication). The student runner loads only the public cases from the published set; private cases are excluded from student practice.
+Instructors can set up public and private test cases. You can only see and run the published public cases; private cases are available only to instructors.
+
 1. In the right-hand panel, select the **Test cases** tab to inspect published public test cases.
 2. Expand any public test case to view its **Input** and **Expected Output**.
 3. Click **Run published tests**:
@@ -326,24 +327,17 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 1. On an assignment card in the instructor assignment list, click **Preview**.
 2. The assignment page shows the **Preview Mode (Instructor)** banner when opened by a course instructor.
-3. You can run code with standard input and run published practice tests. The instructor preview does not provide student submission controls.
+3. You can run code with standard input and run the assignment's saved public test cases. The instructor preview does not provide student submission controls.
 4. Return to the course's **Assignments** page to leave the preview.
 
-### 5.4 Practice Test Authoring and Publication
+### 5.4 Test Case Authoring
 
-![Instructor Practice Test Authoring](images/user-guide/16-instructor-practice-test-authoring.png)
-
-1. Open the dedicated instructor route `/courses/<courseId>/assignments/<assignmentId>/practice-tests`, replacing the placeholders with the course and assignment IDs. Only instructors in an active course with Assessments enabled can open it. The assignment list and edit form do not currently link to this route; if you are already editing the assignment, replace `/edit` at the end of the URL with `/practice-tests`. This is separate from the student's **Test cases** panel and browser runner.
-2. On the dedicated page, use **Add test case** to add a case, and edit or remove the listed cases as needed. The page labels its add control **Up to 5 cases** and disables it when the set contains exactly five cases:
-   - **Name**: 1–120 characters (e.g., *Example 1: Basic positive integers*).
-   - **Input**: Enter exact standard input string (up to 4,096 bytes).
-   - **Expected Output**: Enter expected stdout string (up to 8,192 bytes).
-3. Use **Edit assignment** to add cases 6–25 or change a case's **Public**/**Private** visibility. That form supports up to **25 cases**. Saving it with the assignment's publication status set to **Published** updates the public test cases immediately. Private cases remain in the instructor draft and are excluded from student practice. Instructors can run all current draft cases, including private cases, against a submitted revision on its **Review submission** page.
-4. **Atomic Publication Workflow**:
-   - Use this dedicated page when you need to prepare test changes without replacing the published set, or publish/unpublish tests independently of the assignment. **Edit assignment** does not provide these separate test-publication controls, so the dedicated page still serves a distinct purpose.
-   - **Save draft**: Saves test cases in your private instructor workspace without replacing the current published set.
-   - **Publish tests**: Atomically saves the edited set and publishes its public cases for student practice. Private cases remain in the instructor's saved set and are not sent to students.
-   - **Unpublish tests**: Retracts published cases while retaining your saved draft.
+1. Open **Assignments** and choose **Edit** on an assignment, or add cases while creating a new assignment.
+2. In **Test cases**, add up to **25 cases** in total, including public and private cases. Give each case a name (1–120 characters), exact standard input (up to 4,096 UTF-8 bytes), and expected output (up to 8,192 UTF-8 bytes).
+3. Select **Public (visible to students)** for cases students should see and run. Clear it for private cases available to course instructors on **Review submission**.
+4. Click **Save assignment**. With the assignment status set to **Published**, its public cases become available to students immediately. Draft assignments and their cases remain unavailable to students.
+5. To hide a case from students while retaining it for instructor review, clear **Public** and save. To remove it from the saved set for instructors as well, click its **Remove** control and save. Making all cases private or removing all cases clears the student-visible test set.
+6. Students can use **Refresh tests** to load your changes. Running cases provides local feedback and does not publish a grade or award XP.
 
 ### 5.5 Submission Review, AI Rubric Suggestions & Grade Publishing
 
@@ -412,7 +406,7 @@ This matrix summarizes the trigger, immediate UI feedback, backend mutation, and
 | **Post Discussion Thread** | Button shows spinner; redirects to newly created thread on success. | Inserts row into `forum_threads` table; validates 160-char title and 8,000-char message. | If exceeding 10 posts/minute rate limit, displays **Posting too quickly; wait a minute**. Draft preserved. |
 | **Rotate Join Code** | Join-code control shows pending state; a new code appears with a copy action. | Stores a hash of the generated code in `course_join_codes`; invalidates the previous active code. | Previous code stops accepting enrollments; existing students are unaffected. A verified account is required to join. |
 | **Publish Assignment** | Status badge switches from gray **Draft** to green **Published**. | Updates `is_published = true` in database; triggers assignment visibility for enrolled students. | Language field is locked against future modifications once first student submission is saved. |
-| **Publish Practice Tests** | Toast confirms the action; published public cases appear for students after refresh. | Atomically writes the published public-case snapshot to `assignment_practice_sets`; the instructor draft retains public and private cases. | Private cases are not published to students. Version conflicts require reloading the current draft. |
+| **Save Assignment Test Cases** | Save button shows pending feedback; returns to Assignments after success. | Saves cases with the assignment; Published status updates the public-case projection and retains private cases for instructor review. | Invalid cases or version conflicts leave the form available for correction; private cases are excluded from student reads. |
 | **Publish Grade & Rubric** | Button shows pending state; the published grade appears to the student and any eligible XP award is updated. | Sends a version-checked grade update; when XP is enabled, the database operation updates the grade and XP ledger atomically. | Grades published before XP tracking need instructor review and republication before earning XP. On version conflict, reload before saving again. |
 | **Toggle Feature Switch** | The control shows pending state; navigation reflects the saved setting after refresh. | Updates the course's row in `course_features`. | If saving fails, the prior value remains and an error is shown. |
 | **Demote Admin User** | Role selector displays spinner; table updates with new role badge. | Updates `user_roles` table with platform role change. | Rejects with **Cannot demote the last remaining administrator** if last admin. |

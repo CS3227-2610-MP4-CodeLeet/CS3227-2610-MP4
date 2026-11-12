@@ -255,16 +255,6 @@ async function captureInstructorAuthoring(page, baseUrl, courseId) {
   await saveCleanScreenshot(page, '15-instructor-assignment-authoring.png');
 }
 
-async function captureInstructorPracticeTests(page, baseUrl, courseId, assignmentId) {
-  console.log('--- 16. Instructor Practice Test Authoring ---');
-  await page.goto(`${baseUrl}/courses/${courseId}/assignments/${assignmentId}/practice-tests`, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('text=Practice tests', { timeout: 15000 });
-  await page.waitForTimeout(600);
-  assert.match(page.url(), new RegExp(`/courses/${courseId}/assignments/${assignmentId}/practice-tests$`), 'Expected URL to match practice tests authoring');
-  assert.ok(await page.locator('text=Practice tests').isVisible(), 'Practice tests heading must be visible');
-  await saveCleanScreenshot(page, '16-instructor-practice-test-authoring.png');
-}
-
 async function captureInstructorGrading(page, baseUrl, courseId, submissionId) {
   console.log('--- 17. Instructor Submission Review & AI Grading ---');
   await page.goto(`${baseUrl}/courses/${courseId}/submissions/${submissionId}`, { waitUntil: 'domcontentloaded' });
@@ -293,7 +283,7 @@ async function captureAdminRoles(page, baseUrl) {
 }
 
 async function runStudentFlows(opts) {
-  const { page, baseUrl, courseId, assignmentId, submissionId } = opts;
+  const { page, baseUrl, courseId, submissionId } = opts;
   await captureWelcome(page, baseUrl);
   await captureStudentCourses(page, baseUrl);
   await captureStudentAssignments(page, baseUrl, courseId);
@@ -308,10 +298,9 @@ async function runStudentFlows(opts) {
 }
 
 async function runInstructorAndAdminFlows(opts) {
-  const { page, baseUrl, courseId, assignmentId, submissionId } = opts;
+  const { page, baseUrl, courseId, submissionId } = opts;
   await captureInstructorAdmin(page, baseUrl, courseId);
   await captureInstructorAuthoring(page, baseUrl, courseId);
-  await captureInstructorPracticeTests(page, baseUrl, courseId, assignmentId);
   await captureInstructorGrading(page, baseUrl, courseId, submissionId);
   await captureAdminRoles(page, baseUrl);
 }

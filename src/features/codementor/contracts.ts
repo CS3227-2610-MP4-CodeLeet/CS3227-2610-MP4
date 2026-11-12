@@ -7,6 +7,9 @@ import { caseSetSchema } from '@/features/practice-test-authoring/contracts';
 export const assignmentLanguageSchema = z.enum(assignmentLanguages);
 
 const uuid = z.uuid();
+// Accommodate 25 maximum-size cases and bounded assignment/rubric text,
+// including the sixfold expansion of control characters in JSON strings.
+export const assignmentRequestMaxBytes = 2_200_000;
 const cleanText = (max: number) =>
   z
     .string()

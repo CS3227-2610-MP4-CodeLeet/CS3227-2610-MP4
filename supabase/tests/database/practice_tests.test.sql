@@ -1,14 +1,8 @@
 begin;
 select no_plan();
-with function_source as (
-  select lower(pg_get_functiondef('public.save_practice_tests(uuid,integer,text,jsonb)'::regprocedure)) as source
-)
-select ok(position('from public.courses c where c.id=v_course and c.lifecycle=''active'' for share' in source)>0
-  and position('is_member(v_course' in substring(source from position('for share' in source)))>0
-  and position('can_use_feature' in substring(source from position('for share' in source)))>0,
-  'practice-test writer locks its course and rechecks membership and assessment access') from function_source;
-select has_table('public','assignment_practice_drafts','private draft storage exists');
-select has_table('public','assignment_practice_sets','public snapshot storage exists');
+select ok(to_regprocedure('public.save_practice_tests(uuid,integer,text,jsonb)') is null, 'independent publication RPC is retired');
+select has_table('public','assignment_practice_drafts','instructor case storage is preserved');
+select has_table('public','assignment_practice_sets','student projection storage is preserved');
 insert into auth.users(id,aud,role,email,encrypted_password,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) values
  ('b1000000-0000-4000-8000-000000000001','authenticated','authenticated','case-owner@example.test','',now(),'{}','{}',now(),now()),
  ('b1000000-0000-4000-8000-000000000002','authenticated','authenticated','case-student@example.test','',now(),'{}','{}',now(),now()),
@@ -22,54 +16,54 @@ insert into public.course_features(course_id,feature,enabled) values
  ('b4000000-0000-4000-8000-000000000001','assessments',true);
 insert into public.assignments (id,instructor_id,title,instructions,language,publication_status,course_id) values ('b2000000-0000-4000-8000-000000000001','b1000000-0000-4000-8000-000000000001','Cases Python','Synthetic','python','published','b4000000-0000-4000-8000-000000000001'),
  ('b2000000-0000-4000-8000-000000000002','b1000000-0000-4000-8000-000000000001','Cases Java','Synthetic','java','draft','b4000000-0000-4000-8000-000000000001');
+create function pg_temp.save_cases(p_id uuid, p_cases jsonb, p_status text default 'published')
+returns public.assignments language sql as $$
+  select public.save_course_assignment(
+    'b4000000-0000-4000-8000-000000000001', p_id,
+    (select version from public.assignments where id=p_id),
+    'Cases', 'Synthetic assignment',
+    '[{"id":"b5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic rubric","maxScore":10}]',
+    p_status, 'python', null, false, null, false, p_cases);
+$$;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
-select is((public.save_practice_tests('b2000000-0000-4000-8000-000000000001',0,'save','[{"id":"b3000000-0000-4000-8000-000000000001","name":"Sum","stdin":" 2 3\n","expected_stdout":"5\n"}]')->>'version')::integer,1,'owner saves a private draft');
-select is((select count(*)::integer from public.assignment_practice_sets),0,'saving draft does not publish');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',0,'publish','[]')$$,'40001','practice_version_conflict','stale writes fail before replacing data');
-select is((public.save_practice_tests('b2000000-0000-4000-8000-000000000001',1,'publish',(select cases from public.assignment_practice_drafts where assignment_id='b2000000-0000-4000-8000-000000000001'))->>'published_revision')::integer,1,'publishing creates revision one');
-select is((select cases->0->>'stdin' from public.assignment_practice_sets where assignment_id='b2000000-0000-4000-8000-000000000001'),E' 2 3\n','literal whitespace is preserved');
-select lives_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',2,'save','[]')$$,'empty draft can be saved');
-select is((select jsonb_array_length(cases) from public.assignment_practice_sets where assignment_id='b2000000-0000-4000-8000-000000000001'),1,'new draft does not overwrite public snapshot');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'publish','[]')$$,'22023','invalid_practice_cases','empty publication is rejected');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'publish','[{"id":"b3000000-0000-4000-8000-000000000001","name":"bad","stdin":"","expected_stdout":"","grade":100}]')$$,'22023','invalid_practice_cases','unknown fields cannot reach storage');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'publish',jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name','large','stdin',repeat('é',2049),'expected_stdout','')))$$,'22023','invalid_practice_cases','UTF8 input bound enforced in database');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'save','[{"id":"b3000000-0000-0000-0000-000000000001","name":"Bad UUID","stdin":"","expected_stdout":""}]')$$,'22023','invalid_practice_cases','database matches API UUID version and variant checks');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'save',jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name',U&'\2003','stdin','','expected_stdout','')))$$,'22023','invalid_practice_cases','Unicode whitespace-only names are invalid');
+select lives_ok($$select pg_temp.save_cases('b2000000-0000-4000-8000-000000000001',
+ '[{"id":"b3000000-0000-4000-8000-000000000001","name":"Public","stdin":" 2 3\n","expected_stdout":"5\n","is_public":true},
+ {"id":"b3000000-0000-4000-8000-000000000002","name":"Private","stdin":"","expected_stdout":"","is_public":false}]')$$,
+ 'assignment save persists public and private cases together');
+select is((select jsonb_array_length(cases) from public.assignment_practice_drafts),2,'instructor review retains both cases');
+select is((select jsonb_array_length(cases) from public.assignment_practice_sets),1,'assignment save immediately projects only public cases');
+select is((select cases->0->>'stdin' from public.assignment_practice_sets),E' 2 3\n','literal whitespace preserved');
+select throws_ok($$select public.save_course_assignment(
+ 'b4000000-0000-4000-8000-000000000001','b2000000-0000-4000-8000-000000000001',0,
+ 'Cases','Synthetic','[{"id":"b5000000-0000-4000-8000-000000000001","title":"Correctness","description":"Synthetic","maxScore":10}]',
+ 'published','python',null,false,null,false,'[]')$$,'40001','assignment_version_conflict','stale assignment save cannot replace cases');
+select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
+select is((select count(*)::integer from public.assignment_practice_drafts),0,'students cannot read instructor cases directly');
+select is((select jsonb_array_length(cases) from public.assignment_practice_sets),1,'students receive only public cases');
+select throws_ok($$select pg_temp.save_cases('b2000000-0000-4000-8000-000000000001','[]')$$,'42501','course_staff_required','student cannot replace cases');
+select throws_ok($$update public.assignment_practice_sets set cases='[]'$$,'42501',null,'direct public writes denied');
+select throws_ok($$insert into public.assignment_practice_drafts(assignment_id,cases,version) values ('b2000000-0000-4000-8000-000000000001','[]',1)$$,'42501',null,'direct instructor-case writes denied');
+select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000003',true);
+select is((select count(*)::integer from public.assignment_practice_drafts),0,'unrelated instructor cannot read cases');
+select is((select count(*)::integer from public.assignment_practice_sets),0,'unrelated instructor cannot read public projections');
+select throws_ok($$select pg_temp.save_cases('b2000000-0000-4000-8000-000000000001','[]')$$,'42501','course_staff_required','unrelated instructor cannot replace cases');
+select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
+select lives_ok($$select pg_temp.save_cases('b2000000-0000-4000-8000-000000000001',
+ '[{"id":"b3000000-0000-4000-8000-000000000001","name":"Hidden","stdin":"","expected_stdout":"","is_public":false}]')$$,'marking every case private is supported');
+select is((select jsonb_array_length(cases) from public.assignment_practice_sets),0,'making cases private clears student projection immediately');
+select is((select jsonb_array_length(cases) from public.assignment_practice_drafts),1,'private case remains available for instructor review');
+select lives_ok($$select pg_temp.save_cases('b2000000-0000-4000-8000-000000000001','[]')$$,'all cases may be removed through assignment saving');
+select is((select jsonb_array_length(cases) from public.assignment_practice_drafts),0,'removed cases no longer available to instructors');
+select is((select jsonb_array_length(cases) from public.assignment_practice_sets),0,'removed cases no longer available to students');
+select lives_ok($$select pg_temp.save_cases('b2000000-0000-4000-8000-000000000002',
+ '[{"id":"b3000000-0000-4000-8000-000000000001","name":"Draft assignment case","stdin":"","expected_stdout":""}]','draft')$$,'draft assignment cases can be saved');
+select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
+select is((select count(*)::integer from public.assignment_practice_sets),1,'student cannot read cases of draft assignment');
 reset role;
-select ok(public.valid_practice_cases(jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name',repeat('😀',120),'stdin',repeat('é',2048),'expected_stdout',repeat('😀',2048)))),'exact Unicode character and byte limits are valid');
+select ok(public.valid_practice_cases(jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name',repeat('😀',120),'stdin',repeat('é',2048),'expected_stdout',repeat('😀',2048)))),'exact Unicode character and byte limits accepted');
 select ok(not public.valid_practice_cases(jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name',repeat('😀',121),'stdin','','expected_stdout',''))),'overlong Unicode name rejected');
 select ok(not public.valid_practice_cases(jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name','Large output','stdin','','expected_stdout',repeat('😀',2048)||'a'))),'UTF8 output overflow rejected');
-select ok(not public.valid_practice_cases(jsonb_build_array(jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name','A','stdin','','expected_stdout',''),jsonb_build_object('id','b3000000-0000-4000-8000-000000000001','name','B','stdin','','expected_stdout',''))),'duplicate case UUIDs rejected');
-select ok(not public.valid_practice_cases('[{}, {}, {}, {}, {}, {}]'),'six cases rejected');
-set local role authenticated;
-select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
-select lives_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000002',0,'publish','[{"id":"b3000000-0000-4000-8000-000000000002","name":"Java","stdin":"","expected_stdout":""}]')$$,'owner may prepare published cases for draft assignment');
-select is((select count(*)::integer from public.assignment_practice_sets),2,'instructor can read snapshots prepared for published and draft assignments');
-select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
-select is((select count(*)::integer from public.assignment_practice_drafts),0,'students cannot read drafts directly');
-select is((select count(*)::integer from public.assignment_practice_sets),1,'students see only published-assignment cases');
-reset role;
-update public.assignments set publication_status='draft' where id='b2000000-0000-4000-8000-000000000001';
-set local role authenticated;
-select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
-select is((select count(*)::integer from public.assignment_practice_sets),0,'unpublishing assignment immediately hides previously published cases');
-reset role;
-update public.assignments set publication_status='published' where id='b2000000-0000-4000-8000-000000000001';
-set local role authenticated;
-select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000002',true);
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'unpublish',null)$$,'42501','practice_owner_required','students cannot unpublish');
-select throws_ok($$update public.assignment_practice_sets set cases='[]'$$,'42501',null,'direct public writes denied');
-select throws_ok($$insert into public.assignment_practice_drafts(assignment_id,cases,version) values ('b2000000-0000-4000-8000-000000000001','[]',1)$$,'42501',null,'direct draft writes denied');
-select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000003',true);
-select is((select count(*)::integer from public.assignment_practice_drafts),0,'unrelated instructor cannot read drafts');
-select is((select count(*)::integer from public.assignment_practice_sets),0,'unrelated instructor cannot inspect cases');
-select throws_ok($$select public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'save','[]')$$,'42501','practice_owner_required','unrelated instructor cannot replace cases');
-select set_config('request.jwt.claim.sub','b1000000-0000-4000-8000-000000000001',true);
-select is((public.save_practice_tests('b2000000-0000-4000-8000-000000000001',3,'unpublish',null)->>'published_revision')::integer,2,'unpublish advances public revision');
-select is((select jsonb_array_length(cases) from public.assignment_practice_drafts where assignment_id='b2000000-0000-4000-8000-000000000001'),0,'unpublish preserves draft');
-select is((select jsonb_array_length(cases) from public.assignment_practice_sets where assignment_id='b2000000-0000-4000-8000-000000000001'),0,'unpublish removes public cases');
-reset role;
-select ok(not has_function_privilege('anon','public.save_practice_tests(uuid,integer,text,jsonb)','EXECUTE'),'anonymous RPC denied');
+select ok(not public.valid_practice_cases('[{"id":"b3000000-0000-4000-8000-000000000001","name":"Bad","stdin":"","expected_stdout":"","grade":100}]'),'unknown case fields rejected');
 select * from finish();
 rollback;

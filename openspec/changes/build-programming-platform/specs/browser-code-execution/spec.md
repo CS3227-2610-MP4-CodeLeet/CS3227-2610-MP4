@@ -48,7 +48,7 @@ The runner SHALL isolate untrusted code from app credentials/private data/arbitr
 - **THEN** the UI explains recovery without falling back to server execution
 
 ### Requirement: Published practice test comparison
-Students SHALL be able to run up to five instructor-published public stdin/expected-stdout cases sequentially in fresh browser sandboxes.
+Students SHALL be able to run up to 25 instructor-published public stdin/expected-stdout cases sequentially in fresh browser sandboxes.
 
 #### Scenario: Required constraints for published practice test comparison
 - **WHEN** this capability is used

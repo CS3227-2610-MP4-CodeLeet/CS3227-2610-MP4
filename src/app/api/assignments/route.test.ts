@@ -87,7 +87,31 @@ beforeEach(() => {
   mocks.assignments = [{ id: 'assignment-1', publication_status: 'published' }];
 });
 
+it('accepts 25 cases at their UTF-8 limits even when JSON escaping expands the body', async () => {
+  mocks.getUser.mockResolvedValue(configureContext('instructor'));
+  mocks.rpc.mockResolvedValue({ data: { id: 'assignment-1' }, error: null });
+  const cases = Array.from({ length: 25 }, () => ({
+    id: crypto.randomUUID(),
+    name: 'Case',
+    stdin: '\u0001'.repeat(4096),
+    expected_stdout: '\u0001'.repeat(8192),
+    is_public: true,
+  }));
+  expect(JSON.stringify(cases).length).toBeGreaterThan(1_800_000);
+  expect((await post({ ...assignment, cases })).status).toBe(201);
+});
+
 describe('course-scoped assignment collection', () => {
+  it('still rejects oversized bodies before passing data to the database', async () => {
+    mocks.getUser.mockResolvedValue(configureContext('instructor'));
+    const response = await post({
+      ...assignment,
+      instructions: 'x'.repeat(2_200_001),
+    });
+    expect(response.status).toBe(400);
+    expect((await response.json()).error.code).toBe('invalid_body');
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
   it('requires a selected course and filters student reads to that course', async () => {
     mocks.getUser.mockResolvedValue(configureContext('student'));
     expect((await GET(getRequest() as never)).status).toBe(200);

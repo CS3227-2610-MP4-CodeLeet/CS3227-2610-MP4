@@ -86,7 +86,7 @@ CS3227-2610-MP4/
 ├── docs/                      # Canonical documentation master files
 │   ├── UserGuide.md           # End-user guide with embedded screenshots
 │   ├── DeveloperGuide.md      # Engineering architecture and developer practices
-│   └── images/user-guide/     # User-guide screenshots (18 image assets)
+│   └── images/user-guide/     # User-guide screenshots (17 image assets)
 ├── openspec/                  # Spec-Driven Development (SDD) schema and delta specs
 ├── src/
 │   ├── app/                   # Selected Next.js App Router routes and API handlers
@@ -103,7 +103,7 @@ CS3227-2610-MP4/
 │   │   ├── student-assignments/ # Assignment browsing, editor workspace
 │   │   ├── student-submissions/ # Revision creation, immutable history, diffing
 │   │   ├── student-progress/  # Server-side progress and activity loaders
-│   │   ├── practice-test-authoring/ # Test case drafting and atomic publishing
+│   │   ├── practice-test-authoring/ # Assignment case storage and authorized public/instructor reads
 │   │   ├── assignment-xp/     # Authoritative XP calculations and delta ledger
 │   │   ├── leaderboard/       # Course rankings and tied rank projection
 │   │   └── forums/            # Thread discussions, replies, keyword search
@@ -127,6 +127,7 @@ The codebase uses feature-oriented modules and explicit server, database, and br
 
 - **Feature modules**: `src/features/` groups related contracts, queries, and UI by product area; module boundaries differ by feature.
 - **Server and database boundaries**: Route handlers authenticate requests and call Supabase using user-scoped or server-only clients. Database policies and functions enforce the rules defined in migrations.
+- **Assignment test cases**: The assignment form is the sole editor and writes through `save_course_assignment`. The existing `assignment_practice_drafts` and `assignment_practice_sets` tables retain their historical names: they hold the saved instructor set and student public projection. Saving with Published status refreshes the public projection; instructor submission review can run private cases from the saved instructor set.
 - **Browser runtime boundary**: `src/runtime-lab/` runs code in a browser iframe and worker, separate from the Next.js server.
 
 ### 2.2 Design Patterns in CodeLeet
@@ -265,45 +266,6 @@ sequenceDiagram
     Page->>Page: Derive completion, outstanding work, and display values
     Page-->>Student: Render progress page
 ```
-
-### 3.5 Practice-Test Authoring & Publication Flow
-
-The instructor route `/courses/[courseId]/assignments/[assignmentId]/practice-tests` is the dedicated view for managing a saved test set and publishing its student-visible snapshot. The current assignment list and edit form do not link to this route; the route itself links back to the edit form. The edit form also exposes the same cases. The student assignment workspace instead loads published public cases in its **Test cases** panel and runs them in the browser.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Instructor
-    participant Page as Practice tests page
-    participant Editor as PracticeTestEditor
-    participant API as PATCH /api/assignments/{assignmentId}/practice-tests
-    participant Auth as Verified user and course access
-    participant DB as Supabase PostgreSQL
-    participant StudentAPI as GET /api/student/assignments/{assignmentId}/test-cases
-    participant Student as Student workspace
-
-    Instructor->>Page: Open Practice tests
-    Page->>Auth: Verify user and active instructor access
-    Page->>DB: Load draft and publication metadata
-    Page-->>Editor: Render current cases and edit version
-    Instructor->>Editor: Save draft, publish, or unpublish
-    Editor->>API: Send action, cases, and expected version
-    API->>Auth: Verify user, assignment access, and request origin
-    API->>DB: Call save_practice_tests(...)
-    DB-->>API: Updated edit/publication versions
-    API-->>Editor: Return success or version conflict
-    Student->>StudentAPI: Request published test cases
-    StudentAPI->>Auth: Verify student access
-    StudentAPI->>DB: Load published public snapshot
-    DB-->>StudentAPI: Return public cases only
-    StudentAPI-->>Student: Return published public cases
-```
-
-The assignment create/edit form (`AssignmentForm` and `TestCasesFields`) supports up to 25 cases and exposes the **Public**/**Private** toggle. The dedicated editor changes case names and input/output, but has no visibility control. Its **Add test case** button displays **Up to 5 cases** and disables when the current set contains exactly five, while the shared request schema accepts case sets up to 25. Use the assignment form to add cases 6–25 or change visibility. Saving that form with assignment status `published` immediately refreshes the public snapshot with the public cases in the form; the dedicated page's **Save draft** action leaves the published snapshot unchanged until **Publish tests** is selected. Private cases remain in the instructor draft and are filtered out of the public snapshot. Instructor submission review loads all current draft cases through `loadOwnerCases` and passes them, including private cases, to `PracticeRunner` against the submitted source.
-
-The dedicated page retains a distinct workflow: saving a draft without replacing published tests, publishing an edited set, and unpublishing tests while retaining the draft and leaving the assignment published. The assignment form cannot perform all of these operations, so the dedicated page is retained. Removing it would first require moving these controls and their expected-version conflict handling into the assignment form. The missing navigation link and inconsistent Add limit are remaining UI limitations, not evidence that the publication workflow is unused.
-
-Password sign-in posts credentials from `SignInForm` to `/api/auth/sign-in`. That route creates a server-side Supabase client, and `performSignIn` calls `signInWithPassword`; the browser client subsequently refreshes the server-issued session. Protected operations independently verify the user with `auth.getUser()`.
 
 ---
 

@@ -1,10 +1,5 @@
 import { expect, it } from 'vitest';
-import {
-  caseSetSchema,
-  ownerSetSchema,
-  practiceUpdateSchema,
-  publicSetSchema,
-} from './contracts';
+import { caseSetSchema, ownerSetSchema, publicSetSchema } from './contracts';
 
 const item = {
   id: 'b1000000-0000-4000-8000-000000000001',
@@ -83,51 +78,6 @@ it('supports is_public flag defaulting to true', () => {
   ]);
   expect(parsed[0].is_public).toBe(false);
   expect(parsed[1].is_public).toBe(true);
-});
-it('requires cases for save/publish and a nonempty publication', () => {
-  expect(
-    practiceUpdateSchema.safeParse({
-      action: 'save',
-      expectedVersion: 0,
-      cases: [],
-    }).success,
-  ).toBe(true);
-  expect(
-    practiceUpdateSchema.safeParse({
-      action: 'publish',
-      expectedVersion: 0,
-      cases: [],
-    }).success,
-  ).toBe(false);
-  expect(
-    practiceUpdateSchema.safeParse({
-      action: 'unpublish',
-      expectedVersion: 1,
-    }).success,
-  ).toBe(true);
-  expect(
-    practiceUpdateSchema.safeParse({
-      action: 'unpublish',
-      expectedVersion: 1,
-      cases: [item],
-    }).success,
-  ).toBe(false);
-});
-it('rejects identity/results and invalid versions', () => {
-  for (const extra of [
-    { studentId: item.id },
-    { grade: 100 },
-    { expectedVersion: -1 },
-    { expectedVersion: 0.5 },
-  ])
-    expect(
-      practiceUpdateSchema.safeParse({
-        action: 'publish',
-        expectedVersion: 0,
-        cases: [item],
-        ...extra,
-      }).success,
-    ).toBe(false);
 });
 it('validates the public projection without leaking draft fields', () => {
   const data = {
