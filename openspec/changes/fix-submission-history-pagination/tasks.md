@@ -6,5 +6,7 @@
 
 ## 2. Verify and publish
 
-- [ ] 2.1 Run full units, applicable lint/type/build, browser regressions, scaffold and strict OpenSpec; update guides only with verified behavior and maintain the dated log.
-- [ ] 2.2 Commit verified milestones, push the issue-linked branch and open a PR to develop after branch CI; verify final-head checks and leave human review pending.
+- [x] 2.1 Run full units, applicable lint/type/build, browser regressions, scaffold and strict OpenSpec; update guides only with verified behavior and maintain the dated log.
+- [x] 2.2 Commit verified milestones, push the issue-linked branch and open PR #175 to develop after source-head branch CI; record actual evidence and leave human review pending.
+
+Final PR-head CI is a handoff gate. Record its outcome in the PR after the last metadata commit; do not infer it from historical source-head CI.

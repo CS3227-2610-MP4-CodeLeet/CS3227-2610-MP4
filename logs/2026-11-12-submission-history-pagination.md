@@ -5,7 +5,7 @@
 - Issue: [#171](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/171)
 - OpenSpec: [fix-submission-history-pagination](../openspec/changes/fix-submission-history-pagination/proposal.md)
 - Branch: `fix/171-submission-history-pagination`, based on latest remote develop `0505bea`
-- PR/commits: pending implementation and verification
+- PR: [#175 to develop](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/175), open and unmerged. Milestones: `3ec0e57` implementation; `db3ef37` guides/evidence.
 - Human verification: pending
 
 ## Prompt and interaction summaries
@@ -32,3 +32,9 @@
 
 10. Full unit run completed: 903 passed, one failed out of 904 across 174 files. The exact failure was `local database reset warning > warns before both destructive pnpm reset commands`, which exceeded the default 5,000 ms timeout (observed runtime about 6 seconds). It passed in isolation (2/2 tests, warning case about 1.1 seconds). No product cause is inferred. Reran the full suite with a command-local 20-second timeout and two workers; repository timeout/configuration and the unrelated test remain unchanged. The first full run overlapped the application/browser/documentation checks; contention is a possible explanation, not proven.
 11. Documentation site build, scaffold/local links and strict OpenSpec (16/16) passed after the guide updates. Restored the requester original next-env contents after generated build changes, and excluded generated experiment timestamp changes from staging. Feature milestone committed as `3ec0e57`; guides/evidence are a separate milestone. Human verification and independent review remain pending.
+
+## Publication and final source verification
+
+12. Full local retry completed successfully: 904/904 tests across 174 files with two workers and the command-local 20-second timeout. Repository-default branch CI also passed application (including units/coverage), database and authenticated E2E in [43249418153](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43249418153). Scaffold [43249476870](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43249476870) and CodeQL [43249529946](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43249529946) passed at source head `db3ef37`. The manual coverage-comment job skipped while application coverage ran.
+13. After branch CI, opened PR #175 to develop with Closes #171 and links to the active change, approved design, plan and this log. Issue #171 remains open pending merge; no merge, release or hosted acceptance was performed. Self-review checked cursor input validation, exact timestamp precision, both seek directions, metadata projection, retained current authorization and old URL recovery. No independent reviewer was dispatched; human review remains pending.
+14. This final metadata commit links the actual PR and records source-head evidence. Its final PR-head CI is verified after the push, with the final result recorded in the PR description to avoid another evidence-only commit cycle. Generated experiment timestamp changes are restored after confirming that timestamps are their only differences; the unrelated original next-env contents remain preserved and unstaged.
