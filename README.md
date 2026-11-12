@@ -44,7 +44,7 @@ Open the printed address, normally http://localhost:3000. Authentication is conn
 
 Run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test:unit`, `pnpm db:test`, `pnpm build` and `pnpm site:build` as applicable. Browser setup and opt-in real-runtime/synthetic account prerequisites are documented in the Developer Guide. Use `pnpm exec openspec validate --all --strict` and `node workflow/scripts/check-scaffold.mjs` for specs and local links. A skipped test is not acceptance evidence.
 
-Read [ProjectBrief](workflow/ProjectBrief.md), [AgentProcess](workflow/AgentProcess.md), [AssignmentChecklist](workflow/AssignmentChecklist.md) and the [active OpenSpec tasks](openspec/changes/build-programming-platform/tasks.md) before changing behavior. Skills under `.agents/skills/` are procedures; actual agent executions need their own records. Normal local use uses real accounts and data, while synthetic previews are selected only by the test harness.
+Read [ProjectBrief](workflow/ProjectBrief.md), [AgentProcess](workflow/AgentProcess.md), [AssignmentChecklist](workflow/AssignmentChecklist.md) and the [archived platform tasks](openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md) before changing behavior. Skills under `.agents/skills/` are procedures; actual agent executions need their own records. Normal local use uses real accounts and data, while synthetic previews are selected only by the test harness.
 
 ## Remaining release gates
 

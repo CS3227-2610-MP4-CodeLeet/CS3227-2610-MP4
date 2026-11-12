@@ -90,7 +90,7 @@ There are four different caches to distinguish: browser runtime bytes, applicati
 
 ### Specifications should settle user-visible ambiguity
 
-For deadlines, the requester explicitly chose late acceptance with a Late marker and no automatic grade penalty. The [assignment specification](../openspec/changes/build-programming-platform/specs/assignments-and-grading/spec.md) then pins current due dates, historical captured deadlines and identical-retry behavior. A date field alone would leave important questions unanswered: whether exactly-at-deadline saves are late, whether extending a date rewrites history and whether a retry gets a new timestamp.
+For deadlines, the requester explicitly chose late acceptance with a Late marker and no automatic grade penalty. The [assignment specification](../openspec/changes/archive/2026-11-12-build-programming-platform/specs/assignments-and-grading/spec.md) then pins current due dates, historical captured deadlines and identical-retry behavior. A date field alone would leave important questions unanswered: whether exactly-at-deadline saves are late, whether extending a date rewrites history and whether a retry gets a new timestamp.
 
 The implementation tests strict greater-than lateness, server-captured metadata and unchanged old revisions after edits/retries. This is a better match to intent than checking only that a date appears. For comparison, the specification requires own saved revisions, read-only diffing and bounded work, not merely two visible code panels. The [comparison summary](../logs/2026-11-01-compare-revisions.md) records privacy and integration checks.
 

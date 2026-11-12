@@ -4,7 +4,7 @@
 - Participants/actual agent IDs: User and Codex `/root`; no specialist agents
 - AI tools/models, where known: Codex; exact model not exposed
 - GitHub issue: [#164](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/164)
-- OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/build-programming-platform/tasks.md); the task remains open for reflections and acknowledgements
+- OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md); the task remains open for reflections and acknowledgements
 - Branch and commits: `docs/164-finish-guide-consistency`; `ed4b3cb` (guide fixes), `a368f0f` (record commit ID), `d042759` (record branch CI), `8491c95` (link PR and summary), `74c4855` (final PR verification), `15c44c7` (address review comments)
 - Pull request: [#165](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/165), open and ready for review; human verification remains pending
 - Human verification: pending

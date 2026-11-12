@@ -4,7 +4,7 @@
 - Participants/actual agent IDs: User and Codex `/root`; no specialist agents
 - AI tools/models, where known: Codex; exact model not exposed
 - GitHub issue: [#166](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/166)
-- OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/build-programming-platform/tasks.md); task remains open for reflections and acknowledgements
+- OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md); task remains open for reflections and acknowledgements
 - Branch and commits: `docs/166-practice-test-auth-guides`; guide changes at `5cebf2d`; pre-PR CI passed on `a014bfa`; PR-head CI passed on `a0c6f0c`
 - Pull request: [#167](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/167), open to `develop`; human review pending
 - Human verification: pending

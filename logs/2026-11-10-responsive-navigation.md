@@ -4,7 +4,7 @@
 - Participants/actual agent IDs: requester and primary Codex agent; no specialist agents dispatched for this focused UI change
 - AI tools/models, where known: Codex; model usage measurements unavailable
 - GitHub issue: [#140](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/140)
-- OpenSpec change: [build-programming-platform](../openspec/changes/build-programming-platform/)
+- OpenSpec change: [build-programming-platform](../openspec/changes/archive/2026-11-12-build-programming-platform/)
 - Branch and commits: `fix/responsive-navigation`; `62af4bc` (UI fix), `10142ef` and `1c4ade7` (workflow evidence), `e7e2715` (PR link), `61efd8a` (merge updated `develop` and retain both OpenSpec task groups)
 - Pull request: [#142](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/142), open for teammate review
 - Human verification: pending

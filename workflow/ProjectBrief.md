@@ -57,7 +57,7 @@ Agreed conceptual fields:
 
 On 26 October 2026 the requester authorized Codex to choose the concrete student contracts: cookie-based Supabase server identity verified with getUser, student API routes, UUID identifiers, python/java language values, 32 KiB UTF-8 source limit, structured errors and request-ID-based submission retries. These contracts remain the authoritative basis for the separate browser practice preview. The CodeLeet MVP has its own authenticated Python/Java submission flow and is documented in `openspec/changes/deliver-codementor-mvp/`; it is verified locally, while hosted provider/deployment gates remain open.
 
-See the [issue #5 implementation plan](../openspec/changes/build-programming-platform/design.md#issue-5-student-implementation-plan) and [task group 7](../openspec/changes/build-programming-platform/tasks.md#7-issue-5-student-assignment-browsing-and-submissions) for the sequence and completion gate.
+See the [issue #5 implementation plan](../openspec/changes/archive/2026-11-12-build-programming-platform/design.md#issue-5-student-implementation-plan) and [task group 7](../openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md#7-issue-5-student-assignment-browsing-and-submissions) for the sequence and completion gate.
 
 ## References
 
@@ -66,3 +66,5 @@ See the [issue #5 implementation plan](../openspec/changes/build-programming-pla
 - [Coursemology Help](https://coursemology.github.io/coursemology-help/): assignment, grading, feedback, and forum inspiration.
 - Course workspace references: [create a course](https://coursemology.github.io/coursemology-help/course/create-course), [manage users](https://coursemology.github.io/coursemology-help/course/add-manage-users), and [course components](https://coursemology.github.io/coursemology-help/course/components).
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec): SDD tooling.
+
+Platform change closeout (12 November 2026): the requester authorized archival with seven acceptance tasks deferred. See [outstanding acceptance](evidence/2026-11-12-deferred-platform-acceptance.md) and the archived task record. Archival does not verify hosted/provider/Safari/release gates; new implementation requires a new issue-linked active change.
