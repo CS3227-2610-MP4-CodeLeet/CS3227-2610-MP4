@@ -5,7 +5,7 @@
 - Issue: [#173](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/173)
 - OpenSpec: [archived platform change](../openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md)
 - Branch: `chore/173-archive-platform`, from current `origin/develop` `50b67a1`
-- PR: pending creation after branch checks
+- PR: [#174 to develop](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/174), open and unmerged
 - Human verification: pending; verifier/date pending
 
 ## Prompt and interaction summaries
@@ -23,3 +23,8 @@
 - Restricted shell lacked pnpm; elevated repository-pinned CLI execution succeeded. No application code changed; application/unit/database/browser tests were not rerun for this documentation and archive-path change.
 - Final scaffold/local Markdown target check passed after link corrections. Post-archive strict validation passed all 15 canonical specs. OpenSpec inventory returned zero active changes. `git diff --check` passed. Prettier follows repository exclusions for workflow/spec/doc/log files; its targeted invocation changed none. Application behavior is outside these checks.
 - No deployment, merge, release or human approval claimed. Resource measurements unavailable. No secrets or student data used.
+
+## Publication and shared checkout
+
+7. Another process switched the shared checkout from the archive branch to develop and pulled before the commit. The archive commit therefore initially landed on local develop as `a52fa71`. Codex moved the intended review branch to that commit and switched back; only `chore/173-archive-platform` was pushed. No reset of the shared local develop branch, remote develop push, merge or release was performed. The unrelated next-env edit remains unstaged.
+8. Branch Scaffold CI [43236283839](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43236283839) passed on `a52fa71`. Then opened PR #174 to develop with Closes #173, the archived change, follow-up record and this summary. Human review remains pending. This metadata follow-up creates a new head whose PR checks must be verified separately.
