@@ -53,7 +53,7 @@ async function checkReturnNavigation(
   newestId: string,
 ) {
   await page.reload();
-  expect(await visibleIds(page)).toEqual(secondIds);
+  await expect.poll(() => visibleIds(page)).toEqual(secondIds);
   await page.getByRole('link', { name: 'Previous', exact: true }).click();
   await expect(page.getByText('Page 1', { exact: true })).toBeVisible();
   expect(await visibleIds(page)).toEqual(firstIds);
