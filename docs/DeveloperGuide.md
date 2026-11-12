@@ -269,6 +269,14 @@ sequenceDiagram
 
 ---
 
+### 3.5 Student Submission History Navigation
+
+Student history uses keyset pagination over the immutable `(created_at, id)` pair, with 25 visible rows and one lookahead. Next seeks strictly below the last visible pair; Previous reads the nearest newer rows in ascending order and reverses them for newest-first display. Timestamp strings retain database fractional precision.
+
+The URL carries a strictly validated timestamp/UUID cursor. It never authorizes reads: each query still applies verified student identity, course membership/access, RLS and the selected title/language filters, selecting metadata only. Invalid, duplicate or conflicting cursors fail closed. Legacy numbered URLs without a cursor redirect to the latest filtered page; changing filters or choosing Latest submissions drops the old position. This prevents inserted revisions from shifting forward pages, while current permissions and assignment titles remain live.
+
+The regression in `tests/e2e/history-pagination.spec.ts` uses disposable local Supabase accounts, inserts a revision between page requests and checks for duplicates/omissions, timestamp ties, Previous, refresh/Back, Latest and filter resets. It runs with the authenticated browser CI suite; synthetic fixture authority stays out of the application process.
+
 ## 4. In-Browser Client-Side Execution Engine
 
 ### 4.1 Pyodide (Python 3.12 WebAssembly)
