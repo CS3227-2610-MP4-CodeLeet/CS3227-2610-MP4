@@ -31,18 +31,18 @@ Within any individual course workspace, members hold granular course-level roles
 
 | Course Role | Enrollment / Assignment Method | Course Workspace Capabilities |
 | :--- | :--- | :--- |
-| **Course Student** | Enrolled via 8-character student join code or direct course invitation | Browse published assignments, write and test code in-browser, submit immutable revisions, recover local drafts, request pedagogical AI feedback, view personal grades and XP, and post in course forums. |
+| **Course Student** | Enrolled with a student join code or direct course invitation after verified sign-in | Browse published assignments, write and test code in-browser, submit immutable revisions, recover local drafts, request pedagogical AI feedback, view personal grades and XP, and post in course forums. |
 | **Course Instructor** | Invited and assigned by Course Owner or Platform Administrator | Author assignments and multi-criteria rubrics, preview problems from the student perspective, author and publish public practice tests, review student submissions, generate AI rubric suggestions, grade evaluations, and manage course join codes. |
 | **Course Owner** | Course creator or assigned via ownership transfer | Possesses all Course Instructor capabilities plus exclusive rights to manage instructor rosters, archive active courses, transfer course ownership, or permanently delete empty courses. |
 
 ### 1.3 Feature Access Matrix
 
-The following matrix cross-references every system capability against user roles:
+The following matrix cross-references course capabilities against course roles. The administrator column describes an administrator without membership in that course; course pages still require course membership.
 
-| Feature / Workspace Capability | Course Student | Course Instructor | Course Owner | Platform Administrator |
+| Feature / Workspace Capability | Course Student | Course Instructor | Course Owner | Platform Administrator without course membership |
 | :--- | :---: | :---: | :---: | :---: |
 | Sign In / Sign Up / Profile Settings | Yes | Yes | Yes | Yes |
-| Course Selection & Overview | Yes | Yes | Yes | Yes |
+| Course Selection & Overview | Yes | Yes | Yes | No (admins have a separate institutional course directory) |
 | Run In-Browser Code & Practice Tests | Yes | Yes (Preview) | Yes (Preview) | No |
 | Submit Code Revisions | Yes | No | No | No |
 | Draft Autosave & Local Recovery | Yes | Yes (Authoring) | Yes (Authoring) | No |
@@ -50,8 +50,8 @@ The following matrix cross-references every system capability against user roles
 | Request Student AI Feedback | Yes | No | No | No |
 | View Personal Grades & Earned XP | Yes | No | No | No |
 | Student Progress Dashboard | Yes | No | No | No |
-| Course Leaderboard | Yes (Ranked) | Yes (Browse) | Yes (Browse) | Yes (Browse) |
-| Course Discussion Forums | Yes | Yes | Yes | Yes |
+| Course Leaderboard | Yes (Ranked) | Yes (Browse) | Yes (Browse) | No (course membership required) |
+| Course Discussion Forums | Yes | Yes | Yes | No (course membership required) |
 | Join Course via Student Join Code | Yes | No | No | No |
 | Manage Course Join Code & Roster | No | Yes | Yes | No |
 | Author Assignments & Rubrics | No | Yes | Yes | No |
@@ -73,7 +73,7 @@ The following matrix cross-references every system capability against user roles
 
 1. **Creating an Account**:
    - Navigate to the welcome page and choose **Create student account** (`/sign-up`).
-   - Enter a **Username** (1–80 characters, alphanumeric, dashes, and underscores; cannot contain `@` symbols or line breaks).
+   - Enter a **Username** (1–80 characters after trimming). Usernames cannot contain `@` or control characters; the app does not restrict them to only letters, numbers, dashes, and underscores.
    - Enter a valid **Email address**, a strong **Password** (minimum 8 characters), and confirm your password.
    - Click the Show/Hide eye icon on either password field to verify your input before submitting.
    - Click **Create account**. All self-service registrations receive the **Student** platform role by default. Instructor and Administrator roles are provisioned by an existing Administrator.
@@ -125,11 +125,11 @@ Course owners and instructors can independently toggle specific course features 
 | Feature Switch | When Enabled (Default) | When Disabled |
 | :--- | :--- | :--- |
 | **Assessments** | Students can view published assignments, run code, execute test cases, submit revisions, view submissions, and check published grades. | Hides assignments and submissions. Historical submission records remain securely stored in the database but are inaccessible to students until re-enabled. |
-| **AI Features** | Students can request pedagogical AI feedback; instructors can generate AI rubric suggestions and access the AI Context Comparison inspector. | Blocks new AI requests and hides AI buttons. Previously saved AI review summaries remain readable in historical submission records. |
+| **AI Features** | Students can request pedagogical AI feedback; instructors can generate AI rubric suggestions and use Context comparison. | Blocks new AI requests and hides AI navigation/actions. Saved submissions and grades remain available according to their own feature and course access rules. |
 | **Discussion Forum** | Enables course-scoped discussion threads, replies, and full-text keyword search. | Hides forum navigation and blocks new threads/replies. Existing forum posts are retained and reappear when re-enabled. |
-| **Experience Points (XP)** | Computes and displays earned assignment XP on student dashboards and assignment rows. | Pauses XP recalculation and hides personal XP summaries. Previously earned XP totals are retained in the server ledger. |
+| **Experience Points (XP)** | Computes and displays earned assignment XP on student dashboards and assignment rows. | Hides XP views and stops new XP awards while disabled. Existing ledger entries are retained; enabling XP again recomputes awards from published grades. |
 | **Leaderboard** | Displays real-time course leaderboard ranking students by accumulated XP. | Hides the leaderboard page from students and instructors. Disabling leaderboard does not halt XP earning. |
-| **My Progress** | Displays upcoming deadlines, submission completion ratios, and recent grades. | Automatically enabled whenever either *Assessments* or *XP* is active. Only hidden if both features are simultaneously disabled. |
+**My progress is derived navigation, not a separate switch.** It appears while either Assessments or XP is enabled. Assignment, deadline, submission, and grade details depend on Assessments; XP totals depend on XP.
 
 ---
 
@@ -170,7 +170,7 @@ When you open an assignment, the problem instructions and expected constraints a
 
 ![Browser Execution Output](images/user-guide/05-browser-execution-output.png)
 
-CodeLeet runs all code **entirely within your browser sandbox** using WebAssembly (Pyodide for Python and TeaVM Web Workers for Java). Your source code is never executed on the backend server, ensuring privacy, zero queue latency, and offline resilience.
+Code runs in a browser sandbox using WebAssembly (Pyodide for Python and TeaVM for Java). Running code does not post your source to a server-side execution endpoint: the browser passes it to an isolated iframe and worker. Runtime assets are loaded from the application as needed, so a run requires access to those assets. Submitting a revision sends its source to the application server; requesting AI feedback also sends the saved source through the server to SoCLaaS.
 
 1. **Running Code**:
    - Provide optional **Standard input** in the stdin panel if your program reads input via `input()` (Python) or `Scanner` / `BufferedReader` (Java).
@@ -180,7 +180,7 @@ CodeLeet runs all code **entirely within your browser sandbox** using WebAssembl
    - **Input limit**: Standard input accepts up to **4,096 UTF-8 bytes**.
    - **Output limit**: Output capture is capped at **8,192 bytes** per execution to prevent browser freezing.
    - **Execution timeout**: Individual runs enforce a **5-second wall-clock deadline**. Long-running loops or blocking calls will terminate with a timeout notification.
-   - **Java Compatibility**: Supports standard `java.util.Scanner`, `java.io.BufferedReader`, collections, and stream operations. Multi-threading primitives (`Thread.start()`, `join()`, `Thread.sleep()`) are not supported by the client-side WebAssembly compiler and will display an informative compiler diagnostic.
+   - **Java Compatibility**: The browser runner compiles Java source and supports common APIs including `Scanner`, `BufferedReader`, collections, and `System.out`. Multi-threading primitives (`Thread.start()`, `join()`, `Thread.sleep()`) are not supported. Other library behavior depends on the bundled TeaVM class library.
    - Running code verifies execution locally but does not submit your assignment or record a grade.
 
 ### 4.4 Validating with Practice Tests
@@ -192,7 +192,7 @@ Instructors can author and publish test cases (up to 25 total cases per assignme
 2. Expand any test case to view its **Input** and **Expected Output**.
 3. Click **Run published tests**:
    - The browser executes your active editor code against each public test case sequentially.
-   - Each test case displays an immediate verdict: **Passed** (green check), **Wrong output** (red cross), **Runtime error**, or **Timed out**.
+   - Each test case displays its result, including **Passed**, **Wrong output**, **Compile error**, **Runtime error**, **Time limit exceeded**, or **Output limit exceeded** when applicable.
    - For wrong outputs, a side-by-side diff compares your actual stdout with the expected output. Note that comparison converts line endings (`\r\n` to `\n`) and strips at most one terminal newline, but preserves trailing spaces on lines. Ensure your output matches the exact format and does not include extraneous trailing spaces.
 4. Click **Refresh tests** to reload any newly updated test cases from your instructor.
 
@@ -222,14 +222,14 @@ Never lose your work due to accidental browser closures, battery failures, or ne
 4. **Continue Editing**:
    - To make further improvements, open any previous revision and click **Continue editing**. This loads that revision's source into the active editor while preserving the historical record intact.
 
-### 4.7 Side-by-Side Revision Comparison
+### 4.7 Revision Comparison
 
 ![Revision Diff Comparison](images/user-guide/09-revision-diff-comparison.png)
 
 1. From any saved submission view, select **Compare revisions**.
-2. Select your **From revision** and **To revision** from the dropdown selectors (by default, it compares the current revision against the immediately preceding one).
-3. The diff viewer highlights added lines in green (`+`) and removed lines in red (`-`), with exact line numbers.
-4. Comparing identical revisions confirms **No changes between these revisions**. Diffing is computed entirely on your device with zero network overhead.
+2. Select your **From revision** and **To revision** (the initial comparison uses the selected revision and its preceding revision when available).
+3. The comparison table shows changed lines with separate from/to line numbers; additions are green (`+`) and removals are red (`−`).
+4. Comparing identical revisions confirms **No changes between these revisions**. The server loads only your authorized revisions for the comparison page.
 
 ### 4.8 Requesting Pedagogical AI Feedback
 
@@ -255,7 +255,7 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
   - **Total Earned XP**: Cumulative experience points awarded in this course.
 - **Coming Up (Deadlines)**: Displays the 5 closest upcoming assignment deadlines in chronological order.
 - **Recent Submissions & Recent Grades**: Quick links to your 5 most recent submissions and released grade reports.
-- *Real-Time Anti-Join Accuracy*: The progress tracker uses database anti-join queries to guarantee that submitting multiple revisions for an assignment only increments your completion count once.
+- *Completion Counts*: The server loads published assignment and submission data for the current student and derives completion per assignment, so multiple revisions do not count as multiple completed assignments.
 
 ### 4.10 Discussion Forums & Keyword Search
 
@@ -294,7 +294,7 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 1. In your taught course, select **Manage Users** (`/courses/<courseId>/manage-users`) under the **Administration** sidebar section.
 2. **Student Join Code**:
-   - Every active course features a dedicated 8-character alphanumeric **Student join code**.
+   - An active course can have a random URL-safe **Student join code**. Generated codes contain 32 characters.
    - Click **Copy join code** to distribute it to students in your class. Students can input this code on their Courses page to immediately enroll.
    - Click **Rotate code** if you need to revoke the previous code and issue a fresh one.
 3. **Managing the Roster**:
@@ -340,7 +340,7 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
    - **Visibility**: Toggle between **Public** (immediately available to enrolled students for in-browser practice testing) and **Private** (reserved for instructor-only evaluation during submission review).
 3. **Atomic Publication Workflow**:
    - **Save draft**: Saves test cases in your private instructor workspace without exposing them to students.
-   - **Publish tests**: Atomically releases the edited test case set to students.
+   - **Publish tests**: Atomically publishes public cases for student practice. Private cases remain in the instructor's saved set and are available in the instructor submission-review runner; they are not sent to students.
    - **Unpublish tests**: Retracts published cases while retaining your saved draft.
 
 ### 5.5 Submission Review, AI Rubric Suggestions & Grade Publishing
@@ -365,9 +365,7 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 ### 5.6 AI Context Comparison Inspector
 
-Instructors can open **Context comparison** (`/courses/<courseId>/context-comparison`) under **Administration** to inspect prompt construction efficiency:
-- Displays side-by-side prompt views contrasting focused context vs. broader context packets.
-- Visualizes token counts and demonstrates the ~18.1% token reduction achieved by focused context strategies while maintaining strict rubric privacy.
+Instructors can open **Context comparison** (`/courses/<courseId>/context-comparison`) under **Administration**. It runs focused and broader owner-authorized reviews for a selected submission and displays their estimated input-token counts, suggested evaluations, and the per-comparison token difference. Uncached model runs consume instructor quota. The separate offline context experiment measured an 18.1% aggregate token reduction across eight synthetic cases; an individual comparison can differ, and that experiment did not measure model-quality improvements.
 
 ---
 
@@ -401,20 +399,20 @@ The following comprehensive matrix specifies the trigger, immediate UI feedback,
 | User Action | Immediate UI Feedback | Backend / Storage Mutation | Edge Case / Error Recovery |
 | :--- | :--- | :--- | :--- |
 | **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Authenticates credentials; establishes secure HTTP-only session cookie. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
-| **Theme Toggle** | Immediate CSS color transition between light and dark themes. | Updates `localStorage` theme token on client browser. Zero network calls. | Falls back to system OS color scheme if storage is restricted. |
-| **Run Code** | Button shows spinner; terminal displays **Running code…**; editor is locked to read-only during execution. | Executes purely client-side inside WebAssembly Worker sandbox. No backend request. | If code runs >5 seconds, Worker terminates with **Execution timed out (5s limit)**. |
+| **Theme Toggle** | Immediate CSS color transition between light and dark themes. | Stores the preference in browser `localStorage` when available; otherwise the choice lasts for the current page session. | Initial theme uses the stored preference or system color scheme. |
+| **Run Code** | Button shows pending state; terminal reports runner output. | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API. | Standard assignment runs use a 5-second limit; the runner also reports preparation, output, unavailable, and stopped states. |
 | **Run Practice Tests** | Test case pills switch to loading spinner; displays **Running test case X of Y…**. | Sequentially runs code against public inputs inside client-side sandbox. | Normalizes line endings (`\r\n` vs `\n`); displays visual diff if stdout does not match. |
 | **Type in Editor** | Typing status pill shows **Saving draft…**, debounced by 500ms, then **Draft saved on this device**. | Writes source to browser `localStorage` keyed by `draft:userId:assignmentId`. | If browser storage quota is exceeded, displays **Couldn't save draft on this device; submit revision soon**. |
 | **Restore Draft** | Editor replaces baseline template with the recovered 7-day draft; recovery banner dismisses. | Local state only. | If user clicks **Discard draft**, local storage key is deleted and template restored. |
 | **Submit Revision** | Button shows spinner; disabled to prevent double clicks; toast confirms **Revision N submitted**. | Creates immutable database row in `submissions`; snapshots current deadline and assignment language. | If source exceeds 8,000 characters, returns validation error; draft remains in editor for trimming. |
-| **Compare Revisions** | Diff viewer displays immediate color-coded inline diff with line numbers. | Compares two cached revision strings client-side. Zero server calls. | If comparing a revision with itself, displays **No changes between these revisions**. |
+| **Compare Revisions** | Comparison table displays changed lines and from/to line numbers. | Loads the student's authorized revisions on the server and renders their comparison. | If comparing identical revisions, displays **No changes between these revisions**. |
 | **Request Student AI Feedback** | Button shows spinner and **Analyzing submission…**; skeleton loader pulses. | Dispatches request to server-side SoCLaaS API; records token usage in ledger. | If AI quota exhausted or service down, displays friendly retry toast; submission is never altered. |
 | **Post Discussion Thread** | Button shows spinner; redirects to newly created thread on success. | Inserts row into `forum_threads` table; validates 160-char title and 8,000-char message. | If exceeding 10 posts/minute rate limit, displays **Posting too quickly; wait a minute**. Draft preserved. |
-| **Rotate Join Code** | Join code displays spinner; new 8-character string appears with copy icon. | Updates `join_code` in `courses` table; invalidates previous code. | Previous code immediately stops accepting enrollments; existing students unaffected. |
+| **Rotate Join Code** | Join-code control shows pending state; a new code appears with a copy action. | Stores a hash of the generated code in `course_join_codes`; invalidates the previous active code. | Previous code stops accepting enrollments; existing students are unaffected. A verified account is required to join. |
 | **Publish Assignment** | Status badge switches from gray **Draft** to green **Published**. | Updates `is_published = true` in database; triggers assignment visibility for enrolled students. | Language field is locked against future modifications once first student submission is saved. |
-| **Publish Practice Tests** | Toast confirms **Practice tests published**; student view updates immediately. | Atomically writes draft test cases to `published_test_cases` table. | Publishing requires at least 1 valid test case; saving draft allows empty sets. |
-| **Publish Grade & Rubric** | Button shows spinner; status pill switches to **Published**; student XP ledger updates. | Inserts/updates `grades` table; calculates student assignment XP via database transaction. | If concurrent modification occurs, prompts instructor to reload fresh data before saving. |
-| **Toggle Feature Switch** | Toggle switch flips; displays brief saving indicator; section link appears/disappears in sidebar. | Updates course feature flags in `courses` table. | If database save fails, toggle snaps back to previous state and displays error notification. |
+| **Publish Practice Tests** | Toast confirms the action; published public cases appear for students after refresh. | Atomically writes the published public-case snapshot to `assignment_practice_sets`; the instructor draft retains public and private cases. | Private cases are not published to students. Version conflicts require reloading the current draft. |
+| **Publish Grade & Rubric** | Button shows pending state; published grade appears to the student and eligible XP is recomputed. | Sends a version-checked grade update; the database operation updates the grade and XP ledger atomically. | On version conflict, instructor must reload before saving again. |
+| **Toggle Feature Switch** | The control shows pending state; navigation reflects the saved setting after refresh. | Updates the course's row in `course_features`. | If saving fails, the prior value remains and an error is shown. |
 | **Demote Admin User** | Role selector displays spinner; table updates with new role badge. | Updates `user_roles` table with platform role change. | Rejects with **Cannot demote the last remaining administrator** if last admin. |
 
 ---
@@ -442,9 +440,9 @@ The following comprehensive matrix specifies the trigger, immediate UI feedback,
 
 | Issue Encountered | Probable Cause | Recommended Resolution |
 | :--- | :--- | :--- |
-| **"Sign-in locked / Too many attempts"** | More than 10 failed login attempts were detected within 60 seconds. | Wait 60 seconds for the security rate limit window to expire, then retry with the correct credentials. |
+| **"Sign-in locked / Too many attempts"** | The identifier or global sign-in attempt limit was reached in the current minute. | Wait for the displayed retry time (up to 60 seconds), then retry. Attempts are counted before credential validation. |
 | **"Couldn't save draft on this device"** | Browser storage is disabled, full, or running in an incognito session with strict storage blocking. | Check that cookies and local storage are enabled for `localhost` / CodeLeet origin. Submit your revision promptly to save it to the server. |
-| **"Draft conflict detected"** | The same assignment was edited in multiple browser tabs simultaneously. | Choose **Keep this tab's code** if this tab has your latest edits, or **Load other draft** to adopt the other tab's version. |
+| **"Draft conflict detected"** | The same assignment was edited in multiple browser tabs simultaneously. | Choose **Keep this tab’s code** or **Load other draft** to resolve the conflict. |
 | **"Java compiler error: Thread is not supported"** | Java multi-threading APIs (`Thread`, `join`, `sleep`) are unsupported in the client-side WebAssembly environment. | Refactor your program to use sequential execution and standard iteration structures. |
 | **"Wrong Output" on practice tests despite identical numbers** | Mismatched whitespace, missing line breaks, or unwanted debug print statements. | Verify that your program matches the exact expected output format. Remove extraneous debug logs and check for trailing spaces. |
 | **Course sidebar links (e.g. Discussions or Leaderboard) disappeared** | The course instructor or owner has disabled that specific feature switch for the course. | Contact your course instructor. Existing posts and earned XP remain safely preserved in the database. |
