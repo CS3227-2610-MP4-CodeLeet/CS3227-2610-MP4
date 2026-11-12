@@ -31,29 +31,33 @@ The student editor SHALL preserve unfinished source on the same browser/device w
 - **WHEN** sign-out succeeds, the authenticated account changes, or another tab changes this draft
 - **THEN** sign-out clears app draft records and invalidates active writers, account loss prevents old-account writes, and conflicting tabs require an explicit keep/load choice without silently replacing visible source; storage or browser API failures leave Run/Submit and navigation protection usable
 
-### Requirement: Instructor-authored public practice cases
-Verified owning instructors SHALL manage up to five ordered public stdin/expected-stdout cases on a dedicated assignment Practice tests page.
+### Requirement: Assignment-form test case authoring
+Verified course instructors SHALL manage up to 25 ordered public/private stdin/expected-stdout cases in the assignment create/edit form. There SHALL be no separate test editor or independent test publication write endpoint/RPC.
 
-#### Scenario: Required constraints for instructor-authored public practice cases
-- **WHEN** this capability is used
-- **THEN** Names SHALL be nonblank and at most 120 Unicode code points after trimming; case UUIDs SHALL be distinct; input/output SHALL preserve literal whitespace and be valid text without NUL, bounded to 4,096/8,192 UTF-8 bytes respectively. Empty input/output SHALL be valid.
+#### Scenario: Required case constraints
+- **WHEN** an instructor saves assignment cases
+- **THEN** names SHALL be nonblank and at most 120 Unicode code points after trimming; case UUIDs SHALL be distinct. Input/output SHALL preserve literal whitespace and be valid text without NUL, bounded to 4,096/8,192 UTF-8 bytes. Empty input/output SHALL be valid. The combined public/private count SHALL NOT exceed 25.
 
-Private drafts and public snapshots SHALL reside in separate RLS-protected storage. Save draft SHALL not replace a published set; Publish tests SHALL atomically save/publish the edited set; Unpublish tests SHALL remove public cases while retaining the draft. Each write SHALL require an expected edit version, verified trusted instructor role and assignment ownership, and reject conflicts without partial writes. Direct client writes SHALL be denied. Published snapshot revisions SHALL advance on publish/unpublish.
+Assignment saving SHALL atomically persist the instructor case set and, when saving with Published status, replace its public projection with only public cases. Marking all cases private or removing all cases SHALL clear that projection. Removing a case SHALL remove it from the saved instructor set. Saving a Draft assignment SHALL NOT expose its cases to students. Existing case data SHALL be preserved on rollout; there SHALL be no automatic publication of unsaved or previously private edits.
 
-Student reads SHALL return only the public projection for a published assignment, with assignment and test-set versions from one database snapshot. Missing/hidden assignments SHALL be unavailable rather than empty; a failed read SHALL not become an empty set or fixture fallback. Source, rubrics, grades and drafts SHALL be excluded. API writes SHALL enforce strict bounded JSON, same-origin and verified roles, with sanitized private/no-store responses. No AI, official result, grade or XP write SHALL result from this feature.
+Writes SHALL use the assignment's expected version, verified instructor course access and bounded same-origin JSON. Stale saves SHALL reject atomically without replacing cases. Direct client table writes SHALL remain denied. Student reads SHALL return only the public projection for a published assignment; instructor submission review SHALL retain access to all current saved cases including private ones. API read failure SHALL remain distinct from an empty set. Browser runs SHALL NOT create official results, grades or XP.
 
-#### Scenario: Edit without releasing a new set
-- **WHEN** an instructor saves changes as a draft after publishing cases
-- **THEN** students continue to receive the previously published cases until explicit publication
+#### Scenario: Immediate visibility change
+- **WHEN** an instructor saves a Published assignment after changing a public case to private
+- **THEN** students no longer receive that case, while instructors retain it for submission review
+
+#### Scenario: Removal and clearing
+- **WHEN** an instructor removes cases and saves a Published assignment
+- **THEN** the cases disappear from both the saved instructor set and student projection
+- **AND** an empty or entirely private set returns zero public cases without hiding the assignment
 
 #### Scenario: Conflicting author edits
-- **WHEN** two updates use the same expected edit version
-- **THEN** only one succeeds and the other receives a conflict without replacing its typed draft
+- **WHEN** two assignment updates use the same expected assignment version
+- **THEN** only one succeeds and the other receives a conflict without replacing its typed form or saved cases
 
-#### Scenario: Assignment or test unpublication
-- **WHEN** cases are unpublished
-- **THEN** the accessible assignment returns an empty public set and retains the private draft
-- **AND** unpublishing the assignment makes the assignment/cases unavailable to students
+#### Scenario: Retired authoring surface
+- **WHEN** a user requests the former dedicated Practice tests page or its independent PATCH API
+- **THEN** the page is unavailable and the API provides no independent publication mutation
 
 ### Requirement: Optional deadlines and submission timing
 Instructors SHALL be able to create, edit and clear optional assignment due dates, entered/displayed in Singapore time and stored as finite timestamp-with-time-zone instants.

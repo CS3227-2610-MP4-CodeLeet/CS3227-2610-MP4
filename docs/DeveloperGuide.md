@@ -73,7 +73,7 @@ graph TD
 ### 1.3 Architectural Invariants
 
 1. **Browser-Side Execution**: The application does not send submitted code to a server execution API. The browser runtime runs it in an iframe and worker. Source can still be submitted to the application or sent in a server-side AI review request when the user invokes those features.
-2. **Server-Validated State**: The browser is not the authority for protected writes. Submission metadata, grade changes, authorization, and XP effects are checked by server routes and database functions/policies, as defined by the current implementation.
+2. **Server-Validated State**: The browser is not the authority for protected writes. Supabase Auth session state is verified with `auth.getUser()` in protected server operations; role, ownership, and membership checks then use server-side lookups and database policies/functions. Submission metadata, grade changes, and XP effects are checked by server routes and database functions/policies, as defined by the current implementation.
 3. **Revision History**: Submissions are created through the `submit_code` database function with revision and deadline data. The application presents revisions as history; database rules and tests define the enforced write behavior.
 4. **Server-Side AI Isolation**: SoCLaaS API credentials, system prompts, and private instructor rubric criteria are strictly isolated on the server. Models have zero direct tool execution or grade-publishing authority.
 
@@ -86,7 +86,7 @@ CS3227-2610-MP4/
 ├── docs/                      # Canonical documentation master files
 │   ├── UserGuide.md           # End-user guide with embedded screenshots
 │   ├── DeveloperGuide.md      # Engineering architecture and developer practices
-│   └── images/user-guide/     # User-guide screenshots (18 image assets)
+│   └── images/user-guide/     # User-guide screenshots (17 image assets)
 ├── openspec/                  # Spec-Driven Development (SDD) schema and delta specs
 ├── src/
 │   ├── app/                   # Selected Next.js App Router routes and API handlers
@@ -103,7 +103,7 @@ CS3227-2610-MP4/
 │   │   ├── student-assignments/ # Assignment browsing, editor workspace
 │   │   ├── student-submissions/ # Revision creation, immutable history, diffing
 │   │   ├── student-progress/  # Server-side progress and activity loaders
-│   │   ├── practice-test-authoring/ # Test case drafting and atomic publishing
+│   │   ├── practice-test-authoring/ # Assignment case storage and authorized public/instructor reads
 │   │   ├── assignment-xp/     # Authoritative XP calculations and delta ledger
 │   │   ├── leaderboard/       # Course rankings and tied rank projection
 │   │   └── forums/            # Thread discussions, replies, keyword search
@@ -127,6 +127,7 @@ The codebase uses feature-oriented modules and explicit server, database, and br
 
 - **Feature modules**: `src/features/` groups related contracts, queries, and UI by product area; module boundaries differ by feature.
 - **Server and database boundaries**: Route handlers authenticate requests and call Supabase using user-scoped or server-only clients. Database policies and functions enforce the rules defined in migrations.
+- **Assignment test cases**: The assignment form is the sole editor and writes through `save_course_assignment`. The existing `assignment_practice_drafts` and `assignment_practice_sets` tables retain their historical names: they hold the saved instructor set and student public projection. Saving with Published status refreshes the public projection; instructor submission review can run private cases from the saved instructor set.
 - **Browser runtime boundary**: `src/runtime-lab/` runs code in a browser iframe and worker, separate from the Next.js server.
 
 ### 2.2 Design Patterns in CodeLeet
@@ -409,7 +410,7 @@ Feature: Platform Administrator Role Governance
   Scenario: Rejecting the demotion of the last remaining administrator
     Given there is exactly 1 active administrator account in the system
     When that administrator attempts to change their role to "Student"
-    Then the system rejects the transaction with an HTTP 400 error
+    Then the system rejects the transaction with an HTTP 409 error
     And the user role remains "Administrator"
     And an alert displays "Cannot demote the last remaining administrator"
 ```

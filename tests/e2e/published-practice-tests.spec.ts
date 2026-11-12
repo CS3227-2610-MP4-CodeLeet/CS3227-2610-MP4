@@ -11,18 +11,22 @@ test.skip(
     !/^http:\/\/(localhost|127\.0\.0\.1):54321$/.test(serviceUrl ?? ''),
   'Requires local synthetic accounts.',
 );
-const publishLabel = 'Publish tests';
-const saveLabel = 'Save draft';
+
 const refreshLabel = 'Refresh tests';
+const visibilityLabel = 'Public (visible to students)';
+const instructorApiPrefix = '/api/assignments/';
+const retiredSuffix = '/practice-tests';
+const editSuffix = '/edit';
+const assignmentPrefix = '/assignments/';
 const caseName = 'Sum example';
-const expectedLabel = 'Case 1 expected output';
+const expectedLabel = 'Expected output (stdout)';
 const sourceTexts = [
   'print(sum(map(int, input().split())))',
   'import java.util.Scanner; public class Main { public static void main(String[] args) { Scanner s = new Scanner(System.in); System.out.println(s.nextInt() + s.nextInt()); } }',
 ];
 
 for (const [index, language] of ['Python', 'Java'].entries()) {
-  test(`${language}: private drafts, publish, draft edits and unpublish preserve student code`, async ({
+  test(`${language}: assignment edits, visibility and removal preserve student code`, async ({
     page,
     browser,
     draftFixture: data,
@@ -30,19 +34,18 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
     await revisionSession(page, data.users[0].email, data.password);
     const id = data.assignments[index];
     await authorCase(page, data.courseId, id);
-    await saveCases(page, saveLabel);
+    await saveCases(page);
     const student = await browser.newPage();
     try {
       await revisionSession(student, data.users[1].email, data.password);
-      expect((await publicCases(student, id)).cases).toEqual([]);
-      await saveCases(page, publishLabel);
+      expect((await publicCases(student, id)).cases).toHaveLength(1);
       await student.goto(coursePath(data.courseId, `/assignments/${id}`));
       await expect(student.getByText(caseName, { exact: true })).toBeVisible();
       await student
         .getByLabel(`${language} source code`)
         .fill(sourceTexts[index]);
       await runIfEnabled(student, 'Passed');
-      await checkUpdatedPublication(page, student, id);
+      await checkUpdatedPublication(page, student, id, data.courseId);
       await expect(student.getByLabel(`${language} source code`)).toHaveValue(
         sourceTexts[index],
       );
@@ -51,53 +54,97 @@ for (const [index, language] of ['Python', 'Java'].entries()) {
     }
   });
 }
-async function checkUpdatedPublication(owner: Page, student: Page, id: string) {
-  await owner.getByLabel(expectedLabel).fill('7\n');
-  await saveCases(owner, saveLabel);
-  expect((await publicCases(student, id)).cases[0].expected_stdout).toBe('5\n');
-  await saveCases(owner, publishLabel);
+async function checkUpdatedPublication(
+  owner: Page,
+  student: Page,
+  id: string,
+  courseId: string,
+) {
+  await openEditor(owner, courseId, id);
+  await owner.getByLabel(expectedLabel).first().fill('7\n');
+  await saveCases(owner);
   await runIfEnabled(student, 'Wrong output');
   expect((await publicCases(student, id)).cases[0].expected_stdout).toBe('7\n');
-  await saveCases(owner, 'Unpublish tests');
+  await openEditor(owner, courseId, id);
+  await owner
+    .getByRole('checkbox', { name: visibilityLabel })
+    .first()
+    .uncheck();
+  await saveCases(owner);
+  expect((await publicCases(student, id)).cases).toEqual([]);
+  const retained = await owner.request.get(
+    appUrl + instructorApiPrefix + id + retiredSuffix,
+  );
+  expect((await retained.json()).data.cases).toHaveLength(2);
   await student.getByRole('button', { name: refreshLabel }).click();
   await expect(student.getByText('No published test cases.')).toBeVisible();
+  await openEditor(owner, courseId, id);
+  await owner
+    .getByRole('button', { name: 'Remove test case 2', exact: true })
+    .click();
+  await owner
+    .getByRole('button', { name: 'Remove test case 1', exact: true })
+    .click();
+  await saveCases(owner);
+  const removed = await owner.request.get(
+    appUrl + instructorApiPrefix + id + retiredSuffix,
+  );
+  expect((await removed.json()).data.cases).toEqual([]);
 }
 
-test('simultaneous owner updates conflict; students cannot read drafts or write cases', async ({
+test('assignment writes conflict and retired publication controls are unavailable', async ({
   page,
   browser,
   draftFixture: data,
 }) => {
   await revisionSession(page, data.users[0].email, data.password);
   const id = data.assignments[0];
-  const path = `${appUrl}/api/assignments/${id}/practice-tests`;
+  const payload = await assignmentUpdate(page, id, data.courseId);
+  const path = appUrl + instructorApiPrefix + id;
   const updates = await Promise.all(
     [1, 2].map(() =>
       page.request.patch(path, {
         headers: { origin: appUrl },
-        data: { action: 'save', expectedVersion: 0, cases: [] },
+        data: payload,
       }),
     ),
   );
   expect(updates.map((response) => response.status()).sort()).toEqual([
     200, 409,
   ]);
+  expect(
+    (
+      await page.request.patch(path + retiredSuffix, {
+        headers: { origin: appUrl },
+        data: { action: 'publish', expectedVersion: 0, cases: [] },
+      })
+    ).status(),
+  ).toBe(405);
+  const retired = await page.goto(
+    coursePath(data.courseId, assignmentPrefix + id + retiredSuffix),
+  );
+  expect(retired?.status()).toBe(404);
   const student = await browser.newPage();
   try {
     await revisionSession(student, data.users[1].email, data.password);
-    expect((await student.request.get(path)).status()).toBe(404);
+    expect((await student.request.get(path + retiredSuffix)).status()).toBe(
+      404,
+    );
     expect(
       (
         await student.request.patch(path, {
           headers: { origin: appUrl },
-          data: { action: 'unpublish', expectedVersion: 1 },
+          data: payload,
         })
       ).status(),
     ).toBe(404);
     expect(
       (
         await student.request.get(
-          `${appUrl}/api/student/assignments/${crypto.randomUUID()}/test-cases`,
+          appUrl +
+            '/api/student/assignments/' +
+            crypto.randomUUID() +
+            '/test-cases',
         )
       ).status(),
     ).toBe(404);
@@ -105,7 +152,7 @@ test('simultaneous owner updates conflict; students cannot read drafts or write 
     expect(
       (
         await page.request.get(
-          `${appUrl}/api/student/assignments/${id}/test-cases`,
+          appUrl + '/api/student/assignments/' + id + '/test-cases',
         )
       ).status(),
     ).toBe(401);
@@ -113,7 +160,6 @@ test('simultaneous owner updates conflict; students cannot read drafts or write 
     await student.close();
   }
 });
-
 test('load errors show retry, retain source and recover with safe text on mobile/dark', async ({
   page,
   draftFixture: data,
@@ -121,7 +167,7 @@ test('load errors show retry, retain source and recover with safe text on mobile
   await revisionSession(page, data.users[0].email, data.password);
   const id = data.assignments[0];
   await authorCase(page, data.courseId, id);
-  await saveCases(page, publishLabel);
+  await saveCases(page);
   await revisionSession(page, data.users[1].email, data.password);
   await page.setViewportSize({ width: 375, height: 812 });
   await page.emulateMedia({ colorScheme: 'dark' });
@@ -149,21 +195,28 @@ test('load errors show retry, retain source and recover with safe text on mobile
 });
 
 async function authorCase(page: Page, courseId: string, id: string) {
-  await page.goto(coursePath(courseId, `/assignments/${id}/practice-tests`));
+  await openEditor(page, courseId, id);
   await page.getByRole('button', { name: 'Add test case' }).click();
-  await page.getByLabel('Case 1 name').fill(caseName);
-  await page.getByLabel('Case 1 input').fill('2 3\n');
-  await page.getByLabel(expectedLabel).fill('5\n');
+  await page.getByLabel('Test case 1 name').fill(caseName);
+  await page.getByLabel('Standard input (stdin)').first().fill('2 3\n');
+  await page.getByLabel(expectedLabel).first().fill('5\n');
+  await page.getByRole('button', { name: 'Add test case' }).click();
+  await page.getByLabel('Test case 2 name').fill('Private example');
+  await page.getByRole('checkbox', { name: visibilityLabel }).nth(1).uncheck();
 }
-async function saveCases(page: Page, label: string) {
+async function saveCases(page: Page) {
   const response = page.waitForResponse(
     (response) =>
-      response.url().endsWith('/practice-tests') &&
+      /\/api\/assignments\/[^/]+$/.test(response.url()) &&
       response.request().method() === 'PATCH',
   );
-  await page.getByRole('button', { name: label, exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Save assignment', exact: true })
+    .click();
   expect((await response).status()).toBe(200);
-  await expect(page.getByText('Saving…', { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole('heading', { name: 'Assignments', exact: true }),
+  ).toBeVisible();
 }
 async function publicCases(page: Page, id: string) {
   const response = await page.request.get(
@@ -187,4 +240,35 @@ async function runIfEnabled(page: Page, verdict: string) {
       (url) => url.includes('/api/submissions') || url.includes('/api/grades'),
     ),
   ).toEqual([]);
+}
+
+async function assignmentUpdate(page: Page, id: string, courseId: string) {
+  const list = await page.request.get(
+    appUrl + '/api/assignments?courseId=' + courseId,
+  );
+  const assignment = (await list.json()).assignments.find(
+    (item: { id: string }) => item.id === id,
+  );
+  return {
+    courseId: courseId,
+    title: assignment.title,
+    instructions: 'Synthetic',
+    language: 'python',
+    publicationStatus: 'published',
+    expectedVersion: assignment.version,
+    rubric: [
+      {
+        id: crypto.randomUUID(),
+        title: 'Correctness',
+        description: 'Synthetic',
+        maxScore: 10,
+      },
+    ],
+    cases: [],
+  };
+}
+
+async function openEditor(page: Page, courseId: string, id: string) {
+  await page.goto(coursePath(courseId, assignmentPrefix + id + editSuffix));
+  await page.waitForLoadState('networkidle');
 }

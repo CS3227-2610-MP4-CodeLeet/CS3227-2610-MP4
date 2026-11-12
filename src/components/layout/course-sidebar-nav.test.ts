@@ -20,13 +20,6 @@ describe('isNavItemActive', () => {
     expect(
       isNavItemActive(asgHref, `/courses/${CID}/assignments/a1/edit`, CID),
     ).toBe(true);
-    expect(
-      isNavItemActive(
-        asgHref,
-        `/courses/${CID}/assignments/a1/practice-tests`,
-        CID,
-      ),
-    ).toBe(true);
     // Excludes new assignment action (has own nav button) and context-comparison
     expect(
       isNavItemActive(asgHref, `/courses/${CID}/assignments/new`, CID),

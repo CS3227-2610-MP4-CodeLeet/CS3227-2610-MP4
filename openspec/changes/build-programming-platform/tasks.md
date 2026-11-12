@@ -57,7 +57,7 @@
 
 - [x] 6.1 Execute authorized specialist coordination and independent reviews with actual handoff evidence. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [x] 6.2 Compare context and development handoff strategies within recorded evaluation scopes. The product context harness estimated 18.1% fewer input tokens for focused packets (+22.1% for broader packets) and checked preflight budget/rubric privacy assertions. The development harness estimated 95.5% fewer constructed input tokens across five synthetic packet pairs (22.1x broad/focused ratio) and omitted nine deliberately placed obsolete references. It did not measure live development-agent token usage, quality or hazard frequency.
-- [ ] 6.3 Update guides, verified session summaries, individual reflections and acknowledgements. Guide consistency work is tracked in [issue #162](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/162) with this follow-up in [issue #164](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/164); reflections and acknowledgements remain open.
+- [ ] 6.3 Update guides, verified session summaries, individual reflections and acknowledgements. Guide consistency work is tracked in [issue #162](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/162), [issue #164](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/164), and this follow-up in [issue #166](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/166); reflections and acknowledgements remain open.
 - [ ] 6.4 Configure separate environments and team-managed deployment/migrations/recovery.
 - [x] 6.5 Add fresh Docusaurus site tooling and publish reviewed product website to GitHub Pages. Reconciled on 5 November against the issue #98 evidence ledger; historical checks retain their original scope.
 - [ ] 6.6 Verify deployed role journeys, both languages, AI failure behavior and security controls.
@@ -384,3 +384,9 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 - [x] 47.2 Assert instructor assignment and grading inputs remain intact after save conflicts, including private rubric notes and feedback.
 - [x] 47.3 Reconcile the development-context experiment, guide and task claim with its actual constructed-packet estimator; preserve a supersession link for the historical observation.
 - [x] 47.4 Verify applicable tests, formatting, scaffold and OpenSpec; write dated summary and open linked [PR #159](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/159) to `develop` for teammate review. Local full unit suite, focused lint/format, strict OpenSpec and scaffold checks passed. PR-head CI and human review remain separate.
+
+## 48. [Issue #168](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/168) consolidate test-case editing
+
+- [x] 48.1 Remove the dedicated editor and independent publication write API/RPC; preserve existing cases and authorized student/instructor reads.
+- [x] 48.2 Verify assignment-only editing, 25-case bounds, public/private changes, removal/clearing, stale saves and access denial through updated unit/database/browser coverage.
+- [x] 48.3 Update guides (student-facing User Guide 4.4, assignment-only 5.4; remove Developer Guide 3.5), design/specs, dated log and PR with actual verification; leave human review pending.
