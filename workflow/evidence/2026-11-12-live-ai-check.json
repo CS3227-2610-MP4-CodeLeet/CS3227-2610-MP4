@@ -148,7 +148,18 @@
   ],
   "limitations": [
     "Ten synthetic requests; no universal resistance claim.",
-    "No provider limits inferred when rate-limit headers are absent.",
+    "Only the listed standard rate-limit header names were inspected; no provider limits were inferred from absent values.",
     "No raw prompts, responses or credentials retained."
+  ],
+  "inspectedRateLimitHeaderNames": [
+    "retry-after",
+    "ratelimit-limit",
+    "ratelimit-remaining",
+    "ratelimit-reset",
+    "x-ratelimit-limit-requests",
+    "x-ratelimit-remaining-requests",
+    "x-ratelimit-reset-requests",
+    "x-ratelimit-limit-tokens",
+    "x-ratelimit-remaining-tokens"
   ]
 }
