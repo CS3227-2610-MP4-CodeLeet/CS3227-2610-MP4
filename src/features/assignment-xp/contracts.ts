@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { xpRevisionSchema } from '@/lib/courses/xp-pagination';
 export const maxXpSchema = z.number().int().min(0).max(100_000);
 type XpAssignmentInput = { maxXp?: number; dueAt?: string | null };
 export function xpAssignmentArguments(input: XpAssignmentInput) {
@@ -25,6 +26,8 @@ const awardSchema = z
   .strict();
 export const xpSummarySchema = z
   .object({
+    revision: xpRevisionSchema,
+    restarted: z.boolean(),
     total_xp: z.string().regex(/^(0|[1-9]\d*)$/),
     page: z.number().int().min(1).max(10000),
     has_more: z.boolean(),

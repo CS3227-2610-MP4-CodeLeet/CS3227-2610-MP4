@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { type, release, arch } from 'node:os';
-import { chromium } from '@playwright/test';
+import { chromium, firefox, webkit } from '@playwright/test';
 
 const started = new Date().toISOString();
 const outputPath = process.argv[2] ?? 'workflow/evidence/runtime-feasibility/independent-browser-tests.json';
@@ -12,7 +12,10 @@ const sourceHashes = Object.fromEntries(await Promise.all(['lab.mjs', 'superviso
 const assetManifestSha256 = createHash('sha256').update(await readFile('workflow/evidence/runtime-feasibility/assets.json')).digest('hex');
 const previousReport = await readFile(outputPath, 'utf8').then(JSON.parse).catch(() => ({}));
 const priorFailures = [...(previousReport.priorFailures ?? []), ...(previousReport.cases ?? []).filter((item) => !item.passed).map((item) => ({ measuredAt: previousReport.finished, ...item }))];
-const browser = await chromium.launch();
+const browserName = process.argv[3] ?? 'chromium';
+const browserType = { chromium, firefox, webkit }[browserName];
+if (!browserType) throw new Error('Choose chromium, firefox or webkit.');
+const browser = await browserType.launch();
 const context = await browser.newContext();
 const page = await context.newPage();
 page.setDefaultTimeout(45000);
@@ -134,7 +137,9 @@ try {
     assert.equal(details.nativeFetchFound, true, 'Need native fetch, not merely asset shim');
     assert.equal(details.fetchGET, 'TypeError'); assert.equal(details.fetchPOST, 'TypeError');
     assert.equal(details.xhrGET, 'NetworkError'); assert.equal(details.xhrPOST, 'NetworkError');
-    assert.ok(['blocked', 'SecurityError'].includes(details.websocket), JSON.stringify(details));
+    // Firefox throws this CSP denial synchronously; the recorder assertion below
+    // still requires that no worker request reaches the server.
+    assert.ok(['blocked', 'SecurityError', 'NS_ERROR_CONTENT_BLOCKED'].includes(details.websocket), JSON.stringify(details));
     assert.equal(details.importScripts, 'NetworkError'); assert.equal(details.moduleImport, 'TypeError'); assert.equal(details.nestedWorker, 'TypeError');
     assert.match(details.shimFetch, /Network denied/);
     const after = await page.evaluate(async (path) => (await (await fetch(path)).json()).probeRequests, metricsPath);
@@ -183,9 +188,9 @@ try {
   });
   await page.evaluate(() => { document.cookie = 'runtime_synthetic_canary=; Max-Age=0; Path=/'; localStorage.removeItem('runtime_synthetic_canary'); });
   await writeFile(outputPath, JSON.stringify({
-    task: outputPath.endsWith('independent-browser-tests.json') ? '/root/browser_boundary_tester' : '/root coordinator replay of previously independently authored harness', started, finished: new Date().toISOString(), node: process.version, browser: browser.version(), environment, os: { type: type(), release: release(), arch: arch() }, sourceHashes, assetManifestSha256,
-    command: 'node workflow/scripts/verify-runtime-boundary.mjs', finalPolicy: "opaque sandbox allow-scripts; connect-src none; script-src nonce + blob + unsafe-eval; worker-src blob",
-    cases, priorFailures, probeEvents, consoleErrors, limitations: ['Chromium only; no Firefox/WebKit claim.', 'No browser-process memory quota claim; bounded samples only.', 'Blocked request events can record attempts; server counter measures requests actually received.', 'No application integration, real credentials, or deployment tested.'],
+    task: outputPath.endsWith('independent-browser-tests.json') ? '/root/browser_boundary_tester' : '/root coordinator replay of previously independently authored harness', started, finished: new Date().toISOString(), node: process.version, browserName, browser: browser.version(), environment, os: { type: type(), release: release(), arch: arch() }, sourceHashes, assetManifestSha256,
+    command: `node workflow/scripts/verify-runtime-boundary.mjs ${outputPath} ${browserName}`, finalPolicy: "opaque sandbox allow-scripts; connect-src none; script-src nonce + blob + unsafe-eval; worker-src blob",
+    cases, priorFailures, probeEvents, consoleErrors, limitations: [`${browserName} engine only; no shipping Safari certification.`, 'No browser-process memory quota claim; bounded samples only.', 'Blocked request events can record attempts; server counter measures requests actually received.', 'No application integration, real credentials, or deployment tested.'],
   }, null, 2) + '\n');
   if (cases.some((item) => !item.passed)) process.exitCode = 1;
 } finally { await browser.close(); }

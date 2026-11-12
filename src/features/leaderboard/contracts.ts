@@ -1,8 +1,11 @@
 import { z } from 'zod';
+import { xpRevisionSchema } from '@/lib/courses/xp-pagination';
 const positive = z.string().regex(/^[1-9]\d*$/);
 const total = z.string().regex(/^(0|[1-9]\d*)$/);
 export const leaderboardSchema = z
   .object({
+    revision: xpRevisionSchema,
+    restarted: z.boolean(),
     page: z.number().int().min(1).max(10000),
     has_more: z.boolean(),
     own: z

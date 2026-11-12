@@ -48,7 +48,12 @@ export async function GET(request: NextRequest) {
       },
       404,
     );
-  const data = await loadLeaderboard(supabase, context.courseId, context.page);
+  const data = await loadLeaderboard(
+    supabase,
+    context.courseId,
+    context.page,
+    context.revision,
+  );
   return data
     ? privateJson({ data })
     : privateJson(

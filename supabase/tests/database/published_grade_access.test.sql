@@ -1,0 +1,56 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select no_plan();
+insert into auth.users(id,aud,role,email,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) values
+ ('a1700000-0000-4000-8000-000000000001','authenticated','authenticated','grade-owner@example.test',now(),'{}','{}',now(),now()),
+ ('a1700000-0000-4000-8000-000000000002','authenticated','authenticated','grade-student@example.test',now(),'{}','{}',now(),now());
+update public.user_roles set role='instructor' where user_id='a1700000-0000-4000-8000-000000000001';
+insert into public.courses(id,owner_id,created_by,title,description) values ('a1701000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000001','Grade access','');
+insert into public.course_memberships(course_id,user_id,role) values
+ ('a1701000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000001','instructor'),
+ ('a1701000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000002','student');
+insert into public.course_features(course_id,feature,enabled) values ('a1701000-0000-4000-8000-000000000001','assessments',true);
+insert into public.assignments(id,instructor_id,title,instructions,language,publication_status,course_id) values ('a1702000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000001','Grade','Synthetic','python','published','a1701000-0000-4000-8000-000000000001');
+insert into public.assignment_rubrics(assignment_id,criteria) values ('a1702000-0000-4000-8000-000000000001','[{"id":"a1703000-0000-4000-8000-000000000001","title":"PRIVATE-LATER-EDIT","description":"PRIVATE-LATER-EDIT","maxScore":10}]');
+insert into public.submissions(id,assignment_id,student_id,source,revision,request_id) values ('a1704000-0000-4000-8000-000000000001','a1702000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000002','print(1)',1,'a1705000-0000-4000-8000-000000000001');
+insert into public.grades(submission_id,instructor_id,scores,feedback,total_score,published_at) values ('a1704000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000001','{"a1703000-0000-4000-8000-000000000001":8}','Published',8,now());
+set local role authenticated;
+select set_config('request.jwt.claim.sub','a1700000-0000-4000-8000-000000000002',true);
+select ok(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001')::text not like '%PRIVATE-LATER-EDIT%','legacy grade never reads later private rubric text');
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001')->>'total_score','8','legacy published total remains available');
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001')->'criteria'->0->>'title','Criterion','legacy score uses neutral label');
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001')->'criteria'->0->'maxScore','null'::jsonb,'legacy score never invents a historical maximum');
+reset role;
+update public.grades set rubric_snapshot='[{"id":"a1703000-0000-4000-8000-000000000001","title":"Published criterion","description":"Published description","maxScore":10}]' where submission_id='a1704000-0000-4000-8000-000000000001';
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001')->'criteria'->0->>'description','Published description','intentionally published snapshot is preserved');
+reset role;
+delete from public.course_memberships where course_id='a1701000-0000-4000-8000-000000000001' and user_id='a1700000-0000-4000-8000-000000000002';
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001'),null::jsonb,'removed student cannot bypass RLS with direct grade RPC');
+reset role;
+insert into public.course_memberships(course_id,user_id,role) values ('a1701000-0000-4000-8000-000000000001','a1700000-0000-4000-8000-000000000002','instructor');
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001'),null::jsonb,'changed course role cannot retain student RPC access');
+reset role;
+update public.course_memberships set role='student' where course_id='a1701000-0000-4000-8000-000000000001' and user_id='a1700000-0000-4000-8000-000000000002';
+update public.course_features set enabled=false where course_id='a1701000-0000-4000-8000-000000000001';
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001'),null::jsonb,'disabled assessments blocks direct RPC');
+reset role;
+update public.courses set lifecycle='archived' where id='a1701000-0000-4000-8000-000000000001';
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001')->>'total_score','8','archived course preserves authorized historical grade');
+reset role;
+update auth.users set email_confirmed_at=null where id='a1700000-0000-4000-8000-000000000002';
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001'),null::jsonb,'unverified identity cannot retain direct RPC access');
+reset role;
+update auth.users set email_confirmed_at=now() where id='a1700000-0000-4000-8000-000000000002';
+delete from public.user_roles where user_id='a1700000-0000-4000-8000-000000000002';
+set local role authenticated;
+select is(public.get_published_submission_grade('a1704000-0000-4000-8000-000000000001'),null::jsonb,'deprovisioned account cannot retain direct RPC access');
+reset role;
+select * from finish();
+rollback;

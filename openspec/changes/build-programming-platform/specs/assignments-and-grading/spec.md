@@ -1,5 +1,17 @@
 ## ADDED Requirements
 
+### Requirement: Published grade authorization and historical rubric context
+Published-grade RPC reads SHALL require the current verified, provisioned account to own the submission and retain student membership and assessment read access in its course. A privileged RPC SHALL enforce the same boundary as direct table reads. Intentionally published criterion snapshots SHALL remain visible to authorized students; a missing snapshot SHALL never be replaced with current private rubric text.
+
+#### Scenario: Membership or assessment access removed
+- **WHEN** a former student, changed course role, unverified or deprovisioned account invokes the grade RPC directly, or active-course assessments are disabled
+- **THEN** no published-grade data is returned
+- **AND** an authorized student in an archived course retains the permitted historical read
+
+#### Scenario: Legacy publication without a rubric snapshot
+- **WHEN** a published grade lacks its original rubric snapshot
+- **THEN** its stored total, feedback and criterion scores remain available with neutral criterion labels and unknown maxima, without revealing subsequent private rubric edits
+
 ### Requirement: Private student progress overview
 The system SHALL provide a student course member with My progress showing exact published-assignment totals, own course XP, up to five deadlines, recent own revisions and grades. Submitted means at least one saved revision, not passing tests or receiving a grade.
 

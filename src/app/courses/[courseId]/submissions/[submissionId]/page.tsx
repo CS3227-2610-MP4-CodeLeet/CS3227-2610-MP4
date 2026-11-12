@@ -39,7 +39,7 @@ type PublishedGradeCriterion = {
   id: string;
   title: string;
   description: string;
-  maxScore: number;
+  maxScore: number | null;
   score: number;
 };
 
@@ -430,7 +430,7 @@ function PublishedGradeSection({ grade }: { grade: PublishedGrade }) {
                 </div>
                 <div className="text-right">
                   <span className="font-semibold text-sm">
-                    {criterion.score} / {criterion.maxScore}
+                    {criterion.score} / {criterion.maxScore ?? '—'}
                   </span>
                 </div>
               </div>

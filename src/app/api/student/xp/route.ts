@@ -27,7 +27,12 @@ export async function GET(request: NextRequest) {
     (access.lifecycle === 'active' && !access.featureEnabled)
   )
     return fail('not_found', 'Course XP is unavailable.', 404);
-  const data = await loadOwnXp(supabase, context.courseId, context.page);
+  const data = await loadOwnXp(
+    supabase,
+    context.courseId,
+    context.page,
+    context.revision,
+  );
   return data
     ? privateJson({ data })
     : fail('load_failed', 'XP could not be loaded. Try again.', 503);
