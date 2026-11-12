@@ -73,7 +73,7 @@ graph TD
 ### 1.3 Architectural Invariants
 
 1. **Browser-Side Execution**: The application does not send submitted code to a server execution API. The browser runtime runs it in an iframe and worker. Source can still be submitted to the application or sent in a server-side AI review request when the user invokes those features.
-2. **Server-Validated State**: The browser is not the authority for protected writes. Submission metadata, grade changes, authorization, and XP effects are checked by server routes and database functions/policies, as defined by the current implementation.
+2. **Server-Validated State**: The browser is not the authority for protected writes. Supabase Auth session state is verified with `auth.getUser()` in protected server operations; role, ownership, and membership checks then use server-side lookups and database policies/functions. Submission metadata, grade changes, and XP effects are checked by server routes and database functions/policies, as defined by the current implementation.
 3. **Revision History**: Submissions are created through the `submit_code` database function with revision and deadline data. The application presents revisions as history; database rules and tests define the enforced write behavior.
 4. **Server-Side AI Isolation**: SoCLaaS API credentials, system prompts, and private instructor rubric criteria are strictly isolated on the server. Models have zero direct tool execution or grade-publishing authority.
 
@@ -266,6 +266,41 @@ sequenceDiagram
     Page-->>Student: Render progress page
 ```
 
+### 3.5 Practice-Test Authoring & Publication Flow
+
+The instructor route `/courses/[courseId]/assignments/[assignmentId]/practice-tests` is the dedicated view for managing a saved test set and publishing its student-visible snapshot. The current assignment list and edit form do not link to this route; the route itself links back to the edit form. The edit form also exposes the same cases. The student assignment workspace instead loads published public cases in its **Test cases** panel and runs them in the browser.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Instructor
+    participant Page as Practice tests page
+    participant Editor as PracticeTestEditor
+    participant API as PATCH /api/assignments/{assignmentId}/practice-tests
+    participant Auth as Verified user and course access
+    participant DB as Supabase PostgreSQL
+    participant StudentAPI as GET /api/student/assignments/{assignmentId}/test-cases
+    participant Student as Student workspace
+
+    Instructor->>Page: Open Practice tests
+    Page->>Auth: Verify user and active instructor access
+    Page->>DB: Load draft and publication metadata
+    Page-->>Editor: Render current cases and edit version
+    Instructor->>Editor: Save draft, publish, or unpublish
+    Editor->>API: Send action, cases, and expected version
+    API->>Auth: Verify user, assignment access, and request origin
+    API->>DB: Call save_practice_tests(...)
+    DB-->>API: Updated edit/publication versions
+    API-->>Editor: Return success or version conflict
+    Student->>StudentAPI: Request published test cases
+    StudentAPI->>Auth: Verify student access
+    StudentAPI->>DB: Load published public snapshot
+    DB-->>StudentAPI: Return public cases only
+    StudentAPI-->>Student: Return published public cases
+```
+
+The assignment create/edit form (`AssignmentForm` and `TestCasesFields`) supports up to 25 cases and exposes the **Public**/**Private** toggle. The dedicated editor changes case names and input/output, but has no visibility control. Its **Add test case** button displays **Up to 5 cases** and disables when the current set contains exactly five, while the shared request schema accepts case sets up to 25. Use the assignment form to add cases 6–25 or change visibility. Saving that form with assignment status `published` immediately refreshes the public snapshot with the public cases in the form; the dedicated page's **Save draft** action leaves the published snapshot unchanged until **Publish tests** is selected. Private cases remain in the instructor draft and are filtered out of the public snapshot; the current app does not provide a private-case runner in submission review. The assignment-form helper text currently says private cases are used for instructor evaluation, so that UI copy is inconsistent with the implemented runner flow.
+
 ---
 
 ## 4. In-Browser Client-Side Execution Engine
@@ -409,7 +444,7 @@ Feature: Platform Administrator Role Governance
   Scenario: Rejecting the demotion of the last remaining administrator
     Given there is exactly 1 active administrator account in the system
     When that administrator attempts to change their role to "Student"
-    Then the system rejects the transaction with an HTTP 400 error
+    Then the system rejects the transaction with an HTTP 409 error
     And the user role remains "Administrator"
     And an alert displays "Cannot demote the last remaining administrator"
 ```

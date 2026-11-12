@@ -187,9 +187,9 @@ Code runs in a browser sandbox using WebAssembly (Pyodide for Python and TeaVM f
 
 ![Practice Test Validation](images/user-guide/06-practice-test-validation.png)
 
-Instructors can author and publish test cases (up to 25 total cases per assignment, marked as public or private):
-1. In the right-hand panel, select the **Test cases** tab to inspect all published test cases.
-2. Expand any test case to view its **Input** and **Expected Output**.
+Instructors author assignment test cases in the assignment editor and can manage publication from the dedicated **Practice tests** page described in [Section 5.4](#54-practice-test-authoring-and-publication). The student runner loads only the public cases from the published set; private cases are excluded from student practice.
+1. In the right-hand panel, select the **Test cases** tab to inspect published public test cases.
+2. Expand any public test case to view its **Input** and **Expected Output**.
 3. Click **Run published tests**:
    - The browser executes your active editor code against each public test case sequentially.
    - Each test case displays its result, including **Passed**, **Wrong output**, **Compile error**, **Runtime error**, **Time limit exceeded**, or **Output limit exceeded** when applicable.
@@ -329,19 +329,19 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 3. You can run code with standard input and run published practice tests. The instructor preview does not provide student submission controls.
 4. Return to the course's **Assignments** page to leave the preview.
 
-### 5.4 Public Practice Test Authoring
+### 5.4 Practice Test Authoring and Publication
 
 ![Instructor Practice Test Authoring](images/user-guide/16-instructor-practice-test-authoring.png)
 
-1. From the assignment editor or assignment card, open **Practice tests** (`/courses/<courseId>/assignments/<assignmentId>/practice-tests`).
-2. Click **Add test case** (instructors can configure up to **5 cases** per assignment):
+1. Open the dedicated instructor route `/courses/<courseId>/assignments/<assignmentId>/practice-tests`, replacing the placeholders with the course and assignment IDs. Only instructors in an active course with Assessments enabled can open it. The assignment list and edit form do not currently link to this route; if you are already editing the assignment, replace `/edit` at the end of the URL with `/practice-tests`. This is separate from the student's **Test cases** panel and browser runner.
+2. On the dedicated page, use **Add test case** to add a case, and edit or remove the listed cases as needed. The page labels its add control **Up to 5 cases** and disables it when the set contains exactly five cases:
    - **Name**: 1–120 characters (e.g., *Example 1: Basic positive integers*).
    - **Input**: Enter exact standard input string (up to 4,096 bytes).
    - **Expected Output**: Enter expected stdout string (up to 8,192 bytes).
-   - **Visibility**: Toggle between **Public** (available to enrolled students for in-browser practice after publication) and **Private** (reserved for instructor-only evaluation during submission review).
-3. **Atomic Publication Workflow**:
-   - **Save draft**: Saves test cases in your private instructor workspace without exposing them to students.
-   - **Publish tests**: Atomically publishes public cases for student practice. Private cases remain in the instructor's saved set and are available in the instructor submission-review runner; they are not sent to students.
+3. Use **Edit assignment** to add cases 6–25 or change a case's **Public**/**Private** visibility. That form supports up to **25 cases**. Saving it with the assignment's publication status set to **Published** updates the public test cases immediately. Private cases remain in the instructor draft and are excluded from student practice; the current app does not run them in the submission-review view, although the assignment form's helper text currently suggests that it does.
+4. **Atomic Publication Workflow**:
+   - **Save draft**: Saves test cases in your private instructor workspace without replacing the current published set.
+   - **Publish tests**: Atomically saves the edited set and publishes its public cases for student practice. Private cases remain in the instructor's saved set and are not sent to students.
    - **Unpublish tests**: Retracts published cases while retaining your saved draft.
 
 ### 5.5 Submission Review, AI Rubric Suggestions & Grade Publishing
@@ -399,7 +399,7 @@ This matrix summarizes the trigger, immediate UI feedback, backend mutation, and
 
 | User Action | Immediate UI Feedback | Backend / Storage Mutation | Edge Case / Error Recovery |
 | :--- | :--- | :--- | :--- |
-| **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Authenticates credentials; establishes secure HTTP-only session cookie. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
+| **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Authenticates credentials with Supabase Auth through the browser client; protected server operations verify the current user. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
 | **Theme Toggle** | Immediate CSS color transition between light and dark themes. | Stores the preference in browser `localStorage` when available; otherwise the choice lasts for the current page session. | Initial theme uses the stored preference or system color scheme. |
 | **Run Code** | Button shows pending state; terminal reports runner output. | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API. | Standard runs use a 5-second program-execution budget. Compilation and preparation have a separate timeout, so click-to-result time can be longer; the runner also reports output, unavailable, and stopped states. |
 | **Run Practice Tests** | Test case pills switch to loading spinner; displays **Running test case X of Y…**. | Sequentially runs code against public inputs inside client-side sandbox. | Normalizes line endings (`\r\n` vs `\n`); displays visual diff if stdout does not match. |
@@ -426,7 +426,7 @@ This matrix summarizes the trigger, immediate UI feedback, backend mutation, and
 **A**: CodeLeet does not lock assignments when the deadline passes. You can still submit your work; the submission will simply be marked with a yellow **Submitted late** badge. CodeLeet does not apply automated penalties, leaving grading discretion to your instructor.
 
 #### Q2: My code passed all public practice tests, but my final grade was lower. Why?
-**A**: Public practice tests are intended for basic syntax and sanity validation. Instructors evaluate submissions against comprehensive private rubric criteria and private edge-case test suites.
+**A**: Passing public practice tests is not a grade. Instructors review submitted revisions and publish grades through the separate grading workflow; the practice runner does not calculate or publish grades.
 
 #### Q3: Does running my code or requesting AI feedback submit my assignment?
 **A**: **No.** Running code and requesting AI feedback are purely developmental aids. To submit your work for official grading, you must explicitly click the **Submit revision** button.
