@@ -5,7 +5,7 @@
 - AI tools/models: Codex, gpt-6.1-sol
 - GitHub issue: [#168](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/168), follow-up to #166
 - OpenSpec change: `build-programming-platform`, task group 48
-- Branch: `docs/166-practice-test-auth-guides`, continuing the user's existing PR from develop
+- Branch and implementation commit: `docs/166-practice-test-auth-guides`, continuing the user's existing PR from develop; implementation commit 299ee6d
 - Pull request: [#167](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/167)
 - Human verification: pending; verifier/date pending
 
@@ -15,6 +15,8 @@
 2. Codex used the repository planning, TDD and Supabase guidance directly. [The approved design and plan](../workflow/plans/2026-11-12-consolidate-test-case-editing.md) records the selected behavior: 25 combined public/private cases, immediate public projection updates when saving a Published assignment, and private cases retained for instructor review. No additional design approval or specialist delegation was inferred.
 3. Source tracing confirmed the existing assignment form already saves cases through `save_course_assignment`. The redundant page, UI, mutation contract and PATCH handler were removed; authorized read endpoints, case validation, instructor review and student execution remain. A forward migration drops only `save_practice_tests`, preserving existing case data. The migration was applied to the running MP4 local database without resetting or stopping its stack; no hosted migration is claimed.
 4. The User Guide now describes case editing through the assignment form, student-visible published public cases, and hiding/removing cases. Developer Guide 3.5 was removed; existing design-principle documentation explains the retained storage names. The obsolete editor screenshot and its capture step were removed. Active OpenSpec requirements/design now reflect the user-selected workflow; historical migration/log evidence remains historical.
+
+5. Commit 299ee6d was pushed to PR #167. Its title/body now describe the consolidation and close issues #166 and #168 on merge. Local task artifacts are complete; final PR-head CI remains a handoff gate. The previously addressed review threads remain separate from teammate verification.
 
 ## Work and verification
 
@@ -26,4 +28,4 @@
 - Failures/retries: the temporary local Playwright config initially inherited the wrong server working directory; corrected before browser execution. The first browser run had two failures where reopening the form and replacing expected output saved the new value plus the previous value. Waiting for navigation to settle before editing produced four passing scenarios; this is a test timing adjustment, not proof of a separately fixed product defect. OpenSpec initially rejected an overly long requirement paragraph; moving constraints into a scenario fixed validation. One formatting check was rerun after formatting the rewritten browser test.
 - Unrelated edits: preserve the initial `next-env.d.ts` development-type imports. Unit-test benchmark report side effects were restored to their initial tracked state and are excluded. No runtime distributions, credentials, student data or raw prompts are included.
 - Resource measurements: token/cost totals unavailable; no product AI provider calls were made.
-- Next steps at this commit: push the issue-linked consolidation, update PR #167 and verify its new head CI. Human review, hosted migration and release remain separate.
+- Next steps at this evidence update: verify final PR-head CI and obtain teammate review. Human review, hosted migration and release remain separate.

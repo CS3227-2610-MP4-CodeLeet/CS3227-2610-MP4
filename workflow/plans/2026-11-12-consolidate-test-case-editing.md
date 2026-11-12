@@ -15,4 +15,6 @@ Keeping the page with navigation and a 25-case limit was considered; the user ch
 - [x] Update database and browser scenarios to use assignment saving, retaining validation/privacy/conflict and both-language practice coverage.
 - [x] Update active spec/tasks and guides: remove Developer Guide 3.5; keep User Guide 4.4 student-facing and describe instructor authoring through Edit assignment in 5.4.
 - [x] Run focused regressions, full unit/code-quality/documentation/spec checks and database/browser checks where available; preserve unrelated next-env.d.ts changes.
-- [ ] Record actual outcomes, push/update PR #167 with Closes #168, verify final CI, and leave human review pending.
+- [x] Record actual outcomes and push/update PR #167 with Closes #168; leave human review pending.
+
+Final handoff gate: verify the latest PR-head CI before reporting readiness. GitHub check results remain authoritative for that gate; human review is still pending.

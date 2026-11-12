@@ -389,4 +389,4 @@ This is the detailed checklist for the student portions of 3.1, 3.3 and 3.5, not
 
 - [x] 48.1 Remove the dedicated editor and independent publication write API/RPC; preserve existing cases and authorized student/instructor reads.
 - [x] 48.2 Verify assignment-only editing, 25-case bounds, public/private changes, removal/clearing, stale saves and access denial through updated unit/database/browser coverage.
-- [ ] 48.3 Update guides (student-facing User Guide 4.4, assignment-only 5.4; remove Developer Guide 3.5), design/specs, dated log and PR with actual verification; leave human review pending.
+- [x] 48.3 Update guides (student-facing User Guide 4.4, assignment-only 5.4; remove Developer Guide 3.5), design/specs, dated log and PR with actual verification; leave human review pending.
