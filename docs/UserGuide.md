@@ -338,8 +338,9 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
    - **Name**: 1–120 characters (e.g., *Example 1: Basic positive integers*).
    - **Input**: Enter exact standard input string (up to 4,096 bytes).
    - **Expected Output**: Enter expected stdout string (up to 8,192 bytes).
-3. Use **Edit assignment** to add cases 6–25 or change a case's **Public**/**Private** visibility. That form supports up to **25 cases**. Saving it with the assignment's publication status set to **Published** updates the public test cases immediately. Private cases remain in the instructor draft and are excluded from student practice; the current app does not run them in the submission-review view, although the assignment form's helper text currently suggests that it does.
+3. Use **Edit assignment** to add cases 6–25 or change a case's **Public**/**Private** visibility. That form supports up to **25 cases**. Saving it with the assignment's publication status set to **Published** updates the public test cases immediately. Private cases remain in the instructor draft and are excluded from student practice. Instructors can run all current draft cases, including private cases, against a submitted revision on its **Review submission** page.
 4. **Atomic Publication Workflow**:
+   - Use this dedicated page when you need to prepare test changes without replacing the published set, or publish/unpublish tests independently of the assignment. **Edit assignment** does not provide these separate test-publication controls, so the dedicated page still serves a distinct purpose.
    - **Save draft**: Saves test cases in your private instructor workspace without replacing the current published set.
    - **Publish tests**: Atomically saves the edited set and publishes its public cases for student practice. Private cases remain in the instructor's saved set and are not sent to students.
    - **Unpublish tests**: Retracts published cases while retaining your saved draft.
@@ -399,7 +400,7 @@ This matrix summarizes the trigger, immediate UI feedback, backend mutation, and
 
 | User Action | Immediate UI Feedback | Backend / Storage Mutation | Edge Case / Error Recovery |
 | :--- | :--- | :--- | :--- |
-| **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Authenticates credentials with Supabase Auth through the browser client; protected server operations verify the current user. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
+| **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Posts credentials to `/api/auth/sign-in`, which authenticates through a server-side Supabase client and establishes the session; protected server operations verify the current user. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
 | **Theme Toggle** | Immediate CSS color transition between light and dark themes. | Stores the preference in browser `localStorage` when available; otherwise the choice lasts for the current page session. | Initial theme uses the stored preference or system color scheme. |
 | **Run Code** | Button shows pending state; terminal reports runner output. | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API. | Standard runs use a 5-second program-execution budget. Compilation and preparation have a separate timeout, so click-to-result time can be longer; the runner also reports output, unavailable, and stopped states. |
 | **Run Practice Tests** | Test case pills switch to loading spinner; displays **Running test case X of Y…**. | Sequentially runs code against public inputs inside client-side sandbox. | Normalizes line endings (`\r\n` vs `\n`); displays visual diff if stdout does not match. |
