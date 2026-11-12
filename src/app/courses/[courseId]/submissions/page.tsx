@@ -1,12 +1,15 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { requireMember } from '@/lib/auth/verified-user';
 import { readCourseAccess } from '@/lib/courses/access';
-import { parseHistoryPage } from '@/features/student-submissions/history';
+import { parseHistoryNavigation } from '@/features/student-submissions/history-cursor';
 import { loadSubmissionHistory } from '@/features/student-submissions/history.server';
 import { SubmissionHistoryList } from '@/features/student-submissions/history-list';
 import SubmissionsError from './error';
-import { parseListFilters } from '@/features/student-lists/filters';
+import {
+  buildListUrl,
+  parseListFilters,
+} from '@/features/student-lists/filters';
 import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 import { BreadcrumbSetter } from '@/components/layout/breadcrumb-context';
 import { IllustratedEmptyState } from '@/components/ui/illustrated-empty-state';
@@ -132,14 +135,19 @@ export default async function CourseSubmissionsPage({
   }
 
   // Student view
-  const page = parseHistoryPage(urlParams.page);
+  const navigation = parseHistoryNavigation(urlParams);
   const filters = parseListFilters(urlParams);
-  if (page === null || !filters) notFound();
+  if (!navigation || !filters) notFound();
+  if (navigation.legacy)
+    redirect(buildListUrl('/courses/' + courseId + '/submissions', filters));
+  const { page, cursor, backwards } = navigation;
 
   const history = await loadSubmissionHistory(supabase, {
     studentId: user.id,
     courseId,
     page,
+    cursor,
+    backwards,
     filters,
   });
   if (!history) return <SubmissionsError />;

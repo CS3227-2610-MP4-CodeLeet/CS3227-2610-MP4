@@ -46,7 +46,7 @@ test('My submissions pages only own revisions, links feedback/grades and protect
   ).toBeVisible();
   await page.goto(coursePath(data, `${listPath}?page=10000`));
   await expect(
-    page.getByRole('heading', { name: 'No submissions on this page' }),
+    page.getByRole('heading', { name: listName, exact: true }),
   ).toBeVisible();
   await page.goto(coursePath(data, `${listPath}?page=0`));
   await expect(page.getByText('This page could not be found.')).toBeVisible();
@@ -144,7 +144,7 @@ async function checkPagination(page: Page, ids: string[]) {
       ),
   ).toEqual(expected.slice(0, 25));
   await page.getByRole('link', { name: 'Next', exact: true }).click();
-  await expect(page).toHaveURL(/page=2$/);
+  await expect(page).toHaveURL(/page=2&after=/);
   await expect(table.locator('tbody tr')).toHaveCount(2);
   expect(
     await table
