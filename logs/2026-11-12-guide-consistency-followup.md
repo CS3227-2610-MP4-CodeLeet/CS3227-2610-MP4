@@ -5,8 +5,8 @@
 - AI tools/models, where known: Codex; exact model not exposed
 - GitHub issue: [#164](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/164)
 - OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/build-programming-platform/tasks.md); the task remains open for reflections and acknowledgements
-- Branch and commits: `docs/164-finish-guide-consistency`; `ed4b3cb` (`docs: finish guide consistency fixes`)
-- Pull request: pending; create as draft because the authenticated browser workflow has one unrelated-to-guide-change failure under investigation
+- Branch and commits: `docs/164-finish-guide-consistency`; `ed4b3cb` (guide fixes), `a368f0f` (record commit ID), `d042759` (record branch CI)
+- Pull request: [#165](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/165), open as draft because the authenticated browser workflow has one failure in unchanged application code
 - Human verification: pending
 - Verifier/date: pending
 
@@ -23,4 +23,4 @@
 - Commands/checks actually run and outcomes: local `pnpm format:check` passed; `pnpm check:scaffold` verified scaffold artifacts and local Markdown links; `pnpm spec:validate` passed (8 items, 0 failed); `pnpm site:build` compiled the Docusaurus client and server and generated static files; `git diff --check` passed; a targeted stale-claim scan found no known old wording. Branch CI runs for [Application checks](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43167319181), [Scaffold checks](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43167323864), and [CodeQL](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43167324927) completed. Scaffold and CodeQL passed. Application, database, and unauthenticated browser jobs passed (31 browser tests passed; 85 were skipped because local authenticated fixtures were not available in that job). The authenticated browser job had 83 passed, 1 skipped, and 1 failed: `tests/e2e/responsive-history.spec.ts` reports that the horizontally scrollable “Code changes” region does not advance `scrollLeft` after `ArrowRight`. This is in unchanged application code; the failure has not been independently reproduced or baseline-compared. No application code was changed in this documentation-only branch.
 - Failures, retries, unresolved issues: `pnpm` was unavailable in the restricted shell; elevated checks succeeded. An initial stale-phrase scan matched a valid lowercase runtime event because the search was case-insensitive; the case-sensitive scan passed with no known stale claims. The authenticated responsive-history failure remains unresolved and is disclosed for follow-up. Human verification remains pending; this run was on commit `a368f0f`, before the log-only follow-up commit and PR-triggered final-head checks.
 - Resource measurements and unavailable fields: not measured; exact Codex model is unavailable.
-- Next steps: open a linked draft PR to `develop`, record its URL here, and inspect all PR-triggered checks on the final head without merging.
+- Next steps: inspect all PR-triggered checks on the final head and keep the PR in draft for human review; do not merge.
