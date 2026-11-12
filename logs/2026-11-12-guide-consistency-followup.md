@@ -5,7 +5,7 @@
 - AI tools/models, where known: Codex; exact model not exposed
 - GitHub issue: [#164](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/164)
 - OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/build-programming-platform/tasks.md); the task remains open for reflections and acknowledgements
-- Branch and commits: `docs/164-finish-guide-consistency`; commit pending
+- Branch and commits: `docs/164-finish-guide-consistency`; `ed4b3cb` (`docs: finish guide consistency fixes`)
 - Pull request: pending
 - Human verification: pending
 - Verifier/date: pending
@@ -23,4 +23,4 @@
 - Commands/checks actually run and outcomes: `pnpm format:check` passed; `pnpm check:scaffold` verified scaffold artifacts and local Markdown links; `pnpm spec:validate` passed (8 items, 0 failed); `pnpm site:build` compiled the Docusaurus client and server and generated static files; `git diff --check` passed; a targeted stale-claim scan found no known old wording. No application test suites were run because no app behavior changed.
 - Failures, retries, unresolved issues: `pnpm` was unavailable in the restricted shell; the repository-required elevated OpenSpec status/instructions and documentation check commands succeeded. An initial stale-phrase scan matched a valid lowercase runtime event because the search was case-insensitive; the case-sensitive scan passed with no known stale claims. Human verification remains pending. Exact final-head branch CI and hosted behavior have not been checked.
 - Resource measurements and unavailable fields: not measured; exact Codex model is unavailable.
-- Next steps: commit only this change's files, push the branch, wait for branch CI, and open a linked PR to `develop` without merging.
+- Next steps: push the branch, wait for branch CI, and open a linked PR to `develop` without merging.
