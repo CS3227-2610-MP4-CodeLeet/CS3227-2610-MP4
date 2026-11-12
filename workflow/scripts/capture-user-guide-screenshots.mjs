@@ -283,7 +283,7 @@ async function captureAdminRoles(page, baseUrl) {
 }
 
 async function runStudentFlows(opts) {
-  const { page, baseUrl, courseId, submissionId } = opts;
+  const { page, baseUrl, courseId, assignmentId, submissionId } = opts;
   await captureWelcome(page, baseUrl);
   await captureStudentCourses(page, baseUrl);
   await captureStudentAssignments(page, baseUrl, courseId);

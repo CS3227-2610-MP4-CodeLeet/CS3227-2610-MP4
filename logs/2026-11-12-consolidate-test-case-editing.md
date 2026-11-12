@@ -29,3 +29,10 @@
 - Unrelated edits: preserve the initial `next-env.d.ts` development-type imports. Unit-test benchmark report side effects were restored to their initial tracked state and are excluded. No runtime distributions, credentials, student data or raw prompts are included.
 - Resource measurements: token/cost totals unavailable; no product AI provider calls were made.
 - Next steps at this evidence update: verify final PR-head CI and obtain teammate review. Human review, hosted migration and release remain separate.
+
+## Review follow-up
+
+5. The user asked Codex to fetch current PR comments, address valid findings, push the changes, and resolve the comments. The refreshed PR timeline contained the two previously resolved guide threads and one new unresolved inline finding, `PRRT_kwDOVPCxNM62mqVC`, on `workflow/scripts/capture-user-guide-screenshots.mjs`.
+6. The finding was confirmed: `runStudentFlows` passed an undeclared `assignmentId` to `captureStudentEditor` after omitting it from the options destructure. The repository's default ESLint invocation did not flag it; the focused regression check `pnpm exec eslint workflow/scripts/capture-user-guide-screenshots.mjs --max-warnings=0 --rule "no-undef:error"` failed at line 290 before the fix. Restoring `assignmentId` to the destructure is the minimal correction.
+7. After the fix, focused undefined-variable lint, `node --check`, Prettier, repository lint, and the full unit suite passed; the unit suite reported 878 tests across 171 files. The real screenshot capture flow was not run in this follow-up. The unit suite regenerated two tracked experiment reports; only those test side effects were restored. The pre-existing `next-env.d.ts` edit remains untouched.
+8. At this log update, the fix is ready to commit and push; the review-thread reply/resolution and final PR-head CI result will be recorded after they are verified.
