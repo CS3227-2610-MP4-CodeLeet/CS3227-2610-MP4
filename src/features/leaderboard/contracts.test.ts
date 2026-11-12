@@ -2,6 +2,8 @@ import { expect, it } from 'vitest';
 import { leaderboardSchema } from './contracts';
 const valid = {
   page: 1,
+  revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  restarted: false,
   has_more: false,
   own: { rank: null, total_xp: '0' },
   rows: [

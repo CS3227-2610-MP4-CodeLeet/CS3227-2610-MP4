@@ -27,6 +27,8 @@ it('validates source-free awards and exact large totals without floating point c
   const value = {
     total_xp: '9007199254740993',
     page: 1,
+    revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    restarted: false,
     has_more: false,
     awards: [],
   };

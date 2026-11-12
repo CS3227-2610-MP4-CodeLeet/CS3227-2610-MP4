@@ -12,6 +12,9 @@ export function LeaderboardView({
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-semibold">Leaderboard</h1>
+      {data.restarted && (
+        <p role="status">XP changed—showing the latest results.</p>
+      )}
       {data.own && (
         <div className="flex flex-wrap gap-8 rounded-xl border bg-card p-5">
           <div>
@@ -53,7 +56,7 @@ export function LeaderboardView({
         {data.page > 1 ? (
           <Link
             className="underline"
-            href={`/courses/${courseId}/leaderboard?page=${data.page - 1}`}
+            href={`/courses/${courseId}/leaderboard?page=${data.page - 1}&revision=${data.revision}`}
           >
             Previous
           </Link>
@@ -63,7 +66,7 @@ export function LeaderboardView({
         {data.has_more && (
           <Link
             className="underline"
-            href={`/courses/${courseId}/leaderboard?page=${data.page + 1}`}
+            href={`/courses/${courseId}/leaderboard?page=${data.page + 1}&revision=${data.revision}`}
           >
             Next
           </Link>

@@ -1,5 +1,17 @@
 ## ADDED Requirements
 
+### Requirement: Revision-aware XP pagination
+XP history and course leaderboard reads SHALL calculate a revision and page projection from one database statement snapshot. Pagination links SHALL carry the revision. Authorization and private-data projection SHALL be checked on every read, independently of the revision.
+
+#### Scenario: Awards or ordering change between pages
+- **WHEN** a later-page request carries a stale or missing revision after an award, ranking name, or eligible membership changes
+- **THEN** the response returns current first-page data, totals, revision and an explicit restart indicator; the UI announces the change and builds pagination from the returned page
+
+#### Scenario: Unchanged results and invalid hints
+- **WHEN** the authorized result set is unchanged and a valid revision is supplied
+- **THEN** bounded numbered pagination continues normally
+- **AND** malformed or duplicate revision query inputs are rejected, and legacy RPC signatures cannot bypass the restart guard
+
 ### Requirement: Search discussion titles and opening posts
 Authorized forum members SHALL be able to search thread titles or opening-post bodies using case-insensitive literal text before existing stable 25-row pagination. Search SHALL NOT include replies, author identity or unrelated/private data. Input SHALL be trimmed, bounded to 160 characters and reject duplicate/control-character parameters; blank input SHALL browse all discussions. Terms SHALL be safely escaped for both pattern matching and query grammar.
 

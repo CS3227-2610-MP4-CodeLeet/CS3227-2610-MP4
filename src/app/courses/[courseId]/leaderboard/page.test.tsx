@@ -45,6 +45,7 @@ it('loads leaderboard for course member', async () => {
     expect.anything(),
     testCourseId,
     1,
+    undefined,
   );
 });
 

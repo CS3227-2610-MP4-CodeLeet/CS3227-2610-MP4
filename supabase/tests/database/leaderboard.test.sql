@@ -5,7 +5,8 @@ create temporary table lb_expected as select
  1::integer top_position,28::integer last_position;
 grant select on lb_expected to authenticated;
 create function pg_temp.lb_page(p_page integer) returns jsonb language sql as $$
- select public.get_leaderboard('d3000000-0000-4000-8000-000000000001',p_page);
+ select public.get_leaderboard('d3000000-0000-4000-8000-000000000001',p_page,
+   public.get_leaderboard('d3000000-0000-4000-8000-000000000001',1)->>'revision');
 $$;
 create function pg_temp.lb_member(p_member uuid,p_page integer default 1) returns jsonb language plpgsql as $$
 begin perform set_config('request.jwt.claim.sub',p_member::text,true); return pg_temp.lb_page(p_page); end $$;
