@@ -15,6 +15,9 @@ vi.mock('@/features/student-submissions/history.server', () => ({
   loadSubmissionHistory: vi.fn(),
 }));
 vi.mock('next/navigation', () => ({
+  redirect: () => {
+    throw new Error('NEXT_REDIRECT');
+  },
   notFound: () => {
     throw new Error('NEXT_NOT_FOUND');
   },
@@ -49,6 +52,7 @@ it('ignores requested identity and renders a safe retry state when data fails', 
     searchParams: Promise.resolve({
       student_id: 'another-student',
       page: '2',
+      after: '2026-11-12T04:00:00Z|00000000-0000-4000-8000-000000000025',
     }),
   });
   expect(requireMember).toHaveBeenCalled();
@@ -62,6 +66,11 @@ it('ignores requested identity and renders a safe retry state when data fails', 
     studentId: verifiedStudentId,
     courseId: 'course-a',
     page: 2,
+    cursor: {
+      submittedAt: '2026-11-12T04:00:00Z',
+      id: '00000000-0000-4000-8000-000000000025',
+    },
+    backwards: false,
     filters: { q: '', language: '' },
   });
   const html = renderToStaticMarkup(view);
@@ -300,4 +309,32 @@ it('filters to latest revisions by default and shows all when viewAll=true for i
   const allHtml = renderToStaticMarkup(allView);
   expect(allHtml).toContain('Revision 2');
   expect(allHtml).toContain('Revision 1');
+});
+
+it.each([
+  { page: '2', after: ['bad', 'bad'] },
+  { page: '2', after: 'bad' },
+  { page: '2', before: 'bad', after: 'bad' },
+])('rejects invalid cursors before reading student history', async (params) => {
+  await expect(
+    CourseSubmissionsPage({
+      params: Promise.resolve({ courseId: 'course-a' }),
+      searchParams: Promise.resolve(params),
+    }),
+  ).rejects.toThrow('NEXT_NOT_FOUND');
+  expect(loadSubmissionHistory).not.toHaveBeenCalled();
+});
+
+it('redirects legacy numbered history URLs without a cursor instead of using offsets', async () => {
+  await expect(
+    CourseSubmissionsPage({
+      params: Promise.resolve({ courseId: 'course-a' }),
+      searchParams: Promise.resolve({
+        page: '2',
+        language: 'java',
+        q: 'loops',
+      }),
+    }),
+  ).rejects.toThrow('NEXT_REDIRECT');
+  expect(loadSubmissionHistory).not.toHaveBeenCalled();
 });

@@ -11,7 +11,7 @@ import {
   FilteredListEmpty,
   ListFilterControls,
 } from '@/features/student-lists/filter-controls';
-import { ListPagination } from '@/features/student-lists/pagination';
+import { HistoryPagination } from './history-pagination';
 import { SubmissionTiming } from '@/features/assignment-deadlines/components';
 
 const linkStyle =
@@ -54,11 +54,11 @@ export function SubmissionHistoryList({
       ) : (
         <HistoryEmpty page={page} courseId={courseId} />
       )}
-      <ListPagination
+      <HistoryPagination
         path={listPath}
-        label="Submission history pages"
+        history={history}
         page={page}
-        hasNext={history.hasNext}
+
         filters={filters}
       />
     </section>

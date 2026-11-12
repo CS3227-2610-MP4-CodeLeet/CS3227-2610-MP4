@@ -219,6 +219,7 @@ Never lose your work due to accidental browser closures, battery failures, or ne
 3. **Submissions List** (`/courses/<courseId>/submissions`):
    - Displays all historical revisions in reverse chronological order (up to 25 entries per page).
    - Filter submissions by assignment title or programming language.
+   - Use **Next** and **Previous** to continue from the displayed revisions. New submissions do not shift the entries while you browse; choose **Latest submissions** to start again with the newest revisions. Applying or clearing filters starts a fresh first page.
    - Click any submission row to inspect the frozen source code, view instructor grades/feedback, or continue editing.
 4. **Continue Editing**:
    - To make further improvements, open any previous revision and click **Continue editing**. This loads that revision's source into the active editor while preserving the historical record intact.

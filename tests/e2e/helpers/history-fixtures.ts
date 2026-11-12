@@ -181,7 +181,7 @@ function row(assignmentId: string, studentId: string, revision: number): Row {
     revision,
     source: `HISTORY_SOURCE_SENTINEL ${revision}`,
     request_id: crypto.randomUUID(),
-    created_at: '2026-10-30T00:00:00Z',
+    created_at: '2026-10-30T00:00:00.123456Z',
   };
 }
 
@@ -240,4 +240,16 @@ export async function hideFixtureAssignment(data: Fixture) {
     { publication_status: 'draft' },
     'patch',
   );
+}
+
+export async function addHistoryRevision(data: Fixture) {
+  const lastRevision = Math.max(
+    ...data.rows
+      .filter((item) => item.assignment_id === data.assignments[0])
+      .map((item) => item.revision),
+  );
+  const revision = row(data.assignments[0], data.users[1].id, lastRevision + 1);
+  revision.created_at = new Date().toISOString();
+  await write(data.admin, 'submissions', revision);
+  return revision.id;
 }

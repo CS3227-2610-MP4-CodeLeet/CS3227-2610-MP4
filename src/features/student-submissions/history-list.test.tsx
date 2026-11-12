@@ -4,10 +4,11 @@ import { SubmissionHistoryList } from './history-list';
 import type { HistoryItem } from './history';
 import { emptyListFilters } from '@/features/student-lists/filters';
 
+const assignmentTitle = 'Loops & arrays';
 const rowData = {
   id: '00000000-0000-4000-8000-000000000001',
   assignmentId: '00000000-0000-4000-8000-000000000002',
-  title: 'Loops & arrays',
+  title: assignmentTitle,
   language: 'python',
   revision: 3,
   submittedAt: '2026-10-31T00:00:00Z',
@@ -73,4 +74,38 @@ describe('submission history presentation', () => {
     expect(filtered).not.toContain('No submissions yet');
     expect(filtered).toContain(codeIllustrationMarker);
   });
+});
+
+it('uses timestamp/ID boundaries on both links and retains filters in Latest', () => {
+  const older = {
+    ...row,
+    id: '00000000-0000-4000-8000-000000000003',
+    submittedAt: '2026-10-30T00:00:00.123456Z',
+  };
+  const html = renderToStaticMarkup(
+    <SubmissionHistoryList
+      history={{ rows: [row, older], hasNext: true }}
+      page={2}
+      courseId="course-a"
+      filters={{ q: assignmentTitle, language: 'python' }}
+    />,
+  );
+  const links = [...html.matchAll(/href="([^"]+)"/g)].map(
+    (match) => new URL(match[1].replaceAll('&amp;', '&'), 'https://local.test'),
+  );
+  const next = links.find((url) => url.searchParams.has('after'))!;
+  const previous = links.find((url) => url.searchParams.has('before'))!;
+  expect(next?.searchParams.get('after')).toBe(
+    '2026-10-30T00:00:00.123456Z|00000000-0000-4000-8000-000000000003',
+  );
+  expect(next?.searchParams.get('page')).toBe('3');
+  expect(previous?.searchParams.get('before')).toBe(
+    '2026-10-31T00:00:00Z|00000000-0000-4000-8000-000000000001',
+  );
+  expect(previous?.searchParams.get('page')).toBeNull();
+  for (const url of [next, previous]) {
+    expect(url?.searchParams.get('q')).toBe(assignmentTitle);
+    expect(url?.searchParams.get('language')).toBe('python');
+  }
+  expect(html).toContain('Latest submissions');
 });

@@ -1,17 +1,17 @@
-import { expect, it, vi } from 'vitest';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { expect, it } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 import { loadSubmissionHistory } from './history.server';
-const verifiedStudentId = 'verified-student';
-const courseId = 'course-a';
-const historySelect =
-  'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)';
-const filteredHistorySelect = historySelect.replace(
-  'assignments(title)',
-  'assignments!inner(title)',
-);
 
-it('sends literal title/language filters before paging with verified ownership and visible-title joins', async () => {
+const studentId = 'verified-student';
+const courseId = 'course-a';
+const cursor = {
+  submittedAt: '2026-11-12T04:00:00.123456+00:00',
+  id: '00000000-0000-4000-8000-000000000025',
+};
+const projection =
+  'id,assignment_id,course_id,language,revision,created_at,is_late,due_at_submission,assignments(title)';
+
+function fixture(data: unknown, status = 200) {
   let requested!: URL;
   const client = createClient('http://127.0.0.1:54321', 'synthetic-test-key', {
     auth: {
@@ -22,116 +22,110 @@ it('sends literal title/language filters before paging with verified ownership a
     global: {
       fetch: async (input) => {
         requested = new URL(String(input));
-        return new Response('[]', {
+        return new Response(JSON.stringify(data), {
+          status,
           headers: { 'content-type': 'application/json' },
         });
       },
     },
   });
-  await loadSubmissionHistory(client, {
-    studentId: verifiedStudentId,
-    courseId,
-    page: 2,
-    filters: { q: 'A*%_[x]', language: 'java' },
-  });
-  expect(requested.searchParams.get('student_id')).toBe('eq.verified-student');
-  expect(requested.searchParams.get('course_id')).toBe('eq.course-a');
-  expect(requested.searchParams.get('language')).toBe('eq.java');
-  expect(requested.searchParams.get('assignments.title')).toBe(
-    'imatch.A\\*%_\\[x\\]',
-  );
-  expect(requested.searchParams.get('select')).toBe(filteredHistorySelect);
-  expect(requested.searchParams.get('offset')).toBe('25');
-  expect(requested.searchParams.get('limit')).toBe('26');
-});
-
-function fixture(data: unknown, error: unknown = null) {
-  const range = vi.fn().mockResolvedValue({ data, error });
-  const query = { select: vi.fn(), eq: vi.fn(), order: vi.fn(), range };
-  query.select.mockReturnValue(query);
-  query.eq.mockReturnValue(query);
-  query.order.mockReturnValue(query);
-  return { query, client: { from: vi.fn().mockReturnValue(query) } };
+  return { client, request: () => requested };
 }
 
-it('filters verified identity, selects no code/grades and uses deterministic bounded paging', async () => {
-  const { client, query } = fixture([]);
-  const user = crypto.randomUUID();
-  expect(
-    await loadSubmissionHistory(client as unknown as SupabaseClient, {
-      studentId: user,
-      courseId,
-      page: 2,
-    }),
-  ).toEqual({ rows: [], hasNext: false });
-  expect(client.from).toHaveBeenCalledWith('submissions');
-  expect(query.eq).toHaveBeenCalledWith('student_id', user);
-  expect(query.select).toHaveBeenCalledWith(historySelect);
-  expect(query.order.mock.calls).toEqual([
-    ['created_at', { ascending: false }],
-    ['id', { ascending: false }],
-  ]);
-  expect(query.range).toHaveBeenCalledWith(25, 50);
-});
-
-it('fetches one lookahead but renders only 25 revisions', async () => {
-  const rows = Array.from({ length: 26 }, (_, index) => ({
-    id: crypto.randomUUID(),
-    assignment_id: crypto.randomUUID(),
+function row(revision: number) {
+  return {
+    id: `00000000-0000-4000-8000-${String(revision).padStart(12, '0')}`,
+    assignment_id: '00000000-0000-4000-8000-000000000001',
     language: 'python',
-    revision: index + 1,
-    created_at: '2026-10-30T04:00:00Z',
+    revision,
+    created_at: cursor.submittedAt,
     assignments: null,
-  }));
-  const { client } = fixture(rows);
-  const result = await loadSubmissionHistory(
-    client as unknown as SupabaseClient,
-    {
-      studentId: crypto.randomUUID(),
-      courseId,
-      page: 1,
-    },
+  };
+}
+
+it('seeks beyond the exact timestamp and ID, retains ownership and literal filters, and sends no offset', async () => {
+  const { client, request } = fixture([]);
+  await loadSubmissionHistory(client, {
+    studentId,
+    courseId,
+    page: 2,
+    cursor,
+    filters: { q: 'A*%_[x]', language: 'java' },
+  });
+  const query = request().searchParams;
+  expect(query.get('student_id')).toBe('eq.verified-student');
+  expect(query.get('course_id')).toBe('eq.course-a');
+  expect(query.get('language')).toBe('eq.java');
+  expect(query.get('assignments.title')).toBe('imatch.A\\*%_\\[x\\]');
+  expect(query.get('select')).toBe(
+    projection.replace('assignments(title)', 'assignments!inner(title)'),
   );
-  expect(result?.rows).toHaveLength(25);
-  expect(result?.hasNext).toBe(true);
+  expect(query.get('or')).toBe(
+    `(created_at.lt.${cursor.submittedAt},and(created_at.eq.${cursor.submittedAt},id.lt.${cursor.id}))`,
+  );
+  expect(query.get('order')).toBe('created_at.desc,id.desc');
+  expect(query.has('offset')).toBe(false);
+  expect(query.get('limit')).toBe('26');
 });
 
-it('uses the selected course join for language-only history', async () => {
-  const { client, query } = fixture([]);
-  await loadSubmissionHistory(client as unknown as SupabaseClient, {
-    studentId: verifiedStudentId,
+it('takes the nearest newer 25 rows before reversing backward results', async () => {
+  const { client, request } = fixture(
+    Array.from({ length: 26 }, (_, i) => row(i + 1)),
+  );
+  const result = await loadSubmissionHistory(client, {
+    studentId,
     courseId,
     page: 1,
-    filters: { q: '', language: 'python' },
+    cursor,
+    backwards: true,
   });
-  expect(query.eq).toHaveBeenCalledWith('student_id', verifiedStudentId);
-  expect(query.eq).toHaveBeenCalledWith('course_id', 'course-a');
-  expect(query.eq).toHaveBeenCalledWith('language', 'python');
-  expect(query.select).toHaveBeenCalledWith(historySelect);
+  expect(result?.rows.map((item) => item.revision)).toEqual(
+    Array.from({ length: 25 }, (_, i) => 25 - i),
+  );
+  expect(result?.hasNext).toBe(true);
+  expect(request().searchParams.get('order')).toBe('created_at.asc,id.asc');
+  expect(request().searchParams.get('or')).toBe(
+    `(created_at.gt.${cursor.submittedAt},and(created_at.eq.${cursor.submittedAt},id.gt.${cursor.id}))`,
+  );
+});
+
+it('fetches one lookahead, renders at most 25 own metadata rows, and keeps hidden titles neutral', async () => {
+  const { client, request } = fixture(
+    Array.from({ length: 26 }, (_, i) => row(i + 1)),
+  );
+  const result = await loadSubmissionHistory(client, {
+    studentId,
+    courseId,
+    page: 1,
+  });
+  expect(result?.rows).toHaveLength(25);
+  expect(result?.rows[0].title).toBe('Assignment unavailable');
+  expect(result?.hasNext).toBe(true);
+  expect(request().searchParams.get('select')).toBe(projection);
+});
+
+it('does not enable offset fallback or interpolate malformed cursors', async () => {
+  const { client, request } = fixture([]);
+  expect(
+    await loadSubmissionHistory(client, { studentId, courseId, page: 2 }),
+  ).toBeNull();
+  expect(
+    await loadSubmissionHistory(client, {
+      studentId,
+      courseId,
+      page: 2,
+      cursor: { ...cursor, id: 'bad),id.gt.0' },
+    }),
+  ).toBeNull();
+  expect(request()).toBeUndefined();
 });
 
 it.each([
-  [null, { message: 'private backend detail' }],
-  [[{ invalid: true }], null],
-])('fails closed for backend/invalid data errors', async (data, error) => {
-  const { client } = fixture(data, error);
+  [{ message: 'private backend detail' }, 400],
+  [[{ invalid: true }], 200],
+])('fails closed for backend/invalid data', async (data, status) => {
+  const { client } = fixture(data, status as number);
   expect(
-    await loadSubmissionHistory(client as unknown as SupabaseClient, {
-      studentId: crypto.randomUUID(),
-      courseId,
-      page: 1,
-    }),
-  ).toBeNull();
-});
-
-it('handles a thrown network failure without exposing its message', async () => {
-  const { client, query } = fixture([]);
-  query.range.mockRejectedValue(new Error('private network detail'));
-  expect(
-    await loadSubmissionHistory(client as unknown as SupabaseClient, {
-      studentId: crypto.randomUUID(),
-      courseId,
-      page: 1,
-    }),
+    await loadSubmissionHistory(client, { studentId, courseId, page: 1 }),
   ).toBeNull();
 });
