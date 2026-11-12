@@ -1,0 +1,298 @@
+{
+  "task": "/root coordinator replay of previously independently authored harness",
+  "started": "2026-11-12T13:03:20.092Z",
+  "finished": "2026-11-12T13:04:34.423Z",
+  "node": "v24.22.2",
+  "browserName": "chromium",
+  "browser": "156.0.8078.4",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "platform": "Win32"
+  },
+  "os": {
+    "type": "Windows_NT",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "sourceHashes": {
+    "lab.mjs": "c7ec6f2b039f9d127cf89842b8b4f91b8bb24df0934921000d0e08352d01904d",
+    "supervisor.mjs": "4795bc275abe9b5822df2212e1dc25b0945697e024d5773ed9c256534b4bd374",
+    "worker.mjs": "42f1dad20fa0c975ed9f262342d4183db1f3077527e657a89a362959962aa23b",
+    "java-support.mjs": "1cc944e165ca58e61792f3cec527d2e22256b146e7badab384f2a8a91d036307",
+    "embed.mjs": "520ddd87b647943c62de4615c51995877d9821220f862c48645fae21922654b3"
+  },
+  "assetManifestSha256": "55a4e881bf2ccaff83d69f5fc5121e6339d23e3f4fcc36e7057788fd45b7d68f",
+  "command": "node workflow/scripts/verify-runtime-boundary.mjs workflow/evidence/2026-11-12-runtime-chromium.json chromium",
+  "finalPolicy": "opaque sandbox allow-scripts; connect-src none; script-src nonce + blob + unsafe-eval; worker-src blob",
+  "cases": [
+    {
+      "name": "concurrent-run-denied-during-preparation-and-stop",
+      "passed": true,
+      "elapsedMs": 1828,
+      "first": {
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": null,
+        "totalMs": 15.700000047683716
+      },
+      "secondError": "Only one lab run at a time"
+    },
+    {
+      "name": "python-stdin-positive-control",
+      "passed": true,
+      "elapsedMs": 5314,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "hello browser\n",
+        "stderr": "",
+        "executionMs": 20.300000071525574,
+        "language": "python",
+        "totalMs": 5289.5,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "failed-java-asset-load-allows-retry",
+      "passed": true,
+      "elapsedMs": 35,
+      "error": "Missing asset: compiler.wasm",
+      "retryCheck": "Immediately following real-source Java positive control uses the same page/cache."
+    },
+    {
+      "name": "java-real-source-positive-control",
+      "passed": true,
+      "elapsedMs": 4035,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "independent Java\n",
+        "stderr": "",
+        "executionMs": 3.899999976158142,
+        "language": "java",
+        "totalMs": 3791.5,
+        "preparationMs": 232.89999997615814,
+        "warmAssets": false,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "opaque-worker-parent-credentials-and-dom",
+      "passed": true,
+      "elapsedMs": 6619,
+      "canaryPresent": true,
+      "details": {
+        "window": "undefined",
+        "document": "undefined",
+        "parent": "undefined",
+        "top": "undefined",
+        "opener": "undefined",
+        "localStorage": "undefined",
+        "sessionStorage": "undefined",
+        "Worker": "undefined",
+        "SharedWorker": "undefined",
+        "cookieError": "ReferenceError",
+        "indexedDBError": "SecurityError",
+        "origin": "null"
+      },
+      "limitation": "Worker constructor shadowing is functional hardening; DOM absence and opaque-origin storage denial are browser restrictions."
+    },
+    {
+      "name": "csp-native-network-denial-server-counter",
+      "passed": true,
+      "elapsedMs": 6156,
+      "baseline": 1,
+      "after": 1,
+      "details": {
+        "nativeFetchFound": true,
+        "fetchGET": "TypeError",
+        "fetchPOST": "TypeError",
+        "xhrGET": "NetworkError",
+        "xhrPOST": "NetworkError",
+        "websocket": "blocked",
+        "importScripts": "NetworkError",
+        "moduleImport": "TypeError",
+        "nestedWorker": "TypeError",
+        "shimFetch": "Network denied: only preloaded runtime bytes are available"
+      }
+    },
+    {
+      "name": "forged-ready-terminates-protocol",
+      "passed": true,
+      "elapsedMs": 5934,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 30.299999952316284,
+        "language": "python",
+        "totalMs": 5927.900000095367,
+        "preparationMs": 0.10000002384185791,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "replayed-executing-cannot-reset-deadline",
+      "passed": true,
+      "elapsedMs": 4699,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 11,
+        "language": "python",
+        "totalMs": 4670.200000047684,
+        "preparationMs": 0.10000002384185791,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "java-compilation-is-excluded-from-execution-time",
+      "passed": true,
+      "elapsedMs": 3499,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "timing\n",
+        "stderr": "",
+        "executionMs": 2.4000000953674316,
+        "language": "java",
+        "totalMs": 3487.5,
+        "preparationMs": 0.2999999523162842,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      },
+      "limitation": "Local wall time only; no performance grading or cross-device comparison."
+    },
+    {
+      "name": "empty-stdout-message-flood-terminates",
+      "passed": true,
+      "elapsedMs": 8039,
+      "result": {
+        "type": "result",
+        "status": "message-limit",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 228.80000007152557,
+        "language": "python",
+        "totalMs": 8021.600000023842,
+        "preparationMs": 0.10000002384185791,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "output-flood-retained-byte-limit",
+      "passed": true,
+      "elapsedMs": 5954,
+      "status": "output-limit",
+      "retainedBytes": 8192,
+      "totalMs": 5937.700000047684
+    },
+    {
+      "name": "infinite-python-trusted-timeout",
+      "passed": true,
+      "elapsedMs": 7126,
+      "result": {
+        "type": "result",
+        "status": "timeout",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 310.40000009536743,
+        "language": "python",
+        "totalMs": 7106.400000095367,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "stop-running-python-and-fresh-rerun",
+      "passed": true,
+      "elapsedMs": 14122,
+      "result": {
+        "type": "result",
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 27.100000023841858,
+        "language": "python",
+        "totalMs": 5590.799999952316,
+        "preparationMs": 0.09999990463256836,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      },
+      "stopRecoveryMs": 9,
+      "fresh": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "fresh browser run\n",
+        "stderr": "",
+        "executionMs": 22.600000023841858,
+        "language": "python",
+        "totalMs": 8489.700000047684,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    }
+  ],
+  "priorFailures": [],
+  "probeEvents": [
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-recorder-positive-control"
+    },
+    {
+      "event": "request-failed",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-worker-xhr-GET"
+    },
+    {
+      "event": "request-failed",
+      "error": "csp"
+    },
+    {
+      "event": "request-attempt",
+      "method": "POST",
+      "url": "http://127.0.0.1:3130/probe-worker-xhr-POST"
+    },
+    {
+      "event": "request-failed",
+      "error": "csp"
+    },
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-worker-module-import"
+    },
+    {
+      "event": "request-failed",
+      "error": "csp"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Error thrown in write:",
+    "Error: LAB_OUTPUT_LIMIT\n    at emit (blob:null/5e7bc061-c142-4db6-9684-5ef256de47f2:20:11)\n    at writeOutput (blob:null/5e7bc061-c142-4db6-9684-5ef256de47f2:132:3)\n    at Object.write (blob:null/5e7bc061-c142-4db6-9684-5ef256de47f2:124:42)\n    at blob:null/e3adfbe2-e6cf-4bf9-a587-2a1ba00d5383:1:660703\n    at handleEAGAIN (blob:null/e3adfbe2-e6cf-4bf9-a587-2a1ba00d5383:1:659585)\n    at readWriteHelper (blob:null/e3adfbe2-e6cf-4bf9-a587-2a1ba00d5383:1:659701)\n    at Object.write (blob:null/e3adfbe2-e6cf-4bf9-a587-2a1ba00d5383:1:660685)\n    at Object.write (blob:null/e3adfbe2-e6cf-4bf9-a587-2a1b"
+  ],
+  "limitations": [
+    "chromium engine only; no shipping Safari certification.",
+    "No browser-process memory quota claim; bounded samples only.",
+    "Blocked request events can record attempts; server counter measures requests actually received.",
+    "No application integration, real credentials, or deployment tested."
+  ]
+}

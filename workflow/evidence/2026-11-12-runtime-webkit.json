@@ -1,0 +1,282 @@
+{
+  "task": "/root coordinator replay of previously independently authored harness",
+  "started": "2026-11-12T13:06:04.552Z",
+  "finished": "2026-11-12T13:07:42.561Z",
+  "node": "v24.22.2",
+  "browserName": "webkit",
+  "browser": "27.2",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+    "platform": "Win32"
+  },
+  "os": {
+    "type": "Windows_NT",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "sourceHashes": {
+    "lab.mjs": "c7ec6f2b039f9d127cf89842b8b4f91b8bb24df0934921000d0e08352d01904d",
+    "supervisor.mjs": "4795bc275abe9b5822df2212e1dc25b0945697e024d5773ed9c256534b4bd374",
+    "worker.mjs": "42f1dad20fa0c975ed9f262342d4183db1f3077527e657a89a362959962aa23b",
+    "java-support.mjs": "1cc944e165ca58e61792f3cec527d2e22256b146e7badab384f2a8a91d036307",
+    "embed.mjs": "520ddd87b647943c62de4615c51995877d9821220f862c48645fae21922654b3"
+  },
+  "assetManifestSha256": "55a4e881bf2ccaff83d69f5fc5121e6339d23e3f4fcc36e7057788fd45b7d68f",
+  "command": "node workflow/scripts/verify-runtime-boundary.mjs workflow/evidence/2026-11-12-runtime-webkit.json webkit",
+  "finalPolicy": "opaque sandbox allow-scripts; connect-src none; script-src nonce + blob + unsafe-eval; worker-src blob",
+  "cases": [
+    {
+      "name": "concurrent-run-denied-during-preparation-and-stop",
+      "passed": true,
+      "elapsedMs": 2112,
+      "first": {
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": null,
+        "totalMs": 10
+      },
+      "secondError": "Only one lab run at a time"
+    },
+    {
+      "name": "python-stdin-positive-control",
+      "passed": true,
+      "elapsedMs": 5202,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "hello browser\n",
+        "stderr": "",
+        "executionMs": 16,
+        "language": "python",
+        "totalMs": 5191,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "failed-java-asset-load-allows-retry",
+      "passed": true,
+      "elapsedMs": 40,
+      "error": "Missing asset: compiler.wasm",
+      "retryCheck": "Immediately following real-source Java positive control uses the same page/cache."
+    },
+    {
+      "name": "java-real-source-positive-control",
+      "passed": true,
+      "elapsedMs": 4011,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "independent Java\n",
+        "stderr": "",
+        "executionMs": 2,
+        "language": "java",
+        "totalMs": 3740,
+        "preparationMs": 265,
+        "warmAssets": false,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "opaque-worker-parent-credentials-and-dom",
+      "passed": true,
+      "elapsedMs": 4961,
+      "canaryPresent": true,
+      "details": {
+        "window": "undefined",
+        "document": "undefined",
+        "parent": "undefined",
+        "top": "undefined",
+        "opener": "undefined",
+        "localStorage": "undefined",
+        "sessionStorage": "undefined",
+        "Worker": "undefined",
+        "SharedWorker": "undefined",
+        "cookieError": "ReferenceError",
+        "indexedDBError": "SecurityError",
+        "origin": "null"
+      },
+      "limitation": "Worker constructor shadowing is functional hardening; DOM absence and opaque-origin storage denial are browser restrictions."
+    },
+    {
+      "name": "csp-native-network-denial-server-counter",
+      "passed": true,
+      "elapsedMs": 4911,
+      "baseline": 3,
+      "after": 3,
+      "details": {
+        "nativeFetchFound": true,
+        "fetchGET": "TypeError",
+        "fetchPOST": "TypeError",
+        "xhrGET": "NetworkError",
+        "xhrPOST": "NetworkError",
+        "websocket": "SecurityError",
+        "importScripts": "NetworkError",
+        "moduleImport": "TypeError",
+        "nestedWorker": "TypeError",
+        "shimFetch": "Network denied: only preloaded runtime bytes are available"
+      }
+    },
+    {
+      "name": "forged-ready-terminates-protocol",
+      "passed": true,
+      "elapsedMs": 4779,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 9,
+        "language": "python",
+        "totalMs": 4771,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "replayed-executing-cannot-reset-deadline",
+      "passed": true,
+      "elapsedMs": 4089,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 9,
+        "language": "python",
+        "totalMs": 4082,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "java-compilation-is-excluded-from-execution-time",
+      "passed": true,
+      "elapsedMs": 3075,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "timing\n",
+        "stderr": "",
+        "executionMs": 2,
+        "language": "java",
+        "totalMs": 3065,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      },
+      "limitation": "Local wall time only; no performance grading or cross-device comparison."
+    },
+    {
+      "name": "empty-stdout-message-flood-terminates",
+      "passed": true,
+      "elapsedMs": 5613,
+      "result": {
+        "type": "result",
+        "status": "message-limit",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 1239,
+        "language": "python",
+        "totalMs": 5582,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "output-flood-retained-byte-limit",
+      "passed": true,
+      "elapsedMs": 7451,
+      "status": "output-limit",
+      "retainedBytes": 8192,
+      "totalMs": 7432
+    },
+    {
+      "name": "infinite-python-trusted-timeout",
+      "passed": true,
+      "elapsedMs": 13461,
+      "result": {
+        "type": "result",
+        "status": "timeout",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 306,
+        "language": "python",
+        "totalMs": 13442,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "stop-running-python-and-fresh-rerun",
+      "passed": true,
+      "elapsedMs": 34902,
+      "result": {
+        "type": "result",
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 53,
+        "language": "python",
+        "totalMs": 12220,
+        "preparationMs": 2,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      },
+      "stopRecoveryMs": 33,
+      "fresh": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "fresh browser run\n",
+        "stderr": "",
+        "executionMs": 243,
+        "language": "python",
+        "totalMs": 22628,
+        "preparationMs": 3,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    }
+  ],
+  "priorFailures": [],
+  "probeEvents": [
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-recorder-positive-control"
+    }
+  ],
+  "consoleErrors": [
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to connect to http://127.0.0.1:3130/probe-worker-GET because it does not appear in the connect-src directive of the Content Security Policy.",
+    "Refused to connect to http://127.0.0.1:3130/probe-worker-POST because it does not appear in the connect-src directive of the Content Security Policy.",
+    "Refused to connect to http://127.0.0.1:3130/probe-worker-xhr-GET because it does not appear in the connect-src directive of the Content Security Policy.",
+    "Refused to connect to http://127.0.0.1:3130/probe-worker-xhr-POST because it does not appear in the connect-src directive of the Content Security Policy.",
+    "Refused to connect to ws://127.0.0.1:3130/probe-worker-websocket because it does not appear in the connect-src directive of the Content Security Policy.",
+    "Refused to load http://127.0.0.1:3130/probe-worker-import-script because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load http://127.0.0.1:3130/probe-worker-module-import because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy.",
+    "Refused to load data:text/javascript, because it does not appear in the script-src directive of the Content Security Policy."
+  ],
+  "limitations": [
+    "webkit engine only; no shipping Safari certification.",
+    "No browser-process memory quota claim; bounded samples only.",
+    "Blocked request events can record attempts; server counter measures requests actually received.",
+    "No application integration, real credentials, or deployment tested."
+  ]
+}
