@@ -25,4 +25,6 @@ Add focused contract, query, route and UI regressions for strict token parsing, 
 
 ## Remaining OpenSpec work
 
+Deployment compatibility: the three-argument RPCs carry revision/restart metadata. Legacy two-argument wrappers retain their original strict response shapes while passing through the same missing-revision restart guard. Apply all three forward migrations before deploying the updated application; the migration-first rollout preserves first-page reads for existing clients. This compatibility requirement was reproduced with two failing database assertions before its repair.
+
 The nine original unchecked tasks are assessed separately in [the evidence matrix](../evidence/2026-11-12-open-platform-tasks.md). Personal approval, independent review and final release are explicit completion criteria. No checkbox is closed by this design.

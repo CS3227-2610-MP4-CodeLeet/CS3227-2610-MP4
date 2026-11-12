@@ -223,6 +223,8 @@ Never lose your work due to accidental browser closures, battery failures, or ne
 4. **Continue Editing**:
    - To make further improvements, open any previous revision and click **Continue editing**. This loads that revision's source into the active editor while preserving the historical record intact.
 
+Published grades show the rubric snapshot captured when the instructor published them. Older grades without that snapshot use neutral criterion labels and **—** for unknown maxima; later private rubric edits are not substituted into an old grade.
+
 ### 4.7 Revision Comparison
 
 ![Revision Diff Comparison](images/user-guide/09-revision-diff-comparison.png)
@@ -285,6 +287,7 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
   - **Standard Competition Ranking (1, 1, 3)**: Students with tied XP share the same rank. For example, if two students tie for 1st place, both are ranked #1, and the next student is ranked #3.
   - **Your Ranking Pin**: Your personal rank and XP total are pinned at the top of the leaderboard so you can immediately see your standing regardless of the active page.
   - Students with 0 XP are **Unranked** and are not listed; a published grade must produce positive XP for a student to appear on the leaderboard.
+- **Changes while paging**: If XP awards or leaderboard ordering change while you use Previous or Next, the list returns to page 1 and shows **XP changed—showing the latest results.** Older later-page links without a revision also return to the first page.
 
 ---
 

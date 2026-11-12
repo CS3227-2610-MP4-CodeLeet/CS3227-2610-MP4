@@ -386,3 +386,9 @@ Source-backed documentation lives in `docs/UserGuide.md` and `docs/DeveloperGuid
 
 ## Test-case editing consolidation (issue #168)
 The user-selected assignment-only design supersedes the earlier dedicated test-editor publication workflow. All case mutations use assignment saving with a 25-case combined limit; Published assignment saves refresh the public projection immediately. Private cases remain instructor-only, and removing all or marking all private clears the student set. The obsolete page and independent write API/RPC are removed, while existing case storage and authorized reads are preserved. See workflow/plans/2026-11-12-consolidate-test-case-editing.md.
+
+## Issues #169 and #170: pagination and published-grade boundaries
+
+The requester selected and approved change detection/restart rather than frozen XP snapshots. Stable PostgreSQL readers compute an authorized-result fingerprint and projection from one calling statement snapshot. Page links carry the fingerprint; missing/stale later-page hints return current page 1 with a restart notice. Fingerprints bind course, viewer and list kind and never authorize access. Raw projections are private; both legacy public signatures retain the guard. See workflow/plans/2026-11-12-xp-pagination-design.md.
+
+Independent student-boundary review then reproduced grade-RPC access after course membership removal and exposure of subsequent private rubric edits through a legacy fallback. Issue #170 restores current verified/provisioned student/course/assessment authorization. Intentionally published snapshots remain available; grades lacking a snapshot use stored scores with neutral labels and unknown maxima. The UI renders an em dash instead of inventing a maximum. Current review and verification are in logs/2026-11-12-xp-pagination-and-open-tasks.md. A separate source-derived submission history OFFSET risk is tracked in issue #171.

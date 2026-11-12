@@ -419,6 +419,8 @@ Feature: Platform Administrator Role Governance
 
 ## 7. Error Handling & Boundary Defense
 
+XP history and leaderboard RPCs return a revision alongside each page. Pagination carries that revision; stale or missing later-page revisions restart at page 1 with a status notice. Stable PostgreSQL readers compute the fingerprint and projection within the calling statement snapshot. The fingerprint is a consistency hint; current identity, course membership and feature authorization are rechecked for every request. The private raw projections cannot be called directly by application clients.
+
 The application handles errors at UI, route, database, and provider boundaries. Exact validation and response behavior is route-specific.
 
 ```mermaid
@@ -568,6 +570,8 @@ The development of CodeLeet integrated an advanced Agentic Software Engineering 
 ---
 
 ## 11. Acknowledgements & References
+
+**AI assistance:** OpenAI Codex assisted with design, implementation, testing and documentation. Dated session summaries identify actual participants, delegated reviews, decisions and verification. The team remains responsible for the submitted work. On 12 November 2026, the requester confirmed approval of both members' current reflections, contribution claims, acknowledgements and existing summaries; newly generated change summaries still require their own review.
 
 The CodeLeet architecture and documentation build upon several foundational tools, open-source projects, and educational standards:
 
