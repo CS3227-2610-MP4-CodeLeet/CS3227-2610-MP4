@@ -9,9 +9,9 @@ const required = [
   'workflow/ProjectBrief.md', 'workflow/AssignmentChecklist.md',
   'workflow/AgentProcess.md', 'logs/README.md', 'website/docusaurus.config.js',
   'openspec/config.yaml',
-  'openspec/changes/build-programming-platform/proposal.md',
-  'openspec/changes/build-programming-platform/design.md',
-  'openspec/changes/build-programming-platform/tasks.md',
+  'openspec/changes/archive/2026-11-12-build-programming-platform/proposal.md',
+  'openspec/changes/archive/2026-11-12-build-programming-platform/design.md',
+  'openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md',
 ];
 const failures = [];
 for (const path of required) {

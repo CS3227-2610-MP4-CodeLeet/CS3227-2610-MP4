@@ -23,7 +23,7 @@ Paul's reflection is evidence-reviewed, not automatically personally approved. J
 
 ## Student contract reconciliation
 
-Early contract v1 remains historical planning, not the current interface. [Current contracts](../../src/features/codementor/contracts.ts), [submission route](../../src/app/api/submissions/route.ts), [archived MVP specification](../../openspec/changes/archive/2026-10-29-deliver-codementor-mvp/specs/programming-assignments/spec.md) and [course requirements](../../openspec/changes/build-programming-platform/specs/course-workspaces/spec.md) supersede incompatible scaffold assumptions.
+Early contract v1 remains historical planning, not the current interface. [Current contracts](../../src/features/codementor/contracts.ts), [submission route](../../src/app/api/submissions/route.ts), [archived MVP specification](../../openspec/changes/archive/2026-10-29-deliver-codementor-mvp/specs/programming-assignments/spec.md) and [course requirements](../../openspec/changes/archive/2026-11-12-build-programming-platform/specs/course-workspaces/spec.md) supersede incompatible scaffold assumptions.
 
 | Concern | Early plan | Current source and evidence |
 | --- | --- | --- |

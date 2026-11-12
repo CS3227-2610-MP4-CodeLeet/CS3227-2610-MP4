@@ -4,7 +4,7 @@
 - Participants/actual agent IDs: User and Codex; no specialist agents used
 - AI tools/models, where known: Codex; model not recorded
 - GitHub issue: [#11](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/11)
-- OpenSpec change: [`build-programming-platform`](../openspec/changes/build-programming-platform/)
+- OpenSpec change: [`build-programming-platform`](../openspec/changes/archive/2026-11-12-build-programming-platform/)
 - Branch and commits: `feat/complete-project-setup`; `284e638` (`chore: pin Node 24 and invoke pnpm directly`), `1db22fb` (`docs: require issue-linked workflow summaries`), plus this final task/log closeout commit.
 - Pull request: [#12](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/12)
 - Human verification: pending

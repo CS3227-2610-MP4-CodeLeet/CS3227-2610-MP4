@@ -1,0 +1,158 @@
+# accounts-and-access Specification
+
+## Purpose
+
+Define verified account access, trusted roles, private profile boundaries and account recovery journeys.
+
+## Requirements
+
+### Requirement: Clear email confirmation result
+After a signup confirmation link is accepted, the system SHALL show an email-verified result to the server-verified confirmed account, with a route to the appropriate next step. It SHALL NOT show success for a missing, expired or replayed code, a signed-out visitor, or an account whose email is not confirmed.
+
+#### Scenario: Confirmed signup link
+- **WHEN** a valid signup confirmation code establishes a server-verified user with a confirmed email
+- **THEN** the callback SHALL open the confirmation result and the page SHALL offer a way to continue to Courses; if the account has no platform role, the page SHALL explain that account access needs administrator help
+
+#### Scenario: Signup awaits email confirmation
+- **WHEN** account creation succeeds but the provider has not issued a session because email confirmation is required
+- **THEN** the signup page SHALL tell the user to open the confirmation link in the same browser and SHALL NOT instruct them to sign in again before following it
+
+#### Scenario: Invalid confirmation or direct page access
+- **WHEN** confirmation exchange fails or a visitor opens the result page without a server-verified confirmed account
+- **THEN** no success state SHALL appear, and the visitor SHALL receive an actionable sign-in or account-creation path without provider details
+
+#### Scenario: Other email links
+- **WHEN** the callback handles password recovery or a course invitation
+- **THEN** those flows SHALL retain their dedicated destinations and SHALL NOT claim signup confirmation success
+
+### Requirement: Email or unique username password sign-in
+The system SHALL authenticate by email or a case-insensitive unique username without exposing username-to-email lookup results.
+
+#### Scenario: Real username authentication
+- **WHEN** a visitor submits the Email or username text field and password
+- **THEN** a bounded same-origin server route SHALL reserve an attempt, resolve a claimed username privately and authenticate with the ordinary Supabase password/session client; no privileged client SHALL create the session, assign a role or disclose resolved email
+
+#### Scenario: Unique names and legacy conflicts
+- **WHEN** signup or profile changes claim a trimmed 1–80-character username without @/control/NUL
+- **THEN** database-owned normalization and transactional uniqueness SHALL protect case-insensitive claims even through direct allowed profile writes; legacy duplicates/ineligible names SHALL retain email access without silent renames, and a sole remaining legacy owner SHALL explicitly claim while an abandoned reservation SHALL be released
+
+#### Scenario: Bounded private lookup
+- **WHEN** a login is unknown, wrong, unconfirmed, repeated or unavailable
+- **THEN** generic credential failures and no-store responses SHALL avoid email disclosure, atomic HMAC-keyed windows SHALL limit accepted attempts to ten per normalized identifier/minute and sixty globally/minute with Retry-After, missing services SHALL fail closed, and unknown/dummy users SHALL never receive authenticated cookies
+
+### Requirement: User-facing product copy
+Product screens SHALL use concise, plain wording that helps students and instructors complete their tasks. Internal setup and execution architecture SHALL remain in developer documentation unless needed for an actionable user decision. The landing page SHALL omit the technical paragraph about Python-only submissions, trusted instructors and server execution.
+
+#### Scenario: Service unavailable
+- **WHEN** account access or code running is unavailable
+- **THEN** the UI explains the unavailable action without asking end users to configure infrastructure or credentials
+
+### Requirement: Email password recovery
+The system SHALL provide a Forgot password email request from sign-in, use Supabase Auth's PKCE recovery and respond without disclosing account existence.
+
+#### Scenario: Required constraints for email password recovery
+- **WHEN** this capability is used
+- **THEN** It SHALL enforce pending/resend controls and show safe provider/rate errors without exposing provider details. Only a fixed same-origin recovery destination SHALL be accepted by the callback, and a server-verified identity SHALL be required to render the new-password form. Matching passwords with the existing visibility controls SHALL update only that authenticated identity; invalid, expired and replayed links SHALL offer a new request. Successful password update and any subsequent sign-out failure SHALL be reported distinctly. Passwords/tokens/email bodies SHALL NOT be logged by application code.
+
+#### Scenario: Recovery request
+- **WHEN** a visitor submits a valid email for password recovery
+- **THEN** Auth is asked to deliver a recovery link and the acknowledgement does not reveal account existence
+
+#### Scenario: Password update
+- **WHEN** a valid recovery session submits matching new passwords
+- **THEN** the user's password changes and the user can sign in with the new password while the old password fails
+
+#### Scenario: Invalid recovery access
+- **WHEN** a signed-out visitor opens the password form directly or a callback code is invalid/expired/replayed
+- **THEN** no unauthenticated password update is offered and a new recovery link can be requested
+
+#### Scenario: Untrusted redirect
+- **WHEN** a callback includes a next value other than the exact recovery path
+- **THEN** it is ignored in favor of the existing verified role destination without redirecting to an attacker-controlled URL
+
+### Requirement: Consistent account controls
+The visible product name SHALL be CodeLeet and the registration profile-name field SHALL be labeled Username.
+
+#### Scenario: Required constraints for consistent account controls
+- **WHEN** this capability is used
+- **THEN** The label change SHALL preserve existing profile storage and email sign-in, alongside the separately specified unique username sign-in path.
+
+The application SHALL apply the saved theme to account and signed-in pages. Registration SHALL require matching password confirmation before sending an Auth request; password fields SHALL provide independent accessible visibility controls. Authenticated workspace headers SHALL provide sign-out and SHALL report retryable sign-out failures without a successful redirect. Real assignment navigation SHALL omit sample-data notices and redundant Home links; explicit fixture mode SHALL retain truthful labeling.
+
+#### Scenario: Mismatched registration passwords
+- **WHEN** a user submits different password and confirmation values
+- **THEN** account creation is blocked locally with an explanatory message and no Auth signup request
+
+#### Scenario: Independent password visibility
+- **WHEN** the user changes visibility for either password field
+- **THEN** only that field changes visibility and the control name describes its next action
+
+#### Scenario: Sign-out failure and recovery
+- **WHEN** sign-out fails and the user retries successfully
+- **THEN** the failure stays visible on the current page until retry and success redirects to sign-in with protected pages requiring authentication again
+
+### Requirement: Trusted role assignment
+The system SHALL authenticate accounts separately from course membership. Public registration alone SHALL grant no course access. Student/instructor membership SHALL be granted only through an authorized course invitation or student join code after verified sign-in. Platform administration SHALL remain trusted and global.
+
+#### Scenario: Untrusted role elevation
+- **WHEN** a caller supplies a course role in registration, profile, request metadata or a direct database write without authorized invitation acceptance
+- **THEN** no course membership or platform administration is granted; verified invitation acceptance remains the only email-based role grant
+
+### Requirement: Authorized profiles and private data
+The system SHALL allow users to edit their own text profile and SHALL enforce ownership through server checks and database policies.
+
+#### Scenario: Required constraints for authorized profiles and private data
+- **WHEN** this capability is used
+- **THEN** Students SHALL NOT access private rubrics, draft grades or other students' submissions.
+
+Every protected student operation SHALL use a request-scoped cookie-based Supabase client with getUser verification and a protected role lookup. It SHALL NOT trust getSession alone or client-provided identity/role. Authenticated student responses SHALL use private, no-store caching. Missing/invalid identity SHALL yield 401, verified non-students 403 and unavailable verification dependencies 503.
+
+#### Scenario: Forged session cookie
+- **WHEN** a client sends a session cookie that cannot be verified by Supabase Auth
+- **THEN** student operations return 401 without disclosing or changing private data
+
+#### Scenario: Auth dependency unavailable
+- **WHEN** current identity or protected role cannot be verified because its service is unavailable
+- **THEN** the operation fails closed with 503 without claiming a successful submission
+
+#### Scenario: Cross-student read
+- **WHEN** Student A requests Student B's code through a route or database API
+- **THEN** access is denied without exposing content
+
+#### Scenario: Cross-student submission mutation
+- **WHEN** Student A attempts to create or alter a submission as Student B through a route or database API
+- **THEN** the operation is denied without modifying Student B's records
+
+#### Scenario: Signed-out submission access
+- **WHEN** a signed-out client requests protected submission history or attempts submission creation
+- **THEN** no submission content is disclosed or stored
+
+#### Scenario: Unrelated instructor access
+- **WHEN** an instructor requests private grading data for an assignment they do not own
+- **THEN** access is denied
+
+#### Scenario: Own profile update
+- **WHEN** a user saves a valid display name for their own profile
+- **THEN** that name changes without modifying roles or another user's data
+
+#### Scenario: Private profile settings
+- **WHEN** a signed-in student or instructor opens Profile settings
+- **THEN** they see their own username, verified email and trusted role, and can save only a trimmed username of 1–80 characters
+
+#### Scenario: Protected profile fields
+- **WHEN** a caller submits another identity, email or role, oversized JSON or a foreign-origin update
+- **THEN** the strict bounded API rejects the request without altering any account or granting access
+
+#### Scenario: Profile save failure
+- **WHEN** a profile update fails
+- **THEN** the draft remains available for retry and the UI does not claim success; a confirmed update persists across reload and renders as safe text
+
+#### Scenario: Pending account and application actions
+- **WHEN** an account request or an asynchronous save, post, review, practice run or form search is pending
+- **THEN** its action button exposes a disabled busy state and visible spinner; account buttons use action-specific progress text, retain progress during destination navigation, and display a slow-request notice after ten seconds
+- **AND** a failed request restores retry controls with a safe message without automatically repeating the mutation
+
+#### Scenario: Pending navigation feedback
+- **WHEN** a user activates a header, course sidebar, breadcrumb, course card, pagination or other button-styled navigation link
+- **THEN** that link shows a spinner and a screen-reader loading cue until navigation commits, header Courses/Profile/User roles render as shared button-styled links, and every data route renders a shared named loading status while its server data loads
+- **AND** sign-in, sign-up and password recovery pages offer a button-styled link back to the welcome page

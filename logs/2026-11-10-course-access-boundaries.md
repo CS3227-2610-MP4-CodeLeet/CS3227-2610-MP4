@@ -4,7 +4,7 @@
 - Participants/actual agent IDs: requester and Codex `/root`; no specialist subagents were triggered
 - AI tools/models, where known: Codex; exact model and token/cost measurements unavailable
 - GitHub issue: [#131](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/131)
-- OpenSpec change: [build-programming-platform](../openspec/changes/build-programming-platform/)
+- OpenSpec change: [build-programming-platform](../openspec/changes/archive/2026-11-12-build-programming-platform/)
 - Branch and commits: `feat/131-course-access-controls` from `develop`; `504d161` (`feat: clarify course access boundaries`), `bdff76b` (`docs: record course access verification`)
 - Pull request: [#132](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/132), open against `develop`
 - Human verification: pending

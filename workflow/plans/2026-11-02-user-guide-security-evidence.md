@@ -2,7 +2,7 @@
 
 Issue: [#70](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/70). Branch: `docs/user-guide-security-evidence`, from `develop` at `0a26127`.
 
-OpenSpec: [engineering and delivery](../../openspec/changes/build-programming-platform/specs/engineering-and-delivery/spec.md), particularly accurate release artifacts and reproducible security/context evidence.
+OpenSpec: [engineering and delivery](../../openspec/changes/archive/2026-11-12-build-programming-platform/specs/engineering-and-delivery/spec.md), particularly accurate release artifacts and reproducible security/context evidence.
 
 ## Scope and decisions
 
