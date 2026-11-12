@@ -5,7 +5,7 @@
 - AI tools/models, where known: Codex; exact model not exposed
 - GitHub issue: [#166](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/166)
 - OpenSpec change: [`build-programming-platform`, task 6.3](../openspec/changes/build-programming-platform/tasks.md); task remains open for reflections and acknowledgements
-- Branch and commits: `docs/166-practice-test-auth-guides`; commit pending
+- Branch and commits: `docs/166-practice-test-auth-guides`; `5cebf2d` (guide, OpenSpec and initial evidence summary)
 - Pull request: pending branch CI; repository process requires CI before opening a PR
 - Human verification: pending
 - Verifier/date: pending
@@ -24,4 +24,4 @@
 - Commands/checks actually run and outcomes: `pnpm format:check` passed; `pnpm check:scaffold` passed, including local Markdown link targets; `pnpm spec:validate` passed all 8 items; `pnpm site:build` compiled the Docusaurus client/server and generated static files; `git diff --check` passed. A targeted guide scan was reviewed. Application tests were not run because this issue is documentation-only.
 - Failures, retries, unresolved issues: The restricted shell could not find `pnpm`; the project-required elevated retries succeeded. The route remains unlinked in the application, and the assignment-form helper still claims private cases are used for instructor evaluation. These product/UI discrepancies were documented but not changed under this guide-only scope. No independent human review has occurred.
 - Resource measurements and unavailable fields: No model-provider requests or agent token/cost measurements were made. The exact Codex model is unavailable.
-- Next steps: Check the final diff, commit and push the branch, wait for branch CI, then open a PR to `develop` linking issue #166, OpenSpec task 6.3, and this summary. Keep human verification pending; do not claim merge or deployment.
+- Next steps: Push the branch, wait for branch CI, then open a PR to `develop` linking issue #166, OpenSpec task 6.3, and this summary. Keep human verification pending; do not claim merge or deployment.
