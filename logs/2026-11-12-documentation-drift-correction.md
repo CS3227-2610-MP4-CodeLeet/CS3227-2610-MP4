@@ -6,7 +6,7 @@
 - GitHub issue: [#162](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/162)
 - OpenSpec change: `build-programming-platform`, task 6.3 (guide updates; broader reflections and acknowledgements work remains open)
 - Branch and commits: `docs/162-reconcile-guide-behavior`; guide and workflow changes committed as `1f068be` (`docs: reconcile guides with implemented behavior`)
-- Pull request: pending verification
+- Pull request: [#163](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/163) to `develop` (open, unmerged)
 - Human verification: pending
 - Verifier/date: pending
 
@@ -23,4 +23,4 @@
 - Failures, retries, unresolved issues: `node`, `pnpm`, and `openspec` were not on the restricted shell PATH. Retried repository CLI checks through the elevated terminal; all completed successfully. No application behavior tests or hosted browser checks were run because this change only edits documentation and workflow notes. Human verification remains pending.
 - Resource measurements and unavailable fields: not measured.
 - Source review: compared guide claims against relevant route handlers, feature contracts/loaders, Supabase migrations, runtime modules, package scripts, workflow configuration, and experiment records. Deployment mappings are requester-confirmed rather than independently checked against Vercel.
-- Next steps: push the branch and open a PR to `develop`; record its URL here. Keep human review pending.
+- Final interaction: pushed the branch and opened PR #163 to `develop`, linked to issue #162 with `Closes #162`. Human verification remains pending; the PR is open and unmerged.
