@@ -159,6 +159,32 @@ it('renders rubric criteria title, description, and score / maxScore breakdown i
   // Raw criteria UUIDs should not be displayed
   expect(screen.queryByText(/93000000-0000-4000-8000-000000000026/)).toBeNull();
   expect(screen.queryByText(/93000000-0000-4000-8000-000000000027/)).toBeNull();
+
+  mockSupabase.rpc.mockResolvedValue({
+    data: {
+      id: 'legacy-grade',
+      total_score: 8,
+      feedback: 'Legacy feedback',
+      published_at: '2026-11-01T00:00:00Z',
+      criteria: [
+        {
+          id: 'legacy-criterion',
+          title: 'Criterion',
+          description: '',
+          score: 8,
+          maxScore: null,
+        },
+      ],
+    },
+    error: null,
+  });
+  cleanup();
+  render(
+    await CourseSubmissionPage({
+      params: Promise.resolve({ courseId, submissionId }),
+    }),
+  );
+  expect(screen.getByText('8 / —')).toBeDefined();
 });
 
 it('renders instructor review view with grade form and test runner when user is instructor', async () => {
