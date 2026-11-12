@@ -18,7 +18,7 @@ Platform roles govern system-wide account authority, course creation privileges,
 | :--- | :---: | :--- |
 | **Platform Student** | Yes (Default) | Standard account tier. Can view enrolled courses, join active courses via student join codes, solve published assignments, participate in course discussion forums, and track earned XP. |
 | **Platform Instructor** | No (Requires Promotion) | Elevated staff tier. Authorized to create and configure new course workspaces, author assignments and private rubrics, grade student submissions, invite course staff, and serve as Course Owner. |
-| **Platform Administrator** | No (Protected Safeguard) | Highest platform governance tier. Authorized to manage user platform roles (`/admin`), reassign unowned legacy course archives, and inspect institutional metadata. Protected against demoting the final administrator. |
+| **Platform Administrator** | No (Protected Safeguard) | Highest platform governance tier. Authorized to manage user platform roles (`/admin`) and inspect read-only course metadata. Role changes cannot leave the platform without an administrator. |
 
 > [!NOTE] Default Account Role & Instructor Promotion
 > For security, access governance, and academic integrity reasons, all self-registered user accounts are automatically provisioned with the **Platform Student** role by default.
@@ -32,7 +32,7 @@ Within any individual course workspace, members hold granular course-level roles
 | Course Role | Enrollment / Assignment Method | Course Workspace Capabilities |
 | :--- | :--- | :--- |
 | **Course Student** | Enrolled with a student join code or direct course invitation after verified sign-in | Browse published assignments, write and test code in-browser, submit immutable revisions, recover local drafts, request pedagogical AI feedback, view personal grades and XP, and post in course forums. |
-| **Course Instructor** | Invited and assigned by Course Owner or Platform Administrator | Author assignments and multi-criteria rubrics, preview problems from the student perspective, author and publish public practice tests, review student submissions, generate AI rubric suggestions, grade evaluations, and manage course join codes. |
+| **Course Instructor** | Invited by a course instructor who is a member of the active course; the invitee verifies sign-in to accept | Author assignments and multi-criteria rubrics, preview problems from the student perspective, author and publish public practice tests, review student submissions, generate AI rubric suggestions, grade evaluations, and manage course join codes. |
 | **Course Owner** | Course creator or assigned via ownership transfer | Possesses all Course Instructor capabilities plus exclusive rights to manage instructor rosters, archive active courses, transfer course ownership, or permanently delete empty courses. |
 
 ### 1.3 Feature Access Matrix
@@ -116,7 +116,7 @@ CodeLeet partitions all learning activities into self-contained **Course Workspa
 
 1. **Active**: The course is fully operational. Instructors can publish assignments, students can submit revisions, and discussions are open.
 2. **Archived**: The course is placed in read-only mode by the course owner. Members can review historical assignments, previous submissions, feedback, and discussion archives, but no new submissions, grade modifications, or posts are permitted.
-3. **Legacy**: Preserved historical coursework without defined class boundaries. Legacy courses are archived by default and remain read-only until an administrator assigns a designated course owner.
+3. **Legacy**: Preserved historical coursework without defined class boundaries. Legacy courses stay archived and read-only, including after an owner has been assigned.
 
 ### 3.3 Course Feature Switches
 
@@ -127,8 +127,8 @@ Course owners and instructors can independently toggle specific course features 
 | **Assessments** | Students can view published assignments, run code, execute test cases, submit revisions, view submissions, and check published grades. | Hides assignments and submissions. Historical submission records remain securely stored in the database but are inaccessible to students until re-enabled. |
 | **AI Features** | Students can request pedagogical AI feedback; instructors can generate AI rubric suggestions and use Context comparison. | Blocks new AI requests and hides AI navigation/actions. Saved submissions and grades remain available according to their own feature and course access rules. |
 | **Discussion Forum** | Enables course-scoped discussion threads, replies, and full-text keyword search. | Hides forum navigation and blocks new threads/replies. Existing forum posts are retained and reappear when re-enabled. |
-| **Experience Points (XP)** | Computes and displays earned assignment XP on student dashboards and assignment rows. | Hides XP views and stops new XP awards while disabled. Existing ledger entries are retained; enabling XP again recomputes awards from published grades. |
-| **Leaderboard** | Displays real-time course leaderboard ranking students by accumulated XP. | Hides the leaderboard page from students and instructors. Disabling leaderboard does not halt XP earning. |
+| **Experience Points (XP)** | Computes and displays eligible assignment XP on student dashboards and assignment rows. | Hides XP views and pauses XP calculations. Existing awards are retained. Re-enabling XP does not backfill grade changes made while it was disabled; eligible grades must be reviewed and republished. |
+| **Leaderboard** | Displays the current course ranking by accumulated XP. | Hides the leaderboard page from students and instructors. Disabling leaderboard does not halt XP earning. |
 **My progress is derived navigation, not a separate switch.** It appears while either Assessments or XP is enabled. Assignment, deadline, submission, and grade details depend on Assessments; XP totals depend on XP.
 
 ---
@@ -179,7 +179,7 @@ Code runs in a browser sandbox using WebAssembly (Pyodide for Python and TeaVM f
 2. **Runtime Constraints & Supported Features**:
    - **Input limit**: Standard input accepts up to **4,096 UTF-8 bytes**.
    - **Output limit**: Output capture is capped at **8,192 bytes** per execution to prevent browser freezing.
-   - **Execution timeout**: Individual runs enforce a **5-second wall-clock deadline**. Long-running loops or blocking calls will terminate with a timeout notification.
+   - **Execution budget**: Standard runs allow up to **5 seconds for program execution** after compilation and preparation. Setup has a separate timeout, so the total time from clicking **Run code** can be longer. Long-running code ends with a timeout state when its execution budget expires.
    - **Java Compatibility**: The browser runner compiles Java source and supports common APIs including `Scanner`, `BufferedReader`, collections, and `System.out`. Multi-threading primitives (`Thread.start()`, `join()`, `Thread.sleep()`) are not supported. Other library behavior depends on the bundled TeaVM class library.
    - Running code verifies execution locally but does not submit your assignment or record a grade.
 
@@ -275,14 +275,15 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 ![Course Leaderboard](images/user-guide/13-course-leaderboard.png)
 
-- **How XP is Earned**: XP is awarded when an instructor publishes a grade on your assignment:
+- **How XP is Earned**: When course XP is enabled, an eligible grade published by your instructor awards:
   `Awarded XP = floor((Student Score / Rubric Maximum) * Assignment Maximum XP)`
   For example, earning 8 out of 10 points on an assignment worth 100 XP awards `floor((8 / 10) * 100) = 80` XP. Saving additional revisions does not grant duplicate XP.
+  XP must be enabled for the course. Grades published before XP tracking was introduced do not earn retroactive XP; an instructor must review and republish them before they can earn an award.
 - **Course Leaderboard** (`/courses/<courseId>/leaderboard`):
   - Displays all students with positive earned XP ranked in descending order.
   - **Standard Competition Ranking (1, 1, 3)**: Students with tied XP share the same rank. For example, if two students tie for 1st place, both are ranked #1, and the next student is ranked #3.
   - **Your Ranking Pin**: Your personal rank and XP total are pinned at the top of the leaderboard so you can immediately see your standing regardless of the active page.
-  - Students with 0 XP are classified as **Unranked** until their first grade is published.
+  - Students with 0 XP are **Unranked** and are not listed; a published grade must produce positive XP for a student to appear on the leaderboard.
 
 ---
 
@@ -323,21 +324,21 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 ### 5.3 Instructor Student-Perspective Preview Mode
 
-1. On any assignment card in the instructor assignment list, click **Preview** (or append `?preview=1` to the assignment URL).
-2. A banner confirms: **Instructor Preview Mode — Experiencing assignment as a student**.
-3. In preview mode, you can interact with the student code editor, test in-browser execution with standard input, and run published practice test cases. Submission buttons are safely disabled in preview mode.
-4. Click **Exit preview** or navigate without the preview flag to return directly to the assignment editor.
+1. On an assignment card in the instructor assignment list, click **Preview**.
+2. The assignment page shows the **Preview Mode (Instructor)** banner when opened by a course instructor.
+3. You can run code with standard input and run published practice tests. The instructor preview does not provide student submission controls.
+4. Return to the course's **Assignments** page to leave the preview.
 
 ### 5.4 Public Practice Test Authoring
 
 ![Instructor Practice Test Authoring](images/user-guide/16-instructor-practice-test-authoring.png)
 
 1. From the assignment editor or assignment card, open **Practice tests** (`/courses/<courseId>/assignments/<assignmentId>/practice-tests`).
-2. Click **Add test case** (instructors can configure up to **25 cases** per assignment):
+2. Click **Add test case** (instructors can configure up to **5 cases** per assignment):
    - **Name**: 1–120 characters (e.g., *Example 1: Basic positive integers*).
    - **Input**: Enter exact standard input string (up to 4,096 bytes).
    - **Expected Output**: Enter expected stdout string (up to 8,192 bytes).
-   - **Visibility**: Toggle between **Public** (immediately available to enrolled students for in-browser practice testing) and **Private** (reserved for instructor-only evaluation during submission review).
+   - **Visibility**: Toggle between **Public** (available to enrolled students for in-browser practice after publication) and **Private** (reserved for instructor-only evaluation during submission review).
 3. **Atomic Publication Workflow**:
    - **Save draft**: Saves test cases in your private instructor workspace without exposing them to students.
    - **Publish tests**: Atomically publishes public cases for student practice. Private cases remain in the instructor's saved set and are available in the instructor submission-review runner; they are not sent to students.
@@ -361,7 +362,7 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
    - Enter overall **Instructor feedback**.
    - Click **Save draft** to keep your evaluation private.
    - To release grades to the student, check **Publish this grade to the student** and click **Save and publish**.
-   - Once published, the student's progress dashboard, personal grade view, and XP leaderboard update immediately.
+   - Once published, the student's progress and personal grade views update. When course XP is enabled and the grade is eligible, its XP award and leaderboard total update in the same database transaction.
 
 ### 5.6 AI Context Comparison Inspector
 
@@ -383,35 +384,35 @@ Instructors can open **Context comparison** (`/courses/<courseId>/context-compar
    - Promoting a user to **Instructor** grants them authority to create new courses and author assignments.
    - Promoting a user to **Administrator** grants full platform governance privileges.
 4. **Last-Admin Safeguard**:
-   - The platform strictly enforces an immutable safety guard preventing the demotion or deletion of the last remaining Administrator. If an administrator attempts to demote their own account when no other active administrators exist, the action is rejected with an explanatory error.
+   - A role change is rejected if it would leave the platform with no Administrator. This portal changes roles; it does not offer account deletion.
 
 ### 6.2 Institutional Course Inspection
 
-- Administrators can inspect all courses across the institution, including active and archived workspaces.
-- In unowned historical courses (such as the *Legacy* course), administrators can assign an initial course owner to reinstate course management.
+- Administrators can open a read-only overview of any course to inspect its title, description, status, type, and whether an owner is assigned.
+- The overview does not provide course membership or management controls. The *Legacy* course remains archived and read-only even after an owner has been assigned.
 
 ---
 
 ## 7. Action Effects & Behavior Matrix
 
-The following comprehensive matrix specifies the trigger, immediate UI feedback, backend mutation, and edge case recovery for every key action across CodeLeet:
+This matrix summarizes the trigger, immediate UI feedback, backend mutation, and recovery behavior for selected CodeLeet actions:
 
 | User Action | Immediate UI Feedback | Backend / Storage Mutation | Edge Case / Error Recovery |
 | :--- | :--- | :--- | :--- |
 | **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Authenticates credentials; establishes secure HTTP-only session cookie. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
 | **Theme Toggle** | Immediate CSS color transition between light and dark themes. | Stores the preference in browser `localStorage` when available; otherwise the choice lasts for the current page session. | Initial theme uses the stored preference or system color scheme. |
-| **Run Code** | Button shows pending state; terminal reports runner output. | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API. | Standard assignment runs use a 5-second limit; the runner also reports preparation, output, unavailable, and stopped states. |
+| **Run Code** | Button shows pending state; terminal reports runner output. | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API. | Standard runs use a 5-second program-execution budget. Compilation and preparation have a separate timeout, so click-to-result time can be longer; the runner also reports output, unavailable, and stopped states. |
 | **Run Practice Tests** | Test case pills switch to loading spinner; displays **Running test case X of Y…**. | Sequentially runs code against public inputs inside client-side sandbox. | Normalizes line endings (`\r\n` vs `\n`); displays visual diff if stdout does not match. |
-| **Type in Editor** | Typing status pill shows **Saving draft…**, debounced by 500ms, then **Draft saved on this device**. | Writes source to browser `localStorage` keyed by `draft:userId:assignmentId`. | If browser storage quota is exceeded, displays **Couldn't save draft on this device; submit revision soon**. |
+| **Type in Editor** | Typing status pill shows **Saving draft…**, debounced by 500ms, then **Draft saved on this device**. | Writes a versioned browser `localStorage` record scoped to the student, assignment, language, and revision. | If saving fails, the editor displays **Couldn't save draft on this device**; the source remains in the editor. |
 | **Restore Draft** | Editor replaces baseline template with the recovered 7-day draft; recovery banner dismisses. | Local state only. | If user clicks **Discard draft**, local storage key is deleted and template restored. |
-| **Submit Revision** | Button shows spinner; disabled to prevent double clicks; toast confirms **Revision N submitted**. | Creates immutable database row in `submissions`; snapshots current deadline and assignment language. | If source exceeds 8,000 characters, returns validation error; draft remains in editor for trimming. |
+| **Submit Revision** | Button shows spinner and is disabled while saving; inline status confirms **Saved revision N.** | Creates an immutable database row in `submissions`; snapshots the current deadline and assignment language. | If source exceeds 8,000 characters, returns a validation error; the draft remains in the editor for trimming. |
 | **Compare Revisions** | Comparison table displays changed lines and from/to line numbers. | Loads the student's authorized revisions on the server and renders their comparison. | If comparing identical revisions, displays **No changes between these revisions**. |
 | **Request Student AI Feedback** | Button shows spinner and **Analyzing submission…**; skeleton loader pulses. | Dispatches request to server-side SoCLaaS API; records token usage in ledger. | If AI quota exhausted or service down, displays friendly retry toast; submission is never altered. |
 | **Post Discussion Thread** | Button shows spinner; redirects to newly created thread on success. | Inserts row into `forum_threads` table; validates 160-char title and 8,000-char message. | If exceeding 10 posts/minute rate limit, displays **Posting too quickly; wait a minute**. Draft preserved. |
 | **Rotate Join Code** | Join-code control shows pending state; a new code appears with a copy action. | Stores a hash of the generated code in `course_join_codes`; invalidates the previous active code. | Previous code stops accepting enrollments; existing students are unaffected. A verified account is required to join. |
 | **Publish Assignment** | Status badge switches from gray **Draft** to green **Published**. | Updates `is_published = true` in database; triggers assignment visibility for enrolled students. | Language field is locked against future modifications once first student submission is saved. |
 | **Publish Practice Tests** | Toast confirms the action; published public cases appear for students after refresh. | Atomically writes the published public-case snapshot to `assignment_practice_sets`; the instructor draft retains public and private cases. | Private cases are not published to students. Version conflicts require reloading the current draft. |
-| **Publish Grade & Rubric** | Button shows pending state; published grade appears to the student and eligible XP is recomputed. | Sends a version-checked grade update; the database operation updates the grade and XP ledger atomically. | On version conflict, instructor must reload before saving again. |
+| **Publish Grade & Rubric** | Button shows pending state; the published grade appears to the student and any eligible XP award is updated. | Sends a version-checked grade update; when XP is enabled, the database operation updates the grade and XP ledger atomically. | Grades published before XP tracking need instructor review and republication before earning XP. On version conflict, reload before saving again. |
 | **Toggle Feature Switch** | The control shows pending state; navigation reflects the saved setting after refresh. | Updates the course's row in `course_features`. | If saving fails, the prior value remains and an error is shown. |
 | **Demote Admin User** | Role selector displays spinner; table updates with new role badge. | Updates `user_roles` table with platform role change. | Rejects with **Cannot demote the last remaining administrator** if last admin. |
 

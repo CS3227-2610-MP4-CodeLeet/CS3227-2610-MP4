@@ -79,21 +79,25 @@ graph TD
 
 ### 1.4 Codebase Directory Structure
 
+Selected repository paths:
+
 ```text
 CS3227-2610-MP4/
 ├── docs/                      # Canonical documentation master files
 │   ├── UserGuide.md           # End-user guide with embedded screenshots
 │   ├── DeveloperGuide.md      # Engineering architecture and developer practices
-│   └── images/user-guide/     # High-resolution UI screenshots (18 assets)
+│   └── images/user-guide/     # User-guide screenshots (18 image assets)
 ├── openspec/                  # Spec-Driven Development (SDD) schema and delta specs
 ├── src/
-│   ├── app/                   # Next.js App Router (pages, layouts, API routes)
-│   │   ├── (auth)/            # Auth routes (sign-in, sign-up, forgot-password)
-│   │   ├── admin/             # Platform administrator portals (/admin/users)
+│   ├── app/                   # Selected Next.js App Router routes and API handlers
+│   │   ├── auth/              # Invitation acceptance and auth callback routes
+│   │   ├── admin/             # User roles (/admin) and read-only course metadata
 │   │   ├── courses/           # Canonical course workspaces (/courses/[courseId]/*)
-│   │   └── api/               # Server route handlers with strict Zod validation
-│   ├── components/            # UI component primitives (shadcn/ui, buttons, dialogs)
-│   ├── features/              # Feature modules (Domain-Driven Design encapsulation)
+│   │   ├── sign-in/, sign-up/ # Authentication pages
+│   │   ├── forgot-password/, reset-password/
+│   │   └── api/               # Server route handlers
+│   ├── components/            # Shared layout and UI components
+│   ├── features/              # Selected feature-focused application modules
 │   │   ├── auth/              # Authentication, session cookies, rate-limiting
 │   │   ├── codementor/        # AI tutoring, review services, SoCLaaS adapter
 │   │   ├── student-assignments/ # Assignment browsing, editor workspace
@@ -160,7 +164,7 @@ sequenceDiagram
     
     API-->>Editor: HTTP 201 Created (Revision N metadata)
     Editor->>Editor: Retain code in editor and refresh submission state
-    Editor-->>Student: Display success toast "Revision N submitted"
+    Editor-->>Student: Display inline status "Saved revision N."
 ```
 
 ### 3.2 In-Browser Isolated Pyodide/TeaVM Execution Flow
@@ -174,24 +178,25 @@ sequenceDiagram
     participant Worker as Sandboxed WebAssembly Worker
 
     User->>HostUI: Enter Standard Input & Click "Run code"
-    HostUI->>Supervisor: initializeExecution(sourceCode, stdin, language)
-    Supervisor->>Supervisor: Apply the requested execution timeout (standard runs use 5,000ms)
-    Supervisor->>Worker: postMessage({ type: 'RUN', source: sourceCode, stdin: stdin })
+    HostUI->>Supervisor: BrowserClient.run({ language, source, stdin, timeoutMs: 5000 })
+    Supervisor->>Supervisor: Prepare the isolated browser runtime
+    Note over Supervisor,Worker: Compilation and preparation have a separate 20,000ms timeout
+    Supervisor->>Worker: postMessage({ command: 'run', source, stdin, timeoutMs })
     
     activate Worker
     alt Language is Python
-        Worker->>Worker: Pyodide loads stdout capture buffer & runs AST
+        Worker->>Worker: Pyodide runs Python source and captures output
     else Language is Java
-        Worker->>Worker: TeaVM compiles bytecode & pipes custom Scanner stdin
+        Worker->>Worker: TeaVM compiles Java source and supplies browser-backed stdin
     end
     
     alt Execution completes within the configured timeout
-        Worker-->>Supervisor: postMessage({ type: 'DONE', stdout: capturedStdout, stderr: capturedStderr })
+        Worker-->>Supervisor: postMessage({ type: 'done', status: 'ok' })
         Supervisor->>Supervisor: Clear safety timer
-        Supervisor-->>HostUI: renderOutput(stdout, stderr, exitCode: 0)
+        Supervisor-->>HostUI: postMessage({ type: 'result', status: 'ok', stdout, stderr })
     else Execution exceeds the configured timeout
         Supervisor->>Worker: terminate() (Kill Web Worker)
-        Supervisor-->>HostUI: renderError("Execution timed out (5s limit)")
+        Supervisor-->>HostUI: postMessage({ type: 'result', status: 'timeout' })
     end
     deactivate Worker
     
@@ -366,13 +371,12 @@ Feature: Sandboxed Browser Execution Lifecycle
   I want my code to run securely inside my browser
   So that infinite loops do not crash my workstation
 
-  Scenario: Terminating an infinite loop within the 5-second deadline
+  Scenario: Terminating an infinite loop after its 5-second execution budget
     Given the student is working on a Python assignment
     When the student writes a script containing "while True: pass"
     And the student clicks "Run code"
     Then the WebAssembly worker executes in the background
-    And the supervisor terminates the worker after 5000 milliseconds
-    And the terminal displays "Execution timed out (5s limit)"
+    And the run reports a timeout when the execution budget expires
     And the host application remains fully responsive
 ```
 
@@ -385,7 +389,7 @@ Feature: Automated Experience Points Ledger
   So that my achievements are reflected on the course leaderboard
 
   Scenario: Earning proportional XP upon instructor grade publication
-    Given an assignment with a maximum XP of 100
+    Given an assignment with a maximum XP of 100 and course XP is enabled
     And the private rubric has a maximum score of 10 points
     When the instructor grades alice's submission with a score of 8 points
     And the instructor publishes the grade
@@ -536,7 +540,7 @@ These deployment details are owner-confirmed. Deployment alone does not document
 
 The product documentation site is built with Docusaurus and automatically deployed to GitHub Pages:
 - **Workflow File**: `.github/workflows/pages.yml`.
-- **Trigger**: Pushes and merged pull requests to the `develop` branch impacting `docs/` or `website/`.
+- **Trigger**: Manual dispatch on `develop`, or a push to `develop` that changes one of the paths listed in `.github/workflows/pages.yml` (including the canonical guides, `website/`, and site build configuration). Pull requests do not deploy directly; a matching merge triggers the push workflow.
 - **Build Step**: Executes `workflow/scripts/prepare-site-docs.mjs` to copy canonical guide master files and images into the Docusaurus workspace before compiling static production bundles.
 
 ---
@@ -566,14 +570,14 @@ The development of CodeLeet integrated an advanced Agentic Software Engineering 
 
 The CodeLeet architecture and documentation build upon several foundational tools, open-source projects, and educational standards:
 
-- **Coursemology**: Public documentation and design patterns from [Coursemology](https://coursemology.github.io/coursemology-help/) informed user journeys, assignment rubrics, and the problem-above-editor presentation. No proprietary code or assets were copied.
+- **Coursemology**: The project brief and design record cite [Coursemology's public help pages](https://coursemology.github.io/coursemology-help/) and user-supplied screenshots as references for feature journeys and page layout.
 - **Pyodide**: The [Pyodide Project](https://pyodide.org/) enables pure client-side Python 3.12 WebAssembly compilation and execution.
 - **TeaVM**: The [TeaVM Ahead-of-Time Compiler](https://teavm.org/) provides Java bytecode translation to WebAssembly/JavaScript for client-side Java execution.
 - **Docusaurus**: [Docusaurus 3](https://docusaurus.io/) powers the unified product documentation website with Mermaid diagramming and Prism syntax highlighting.
-- **shadcn/ui & Tailwind CSS**: Accessible, customizable UI component primitives and styling systems.
-- **Lucide Icons**: Clean, open-source iconography used throughout the web interface.
-- **Next.js & React**: Modern fullstack application architecture provided by Vercel.
+- **shadcn tooling, Tailwind CSS & CVA**: The repository includes shadcn configuration, Tailwind styling, and CVA variants for shared components.
+- **Lucide Icons**: Lucide React supplies icons used in the interface.
+- **Next.js & React**: Next.js provides the application framework; React renders interactive UI.
 - **Supabase**: PostgreSQL database, Row-Level Security, and authentication infrastructure.
-- **Vitest & Playwright**: Modern testing frameworks for unit, integration, and cross-browser end-to-end automation.
-- **Promptfoo**: [Promptfoo](https://promptfoo.dev/) provided the security evaluation framework for testing prompt injection defense and rubric privacy.
+- **Vitest & Playwright**: Testing frameworks used for unit/component checks and browser-based end-to-end automation.
+- **Promptfoo**: The repository's [Promptfoo](https://promptfoo.dev/) command runs the configured offline prompt-evaluation fixtures. Passing them checks only their selected cases and does not establish model resistance.
 - **OpenSpec**: [OpenSpec](https://github.com/Fission-AI/OpenSpec) provided the Spec-Driven Development (SDD) schema and workflow tools.
