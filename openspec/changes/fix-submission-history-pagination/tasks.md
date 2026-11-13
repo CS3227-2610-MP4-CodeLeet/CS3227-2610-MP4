@@ -10,3 +10,9 @@
 - [x] 2.2 Commit verified milestones, push the issue-linked branch and open PR #175 to develop after source-head branch CI; record actual evidence and leave human review pending.
 
 Final PR-head CI is a handoff gate. Record its outcome in the PR after the last metadata commit; do not infer it from historical source-head CI.
+
+## 3. Post-merge reload regression follow-up (issue #176)
+
+- [x] 3.1 Inspect final-head CI: the new test immediately after reload received an empty list rather than the expected two IDs; the insert-between-pages checks had passed, and 86 browser tests passed with one skipped. PR #175 was externally merged before this failed job completed.
+- [x] 3.2 Replace the one-shot reload read with a bounded retry of the exact expected row set and verify repeated local database-backed journeys without sleeps or relaxed assertions.
+- [x] 3.3 Publish the test-only follow-up as PR #178 to develop after source-head branch CI passed; retain human review pending. Final PR-head CI remains the handoff gate recorded in the PR description.
