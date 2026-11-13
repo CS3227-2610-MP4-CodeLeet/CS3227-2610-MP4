@@ -11,6 +11,6 @@ Issue: [#179](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues
 ## 2. Verify and publish
 
 - [x] 2.1 Review the documentation diff against the checklist; run explicit Markdown formatting, scaffold, strict OpenSpec and site-build checks; record actual review and limitations.
-- [ ] 2.2 Commit only this change, push its branch, wait for applicable branch CI, and create a PR to develop with `Closes #179`; verify the PR URL, base, branch and linked artifacts. Keep human verification pending.
+- [x] 2.2 Commit only this change, push its branch, wait for applicable branch CI, and create a PR to develop with `Closes #179`; verify the PR URL, base, branch and linked artifacts. PR #180 targets develop from docs/reconcile-verified-guides after source-head Scaffold CI passed. Human verification remains pending.
 
 Final PR-head CI is a handoff gate. Record its actual outcome in the PR after the last metadata commit; do not infer it from source-head branch CI. Archival and merge are separate follow-up decisions.

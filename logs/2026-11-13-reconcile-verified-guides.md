@@ -5,8 +5,8 @@
 - AI tools/models, where known: Codex; model identifier and token/cost measurements unavailable.
 - GitHub issue: [#179](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/179).
 - OpenSpec change: [reconcile-verified-guides](../openspec/changes/reconcile-verified-guides/proposal.md).
-- Branch and commits: `docs/reconcile-verified-guides`, based on `develop` at `c51d330`; commits pending.
-- Pull request: pending creation after verification and branch CI.
+- Branch and commits: `docs/reconcile-verified-guides`, based on `develop` at `c51d330`; guide corrections and tracking recorded in `35ddad5`, followed by the PR-link closeout record.
+- Pull request: [#180](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/180), open against `develop`.
 - Human verification: pending.
 - Verifier/date: pending teammate review.
 
@@ -18,6 +18,7 @@
 4. Codex corrected both guides and added instructions for existing course lifecycle, personal AI Usage and administrator directory controls. Nearby source-backed corrections include exact join/invitation/rubric/practice/error labels, the assignment publication field, and directory columns. Canonical Markdown tables were normalized with Prettier; rendered content structure is retained.
 5. Under the repository requesting-code-review skill, Codex dispatched `/root/guide_review` with bounded source pointers and read-only ownership of the guide/source review. The reviewer reported no blocking claim mismatches after the identified join-label/button correction, and requested that this log record the actual handoff and completed verification. The reviewer made no edits. Human verification remains pending.
 6. Codex corrected the join-form instructions to the exact **Join code** label and **Submit join code** button, separated the progress-navigation paragraph from the feature table, and reran explicit Markdown formatting, scaffold links and the website build successfully. Both the pinned OpenSpec CLI and CI's OpenSpec 1.8.0 validator accepted all 17 items. The publication task keeps final PR-head CI as a separate handoff gate to avoid claiming checks on a later metadata commit from an earlier run.
+7. Codex committed only the two guides and five tracking files as `35ddad5`, pushed the branch and dispatched [Scaffold checks](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/actions/runs/43353832654) at that exact head. The run passed. Codex then created PR #180 with `Closes #179` and verified its base `develop`, branch, source head and artifact links. This closeout record adds the PR URL and publication-task result; final PR-head CI is still pending and will be recorded in the PR after this metadata commit.
 
 ## Source-to-claim checklist
 
@@ -42,4 +43,4 @@
 - Commands/checks actually run and outcomes: explicit Prettier check passed for both guides, the new change Markdown and this log after formatting; `pnpm check:scaffold` passed; `pnpm spec:validate` and CI-equivalent `npx --yes @fission-ai/openspec@1.8.0 validate --all --strict` each passed all 17 items; final `pnpm site:build` passed after the join-form and table-separator corrections; `git diff --check` passed. Application suites were not rerun locally for prose-only changes.
 - Failures, retries, unresolved issues: an initial patch context mismatch made no edits and was corrected; an initial explicit Prettier check reported style issues in the guides/log, resolved by formatting. Application findings are explicitly deferred; hosted behavior, live provider acceptance, merge and release are not verified by this documentation change.
 - Resource measurements and unavailable fields: no model-provider calls; token/cost measurements unavailable.
-- Next steps: commit/push verified guides and tracking artifacts, run applicable branch CI, create the PR, record its link, and verify final-head PR checks. Human verification remains pending.
+- Next steps: verify final-head PR checks and record their actual outcome in PR #180. Human verification, merge, release and archival remain pending; the deferred application findings are unchanged.
