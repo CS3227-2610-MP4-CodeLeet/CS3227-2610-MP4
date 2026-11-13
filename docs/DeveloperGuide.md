@@ -27,12 +27,12 @@ graph TD
         UI["React 19 Application UI (Next.js App Router)"]
         Editor["Textarea editor with Prism syntax highlighting"]
         DraftStore[("Browser LocalStorage (7-Day Drafts)")]
-        
+
         subgraph Sandbox["Sandboxed iframe and module worker"]
             PyEngine["Pyodide Python runtime"]
             JavaEngine["TeaVM Java runtime"]
         end
-        
+
         UI <--> Editor
         Editor <--> DraftStore
         UI <-->|"postMessage (Bounded Stdin/Stdout)"| Sandbox
@@ -42,7 +42,7 @@ graph TD
         SSR["Server Components & Route Handlers (/api/*)"]
         AuthMiddleware["Session & Origin Verification Guard"]
         AIService["SoCLaaS AI Pedagogical Adapter"]
-        
+
         SSR --> AuthMiddleware
         SSR --> AIService
     end
@@ -53,7 +53,7 @@ graph TD
         Postgres[("PostgreSQL 17 Database")]
         RLS["Row-Level Security (RLS) Policies"]
         RPC["Postgres RPCs & Triggers (XP Ledger, Quotas)"]
-        
+
         Kong --> GoTrue
         Kong --> Postgres
         Postgres --- RLS
@@ -75,7 +75,7 @@ graph TD
 1. **Browser-Side Execution**: The application does not send submitted code to a server execution API. The browser runtime runs it in an iframe and worker. Source can still be submitted to the application or sent in a server-side AI review request when the user invokes those features.
 2. **Server-Validated State**: The browser is not the authority for protected writes. Supabase Auth session state is verified with `auth.getUser()` in protected server operations; role, ownership, and membership checks then use server-side lookups and database policies/functions. Submission metadata, grade changes, and XP effects are checked by server routes and database functions/policies, as defined by the current implementation.
 3. **Revision History**: Submissions are created through the `submit_code` database function with revision and deadline data. The application presents revisions as history; database rules and tests define the enforced write behavior.
-4. **Server-Side AI Isolation**: SoCLaaS API credentials, system prompts, and private instructor rubric criteria are strictly isolated on the server. Models have zero direct tool execution or grade-publishing authority.
+4. **AI Credentials and Rubric Access**: SoCLaaS API credentials and product AI system prompts stay server-side. Authorized course instructors receive private rubric data in their authoring and review UI; students cannot read the private rubric or include it in student AI review context. Published grades expose their authorized rubric snapshot to the student. Models have zero direct tool execution or grade-publishing authority.
 
 ### 1.4 Codebase Directory Structure
 
@@ -132,11 +132,11 @@ The codebase uses feature-oriented modules and explicit server, database, and br
 
 ### 2.2 Design Patterns in CodeLeet
 
-| Design Pattern | Implementation Location | Architectural Purpose |
-| :--- | :--- | :--- |
-| **Provider client** | `src/lib/ai/soclaas.ts` | Sends server-side requests to SoCLaaS and parses provider responses. |
-| **Review service** | `src/features/codementor/review-service.ts` | Coordinates review context, quota/cache operations, provider calls, and result persistence. |
-| **Browser runtime** | `src/runtime-lab/lab.mjs`, `supervisor.mjs`, `worker.mjs` | Runs user code in the browser runtime boundary and communicates output to the application. |
+| Design Pattern      | Implementation Location                                   | Architectural Purpose                                                                       |
+| :------------------ | :-------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
+| **Provider client** | `src/lib/ai/soclaas.ts`                                   | Sends server-side requests to SoCLaaS and parses provider responses.                        |
+| **Review service**  | `src/features/codementor/review-service.ts`               | Coordinates review context, quota/cache operations, provider calls, and result persistence. |
+| **Browser runtime** | `src/runtime-lab/lab.mjs`, `supervisor.mjs`, `worker.mjs` | Runs user code in the browser runtime boundary and communicates output to the application.  |
 
 ---
 
@@ -157,12 +157,12 @@ sequenceDiagram
     Editor->>API: POST /api/submissions ({ assignmentId, source, requestId })
     API->>Auth: Verify session cookie & student course enrollment
     Auth-->>API: Enrolled Student Identity Verified
-    
+
     API->>API: Validate bounded request and source contract
     API->>DB: Call submit_code(assignment_id, source, request_id)
     DB->>DB: Check access, assignment state, deadline, and revision
     DB-->>API: Submission (student_id, source, revision, is_late, due_at_submission)
-    
+
     API-->>Editor: HTTP 201 Created (Revision N metadata)
     Editor->>Editor: Retain code in editor and refresh submission state
     Editor-->>Student: Display inline status "Saved revision N."
@@ -183,14 +183,14 @@ sequenceDiagram
     Supervisor->>Supervisor: Prepare the isolated browser runtime
     Note over Supervisor,Worker: Compilation and preparation have a separate 20,000ms timeout
     Supervisor->>Worker: postMessage({ command: 'run', source, stdin, timeoutMs })
-    
+
     activate Worker
     alt Language is Python
         Worker->>Worker: Pyodide runs Python source and captures output
     else Language is Java
         Worker->>Worker: TeaVM compiles Java source and supplies browser-backed stdin
     end
-    
+
     alt Execution completes within the configured timeout
         Worker-->>Supervisor: postMessage({ type: 'done', status: 'ok' })
         Supervisor->>Supervisor: Clear safety timer
@@ -200,7 +200,7 @@ sequenceDiagram
         Supervisor-->>HostUI: postMessage({ type: 'result', status: 'timeout' })
     end
     deactivate Worker
-    
+
     HostUI-->>User: Display terminal output & execution metrics
 ```
 
@@ -221,18 +221,18 @@ sequenceDiagram
     UI->>API: POST /api/ai/instructor-review ({ submissionId })
     API->>Auth: Verify instructor membership in course
     Auth-->>API: Authorized Course Instructor
-    
+
     API->>DB: Fetch student submission source & private rubric criteria
     DB-->>API: Source Code + Rubric Criteria (Confidential)
-    
+
     API->>API: Check quota, load authorized context, construct prompt
     API->>AIAdapter: Request advisory evaluation
     AIAdapter->>LLM: Server-side SoCLaaS request (source and rubric as untrusted data)
     LLM-->>AIAdapter: JSON response (Criterion scores, constructive feedback)
-    
+
     AIAdapter->>API: Zod schema parse & validate criterion scores
     API-->>UI: Suggested criteria scores and feedback
-    
+
     Instructor->>UI: Review suggestions, adjust scores, enter feedback
     Instructor->>UI: Check "Publish this grade" & click "Save and publish"
     UI->>API: PATCH /api/grades/{submissionId} (scores, feedback, totalScore, publish, expectedVersion)
@@ -279,10 +279,10 @@ The regression in `tests/e2e/history-pagination.spec.ts` uses disposable local S
 
 ## 4. In-Browser Client-Side Execution Engine
 
-### 4.1 Pyodide (Python 3.12 WebAssembly)
+### 4.1 Pyodide (Python 3.14.2 WebAssembly)
 
 - **Runtime Architecture**: The browser runtime initializes Pyodide in its worker-based execution flow. Runtime assets are loaded by the application as needed.
-- **I/O Redirection**: Standard output (`sys.stdout`) and standard error (`sys.stderr`) streams are redirected to an in-memory string buffer. When `input()` is called, the supervisor injects pre-buffered input from the user's provided `stdin` payload.
+- **I/O Redirection**: The worker supplies the provided stdin bytes through Pyodide's `setStdin` hook and captures stdout/stderr through `setStdout` and `setStderr` callbacks. Output messages are accumulated by the supervisor within the output budget.
 - **Resource Boundaries**: Input/output bounds and execution limits are implemented in the runtime. Their values and behavior are maintained in `src/runtime-lab/`; browser and device resource limits still apply.
 
 ### 4.2 TeaVM (Java Bytecode Ahead-of-Time Compiler)
@@ -305,18 +305,19 @@ CodeLeet integrates SoCLaaS for student feedback and advisory instructor rubric 
 
 ### 5.1 STRIDE Threat Analysis for Educational AI
 
-| STRIDE Category | Threat Description | CodeLeet Mitigation Strategy |
-| :--- | :--- | :--- |
-| **Spoofing** | Attacker impersonates an instructor to request private rubric-guided evaluations. | Route handlers re-authenticate session cookies and enforce course-level instructor roles in PostgreSQL before reading rubric criteria. |
-| **Tampering** | Student tampers with API payload to force AI to award a passing grade. | AI responses are strictly parsed into advisory review schemas; models have **zero write access** to the `grades` table. |
-| **Repudiation** | Instructor denies having published a grade. | Grade records include instructor attribution, publication timestamp, and version fields. |
-| **Information Disclosure** | A student attempts to obtain private rubric data through student review. | Student and instructor review paths construct different contexts; the student context omits private rubric criteria. This does not prove resistance to every model or provider disclosure risk. |
-| **Denial of Service** | Repeated AI requests consume quota or provider capacity. | AI review code includes quota reservation, request limits, and caching controls. Limits apply as implemented by the current routes and database functions. |
-| **Elevation of Privilege** | Untrusted source attempts to change model behavior or publish a grade. | System prompts identify assignment text, source, and rubric text as untrusted data; response schemas are validated. Models do not publish grades: an instructor must save a grade through the grade route. These measures do not guarantee prompt-injection resistance. |
+| STRIDE Category            | Threat Description                                                                | CodeLeet Mitigation Strategy                                                                                                                                                                                                                                            |
+| :------------------------- | :-------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spoofing**               | Attacker impersonates an instructor to request private rubric-guided evaluations. | Route handlers re-authenticate session cookies and enforce course-level instructor roles in PostgreSQL before reading rubric criteria.                                                                                                                                  |
+| **Tampering**              | Student tampers with API payload to force AI to award a passing grade.            | AI responses are strictly parsed into advisory review schemas; models have **zero write access** to the `grades` table.                                                                                                                                                 |
+| **Repudiation**            | Instructor denies having published a grade.                                       | Grade records include instructor attribution, publication timestamp, and version fields.                                                                                                                                                                                |
+| **Information Disclosure** | A student attempts to obtain private rubric data through student review.          | Student and instructor review paths construct different contexts; the student context omits private rubric criteria. This does not prove resistance to every model or provider disclosure risk.                                                                         |
+| **Denial of Service**      | Repeated AI requests consume quota or provider capacity.                          | AI review code includes quota reservation, request limits, and caching controls. Limits apply as implemented by the current routes and database functions.                                                                                                              |
+| **Elevation of Privilege** | Untrusted source attempts to change model behavior or publish a grade.            | System prompts identify assignment text, source, and rubric text as untrusted data; response schemas are validated. Models do not publish grades: an instructor must save a grade through the grade route. These measures do not guarantee prompt-injection resistance. |
 
 ### 5.2 Context Strategy & Empirical Optimization
 
 CodeLeet includes an offline context-comparison experiment. Its result measures serialized prompt-size estimates for a small synthetic fixture set; it does not measure live provider usage, response quality, hallucinations, or security effectiveness.
+
 - **Focused vs. Broader Context**: The recorded evaluation reports an **18.1% aggregate estimated input-token reduction across eight synthetic cases**. It estimates tokens as `ceil(UTF-8 bytes / 3)` and checks prompt structure; it does not call a model. Results for an individual review can differ.
 - **Automated AI Evaluation Harnesses**:
   - `pnpm ai:promptfoo`: Runs the configured Promptfoo evaluation suite; inspect its tests and current run evidence for the assertions covered.
@@ -338,7 +339,7 @@ graph TD
         DBTests["Database RLS & RPC Tests (pgTAP)"]
         UnitTests["Unit & Domain Contract Tests (Vitest)"]
     end
-    
+
     UnitTests -. Complementary checks .-> DBTests
     DBTests -. Complementary checks .-> AIEval
     AIEval -. Complementary checks .-> E2E
@@ -438,19 +439,19 @@ graph LR
         Toasts["Action Toasts & Alerts"]
         RetryBtns["Contextual Retry Buttons"]
     end
-    
+
     subgraph B2["2. API Boundary"]
         Zod["Zod Schema Validation"]
         SanitizedHTTP["Sanitized HTTP Codes"]
         NoStackLeak["Private error responses"]
     end
-    
+
     subgraph B3["3. Database Boundary"]
         PGRLS["PostgreSQL RLS Guards"]
         CheckConst["Check Constraints & Locks"]
         UniqueIdx["Unique Index Safeguards"]
     end
-    
+
     subgraph B4["4. External AI Boundary"]
         Timeout["Provider request timeouts"]
         FallbackMsg["Graceful Error Fallbacks"]
@@ -486,17 +487,17 @@ Copy `.env.example` to `.env.local`:
 cp .env.example .env.local
 ```
 
-| Configuration Variable | Mandatory | Purpose & Security Exposure |
-| :--- | :---: | :--- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Browser-safe URL for local Supabase emulator (`http://127.0.0.1:54321`). |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Browser-safe publishable key for client-side authentication and RLS. |
-| `APP_SITE_URL` | Yes | Base URL of the application (`http://localhost:3000`). Used for origin guards. |
-| `SUPABASE_SECRET_KEY` | Yes | Server-only Supabase secret key used by privileged server operations. Never expose to client. |
-| `AUTH_RATE_LIMIT_SECRET` | Yes | 32+ character random secret used for HMAC-SHA256 login identifier hashing. |
-| `SOCLAAS_AI_ENABLED` | No | Set to `true` to enable live pedagogical AI tutoring. Defaults to `false`. |
-| `SOCLAAS_BASE_URL` | No | Server-only base URL for the SoCLaaS API gateway. |
-| `SOCLAAS_API_KEY` | No | Server-only API bearer token for SoCLaaS. |
-| `SOCLAAS_MODEL` | No | Designated LLM model identifier. |
+| Configuration Variable                 | Mandatory | Purpose & Security Exposure                                                                   |
+| :------------------------------------- | :-------: | :-------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             |    Yes    | Browser-safe URL for local Supabase emulator (`http://127.0.0.1:54321`).                      |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |    Yes    | Browser-safe publishable key for client-side authentication and RLS.                          |
+| `APP_SITE_URL`                         |    Yes    | Base URL of the application (`http://localhost:3000`). Used for origin guards.                |
+| `SUPABASE_SECRET_KEY`                  |    Yes    | Server-only Supabase secret key used by privileged server operations. Never expose to client. |
+| `AUTH_RATE_LIMIT_SECRET`               |    Yes    | 32+ character random secret used for HMAC-SHA256 login identifier hashing.                    |
+| `SOCLAAS_AI_ENABLED`                   |    No     | Set to `true` to enable live pedagogical AI tutoring. Defaults to `false`.                    |
+| `SOCLAAS_BASE_URL`                     |    No     | Server-only base URL for the SoCLaaS API gateway.                                             |
+| `SOCLAAS_API_KEY`                      |    No     | Server-only API bearer token for SoCLaaS.                                                     |
+| `SOCLAAS_MODEL`                        |    No     | Designated LLM model identifier.                                                              |
 
 ### 8.3 Step-by-Step Setup Commands
 
@@ -520,17 +521,17 @@ Open `http://localhost:3000` to interact with the application.
 
 ### 8.4 Verification Commands Reference
 
-| Verification Command | Execution Purpose |
-| :--- | :--- |
-| `pnpm format:check` | Verifies code formatting across the repository using Prettier. |
-| `pnpm lint` | Runs ESLint with zero-warning threshold enforcement. |
-| `pnpm typecheck` | Compiles Next.js typegen and runs TypeScript strict type checking. |
+| Verification Command      | Execution Purpose                                                       |
+| :------------------------ | :---------------------------------------------------------------------- |
+| `pnpm format:check`       | Verifies code formatting across the repository using Prettier.          |
+| `pnpm lint`               | Runs ESLint with zero-warning threshold enforcement.                    |
+| `pnpm typecheck`          | Compiles Next.js typegen and runs TypeScript strict type checking.      |
 | `pnpm test:unit:coverage` | Executes the Vitest unit and integration test suite with code coverage. |
-| `pnpm db:test` | Runs automated pgTAP tests against the local PostgreSQL database. |
-| `pnpm test:e2e` | Executes Playwright end-to-end browser tests across user roles. |
-| `pnpm check:scaffold` | Verifies repository scaffold integrity and local Markdown link targets. |
-| `pnpm spec:validate` | Validates OpenSpec change proposals and specification schemas. |
-| `pnpm site:build` | Compiles the Docusaurus documentation website to static assets. |
+| `pnpm db:test`            | Runs automated pgTAP tests against the local PostgreSQL database.       |
+| `pnpm test:e2e`           | Executes Playwright end-to-end browser tests across user roles.         |
+| `pnpm check:scaffold`     | Verifies repository scaffold integrity and local Markdown link targets. |
+| `pnpm spec:validate`      | Validates OpenSpec change proposals and specification schemas.          |
+| `pnpm site:build`         | Compiles the Docusaurus documentation website to static assets.         |
 
 ---
 
@@ -540,16 +541,17 @@ Open `http://localhost:3000` to interact with the application.
 
 The repository supports local development and CI checks. The project owner confirms these deployed branch mappings:
 
-| Branch | Deployment | URL |
-| :--- | :--- | :--- |
-| `develop` | Vercel Preview | [dev-cs3227-mp4.johnwz123.me](https://dev-cs3227-mp4.johnwz123.me/) |
-| `master` | Vercel Production | [cs3227-mp4.vercel.app](https://cs3227-mp4.vercel.app/) |
+| Branch    | Deployment        | URL                                                                 |
+| :-------- | :---------------- | :------------------------------------------------------------------ |
+| `develop` | Vercel Preview    | [dev-cs3227-mp4.johnwz123.me](https://dev-cs3227-mp4.johnwz123.me/) |
+| `master`  | Vercel Production | [cs3227-mp4.vercel.app](https://cs3227-mp4.vercel.app/)             |
 
 These deployment details are owner-confirmed. Deployment alone does not document or prove a hosted acceptance run, migration status, operational configuration, or release sign-off.
 
 ### 9.2 GitHub Pages Documentation Pipeline
 
 The product documentation site is built with Docusaurus and automatically deployed to GitHub Pages:
+
 - **Workflow File**: `.github/workflows/pages.yml`.
 - **Trigger**: Manual dispatch on `develop`, or a push to `develop` that changes one of the paths listed in `.github/workflows/pages.yml` (including the canonical guides, `website/`, and site build configuration). Pull requests do not deploy directly; a matching merge triggers the push workflow.
 - **Build Step**: Executes `workflow/scripts/prepare-site-docs.mjs` to copy canonical guide master files and images into the Docusaurus workspace before compiling static production bundles.
@@ -584,7 +586,7 @@ The development of CodeLeet integrated an advanced Agentic Software Engineering 
 The CodeLeet architecture and documentation build upon several foundational tools, open-source projects, and educational standards:
 
 - **Coursemology**: The project brief and design record cite [Coursemology's public help pages](https://coursemology.github.io/coursemology-help/) and user-supplied screenshots as references for feature journeys and page layout.
-- **Pyodide**: The [Pyodide Project](https://pyodide.org/) enables pure client-side Python 3.12 WebAssembly compilation and execution.
+- **Pyodide**: The [Pyodide Project](https://pyodide.org/) supplies the bundled Python 3.14.2 WebAssembly runtime. The pinned asset inventory is in `workflow/evidence/runtime-feasibility/assets.json`; its distribution notice is in `workflow/runtime-runner/notices/PYODIDE-NOTICE.txt`.
 - **TeaVM**: The [TeaVM Ahead-of-Time Compiler](https://teavm.org/) provides Java bytecode translation to WebAssembly/JavaScript for client-side Java execution.
 - **Docusaurus**: [Docusaurus 3](https://docusaurus.io/) powers the unified product documentation website with Mermaid diagramming and Prism syntax highlighting.
 - **shadcn tooling, Tailwind CSS & CVA**: The repository includes shadcn configuration, Tailwind styling, and CVA variants for shared components.
