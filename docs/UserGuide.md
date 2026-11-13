@@ -14,11 +14,11 @@ CodeLeet uses a two-tier role architecture that clearly separates **Platform Acc
 
 Platform roles govern system-wide account authority, course creation privileges, and institutional administration:
 
-| Platform Role | Default Upon Registration | Primary System Authority & Responsibilities |
-| :--- | :---: | :--- |
-| **Platform Student** | Yes (Default) | Standard account tier. Can view enrolled courses, join active courses via student join codes, solve published assignments, participate in course discussion forums, and track earned XP. |
-| **Platform Instructor** | No (Requires Promotion) | Elevated staff tier. Authorized to create and configure new course workspaces, author assignments and private rubrics, grade student submissions, invite course staff, and serve as Course Owner. |
-| **Platform Administrator** | No (Protected Safeguard) | Highest platform governance tier. Authorized to manage user platform roles (`/admin`) and inspect read-only course metadata. Role changes cannot leave the platform without an administrator. |
+| Platform Role              | Default Upon Registration | Primary System Authority & Responsibilities                                                                                                                                                       |
+| :------------------------- | :-----------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Platform Student**       |       Yes (Default)       | Standard account tier. Can view enrolled courses, join active courses via student join codes, solve published assignments, participate in course discussion forums, and track earned XP.          |
+| **Platform Instructor**    |  No (Requires Promotion)  | Elevated staff tier. Authorized to create and configure new course workspaces, author assignments and private rubrics, grade student submissions, invite course staff, and serve as Course Owner. |
+| **Platform Administrator** | No (Protected Safeguard)  | Highest platform governance tier. Authorized to manage user platform roles (`/admin`) and inspect read-only course metadata. Role changes cannot leave the platform without an administrator.     |
 
 > [!NOTE] Default Account Role & Instructor Promotion
 > For security, access governance, and academic integrity reasons, all self-registered user accounts are automatically provisioned with the **Platform Student** role by default.
@@ -29,39 +29,42 @@ Platform roles govern system-wide account authority, course creation privileges,
 
 Within any individual course workspace, members hold granular course-level roles that determine their pedagogical permissions for that specific course:
 
-| Course Role | Enrollment / Assignment Method | Course Workspace Capabilities |
-| :--- | :--- | :--- |
-| **Course Student** | Enrolled with a student join code or direct course invitation after verified sign-in | Browse published assignments, write and test code in-browser, submit immutable revisions, recover local drafts, request pedagogical AI feedback, view personal grades and XP, and post in course forums. |
+| Course Role           | Enrollment / Assignment Method                                                                              | Course Workspace Capabilities                                                                                                                                                                                                                        |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Course Student**    | Enrolled with a student join code or direct course invitation after verified sign-in                        | Browse published assignments, write and test code in-browser, submit immutable revisions, recover local drafts, request pedagogical AI feedback, view personal grades and XP, and post in course forums.                                             |
 | **Course Instructor** | Invited by a course instructor who is a member of the active course; the invitee verifies sign-in to accept | Author assignments and multi-criteria rubrics, preview problems from the student perspective, author and publish public practice tests, review student submissions, generate AI rubric suggestions, grade evaluations, and manage course join codes. |
-| **Course Owner** | Course creator or assigned via ownership transfer | Possesses all Course Instructor capabilities plus exclusive rights to manage instructor rosters, archive active courses, transfer course ownership, or permanently delete empty courses. |
+| **Course Owner**      | Course creator or assigned via ownership transfer                                                           | Possesses all Course Instructor capabilities plus exclusive rights to manage instructor rosters, archive active courses, transfer course ownership, or permanently delete empty courses.                                                             |
 
 ### 1.3 Feature Access Matrix
 
 The following matrix cross-references course capabilities against course roles. The administrator column describes an administrator without membership in that course; course pages still require course membership.
 
-| Feature / Workspace Capability | Course Student | Course Instructor | Course Owner | Platform Administrator without course membership |
-| :--- | :---: | :---: | :---: | :---: |
-| Sign In / Sign Up / Profile Settings | Yes | Yes | Yes | Yes |
-| Course Selection & Overview | Yes | Yes | Yes | No (admins have a separate institutional course directory) |
-| Run In-Browser Code & Practice Tests | Yes | Yes (Preview) | Yes (Preview) | No |
-| Submit Code Revisions | Yes | No | No | No |
-| Draft Autosave & Local Recovery | Yes | Yes (Authoring) | Yes (Authoring) | No |
-| Revision Comparison Diff | Yes | Yes | Yes | No |
-| Request Student AI Feedback | Yes | No | No | No |
-| View Personal Grades & Earned XP | Yes | No | No | No |
-| Student Progress Dashboard | Yes | No | No | No |
-| Course Leaderboard | Yes (Ranked) | Yes (Browse) | Yes (Browse) | No (course membership required) |
-| Course Discussion Forums | Yes | Yes | Yes | No (course membership required) |
-| Join Course via Student Join Code | Yes | No | No | No |
-| Manage Course Join Code & Roster | No | Yes | Yes | No |
-| Author Assignments & Rubrics | No | Yes | Yes | No |
-| Author Practice Test Cases | No | Yes | Yes | No |
-| Review Submissions & Grade Rubrics | No | Yes | Yes | No |
-| Request Instructor AI Rubric Suggestions | No | Yes | Yes | No |
-| AI Context Comparison Inspector | No | Yes | Yes | No |
-| Toggle Course Feature Switches | No | Yes | Yes | No |
-| Transfer Ownership / Archive Course | No | No | Yes | No |
-| Admin Platform User Roles Directory | No | No | No | Yes |
+| Feature / Workspace Capability                 |     Course Student     |   Course Instructor    |      Course Owner      |      Platform Administrator without course membership      |
+| :--------------------------------------------- | :--------------------: | :--------------------: | :--------------------: | :--------------------------------------------------------: |
+| Sign In / Sign Up / Profile Settings           |          Yes           |          Yes           |          Yes           |                            Yes                             |
+| Course Selection & Overview                    |          Yes           |          Yes           |          Yes           | No (admins have a separate institutional course directory) |
+| Run In-Browser Code & Practice Tests           |          Yes           |     Yes (Preview)      |     Yes (Preview)      |                             No                             |
+| Submit Code Revisions                          |          Yes           |           No           |           No           |                             No                             |
+| Draft Autosave & Local Recovery                |   Yes (Code editor)    |           No           |           No           |                             No                             |
+| Revision Comparison Diff                       |  Yes (Own revisions)   |           No           |           No           |                             No                             |
+| Request Student AI Feedback                    |          Yes           |           No           |           No           |                             No                             |
+| View Personal Grades & Earned XP               |          Yes           |           No           |           No           |                             No                             |
+| Student Progress Dashboard                     |          Yes           |           No           |           No           |                             No                             |
+| Course Leaderboard                             |      Yes (Ranked)      |      Yes (Browse)      |      Yes (Browse)      |              No (course membership required)               |
+| Course Discussion Forums                       |          Yes           |          Yes           |          Yes           |              No (course membership required)               |
+| Join Another Course as a Student via Join Code | Yes (Verified account) | Yes (Verified account) | Yes (Verified account) |                   Yes (Verified account)                   |
+| Manage Course Join Code & Roster               |           No           |          Yes           |          Yes           |                             No                             |
+| Author Assignments & Rubrics                   |           No           |          Yes           |          Yes           |                             No                             |
+| Author Practice Test Cases                     |           No           |          Yes           |          Yes           |                             No                             |
+| Review Submissions & Grade Rubrics             |           No           |          Yes           |          Yes           |                             No                             |
+| Request Instructor AI Rubric Suggestions       |           No           |          Yes           |          Yes           |                             No                             |
+| AI Context Comparison Inspector                |           No           |          Yes           |          Yes           |                             No                             |
+| Personal AI Usage                              |          Yes           |          Yes           |          Yes           |                             No                             |
+| Toggle Course Feature Switches                 |           No           |          Yes           |          Yes           |                             No                             |
+| Transfer Ownership / Archive Course            |           No           |           No           |          Yes           |                             No                             |
+| Admin Platform User Roles Directory            |           No           |           No           |           No           |                            Yes                             |
+
+Join codes enroll verified accounts as students regardless of their platform role. Joining does not change an existing membership in that course. Instructor authoring forms require an explicit save; the student code editor's local draft recovery does not apply to those forms.
 
 ---
 
@@ -109,7 +112,7 @@ CodeLeet partitions all learning activities into self-contained **Course Workspa
 
 ### 3.1 Course Roles and Membership
 
-- **Multi-Course Enrollment**: You can be enrolled as a student in one course (e.g., *CS1010 Introduction to Programming*) while serving as an instructor or teaching assistant in another.
+- **Multi-Course Enrollment**: You can be enrolled as a student in one course (e.g., _CS1010 Introduction to Programming_) while serving as an instructor or teaching assistant in another.
 - **Canonical Navigation**: URLs in CodeLeet are role-aware. Navigating to `/courses/<courseId>/assignments` or `/courses/<courseId>/submissions` automatically renders the appropriate student or instructor workspace based on your enrolled role in that course, avoiding cluttered URL prefixes.
 
 ### 3.2 Course Lifecycle States
@@ -122,14 +125,24 @@ CodeLeet partitions all learning activities into self-contained **Course Workspa
 
 Course owners and instructors can independently toggle specific course features on the course overview page. Toggling a switch off hides the navigation link and restricts route access, but **never deletes** student submissions, grades, or forum data.
 
-| Feature Switch | When Enabled (Default) | When Disabled |
-| :--- | :--- | :--- |
-| **Assessments** | Students can view published assignments, run code, execute test cases, submit revisions, view submissions, and check published grades. | Hides assignments and submissions. Historical submission records remain securely stored in the database but are inaccessible to students until re-enabled. |
-| **AI Features** | Students can request pedagogical AI feedback; instructors can generate AI rubric suggestions and use Context comparison. | Blocks new AI requests and hides AI navigation/actions. Saved submissions and grades remain available according to their own feature and course access rules. |
-| **Discussion Forum** | Enables course-scoped discussion threads, replies, and full-text keyword search. | Hides forum navigation and blocks new threads/replies. Existing forum posts are retained and reappear when re-enabled. |
-| **Experience Points (XP)** | Computes and displays eligible assignment XP on student dashboards and assignment rows. | Hides XP views and pauses XP calculations. Existing awards are retained. Re-enabling XP recomputes assignment XP from eligible published grades, including changes made while XP was disabled. Grades published before XP tracking began lack the historical score basis needed for XP; review and republish those grades to establish it. |
-| **Leaderboard** | Displays the current course ranking by accumulated XP. | Hides the leaderboard page from students and instructors. Disabling leaderboard does not halt XP earning. |
+| Feature Switch             | When Enabled (Default)                                                                                                                 | When Disabled                                                                                                                                                                                                                                                                                                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Assessments**            | Students can view published assignments, run code, execute test cases, submit revisions, view submissions, and check published grades. | Hides assignments and submissions. Historical submission records remain securely stored in the database but are inaccessible to students until re-enabled.                                                                                                                                                                                 |
+| **AI Features**            | Students can request pedagogical AI feedback; instructors can generate AI rubric suggestions and use Context comparison.               | Blocks new AI requests and hides AI navigation/actions. Saved submissions and grades remain available according to their own feature and course access rules.                                                                                                                                                                              |
+| **Discussion Forum**       | Enables course-scoped discussion threads, replies, and full-text keyword search.                                                       | Hides forum navigation and blocks new threads/replies. Existing forum posts are retained and reappear when re-enabled.                                                                                                                                                                                                                     |
+| **Experience Points (XP)** | Computes and displays eligible assignment XP on student dashboards and assignment rows.                                                | Hides XP views and pauses XP calculations. Existing awards are retained. Re-enabling XP recomputes assignment XP from eligible published grades, including changes made while XP was disabled. Grades published before XP tracking began lack the historical score basis needed for XP; review and republish those grades to establish it. |
+| **Leaderboard**            | Displays the current course ranking by accumulated XP.                                                                                 | Hides the leaderboard page from students and instructors. Disabling leaderboard does not halt XP earning.                                                                                                                                                                                                                                  |
+
 **My progress is derived navigation, not a separate switch.** It appears while either Assessments or XP is enabled. Assignment, deadline, submission, and grade details depend on Assessments; XP totals depend on XP.
+
+### 3.4 Creating, Joining, and Managing a Course
+
+- **Create a course**: Platform instructors and administrators open **Courses → Create course**, enter a **Course title** and optional **Description**, then choose **Save course**. The creator becomes the course owner.
+- **Join a course**: Open **Courses → Join course**, enter the instructor's code in **Join code**, and choose **Submit join code**. Verify your account email first. An instructor or administrator account can also join another course as a student.
+- **Edit course details**: Course instructors and owners can edit the title and description under **Course overview → Course details**, then choose **Save details**.
+- **Transfer ownership**: In an active course, the owner opens **Course overview → Transfer ownership**, selects another current course instructor as **New course owner**, chooses **Transfer ownership**, and confirms. Invite another instructor first if no candidate is available. The previous owner remains an instructor.
+- **Archive a course**: The owner chooses **Course overview → Course lifecycle → Archive course** and confirms. Members retain read-only access to history; the app offers no unarchive control.
+- **Delete an empty course**: When the owner is the only member, **Delete empty course** appears under **Course lifecycle** on the active course overview. Confirm only if permanent deletion is intended. The app rejects deletion when the course contains activity; archive it to preserve its history instead.
 
 ---
 
@@ -145,19 +158,20 @@ Course owners and instructors can independently toggle specific course features 
    - **Search Box**: Search assignments by keyword in the title.
    - Click **Apply filters** to update the list, or **Clear filters** to reset.
 3. **Understanding Due Dates & Status**:
-   - All due dates and timestamps in CodeLeet are displayed in **Singapore Standard Time (SGT, UTC+8)**.
+   - Due dates use **Singapore Standard Time (SGT, UTC+8)**. **My submissions**, **My grades**, and discussions also format their timestamps in SGT. Some other views, including revision details, instructor submission lists and AI Usage, use a default time zone without a zone label; do not assume every timestamp is SGT.
    - Assignments display one of four clear status badges:
      - **Not submitted**: You have not saved any revisions yet.
      - **Overdue**: The deadline has passed and you have not submitted a revision. You can still submit your work.
      - **Submitted**: Your latest saved revision was submitted prior to the deadline (or the assignment has no deadline).
      - **Submitted late**: Your latest saved revision was submitted after the posted deadline.
-   - *Graceful Policy*: Late submissions are accepted without automated penalty. The exact deadline snapshot that applied at the time of submission is permanently attached to each revision.
+   - _Graceful Policy_: Late submissions are accepted without automated penalty. The exact deadline snapshot that applied at the time of submission is permanently attached to each revision.
 
 ### 4.2 Interactive Code Editor
 
 ![Student Code Editor & Problem Statement](images/user-guide/04-student-editor.png)
 
 When you open an assignment, the problem instructions and expected constraints are displayed directly above the code editor:
+
 - **Language Lock**: The programming language (Python or Java) is determined by the assignment and cannot be switched.
 - **Editor Controls**:
   - Full syntax highlighting for Python and Java.
@@ -202,13 +216,14 @@ Instructors can set up public and private test cases. You can only see and run t
 ![Autosave & Draft Recovery](images/user-guide/07-autosave-draft-recovery.png)
 
 Never lose your work due to accidental browser closures, battery failures, or network drops:
+
 - **Automatic Debounced Autosave**: As you type, CodeLeet automatically persists your draft to your device's browser storage after a 500-millisecond typing pause. A subtle status pill confirms **Draft saved on this device**.
 - **7-Day Retention**: Local drafts are retained for **7 days**, supporting up to 10 distinct assignment drafts simultaneously on your browser.
 - **Draft Recovery Banner**: When you reopen an assignment with a saved local draft, a recovery prompt offers:
   - **Restore draft**: Immediately restores your unsaved code to the editor.
   - **Discard draft**: Clears the saved local copy and resets the editor to the baseline template or last submitted revision.
 - **Multi-Tab Conflict Protection**: If you edit the same assignment in two separate browser tabs, CodeLeet detects the conflict and asks whether you wish to **Load other tab's draft** or **Keep this tab's code**.
-- *Important*: Signing out of CodeLeet securely clears local drafts on shared workstations.
+- _Important_: Signing out of CodeLeet securely clears local drafts on shared workstations.
 
 ### 4.6 Submitting Revisions & Managing History
 
@@ -245,13 +260,14 @@ Published grades show the rubric snapshot captured when the instructor published
    - **Key Strengths**: Specific programming patterns, modular structures, or algorithmic efficiencies you did well.
    - **Areas for Improvement**: Constructive guidance on edge cases, readability, and performance.
    - **Guiding Questions**: Socratic questions to prompt deeper thinking without simply giving away the answer.
-3. *Pedagogical Guardrails*: The AI does not have access to private instructor grading rubrics, cannot execute code, and cannot award grades or XP. Use the feedback to reflect on your code and submit an improved revision!
+3. _Pedagogical Guardrails_: The AI does not have access to private instructor grading rubrics, cannot execute code, and cannot award grades or XP. Use the feedback to reflect on your code and submit an improved revision!
 
 ### 4.9 Student Progress Dashboard
 
 ![Student Progress Dashboard](images/user-guide/11-student-progress.png)
 
 Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sidebar to view an overview of your academic standing:
+
 - **Metrics Overview Cards**:
   - **Submitted assignments**: Number of published assignments where you have submitted at least one revision.
   - **Outstanding assignments**: Assignments that require your submission.
@@ -259,21 +275,21 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
   - **Total Earned XP**: Cumulative experience points awarded in this course.
 - **Coming Up (Deadlines)**: Displays the 5 closest upcoming assignment deadlines in chronological order.
 - **Recent Submissions & Recent Grades**: Quick links to your 5 most recent submissions and released grade reports.
-- *Completion Counts*: The server loads published assignment and submission data for the current student and derives completion per assignment, so multiple revisions do not count as multiple completed assignments.
+- _Completion Counts_: The server loads published assignment and submission data for the current student and derives completion per assignment, so multiple revisions do not count as multiple completed assignments.
 
 ### 4.10 Discussion Forums & Keyword Search
 
 ![Course Discussion Forums](images/user-guide/12-course-discussions.png)
 
 1. Open **Discussions** (`/courses/<courseId>/forums`) from the course sidebar.
-2. **Browsing Discussions**: View threads sorted by creation date, showing author username, role badge, post count, and timestamp.
+2. **Browsing Discussions**: View threads sorted by creation date, showing the title, author username, role badge, timestamp, and opening-message preview.
 3. **Searching Threads**: Enter keywords in the **Search discussions** bar. The search performs case-insensitive matching across thread titles and opening post messages.
 4. **Creating a Discussion**:
    - Click **New discussion**.
    - Enter a descriptive **Title** (up to 160 characters) and your **Message** (up to 8,000 characters).
    - CodeLeet renders text securely without dangerous script execution.
 5. **Replying**: Open any thread and enter your response in the **Your reply** box, then click **Post reply**.
-6. *Rate Limiting*: Forum actions enforce an anti-spam rate limit of 10 posts per minute per user.
+6. _Rate Limiting_: Forum actions enforce an anti-spam rate limit of 10 posts per minute per user.
 
 ### 4.11 Course Leaderboard & Experience Points (XP)
 
@@ -290,6 +306,14 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
   - Students with 0 XP are **Unranked** and are not listed; a published grade must produce positive XP for a student to appear on the leaderboard.
 - **Changes while paging**: If XP awards or leaderboard ordering change while you use Previous or Next, the list returns to page 1 and shows **XP changed—showing the latest results.** Older later-page links without a revision also return to the first page.
 
+### 4.12 Personal AI Usage
+
+Course students, instructors and owners can open **AI usage** (`/courses/<courseId>/ai-usage`) from the course sidebar while AI is enabled in an active course. This page shows your own review activity for that course, not other members' usage.
+
+- **Total Reviews** counts your recorded review events, including failed requests and cache hits.
+- **Recent Cache Hit Rate**, **Recent Avg Latency**, and **Recent Tokens** summarize the latest 100 events, or fewer if you have fewer records.
+- **Recent Reviews** shows time, review type, status, input/output token counts, latency and cache **HIT**/**MISS**. These are review records, not grades. The table does not label whether token counts are provider-reported or estimated.
+
 ---
 
 ## 5. Instructor User Guide
@@ -301,11 +325,11 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 1. In your taught course, select **Manage Users** (`/courses/<courseId>/manage-users`) under the **Administration** sidebar section.
 2. **Student Join Code**:
    - An active course can have a random URL-safe **Student join code**. Generated codes contain 32 characters.
-   - Click **Copy join code** to distribute it to students in your class. Students can input this code on their Courses page to immediately enroll.
-   - Click **Rotate code** if you need to revoke the previous code and issue a fresh one.
+   - Click **Create or rotate code**, then **Copy code** to distribute the new code to students. Verified accounts can enter it on their Courses page to enroll as course students.
+   - Use **Create or rotate code** again to invalidate the previous code, or **Revoke code** to disable joining with it. Existing enrollments are retained.
 3. **Managing the Roster**:
-   - The **People** table lists all enrolled members with their display name, email, enrolled role, and join date.
-   - To invite members directly, enter their email address, select their course role (**Student** or **Instructor**), and click **Invite member**.
+   - The **People** list shows enrolled members' display names, emails and roles; the owner is labeled **Owner**.
+   - To invite members directly, enter their email address, select their course role (**Student** or **Instructor**), and click **Invite by email**.
    - Click **Remove** next to any student row to unenroll them from the course.
 
 ### 5.2 Assignment Authoring & Rubric Builder
@@ -314,15 +338,15 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 1. Navigate to **Assignments** and click **New assignment** (`/courses/<courseId>/assignments/new`).
 2. **Assignment Configuration**:
-   - **Title**: Enter a clear problem title (e.g., *Two Sum II - Input Array Is Sorted*).
+   - **Title**: Enter a clear problem title (e.g., _Two Sum II - Input Array Is Sorted_).
    - **Language**: Select **Python** or **Java**. Once a student submits a revision, the language becomes permanently locked to prevent submission corruption.
    - **Instructions**: Author clear problem statements, input/output requirements, and algorithmic constraints.
    - **Due Date & Time**: Set an optional deadline in **Singapore Standard Time (SGT)**. Leave blank for self-paced assignments.
    - **Maximum XP**: Assign an XP reward (0 to 100,000 XP). Set to 0 if the assignment should not award leaderboard XP.
 3. **Private Rubric Builder**:
-   - Click **Add criterion** to build 1 to 20 private evaluation criteria.
-   - For each criterion, specify a **Criterion Title** (e.g., *Algorithmic Correctness*, *Time Complexity*, *Code Style*), **Maximum Points**, and detailed grading descriptors.
-   - *Rubric Privacy*: Rubric criteria descriptions and maximum point allocations remain strictly confidential to instructors until an evaluation is explicitly published.
+   - Click **Add rubric criterion** to build 1 to 20 private evaluation criteria.
+   - For each criterion, specify a **Criterion Title** (e.g., _Algorithmic Correctness_, _Time Complexity_, _Code Style_), **Maximum Points**, and detailed grading descriptors.
+   - _Rubric Privacy_: Rubric criteria descriptions and maximum point allocations remain strictly confidential to instructors until an evaluation is explicitly published.
 4. **Publication Status**:
    - Save as **Draft** to continue editing privately. Draft assignments are completely invisible to enrolled students.
    - Select **Published** when the assignment is ready for student access.
@@ -347,18 +371,18 @@ Navigate to **My progress** (`/courses/<courseId>/progress`) from the course sid
 
 ![Instructor Submission Review & AI Grading](images/user-guide/17-instructor-submission-review-ai-grade.png)
 
-1. Open **Submissions** in your course to browse all student revisions.
+1. Open **Submissions** in your course. By default, it shows the latest revision for each student and assignment. Use the **Assignment** filter to select a problem, and select **Show all revisions** to include earlier revisions.
 2. Select any student revision to open the **Submission Review & Grading** workspace:
-   - Inspect the student's submitted code with full syntax highlighting.
+   - Inspect the student's submitted source in the code block.
    - Check the exact submission timestamp and deadline adherence badge (On time / Late).
    - Click **Run code** to test the student's code locally in your browser.
 3. **AI Rubric Suggestions**:
-   - Click **Request review** under the *AI Rubric Suggestions* card.
+   - Click **Request review** under the _AI Rubric Suggestions_ card.
    - The server analyzes the student's source code against your private rubric criteria and returns suggested scores and constructive rationale for each criterion.
-   - *Human in the Loop*: AI suggestions are strictly advisory. The AI cannot publish grades or alter student scores directly.
+   - _Human in the Loop_: AI suggestions are strictly advisory. The AI cannot publish grades or alter student scores directly.
 4. **Manual Grading & Publishing**:
-   - Adjust the score and feedback for each rubric criterion.
-   - Enter overall **Instructor feedback**.
+   - Enter or adjust the numeric score for each rubric criterion.
+   - Enter your overall comments in **Feedback**. The grading form has one feedback field for the whole revision, not a separate feedback field for each criterion.
    - Click **Save draft** to keep your evaluation private.
    - To release grades to the student, check **Publish this grade to the student** and click **Save and publish**.
    - Once published, the student's progress and personal grade views update. When course XP is enabled and the grade is eligible, its XP award and leaderboard total update in the same database transaction.
@@ -377,9 +401,12 @@ Instructors can open **Context comparison** (`/courses/<courseId>/context-compar
 
 1. Platform Administrators have access to the dedicated **User roles** portal in the top navigation bar.
 2. **Directory View**:
-   - Displays all registered users across the platform with their **Username**, **Email**, **Platform Role** (*Student*, *Instructor*, or *Administrator*), and account creation timestamp.
+   - Rows show **Email**, **Display name**, **User ID**, and **Role** (`student`, `instructor`, or `admin`).
+   - Type in **Search users by email or name** and optionally choose **Filter by role**. Results update after a short typing pause; choose **All roles** and clear the search to reset.
+   - Choose **Load more users** when available to continue through the matching directory.
 3. **Role Elevation & Demotion**:
    - Click the role selector dropdown next to any user account to update their platform role.
+   - Changing your own role requires confirmation and immediately changes your access after a successful save.
    - Promoting a user to **Instructor** grants them authority to create new courses and author assignments.
    - Promoting a user to **Administrator** grants full platform governance privileges.
 4. **Last-Admin Safeguard**:
@@ -388,7 +415,7 @@ Instructors can open **Context comparison** (`/courses/<courseId>/context-compar
 ### 6.2 Institutional Course Inspection
 
 - Administrators can open a read-only overview of any course to inspect its title, description, status, type, and whether an owner is assigned.
-- The overview does not provide course membership or management controls. The *Legacy* course remains archived and read-only even after an owner has been assigned.
+- The overview does not provide course membership or management controls. The _Legacy_ course remains archived and read-only even after an owner has been assigned.
 
 ---
 
@@ -396,24 +423,24 @@ Instructors can open **Context comparison** (`/courses/<courseId>/context-compar
 
 This matrix summarizes the trigger, immediate UI feedback, backend mutation, and recovery behavior for selected CodeLeet actions:
 
-| User Action | Immediate UI Feedback | Backend / Storage Mutation | Edge Case / Error Recovery |
-| :--- | :--- | :--- | :--- |
-| **Sign In** | Submit button shows spinner and **Signing in…**; form fields become disabled. | Posts credentials to `/api/auth/sign-in`, which authenticates through a server-side Supabase client and establishes the session; protected server operations verify the current user. | If invalid credentials, displays alert; if locked by rate limit, displays countdown timer to retry. |
-| **Theme Toggle** | Immediate CSS color transition between light and dark themes. | Stores the preference in browser `localStorage` when available; otherwise the choice lasts for the current page session. | Initial theme uses the stored preference or system color scheme. |
-| **Run Code** | Button shows pending state; terminal reports runner output. | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API. | Standard runs use a 5-second program-execution budget. Compilation and preparation have a separate timeout, so click-to-result time can be longer; the runner also reports output, unavailable, and stopped states. |
-| **Run Practice Tests** | Test case pills switch to loading spinner; displays **Running test case X of Y…**. | Sequentially runs code against public inputs inside client-side sandbox. | Normalizes line endings (`\r\n` vs `\n`); displays visual diff if stdout does not match. |
-| **Type in Editor** | Typing status pill shows **Saving draft…**, debounced by 500ms, then **Draft saved on this device**. | Writes a versioned browser `localStorage` record scoped to the student, assignment, language, and revision. | If saving fails, the editor displays **Couldn't save draft on this device**; the source remains in the editor. |
-| **Restore Draft** | Editor replaces baseline template with the recovered 7-day draft; recovery banner dismisses. | Local state only. | If user clicks **Discard draft**, local storage key is deleted and template restored. |
-| **Submit Revision** | Button shows spinner and is disabled while saving; inline status confirms **Saved revision N.** | Creates an immutable database row in `submissions`; snapshots the current deadline and assignment language. | If source exceeds 8,000 characters, returns a validation error; the draft remains in the editor for trimming. |
-| **Compare Revisions** | Comparison table displays changed lines and from/to line numbers. | Loads the student's authorized revisions on the server and renders their comparison. | If comparing identical revisions, displays **No changes between these revisions**. |
-| **Request Student AI Feedback** | Button shows spinner and **Analyzing submission…**; skeleton loader pulses. | Dispatches request to server-side SoCLaaS API; records token usage in ledger. | If AI quota exhausted or service down, displays friendly retry toast; submission is never altered. |
-| **Post Discussion Thread** | Button shows spinner; redirects to newly created thread on success. | Inserts row into `forum_threads` table; validates 160-char title and 8,000-char message. | If exceeding 10 posts/minute rate limit, displays **Posting too quickly; wait a minute**. Draft preserved. |
-| **Rotate Join Code** | Join-code control shows pending state; a new code appears with a copy action. | Stores a hash of the generated code in `course_join_codes`; invalidates the previous active code. | Previous code stops accepting enrollments; existing students are unaffected. A verified account is required to join. |
-| **Publish Assignment** | Status badge switches from gray **Draft** to green **Published**. | Updates `is_published = true` in database; triggers assignment visibility for enrolled students. | Language field is locked against future modifications once first student submission is saved. |
-| **Save Assignment Test Cases** | Save button shows pending feedback; returns to Assignments after success. | Saves cases with the assignment; Published status updates the public-case projection and retains private cases for instructor review. | Invalid cases or version conflicts leave the form available for correction; private cases are excluded from student reads. |
-| **Publish Grade & Rubric** | Button shows pending state; the published grade appears to the student and any eligible XP award is updated. | Sends a version-checked grade update; when XP is enabled, the database operation updates the grade and XP ledger atomically. | Grades published before XP tracking need instructor review and republication before earning XP. On version conflict, reload before saving again. |
-| **Toggle Feature Switch** | The control shows pending state; navigation reflects the saved setting after refresh. | Updates the course's row in `course_features`. | If saving fails, the prior value remains and an error is shown. |
-| **Demote Admin User** | Role selector displays spinner; table updates with new role badge. | Updates `user_roles` table with platform role change. | Rejects with **Cannot demote the last remaining administrator** if last admin. |
+| User Action                     | Immediate UI Feedback                                                                                        | Backend / Storage Mutation                                                                                                                                                            | Edge Case / Error Recovery                                                                                                                                                                                          |
+| :------------------------------ | :----------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Sign In**                     | Submit button shows spinner and **Signing in…** and is disabled while pending; fields remain editable.       | Posts credentials to `/api/auth/sign-in`, which authenticates through a server-side Supabase client and establishes the session; protected server operations verify the current user. | A failed request displays inline status text. Rate limiting displays **Too many attempts. Please wait a minute and try again.**                                                                                     |
+| **Theme Toggle**                | Immediate CSS color transition between light and dark themes.                                                | Stores the preference in browser `localStorage` when available; otherwise the choice lasts for the current page session.                                                              | Initial theme uses the stored preference or system color scheme.                                                                                                                                                    |
+| **Run Code**                    | Button shows pending state; terminal reports runner output.                                                  | Passes source and stdin from the page to the opaque browser iframe/worker runtime. Runtime assets load from the app origin; source is not posted to an execution API.                 | Standard runs use a 5-second program-execution budget. Compilation and preparation have a separate timeout, so click-to-result time can be longer; the runner also reports output, unavailable, and stopped states. |
+| **Run Practice Tests**          | The run control shows pending feedback and status reads **Running test X of Y…**.                            | Sequentially runs code against public inputs inside client-side sandbox.                                                                                                              | Normalizes line endings; shows expected and actual output when a case runs.                                                                                                                                         |
+| **Type in Editor**              | Typing status pill shows **Saving draft…**, debounced by 500ms, then **Draft saved on this device**.         | Writes a versioned browser `localStorage` record scoped to the student, assignment, language, and revision.                                                                           | If saving fails, the editor displays **Couldn't save draft on this device**; the source remains in the editor.                                                                                                      |
+| **Restore Draft**               | Editor replaces baseline template with the recovered 7-day draft; recovery banner dismisses.                 | Local state only.                                                                                                                                                                     | If user clicks **Discard draft**, local storage key is deleted and template restored.                                                                                                                               |
+| **Submit Revision**             | Button shows spinner and is disabled while saving; inline status confirms **Saved revision N.**              | Creates an immutable database row in `submissions`; snapshots the current deadline and assignment language.                                                                           | If source exceeds 8,000 characters, returns a validation error; the draft remains in the editor for trimming.                                                                                                       |
+| **Compare Revisions**           | Comparison table displays changed lines and from/to line numbers.                                            | Loads the student's authorized revisions on the server and renders their comparison.                                                                                                  | If comparing identical revisions, displays **No changes between these revisions**.                                                                                                                                  |
+| **Request Student AI Feedback** | Button shows spinner and **Reviewing…** while pending.                                                       | Dispatches request to server-side SoCLaaS API; records token usage in ledger.                                                                                                         | If quota is exhausted or the service is unavailable, displays inline status text; the saved submission is never altered.                                                                                            |
+| **Post Discussion Thread**      | Button shows spinner; redirects to newly created thread on success.                                          | Inserts row into `forum_threads` table; validates 160-char title and 8,000-char message.                                                                                              | Rate limiting displays **You’re posting quickly. Try again in a minute.** The entered text remains available.                                                                                                       |
+| **Rotate Join Code**            | Join-code control shows pending state; a new code appears with a copy action.                                | Stores a hash of the generated code in `course_join_codes`; invalidates the previous active code.                                                                                     | Previous code stops accepting enrollments; existing students are unaffected. A verified account is required to join.                                                                                                |
+| **Publish Assignment**          | After saving, the assignment list shows **Published** status.                                                | Saves `publication_status = 'published'`; makes the assignment visible to enrolled students.                                                                                          | Language field is locked against future modifications once first student submission is saved.                                                                                                                       |
+| **Save Assignment Test Cases**  | Save button shows pending feedback; returns to Assignments after success.                                    | Saves cases with the assignment; Published status updates the public-case projection and retains private cases for instructor review.                                                 | Invalid cases or version conflicts leave the form available for correction; private cases are excluded from student reads.                                                                                          |
+| **Publish Grade & Rubric**      | Button shows pending state; the published grade appears to the student and any eligible XP award is updated. | Sends a version-checked grade update; when XP is enabled, the database operation updates the grade and XP ledger atomically.                                                          | Grades published before XP tracking need instructor review and republication before earning XP. On version conflict, reload before saving again.                                                                    |
+| **Toggle Feature Switch**       | The control shows pending state; navigation reflects the saved setting after refresh.                        | Updates the course's row in `course_features`.                                                                                                                                        | If saving fails, the prior value remains and an error is shown.                                                                                                                                                     |
+| **Demote Admin User**           | The user's role selector is disabled while saving; its value updates on success.                             | Updates `user_roles` table with platform role change.                                                                                                                                 | Rejects a last-admin demotion with **This role change is blocked because at least one admin must remain.** Self-changes require confirmation.                                                                       |
 
 ---
 
@@ -422,28 +449,33 @@ This matrix summarizes the trigger, immediate UI feedback, backend mutation, and
 ### Frequently Asked Questions
 
 #### Q1: Why do I see "Overdue" when I haven't submitted, and can I still submit?
+
 **A**: CodeLeet does not lock assignments when the deadline passes. You can still submit your work; the submission will simply be marked with a yellow **Submitted late** badge. CodeLeet does not apply automated penalties, leaving grading discretion to your instructor.
 
 #### Q2: My code passed all public practice tests, but my final grade was lower. Why?
+
 **A**: Passing public practice tests is not a grade. Instructors review submitted revisions and publish grades through the separate grading workflow; the practice runner does not calculate or publish grades.
 
 #### Q3: Does running my code or requesting AI feedback submit my assignment?
+
 **A**: **No.** Running code and requesting AI feedback are purely developmental aids. To submit your work for official grading, you must explicitly click the **Submit revision** button.
 
 #### Q4: I closed my browser tab and my code disappeared. How do I get it back?
+
 **A**: Reopen the assignment in the same browser. CodeLeet will detect your autosaved local draft and display the **Restore draft** prompt. Simply click **Restore draft** to recover your code.
 
 #### Q5: Can I see what changes I made between two submissions?
+
 **A**: Yes! Open any submission in **My submissions** and click **Compare revisions**. Select the two revision numbers you wish to compare to view an interactive color-coded diff.
 
 ### Troubleshooting Guide
 
-| Issue Encountered | Probable Cause | Recommended Resolution |
-| :--- | :--- | :--- |
-| **"Sign-in locked / Too many attempts"** | The identifier or global sign-in attempt limit was reached in the current minute. | Wait for the displayed retry time (up to 60 seconds), then retry. Attempts are counted before credential validation. |
-| **"Couldn't save draft on this device"** | Browser storage is disabled, full, or running in an incognito session with strict storage blocking. | Check that cookies and local storage are enabled for `localhost` / CodeLeet origin. Submit your revision promptly to save it to the server. |
-| **"Draft conflict detected"** | The same assignment was edited in multiple browser tabs simultaneously. | Choose **Keep this tab’s code** or **Load other draft** to resolve the conflict. |
-| **"Java compiler error: Thread is not supported"** | Java multi-threading APIs (`Thread`, `join`, `sleep`) are unsupported in the client-side WebAssembly environment. | Refactor your program to use sequential execution and standard iteration structures. |
-| **"Wrong Output" on practice tests despite identical numbers** | Mismatched whitespace, missing line breaks, or unwanted debug print statements. | Verify that your program matches the exact expected output format. Remove extraneous debug logs and check for trailing spaces. |
-| **Course sidebar links (e.g. Discussions or Leaderboard) disappeared** | The course instructor or owner has disabled that specific feature switch for the course. | Contact your course instructor. Existing posts and earned XP remain safely preserved in the database. |
-| **Password reset email not received** | Email may be filtered or you may be testing in a local development environment. | Check your spam folder. In local development environments, outgoing emails are captured in the local [Mailpit interface](http://localhost:54324). |
+| Issue Encountered                                                      | Probable Cause                                                                                                    | Recommended Resolution                                                                                                                            |
+| :--------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **"Sign-in locked / Too many attempts"**                               | The identifier or global sign-in attempt limit was reached in the current minute.                                 | Wait a minute, then retry. The form shows a static wait message, not a countdown. Attempts are counted before credential validation.              |
+| **"Couldn't save draft on this device"**                               | Browser storage is disabled, full, or running in an incognito session with strict storage blocking.               | Check that cookies and local storage are enabled for `localhost` / CodeLeet origin. Submit your revision promptly to save it to the server.       |
+| **"Draft conflict detected"**                                          | The same assignment was edited in multiple browser tabs simultaneously.                                           | Choose **Keep this tab’s code** or **Load other draft** to resolve the conflict.                                                                  |
+| **"Java compiler error: Thread is not supported"**                     | Java multi-threading APIs (`Thread`, `join`, `sleep`) are unsupported in the client-side WebAssembly environment. | Refactor your program to use sequential execution and standard iteration structures.                                                              |
+| **"Wrong Output" on practice tests despite identical numbers**         | Mismatched whitespace, missing line breaks, or unwanted debug print statements.                                   | Verify that your program matches the exact expected output format. Remove extraneous debug logs and check for trailing spaces.                    |
+| **Course sidebar links (e.g. Discussions or Leaderboard) disappeared** | The course instructor or owner has disabled that specific feature switch for the course.                          | Contact your course instructor. Existing posts and earned XP remain safely preserved in the database.                                             |
+| **Password reset email not received**                                  | Email may be filtered or you may be testing in a local development environment.                                   | Check your spam folder. In local development environments, outgoing emails are captured in the local [Mailpit interface](http://localhost:54324). |
