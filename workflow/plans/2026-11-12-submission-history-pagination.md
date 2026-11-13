@@ -4,7 +4,7 @@ Use the repository executing-plans skill for inline implementation. No specialis
 
 Goal: fix issue #171 with the requester-approved timestamp/ID cursor design.
 
-Spec: [approved design](../../openspec/changes/fix-submission-history-pagination/design.md) and [behavior delta](../../openspec/changes/fix-submission-history-pagination/specs/assignments-and-grading/spec.md).
+Spec: [approved design](../../openspec/changes/archive/2026-11-13-fix-submission-history-pagination/design.md) and [behavior delta](../../openspec/changes/archive/2026-11-13-fix-submission-history-pagination/specs/assignments-and-grading/spec.md).
 
 ## Constraints and review focus
 

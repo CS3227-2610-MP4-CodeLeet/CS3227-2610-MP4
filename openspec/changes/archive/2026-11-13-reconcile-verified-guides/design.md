@@ -15,6 +15,7 @@ Correct the audited claims and explain existing controls with concise user-facin
 - Describe timestamp behavior honestly instead of promising SGT everywhere; changing date formatting belongs to the deferred application work.
 - Preserve server-only SoCLaaS credentials and student rubric privacy while explaining authorized instructor access to rubric data.
 - Validate prose against current source, Markdown formatting, local links, strict OpenSpec validation and a documentation-site build. Documentation changes do not need new behavioral tests or a repeat of the prior app audit suite. Review and CI results remain distinct from hosted acceptance.
+- Follow-up authorization: sync the existing pagination delta into the main spec while preserving all prior scenarios, then archive both completed changes under the fixed 13 November 2026 date. The guide change has no delta to sync. Update affected local links, keep human verification pending and record remote thread resolution after pushing the verified correction.
 
 ## Risks / Trade-offs
 

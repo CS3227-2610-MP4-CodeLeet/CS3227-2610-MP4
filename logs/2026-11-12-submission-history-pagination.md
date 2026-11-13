@@ -3,7 +3,7 @@
 - Date/timezone: 12 November 2026, Asia/Singapore
 - Participants: requester and Codex `/root`; no subagents or independent review
 - Issue: [#171](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/171)
-- OpenSpec: [fix-submission-history-pagination](../openspec/changes/fix-submission-history-pagination/proposal.md)
+- OpenSpec: [fix-submission-history-pagination](../openspec/changes/archive/2026-11-13-fix-submission-history-pagination/proposal.md)
 - Branch: `fix/171-submission-history-pagination`, based on latest remote develop `0505bea`
 - PR: [#175 to develop](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/175), open and unmerged. Milestones: `3ec0e57` implementation; `db3ef37` guides/evidence.
 - Human verification: pending

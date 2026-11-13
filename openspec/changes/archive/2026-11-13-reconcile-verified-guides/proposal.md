@@ -10,6 +10,7 @@ The grading-sensitive guide audit found claims that do not match the current app
 - Correct the Developer Guide's bundled Python version and private-rubric access boundary.
 - Add concise instructions for existing course lifecycle, personal AI Usage and administrator directory controls.
 - Retain a source-to-claim checklist and actual verification in the dated session summary, then publish a PR to `develop` from `docs/reconcile-verified-guides`.
+- Address PR #180's course-creation eligibility feedback and, as explicitly requested afterward, synchronize and archive both completed active OpenSpec changes.
 
 ## Capabilities
 
@@ -23,4 +24,4 @@ None. This corrects documentation under the existing engineering-and-delivery ac
 
 ## Impact
 
-Only `docs/UserGuide.md`, `docs/DeveloperGuide.md`, this OpenSpec change and its dated `logs/` summary. No application code, database migrations, dependencies, images or deployment configuration changes. Human review and hosted acceptance remain separate.
+Canonical guides, this change and dated logs, plus the requester-authorized archival of this change and `fix-submission-history-pagination`, its existing assignments-and-grading delta synchronization and affected local artifact links. No application code, database migrations, dependencies, images or deployment configuration changes. Human review and hosted acceptance remain separate.

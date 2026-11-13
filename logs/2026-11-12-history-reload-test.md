@@ -3,7 +3,7 @@
 - Date/timezone: 12-13 November 2026, Asia/Singapore
 - Participants: requester and Codex `/root`; no delegated agents
 - Issue: [#176](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/176), follow-up to [#171](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/171)
-- Active OpenSpec: [fix-submission-history-pagination](../openspec/changes/fix-submission-history-pagination/tasks.md)
+- OpenSpec (archived 13 November 2026): [fix-submission-history-pagination](../openspec/changes/archive/2026-11-13-fix-submission-history-pagination/tasks.md)
 - Branch: `test/176-history-reload`, from merged develop `6eb1fda`
 - PR: [#178 to develop](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/178), open and unmerged
 - Human verification: pending

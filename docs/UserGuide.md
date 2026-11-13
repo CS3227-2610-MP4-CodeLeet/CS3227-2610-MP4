@@ -23,7 +23,7 @@ Platform roles govern system-wide account authority, course creation privileges,
 > [!NOTE] Default Account Role & Instructor Promotion
 > For security, access governance, and academic integrity reasons, all self-registered user accounts are automatically provisioned with the **Platform Student** role by default.
 >
-> If you are a course lecturer, professor, teaching assistant, or academic staff member requiring **Platform Instructor** privileges (to create new courses, author assignments, or grade student submissions), please contact the Platform Administrator at **`johnwong@u.nus.edu`** with your course details and institutional email to have your platform account role promoted.
+> If you need **Platform Instructor** privileges, contact the Platform Administrator at **`johnwong@u.nus.edu`** with your course details and institutional email. A verified account already teaching an active course can also create courses without a platform-role promotion. Assignment authoring and grading depend on your instructor membership in the relevant course.
 
 ### 1.2 Course Membership Roles (Course-Scoped)
 
@@ -137,7 +137,7 @@ Course owners and instructors can independently toggle specific course features 
 
 ### 3.4 Creating, Joining, and Managing a Course
 
-- **Create a course**: Platform instructors and administrators open **Courses → Create course**, enter a **Course title** and optional **Description**, then choose **Save course**. The creator becomes the course owner.
+- **Create a course**: Verified platform instructors, platform administrators, and instructors in an active course can open **Courses → Create course**, enter a **Course title** and optional **Description**, then choose **Save course**. Active-course instructors are eligible even if their platform role is still **Student**. The creator becomes the course owner.
 - **Join a course**: Open **Courses → Join course**, enter the instructor's code in **Join code**, and choose **Submit join code**. Verify your account email first. An instructor or administrator account can also join another course as a student.
 - **Edit course details**: Course instructors and owners can edit the title and description under **Course overview → Course details**, then choose **Save details**.
 - **Transfer ownership**: In an active course, the owner opens **Course overview → Transfer ownership**, selects another current course instructor as **New course owner**, chooses **Transfer ownership**, and confirms. Invite another instructor first if no candidate is available. The previous owner remains an instructor.
