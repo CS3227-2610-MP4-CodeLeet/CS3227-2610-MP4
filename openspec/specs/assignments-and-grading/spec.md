@@ -215,6 +215,18 @@ Authenticated students SHALL have a My submissions list of their own stored revi
 - **WHEN** an own revision has unavailable assignment metadata or the history query fails
 - **THEN** unavailable metadata uses a neutral label without losing the revision, while failures show a retry state without disclosing backend details or using fixtures
 
+#### Scenario: New revision between pages
+- **WHEN** a newer revision is inserted after a student opens a history page and before they follow its Next link
+- **THEN** navigation continues strictly after the last displayed timestamp/ID pair without repeating or skipping existing revisions because of that insert, including when timestamps tie
+
+#### Scenario: Previous, refresh and filters
+- **WHEN** a student follows Previous, refreshes, uses browser history or changes title/language filters
+- **THEN** URL cursors retain the requested position for unchanged filters, Previous reads the nearest newer slice in newest-first display order, and applying/clearing filters or choosing Latest submissions starts a fresh first page
+
+#### Scenario: Invalid or legacy navigation
+- **WHEN** cursor input is duplicated, malformed or conflicting, or a legacy later-page URL has no cursor
+- **THEN** invalid cursors are rejected before history reads and legacy offset URLs return to the latest filtered page; cursors never grant ownership or course access
+
 ### Requirement: Focused student assignment layout
 The student sidebar and Menu SHALL contain only the Assignments navigation entry, with nonshrinking padded CodeLeet branding.
 
