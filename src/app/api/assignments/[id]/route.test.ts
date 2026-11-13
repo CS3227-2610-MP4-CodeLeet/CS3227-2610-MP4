@@ -86,6 +86,21 @@ beforeEach(() => {
 });
 
 describe('assignment PATCH route', () => {
+  it('saves 25 maximum-size cases through the sole case-editing path', async () => {
+    mocks.getUser.mockResolvedValue(configureContext('instructor'));
+    mocks.rpc.mockResolvedValue({
+      data: { id: assignmentId, version: 4 },
+      error: null,
+    });
+    const cases = Array.from({ length: 25 }, () => ({
+      id: crypto.randomUUID(),
+      name: 'Case',
+      stdin: '\u0001'.repeat(4096),
+      expected_stdout: '\u0001'.repeat(8192),
+      is_public: false,
+    }));
+    expect((await call({ ...input, cases })).status).toBe(200);
+  });
   it('rejects foreign origin, invalid identity and invalid request data', async () => {
     expect((await call(input, 'https://attacker.test')).status).toBe(403);
     mocks.getUser.mockResolvedValue(configureContext(null, null));

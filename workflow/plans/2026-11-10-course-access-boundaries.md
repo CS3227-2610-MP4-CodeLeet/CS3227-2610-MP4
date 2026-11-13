@@ -2,7 +2,7 @@
 
 **Issue:** [#131](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/131)
 
-**OpenSpec:** [build-programming-platform](../../openspec/changes/build-programming-platform/)
+**OpenSpec:** [build-programming-platform](../../openspec/changes/archive/2026-11-12-build-programming-platform/)
 **Branch:** `feat/131-course-access-controls` from `develop`
 
 ## Goal

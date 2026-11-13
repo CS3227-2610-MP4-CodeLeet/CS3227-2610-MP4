@@ -57,7 +57,6 @@ function studentRoutes(data: Fixture) {
 function instructorRoutes(data: Fixture) {
   return [
     `/assignments/${data.assignments[0]}/edit`,
-    `/assignments/${data.assignments[0]}/practice-tests`,
     `/assignments/${data.assignments[0]}/submissions`,
   ];
 }

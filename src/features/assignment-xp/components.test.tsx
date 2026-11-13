@@ -18,6 +18,8 @@ it('renders exact totals, available assignment links and hidden-title fallback w
       data={{
         total_xp: '9007199254740993',
         page: 1,
+        revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        restarted: false,
         has_more: true,
         awards: [
           {
@@ -37,14 +39,21 @@ it('renders exact totals, available assignment links and hidden-title fallback w
     screen.queryByRole('link', { name: 'Assignment unavailable' }),
   ).toBeNull();
   expect(screen.getByRole('link', { name: 'Next' }).getAttribute('href')).toBe(
-    '/courses/course-1/xp?page=2',
+    '/courses/course-1/xp?page=2&revision=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   );
 });
 it('illustrates a zero-award state without implying XP was earned', () => {
   render(
     <XpOverview
       courseId="course-1"
-      data={{ total_xp: '0', page: 1, has_more: false, awards: [] }}
+      data={{
+        total_xp: '0',
+        page: 1,
+        revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        restarted: false,
+        has_more: false,
+        awards: [],
+      }}
     />,
   );
 

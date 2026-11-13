@@ -1,0 +1,290 @@
+{
+  "task": "/root coordinator replay of previously independently authored harness",
+  "started": "2026-11-12T13:10:20.739Z",
+  "finished": "2026-11-12T13:11:38.742Z",
+  "node": "v24.22.2",
+  "browserName": "firefox",
+  "browser": "157.0",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:157.0) Gecko/20100101 Firefox/157.0",
+    "platform": "Win32"
+  },
+  "os": {
+    "type": "Windows_NT",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "sourceHashes": {
+    "lab.mjs": "c7ec6f2b039f9d127cf89842b8b4f91b8bb24df0934921000d0e08352d01904d",
+    "supervisor.mjs": "4795bc275abe9b5822df2212e1dc25b0945697e024d5773ed9c256534b4bd374",
+    "worker.mjs": "42f1dad20fa0c975ed9f262342d4183db1f3077527e657a89a362959962aa23b",
+    "java-support.mjs": "1cc944e165ca58e61792f3cec527d2e22256b146e7badab384f2a8a91d036307",
+    "embed.mjs": "520ddd87b647943c62de4615c51995877d9821220f862c48645fae21922654b3"
+  },
+  "assetManifestSha256": "55a4e881bf2ccaff83d69f5fc5121e6339d23e3f4fcc36e7057788fd45b7d68f",
+  "command": "node workflow/scripts/verify-runtime-boundary.mjs workflow/evidence/2026-11-12-runtime-firefox.json firefox",
+  "finalPolicy": "opaque sandbox allow-scripts; connect-src none; script-src nonce + blob + unsafe-eval; worker-src blob",
+  "cases": [
+    {
+      "name": "concurrent-run-denied-during-preparation-and-stop",
+      "passed": true,
+      "elapsedMs": 2178,
+      "first": {
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": null,
+        "totalMs": 2
+      },
+      "secondError": "Only one lab run at a time"
+    },
+    {
+      "name": "python-stdin-positive-control",
+      "passed": true,
+      "elapsedMs": 2228,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "hello browser\n",
+        "stderr": "",
+        "executionMs": 2,
+        "language": "python",
+        "totalMs": 2203,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "failed-java-asset-load-allows-retry",
+      "passed": true,
+      "elapsedMs": 33,
+      "error": "Missing asset: compiler.wasm",
+      "retryCheck": "Immediately following real-source Java positive control uses the same page/cache."
+    },
+    {
+      "name": "java-real-source-positive-control",
+      "passed": true,
+      "elapsedMs": 3072,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "independent Java\n",
+        "stderr": "",
+        "executionMs": 1,
+        "language": "java",
+        "totalMs": 2865,
+        "preparationMs": 198,
+        "warmAssets": false,
+        "assetBytes": 6715239
+      }
+    },
+    {
+      "name": "opaque-worker-parent-credentials-and-dom",
+      "passed": true,
+      "elapsedMs": 5305,
+      "canaryPresent": true,
+      "details": {
+        "window": "undefined",
+        "document": "undefined",
+        "parent": "undefined",
+        "top": "undefined",
+        "opener": "undefined",
+        "localStorage": "undefined",
+        "sessionStorage": "undefined",
+        "Worker": "undefined",
+        "SharedWorker": "undefined",
+        "cookieError": "ReferenceError",
+        "indexedDBError": "SecurityError",
+        "origin": "null"
+      },
+      "limitation": "Worker constructor shadowing is functional hardening; DOM absence and opaque-origin storage denial are browser restrictions."
+    },
+    {
+      "name": "csp-native-network-denial-server-counter",
+      "passed": true,
+      "elapsedMs": 5156,
+      "baseline": 1,
+      "after": 1,
+      "details": {
+        "nativeFetchFound": true,
+        "fetchGET": "TypeError",
+        "fetchPOST": "TypeError",
+        "xhrGET": "NetworkError",
+        "xhrPOST": "NetworkError",
+        "websocket": "NS_ERROR_CONTENT_BLOCKED",
+        "importScripts": "NetworkError",
+        "moduleImport": "TypeError",
+        "nestedWorker": "TypeError",
+        "shimFetch": "Network denied: only preloaded runtime bytes are available"
+      }
+    },
+    {
+      "name": "forged-ready-terminates-protocol",
+      "passed": true,
+      "elapsedMs": 5139,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 6,
+        "language": "python",
+        "totalMs": 5131,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "replayed-executing-cannot-reset-deadline",
+      "passed": true,
+      "elapsedMs": 4748,
+      "result": {
+        "type": "result",
+        "status": "protocol-error",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 7,
+        "language": "python",
+        "totalMs": 4734,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "java-compilation-is-excluded-from-execution-time",
+      "passed": true,
+      "elapsedMs": 6563,
+      "result": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "timing\n",
+        "stderr": "",
+        "executionMs": 0,
+        "language": "java",
+        "totalMs": 6542,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 6715239
+      },
+      "limitation": "Local wall time only; no performance grading or cross-device comparison."
+    },
+    {
+      "name": "empty-stdout-message-flood-terminates",
+      "passed": true,
+      "elapsedMs": 5539,
+      "result": {
+        "type": "result",
+        "status": "message-limit",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 95,
+        "language": "python",
+        "totalMs": 5529,
+        "preparationMs": 1,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "output-flood-retained-byte-limit",
+      "passed": true,
+      "elapsedMs": 12156,
+      "status": "output-limit",
+      "retainedBytes": 8192,
+      "totalMs": 12143
+    },
+    {
+      "name": "infinite-python-trusted-timeout",
+      "passed": true,
+      "elapsedMs": 9046,
+      "result": {
+        "type": "result",
+        "status": "timeout",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 313,
+        "language": "python",
+        "totalMs": 9027,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    },
+    {
+      "name": "stop-running-python-and-fresh-rerun",
+      "passed": true,
+      "elapsedMs": 13314,
+      "result": {
+        "type": "result",
+        "status": "stopped",
+        "stdout": "",
+        "stderr": "",
+        "executionMs": 26,
+        "language": "python",
+        "totalMs": 8118,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      },
+      "stopRecoveryMs": 11,
+      "fresh": {
+        "type": "result",
+        "status": "ok",
+        "stdout": "fresh browser run\n",
+        "stderr": "",
+        "executionMs": 6,
+        "language": "python",
+        "totalMs": 5168,
+        "preparationMs": 0,
+        "warmAssets": true,
+        "assetBytes": 13531207
+      }
+    }
+  ],
+  "priorFailures": [
+    {
+      "measuredAt": "2026-11-12T13:06:00.714Z",
+      "name": "csp-native-network-denial-server-counter",
+      "passed": false,
+      "elapsedMs": 8182,
+      "error": "AssertionError [ERR_ASSERTION]: {\"nativeFetchFound\":true,\"fetchGET\":\"TypeError\",\"fetchPOST\":\"TypeError\",\"xhrGET\":\"NetworkError\",\"xhrPOST\":\"NetworkError\",\"websocket\":\"NS_ERROR_CONTENT_BLOCKED\",\"importScripts\":\"NetworkError\",\"moduleImport\":\"TypeError\",\"nestedWorker\":\"TypeError\",\"shimFetch\":\"Network denied: only preloaded runtime bytes are available\"}"
+    }
+  ],
+  "probeEvents": [
+    {
+      "event": "request-attempt",
+      "method": "GET",
+      "url": "http://127.0.0.1:3130/probe-recorder-positive-control"
+    }
+  ],
+  "consoleErrors": [
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-9199012793124a9990738e179be91321' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-093ce65223234f7db22e418ca599865e' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-1aac79768fa748ac86f4f3cd3feadffe' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked the loading of a resource (connect-src) at http://127.0.0.1:3130/probe-worker-GET because it violates the following directive: “connect-src 'none'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked the loading of a resource (connect-src) at http://127.0.0.1:3130/probe-worker-POST because it violates the following directive: “connect-src 'none'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked the loading of a resource (connect-src) at http://127.0.0.1:3130/probe-worker-xhr-GET because it violates the following directive: “connect-src 'none'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked the loading of a resource (connect-src) at http://127.0.0.1:3130/probe-worker-xhr-POST because it violates the following directive: “connect-src 'none'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked the loading of a resource (connect-src) at ws://127.0.0.1:3130/probe-worker-websocket because it violates the following directive: “connect-src 'none'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at http://127.0.0.1:3130/probe-worker-import-script from being executed because it violates the following directive: “script-src 'nonce-1aac79768fa748ac86f4f3cd3feadffe' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at http://127.0.0.1:3130/probe-worker-module-import from being executed because it violates the following directive: “script-src 'nonce-1aac79768fa748ac86f4f3cd3feadffe' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-5fee527d22544a4fa1c54706f3dea41f' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-987feeda65644f6792f4ab4f29de6f53' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-a05e151ac8e0444f9aa5d770d18450c7' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"uncaught exception: undefined\" {file: \"blob:null/a89bf9d9-4dc8-4906-a89c-2688451ab5ac\" line: 1}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-24081611542445b78a4d903fcda3e65d' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "Error",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-85eb4090c84a440fbe9d083b425658ff' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-b6a7f443e21b49c6aeb643a4cde84405' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]",
+    "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at data:text/javascript, from being executed because it violates the following directive: “script-src 'nonce-7161a67ee504447cbee106c99c63a74b' blob: 'unsafe-eval'”\" {file: \"about:srcdoc\" line: 0}]"
+  ],
+  "limitations": [
+    "firefox engine only; no shipping Safari certification.",
+    "No browser-process memory quota claim; bounded samples only.",
+    "Blocked request events can record attempts; server counter measures requests actually received.",
+    "No application integration, real credentials, or deployment tested."
+  ]
+}

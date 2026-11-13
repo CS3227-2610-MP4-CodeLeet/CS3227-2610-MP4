@@ -4,7 +4,7 @@
 - Participants/actual agent IDs: Paul (requester), Codex `/root` (audit, edits, verification); no new specialist agents dispatched
 - AI tools/models, where known: Codex; model identity not measured in this session
 - GitHub issue: [#158](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/issues/158)
-- OpenSpec change: [build-programming-platform, task 47](../openspec/changes/build-programming-platform/tasks.md)
+- OpenSpec change: [build-programming-platform, task 47](../openspec/changes/archive/2026-11-12-build-programming-platform/tasks.md)
 - Branch and commits: `fix/158-feedback-regressions`; `3380c03` plus evidence closeout commit
 - Pull request: [#159 to develop](https://github.com/CS3227-2610-MP4-CodeLeet/CS3227-2610-MP4/pull/159), open for teammate review
 - Human verification: pending

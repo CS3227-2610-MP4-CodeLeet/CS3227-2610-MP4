@@ -26,7 +26,6 @@ const segmentLabelMap: Record<string, string> = {
   instructor: 'Instructor',
   edit: 'Edit',
   new: 'New',
-  'practice-tests': 'Practice Tests',
   compare: 'Compare',
 };
 

@@ -113,10 +113,11 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: 'dark' });
   const fixtureRows = await findFixtureRows(page, data.courseId, board.names);
+  const revision = (await summary(page, data.courseId)).revision;
   await page.goto(
     coursePath(
       data.courseId,
-      `${leaderboardPath}?page=${Math.floor((fixtureRows[2].position - 1) / 25) + 1}`,
+      `${leaderboardPath}?page=${Math.floor((fixtureRows[2].position - 1) / 25) + 1}&revision=${revision}`,
     ),
   );
   await expect(page.getByText(board.names[2], { exact: true })).toBeVisible();
@@ -126,7 +127,12 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await page.goto(coursePath(data.courseId, `${leaderboardPath}?page=9999`));
+  await page.goto(
+    coursePath(
+      data.courseId,
+      `${leaderboardPath}?page=9999&revision=${revision}`,
+    ),
+  );
   await expect(
     page.getByText('No students on this page.', { exact: true }),
   ).toBeVisible();
@@ -134,7 +140,7 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
     page.getByRole('link', { name: 'Previous', exact: true }),
   ).toHaveAttribute(
     'href',
-    `/courses/${data.courseId}${leaderboardPath}?page=9998`,
+    `/courses/${data.courseId}${leaderboardPath}?page=9998&revision=${revision}`,
   );
   await revisionSession(page, data.users[0].email, data.password);
   await page.goto(coursePath(data.courseId, leaderboardPath));
@@ -147,6 +153,71 @@ test('safe names, mobile theme and later-page navigation work for both roles', a
     ),
   ).toBe(true);
 });
+
+test('grade changes restart stale XP and leaderboard navigation with current data', async ({
+  page,
+  draftFixture: data,
+  comparisonFixture: fixture,
+  xpCriteria,
+  leaderboardFixture: board,
+}) => {
+  await revisionSession(page, data.users[0].email, data.password);
+  await configure(page, data.courseId, data.assignments[0], 100);
+  await publishGroup(page, {
+    ids: [fixture.ids[0][0], fixture.peerRevision, board.thirdRevision],
+    criterion: xpCriteria[0],
+  });
+  await revisionSession(page, data.users[1].email, data.password);
+  const oldXp = await ownXpSummary(page, data.courseId);
+  const oldBoard = await summary(page, data.courseId);
+  await revisionSession(page, data.users[0].email, data.password);
+  expect(
+    (
+      await grade(page, fixture.ids[0][0], xpCriteria[0], {
+        score: 5,
+        version: 1,
+      })
+    ).ok(),
+  ).toBeTruthy();
+  await revisionSession(page, data.users[1].email, data.password);
+  const currentBoard = await summary(page, data.courseId, 2, oldBoard.revision);
+  expect(currentBoard).toMatchObject({
+    page: 1,
+    restarted: true,
+    own: { total_xp: '50' },
+  });
+  expect(currentBoard.revision).not.toBe(oldBoard.revision);
+  expect(await ownXpSummary(page, data.courseId, oldXp.revision)).toMatchObject(
+    {
+      page: 1,
+      restarted: true,
+      total_xp: '50',
+    },
+  );
+  for (const [path, revision] of [
+    ['xp', oldXp.revision],
+    ['leaderboard', oldBoard.revision],
+  ]) {
+    await page.goto(
+      coursePath(data.courseId, `/${path}?page=2&revision=${revision}`),
+    );
+    await expect(page.getByRole('status')).toHaveText(
+      'XP changed—showing the latest results.',
+    );
+    await expect(
+      page.getByRole('link', { name: 'Previous', exact: true }),
+    ).toHaveCount(0);
+  }
+});
+
+async function ownXpSummary(page: Page, courseId: string, revision?: string) {
+  const suffix = revision ? `&page=2&revision=${revision}` : '';
+  const response = await page.request.get(
+    `/api/student/xp?courseId=${courseId}${suffix}`,
+  );
+  expect(response.ok()).toBeTruthy();
+  return (await response.json()).data;
+}
 
 async function publishGroup(
   page: Page,
@@ -166,9 +237,10 @@ async function summary(
   page: Page,
   courseId: string,
   pageNumber = 1,
+  revision?: string,
 ): Promise<Leaderboard> {
   const response = await page.request.get(
-    `${api}?courseId=${courseId}&page=${pageNumber}`,
+    `${api}?courseId=${courseId}&page=${pageNumber}${revision ? `&revision=${revision}` : ''}`,
   );
   expect(response.status()).toBe(200);
   return (await response.json()).data;
@@ -206,8 +278,10 @@ async function withdrawAndCheck(
 
 async function findFixtureRows(page: Page, courseId: string, names: string[]) {
   const found = new Map<string, Leaderboard['rows'][number]>();
+  let revision: string | undefined;
   for (let number = 1; number <= 10000; number++) {
-    const data = await summary(page, courseId, number);
+    const data = await summary(page, courseId, number, revision);
+    revision ??= data.revision;
     for (const row of data.rows)
       if (names.includes(row.username)) found.set(row.username, row);
     if (found.size === names.length || !data.has_more) break;
@@ -217,10 +291,11 @@ async function findFixtureRows(page: Page, courseId: string, names: string[]) {
 }
 async function checkRankedRows(page: Page, courseId: string, names: string[]) {
   const rows = await findFixtureRows(page, courseId, names);
+  const revision = (await summary(page, courseId)).revision;
   await page.goto(
     coursePath(
       courseId,
-      `${leaderboardPath}?page=${Math.floor((rows[0].position - 1) / 25) + 1}`,
+      `${leaderboardPath}?page=${Math.floor((rows[0].position - 1) / 25) + 1}&revision=${revision}`,
     ),
   );
   await expect(

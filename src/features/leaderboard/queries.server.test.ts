@@ -4,12 +4,21 @@ import { loadLeaderboard } from './queries.server';
 const courseId = '00000000-0000-4000-8000-000000000003';
 it('loads only the bounded trusted projection and fails safely', async () => {
   const rpc = vi.fn().mockResolvedValue({
-    data: { page: 1, has_more: false, rows: [], own: null },
+    data: {
+      page: 1,
+      revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      restarted: false,
+      has_more: false,
+      rows: [],
+      own: null,
+    },
     error: null,
   });
   const client = { rpc } as unknown as SupabaseClient;
   expect(await loadLeaderboard(client, courseId, 1)).toEqual({
     page: 1,
+    revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    restarted: false,
     has_more: false,
     rows: [],
     own: null,
@@ -17,6 +26,7 @@ it('loads only the bounded trusted projection and fails safely', async () => {
   expect(rpc).toHaveBeenCalledWith('get_leaderboard', {
     p_course_id: courseId,
     p_page: 1,
+    p_revision: null,
   });
   rpc.mockResolvedValueOnce({ data: { email: 'private' }, error: null });
   expect(await loadLeaderboard(client, courseId, 1)).toBeNull();

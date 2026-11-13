@@ -34,26 +34,6 @@ export const caseSetSchema = z
     (cases) =>
       new Set(cases.map((item) => item.id.toLowerCase())).size === cases.length,
   );
-const version = z.number().int().min(0).max(2_147_483_646);
-export const practiceUpdateSchema = z.discriminatedUnion('action', [
-  z
-    .object({
-      action: z.literal('save'),
-      expectedVersion: version,
-      cases: caseSetSchema,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal('publish'),
-      expectedVersion: version,
-      cases: caseSetSchema.refine((cases) => cases.length > 0),
-    })
-    .strict(),
-  z
-    .object({ action: z.literal('unpublish'), expectedVersion: version })
-    .strict(),
-]);
 export const publicSetSchema = z
   .object({
     assignment_id: z.uuid(),
@@ -76,4 +56,3 @@ export const ownerSetSchema = z
 export type AuthoredCase = z.infer<typeof practiceCaseSchema>;
 export type PublicTestSet = z.infer<typeof publicSetSchema>;
 export type OwnerTestSet = z.infer<typeof ownerSetSchema>;
-export type PracticeUpdate = z.infer<typeof practiceUpdateSchema>;

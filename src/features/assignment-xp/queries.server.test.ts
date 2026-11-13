@@ -1,6 +1,13 @@
 import { expect, it, vi } from 'vitest';
 import { loadOwnXp } from './queries.server';
-const value = { total_xp: '80', page: 1, has_more: false, awards: [] };
+const value = {
+  total_xp: '80',
+  page: 1,
+  revision: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  restarted: false,
+  has_more: false,
+  awards: [],
+};
 const courseId = '00000000-0000-4000-8000-000000000003';
 it('uses only the authenticated own-total RPC with bounded page and validates its response', async () => {
   const rpc = vi.fn().mockResolvedValue({ data: value, error: null });
@@ -8,6 +15,7 @@ it('uses only the authenticated own-total RPC with bounded page and validates it
   expect(rpc).toHaveBeenCalledWith('get_my_xp', {
     p_course_id: courseId,
     p_page: 1,
+    p_revision: null,
   });
 });
 it('does not fabricate zero XP on RPC failure, malformed data or invalid page', async () => {

@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-11-12T13:17:05.077Z",
+  "sites": [
+    {
+      "origin": "https://dev-cs3227-mp4.johnwz123.me",
+      "publicSupabaseOrigins": [
+        "https://camnquxrepulmylwxpop.supabase.co"
+      ],
+      "signInStatus": 200,
+      "coursesStatus": 307,
+      "coursesRedirect": "/sign-in",
+      "runtimeStatus": 200,
+      "runtimeCacheControl": "no-store",
+      "runtimeVersion": "097715f8802d113720a8",
+      "runtimeAssetInventoryMatches": true
+    },
+    {
+      "origin": "https://cs3227-mp4.vercel.app",
+      "publicSupabaseOrigins": [
+        "https://gbfmebkjndljywzoecyz.supabase.co"
+      ],
+      "signInStatus": 200,
+      "coursesStatus": 307,
+      "coursesRedirect": "/sign-in",
+      "runtimeStatus": 200,
+      "runtimeCacheControl": "no-store",
+      "runtimeVersion": "097715f8802d113720a8",
+      "runtimeAssetInventoryMatches": true
+    }
+  ],
+  "limitations": [
+    "Unauthenticated public HTTP checks only.",
+    "Public client configuration does not prove hosted project ownership, migration state, recovery or role journeys.",
+    "Runtime manifest metadata does not certify deployed application commit or sandbox execution."
+  ]
+}

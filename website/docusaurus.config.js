@@ -9,10 +9,12 @@ const config = {
   trailingSlash: true,
   onBrokenLinks: 'throw',
   markdown: {
+    mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: 'throw',
     },
   },
+  themes: ['@docusaurus/theme-mermaid'],
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
@@ -41,6 +43,9 @@ const config = {
     ],
   ],
   themeConfig: {
+    prism: {
+      additionalLanguages: ['gherkin', 'java', 'python', 'bash', 'json', 'sql'],
+    },
     navbar: {
       title: 'CodeLeet',
       items: [
