@@ -70,7 +70,7 @@
     "postcss": "8.5.32",
     "promptfoo": "0.125.1",
     "prettier": "3.9.10",
-    "supabase": "2.122.0",
+    "supabase": "3.0.0",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "vitest": "5.0.5"
